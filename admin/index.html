@@ -743,19 +743,242 @@ tbody tr:last-child td{border-bottom:none}
     </div>
 
     <!-- ─── OTRAS PÁGINAS (placeholder) ──────────────── -->
-    <div class="page" id="page-categorias"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando categorías...</div></div></div>
-    <div class="page" id="page-marcas-vehiculo"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando marcas...</div></div></div>
-    <div class="page" id="page-marcas-repuesto"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando marcas...</div></div></div>
-    <div class="page" id="page-proveedores"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando proveedores...</div></div></div>
-    <div class="page" id="page-catalogos"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando catálogos...</div></div></div>
-    <div class="page" id="page-faltantes"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando faltantes...</div></div></div>
-    <div class="page" id="page-queda-uno"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando...</div></div></div>
-    <div class="page" id="page-sin-precio"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando...</div></div></div>
-    <div class="page" id="page-agregar-stock"><div class="loading-wrap"><div class="spinner"></div></div></div>
-    <div class="page" id="page-descontar-stock"><div class="loading-wrap"><div class="spinner"></div></div></div>
-    <div class="page" id="page-ganancias"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Calculando ganancias...</div></div></div>
-    <div class="page" id="page-consultas"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando consultas...</div></div></div>
-    <div class="page" id="page-buscador"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    <!-- ─── CATEGORÍAS ──────────────────────────────── -->
+    <div class="page" id="page-categorias">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Categorías</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="cat-count">—</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalCategoria()">+ Nueva categoría</button>
+      </div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="cat-search" placeholder="🔍 Buscar categoría..." oninput="filtrarCategorias()" style="max-width:360px"></div>
+      <div id="cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
+    </div>
+
+    <!-- ─── MARCAS VEHÍCULO ─────────────────────────── -->
+    <div class="page" id="page-marcas-vehiculo">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Marcas de Vehículos</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="mv-count">—</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalMarcaVeh()">+ Nueva marca</button>
+      </div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="mv-search" placeholder="🔍 Buscar marca..." oninput="filtrarMarcasVeh()" style="max-width:360px"></div>
+      <div id="mv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+    </div>
+
+    <!-- ─── MARCAS REPUESTO ─────────────────────────── -->
+    <div class="page" id="page-marcas-repuesto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Marcas de Repuestos</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="mr-count">—</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalMarcaRep()">+ Nueva marca</button>
+      </div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="mr-search" placeholder="🔍 Buscar marca..." oninput="filtrarMarcasRep()" style="max-width:360px"></div>
+      <div id="mr-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+    </div>
+
+    <!-- ─── PROVEEDORES ─────────────────────────────── -->
+    <div class="page" id="page-proveedores">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Proveedores</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="prov-count">—</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalProveedor()">+ Nuevo proveedor</button>
+      </div>
+      <div id="prov-tabla-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Nombre</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Contacto</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Teléfono</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acciones</th>
+          </tr></thead>
+          <tbody id="prov-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── CATÁLOGOS ───────────────────────────────── -->
+    <div class="page" id="page-catalogos">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Catálogos de Papel</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Registros de catálogos físicos para referencia de páginas</p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalCatalogo()">+ Nuevo catálogo</button>
+      </div>
+      <div id="cat-lista-wrap" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+    </div>
+
+    <!-- ─── FALTANTES ───────────────────────────────── -->
+    <div class="page" id="page-faltantes">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Repuestos Faltantes</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Repuestos con stock en 0</p>
+      </div>
+      <div id="falt-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Precio</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acción</th>
+          </tr></thead>
+          <tbody id="falt-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── QUEDA UNO ────────────────────────────────── -->
+    <div class="page" id="page-queda-uno">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">⚠️ Queda una unidad</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Repuestos con stock = 1</p>
+      </div>
+      <div id="uno-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Precio</th>
+          </tr></thead>
+          <tbody id="uno-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── SIN PRECIO ──────────────────────────────── -->
+    <div class="page" id="page-sin-precio">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">🔴 Sin precio</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Repuestos sin precio de venta cargado</p>
+      </div>
+      <div id="sp-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Stock</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acción</th>
+          </tr></thead>
+          <tbody id="sp-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── AGREGAR STOCK ────────────────────────────── -->
+    <div class="page" id="page-agregar-stock">
+      <div style="max-width:520px;margin:0 auto">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">➕ Agregar al Stock</h2>
+        <div class="panel" style="padding:24px">
+          <div class="form-group">
+            <label class="form-label">Buscar repuesto</label>
+            <input type="text" class="form-input" id="as-search" placeholder="Nombre o código..." oninput="buscarParaStock('as')">
+            <div id="as-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>
+          </div>
+          <div id="as-selected" style="display:none;margin-top:12px;padding:12px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:8px">
+            <p id="as-sel-name" style="margin:0 0 8px;font-weight:500;color:var(--text)"></p>
+            <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">Stock actual: <span id="as-sel-stock" style="color:var(--green);font-weight:600"></span></p>
+            <div class="form-group">
+              <label class="form-label">Cantidad a agregar</label>
+              <input type="number" class="form-input" id="as-cant" min="1" value="1" style="max-width:140px">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Motivo (opcional)</label>
+              <input type="text" class="form-input" id="as-motivo" placeholder="Ej: reposición de stock">
+            </div>
+            <button class="btn btn-primary" onclick="confirmarAgregarStock()">✅ Confirmar agregado</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── DESCONTAR STOCK ──────────────────────────── -->
+    <div class="page" id="page-descontar-stock">
+      <div style="max-width:520px;margin:0 auto">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">➖ Descontar del Stock (Venta)</h2>
+        <div class="panel" style="padding:24px">
+          <div class="form-group">
+            <label class="form-label">Buscar repuesto</label>
+            <input type="text" class="form-input" id="ds-search" placeholder="Nombre o código..." oninput="buscarParaStock('ds')">
+            <div id="ds-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>
+          </div>
+          <div id="ds-selected" style="display:none;margin-top:12px;padding:12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:8px">
+            <p id="ds-sel-name" style="margin:0 0 8px;font-weight:500;color:var(--text)"></p>
+            <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">Stock actual: <span id="ds-sel-stock" style="color:var(--red);font-weight:600"></span></p>
+            <div class="form-group">
+              <label class="form-label">Cantidad vendida</label>
+              <input type="number" class="form-input" id="ds-cant" min="1" value="1" style="max-width:140px">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Comprador (opcional)</label>
+              <input type="text" class="form-input" id="ds-comprador" placeholder="Nombre del comprador">
+            </div>
+            <button class="btn" style="background:var(--red);color:#fff" onclick="confirmarDescontarStock()">✅ Confirmar venta</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── GANANCIAS ───────────────────────────────── -->
+    <div class="page" id="page-ganancias">
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">💰 Ganancias</h2>
+      <div id="gan-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:24px"></div>
+      <div class="panel" style="padding:20px">
+        <h3 style="font-size:14px;font-weight:600;color:var(--text);margin:0 0 16px">Detalle por repuesto (Top 20 por ganancia)</h3>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Producto</th>
+              <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Costo</th>
+              <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Precio venta</th>
+              <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Ganancia unit.</th>
+              <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">%</th>
+            </tr></thead>
+            <tbody id="gan-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── BUSCADOR AVANZADO ────────────────────────── -->
+    <div class="page" id="page-buscador">
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">🔍 Buscador Avanzado</h2>
+      <div class="panel" style="padding:20px;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px">
+          <div class="form-group" style="margin:0"><label class="form-label">Nombre / código</label><input type="text" class="form-input" id="bav-texto" placeholder="Ej: alternador bosch"></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Categoría</label><select class="form-select" id="bav-cat"><option value="">Todas</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Marca vehículo</label><select class="form-select" id="bav-mv"><option value="">Todas</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Condición</label><select class="form-select" id="bav-cond"><option value="">Cualquiera</option><option>NUEVO</option><option>USADO</option><option>RECAMBIO</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Tipo</label><select class="form-select" id="bav-tipo"><option value="">Cualquiera</option><option>ORIGINAL</option><option>COPIA</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Stock mínimo</label><input type="number" class="form-input" id="bav-stock" placeholder="0" min="0"></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="ejecutarBuscador()">🔍 Buscar</button>
+          <button class="btn btn-ghost" onclick="limpiarBuscador()">✖ Limpiar</button>
+        </div>
+      </div>
+      <div id="bav-result-info" style="font-size:13px;color:var(--text-muted);margin-bottom:10px"></div>
+      <div id="bav-results" style="overflow-x:auto"></div>
+    </div>
+
+    <!-- ─── CONSULTAS ───────────────────────────────── -->
+    <div class="page" id="page-consultas">
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">📩 Consultas de compradores</h2>
+      <div id="cons-wrap">
+        <div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando consultas...</div></div>
+      </div>
+    </div>
 
   </div><!-- /content -->
 </div><!-- /main -->
@@ -783,7 +1006,7 @@ tbody tr:last-child td{border-bottom:none}
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, deleteDoc, addDoc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── CONFIG (mismo que index.html) ─────────────────────
 const firebaseConfig = {
@@ -1099,13 +1322,422 @@ window.showPage = function(id) {
     'etiquetas':'Imprimir Etiquetas','buscador':'Buscador Avanzado'
   };
   document.getElementById('topbar-title').textContent = ti[id]||id;
-  // Lazy-load por sección
-  if (id==='usuarios')  loadUsuarios();
-  if (id==='repuestos') loadRepuestos();
+  if (id==='usuarios')        loadUsuarios();
+  if (id==='repuestos')       loadRepuestos();
+  if (id==='categorias')      loadCategorias();
+  if (id==='marcas-vehiculo') loadMarcasVeh();
+  if (id==='marcas-repuesto') loadMarcasRep();
+  if (id==='proveedores')     loadProveedores();
+  if (id==='catalogos')       loadCatalogos();
+  if (id==='faltantes')       loadFaltantes();
+  if (id==='queda-uno')       loadQuedaUno();
+  if (id==='sin-precio')      loadSinPrecio();
+  if (id==='agregar-stock')   initAgregarStock();
+  if (id==='descontar-stock') initDescontarStock();
+  if (id==='ganancias')       loadGanancias();
+  if (id==='consultas')       loadConsultas();
+  if (id==='buscador')        initBuscador();
 };
 
 window.globalSearch = function(q) {
   if (q.length>2) { showPage('repuestos'); document.getElementById('rep-search').value=q; filterRepuestos(); }
+};
+
+// ── UTILIDAD: card de ítem de lista ──────────────────
+function cardItem(nombre, extra='', onEdit='', onDel='') {
+  return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+    <div><div style="font-size:13px;font-weight:500;color:var(--text)">${nombre}</div>${extra?`<div style="font-size:11px;color:var(--text-muted);margin-top:3px">${extra}</div>`:''}</div>
+    <div style="display:flex;gap:6px">
+      ${onEdit?`<button class="action-btn edit" title="Editar" onclick="${onEdit}"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
+      ${onDel?`<button class="action-btn del" title="Eliminar" onclick="${onDel}"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}
+    </div>
+  </div>`;
+}
+
+// ── CATEGORÍAS ────────────────────────────────────────
+let _cats = [];
+window.loadCategorias = async function() {
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  const snap = await getDocs(collection(db,'categorias'));
+  _cats = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  document.getElementById('cat-count').textContent = _cats.length;
+  renderCats(_cats);
+};
+function renderCats(arr) {
+  const grid = document.getElementById('cat-grid');
+  if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay categorías.</p>'; return; }
+  grid.innerHTML = arr.map(c=>cardItem(c.nombre,'',`editarCategoria('${c.id}')`,`eliminarCategoria('${c.id}')`)).join('');
+}
+window.filtrarCategorias = function() {
+  const q = document.getElementById('cat-search').value.toLowerCase();
+  renderCats(q ? _cats.filter(c=>c.nombre?.toLowerCase().includes(q)) : _cats);
+};
+window.abrirModalCategoria = function(id='',nombre='') {
+  const n = prompt(id ? 'Editar nombre de categoría:' : 'Nombre de la nueva categoría:', nombre);
+  if (!n?.trim()) return;
+  if (id) {
+    updateDoc(doc(db,'categorias',id),{nombre:n.trim()}).then(()=>{ toast('Categoría actualizada','success'); loadCategorias(); });
+  } else {
+    addDoc(collection(db,'categorias'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('Categoría creada','success'); loadCategorias(); });
+  }
+};
+window.editarCategoria = function(id) {
+  const cat = _cats.find(c=>c.id===id);
+  if (cat) abrirModalCategoria(id, cat.nombre);
+};
+window.eliminarCategoria = async function(id) {
+  if (!confirm('¿Eliminar esta categoría?')) return;
+  await deleteDoc(doc(db,'categorias',id));
+  toast('Categoría eliminada','success');
+  loadCategorias();
+};
+
+// ── MARCAS VEHÍCULO ───────────────────────────────────
+let _marcasVeh = [];
+window.loadMarcasVeh = async function() {
+  const grid = document.getElementById('mv-grid');
+  grid.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  const snap = await getDocs(collection(db,'marcas_vehiculo'));
+  _marcasVeh = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  document.getElementById('mv-count').textContent = _marcasVeh.length;
+  renderMarcasVeh(_marcasVeh);
+};
+function renderMarcasVeh(arr) {
+  const grid = document.getElementById('mv-grid');
+  if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay marcas.</p>'; return; }
+  grid.innerHTML = arr.map(m=>cardItem(m.nombre,'',`editarMarcaVeh('${m.id}')`,`eliminarMarcaVeh('${m.id}')`)).join('');
+}
+window.filtrarMarcasVeh = function() {
+  const q = document.getElementById('mv-search').value.toLowerCase();
+  renderMarcasVeh(q ? _marcasVeh.filter(m=>m.nombre?.toLowerCase().includes(q)) : _marcasVeh);
+};
+window.abrirModalMarcaVeh = function(id='',nombre='') {
+  const n = prompt(id ? 'Editar marca:' : 'Nombre de la nueva marca de vehículo:', nombre);
+  if (!n?.trim()) return;
+  if (id) {
+    updateDoc(doc(db,'marcas_vehiculo',id),{nombre:n.trim()}).then(()=>{ toast('Marca actualizada','success'); loadMarcasVeh(); });
+  } else {
+    addDoc(collection(db,'marcas_vehiculo'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('Marca creada','success'); loadMarcasVeh(); });
+  }
+};
+window.editarMarcaVeh  = function(id) { const m=_marcasVeh.find(x=>x.id===id); if(m) abrirModalMarcaVeh(id,m.nombre); };
+window.eliminarMarcaVeh = async function(id) {
+  if (!confirm('¿Eliminar esta marca?')) return;
+  await deleteDoc(doc(db,'marcas_vehiculo',id));
+  toast('Marca eliminada','success'); loadMarcasVeh();
+};
+
+// ── MARCAS REPUESTO ───────────────────────────────────
+let _marcasRep = [];
+window.loadMarcasRep = async function() {
+  const grid = document.getElementById('mr-grid');
+  grid.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  const snap = await getDocs(collection(db,'marcas_repuesto'));
+  _marcasRep = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  document.getElementById('mr-count').textContent = _marcasRep.length;
+  renderMarcasRep(_marcasRep);
+};
+function renderMarcasRep(arr) {
+  const grid = document.getElementById('mr-grid');
+  if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay marcas.</p>'; return; }
+  grid.innerHTML = arr.map(m=>cardItem(m.nombre,'',`editarMarcaRep('${m.id}')`,`eliminarMarcaRep('${m.id}')`)).join('');
+}
+window.filtrarMarcasRep = function() {
+  const q = document.getElementById('mr-search').value.toLowerCase();
+  renderMarcasRep(q ? _marcasRep.filter(m=>m.nombre?.toLowerCase().includes(q)) : _marcasRep);
+};
+window.abrirModalMarcaRep = function(id='',nombre='') {
+  const n = prompt(id ? 'Editar marca:' : 'Nombre de la nueva marca de repuesto:', nombre);
+  if (!n?.trim()) return;
+  if (id) {
+    updateDoc(doc(db,'marcas_repuesto',id),{nombre:n.trim()}).then(()=>{ toast('Marca actualizada','success'); loadMarcasRep(); });
+  } else {
+    addDoc(collection(db,'marcas_repuesto'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('Marca creada','success'); loadMarcasRep(); });
+  }
+};
+window.editarMarcaRep  = function(id) { const m=_marcasRep.find(x=>x.id===id); if(m) abrirModalMarcaRep(id,m.nombre); };
+window.eliminarMarcaRep = async function(id) {
+  if (!confirm('¿Eliminar esta marca?')) return;
+  await deleteDoc(doc(db,'marcas_repuesto',id));
+  toast('Marca eliminada','success'); loadMarcasRep();
+};
+
+// ── PROVEEDORES ───────────────────────────────────────
+let _provs = [];
+window.loadProveedores = async function() {
+  const tbody = document.getElementById('prov-tbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  const snap = await getDocs(collection(db,'proveedores'));
+  _provs = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  document.getElementById('prov-count').textContent = _provs.length;
+  tbody.innerHTML = _provs.map(p=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:10px 12px;color:var(--text);font-weight:500">${p.nombre||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;font-family:monospace">${p.codigo||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted)">${p.contacto||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted)">${p.telefono||'—'}</td>
+    <td style="padding:10px 12px">
+      <button class="action-btn edit" onclick="editarProveedor('${p.id}')" title="Editar"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="action-btn del" onclick="eliminarProveedor('${p.id}')" title="Eliminar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+    </td>
+  </tr>`).join('');
+};
+window.abrirModalProveedor = function(p={}) {
+  const nombre   = prompt('Nombre del proveedor:', p.nombre||''); if (!nombre?.trim()) return;
+  const codigo   = prompt('Código corto (ej: BOSCH):', p.codigo||'')||'';
+  const contacto = prompt('Nombre de contacto:', p.contacto||'')||'';
+  const telefono = prompt('Teléfono:', p.telefono||'')||'';
+  const data = {nombre:nombre.trim(),codigo:codigo.trim().toUpperCase(),contacto,telefono};
+  if (p.id) {
+    updateDoc(doc(db,'proveedores',p.id),data).then(()=>{ toast('Proveedor actualizado','success'); loadProveedores(); });
+  } else {
+    addDoc(collection(db,'proveedores'),{...data,creado_en:serverTimestamp()}).then(()=>{ toast('Proveedor creado','success'); loadProveedores(); });
+  }
+};
+window.editarProveedor = function(id) { const p=_provs.find(x=>x.id===id); if(p) abrirModalProveedor(p); };
+window.eliminarProveedor = async function(id) {
+  if (!confirm('¿Eliminar este proveedor?')) return;
+  await deleteDoc(doc(db,'proveedores',id));
+  toast('Proveedor eliminado','success'); loadProveedores();
+};
+
+// ── CATÁLOGOS ─────────────────────────────────────────
+let _catalogos = [];
+window.loadCatalogos = async function() {
+  const wrap = document.getElementById('cat-lista-wrap');
+  wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  const snap = await getDocs(collection(db,'catalogos'));
+  _catalogos = snap.docs.map(d=>({id:d.id,...d.data()}));
+  if (!_catalogos.length) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay catálogos registrados.</p>'; return; }
+  wrap.innerHTML = _catalogos.map(c=>`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${c.nombre||'—'}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${c.editorial||''} ${c.anio?'· '+c.anio:''}</div>
+          ${c.notas?`<div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic">${c.notas}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="action-btn del" onclick="eliminarCatalogo('${c.id}')" title="Eliminar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+        </div>
+      </div>
+    </div>`).join('');
+};
+window.abrirModalCatalogo = function() {
+  const nombre = prompt('Nombre del catálogo:', ''); if (!nombre?.trim()) return;
+  const editorial = prompt('Editorial / Marca:', '')||'';
+  const anio = prompt('Año:', '')||'';
+  const notas = prompt('Notas (opcional):', '')||'';
+  addDoc(collection(db,'catalogos'),{nombre:nombre.trim(),editorial,anio,notas,creado_en:serverTimestamp()})
+    .then(()=>{ toast('Catálogo agregado','success'); loadCatalogos(); });
+};
+window.eliminarCatalogo = async function(id) {
+  if (!confirm('¿Eliminar este catálogo?')) return;
+  await deleteDoc(doc(db,'catalogos',id));
+  toast('Catálogo eliminado','success'); loadCatalogos();
+};
+
+// ── FALTANTES ─────────────────────────────────────────
+window.loadFaltantes = async function() {
+  const tbody = document.getElementById('falt-tbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const arr = window._repsAll.filter(r=>!r.cant_artic||r.cant_artic===0);
+  if (!arr.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--green)">✅ ¡Sin faltantes!</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text);font-size:12px">${fmt(r.precio_venta_iva)}</td>
+    <td style="padding:9px 12px"><button class="btn btn-primary" style="font-size:11px;padding:4px 10px" onclick="irAgregarStock('${r.id}','${(r.titulo_repuesto||'').replace(/'/g,'&apos;')}')">+ Stock</button></td>
+  </tr>`).join('');
+};
+
+// ── QUEDA UNO ─────────────────────────────────────────
+window.loadQuedaUno = async function() {
+  const tbody = document.getElementById('uno-tbody');
+  tbody.innerHTML = '<tr><td colspan="4"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const arr = window._repsAll.filter(r=>r.cant_artic===1);
+  if (!arr.length) { tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted)">No hay repuestos con stock = 1</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
+    <td style="padding:9px 12px"><span style="color:var(--amber);font-weight:600">⚠️ 1</span> ${fmt(r.precio_venta_iva)}</td>
+  </tr>`).join('');
+};
+
+// ── SIN PRECIO ────────────────────────────────────────
+window.loadSinPrecio = async function() {
+  const tbody = document.getElementById('sp-tbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const arr = window._repsAll.filter(r=>!r.precio_venta_iva);
+  if (!arr.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--green)">✅ Todos tienen precio cargado</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.cant_artic||0}</td>
+    <td style="padding:9px 12px"><button class="btn btn-primary" style="font-size:11px;padding:4px 10px" onclick="editarRepuesto('${r.id}')">Poner precio</button></td>
+  </tr>`).join('');
+};
+
+// ── AGREGAR / DESCONTAR STOCK ─────────────────────────
+let _stockRep = null;
+window.initAgregarStock = function() { _stockRep=null; document.getElementById('as-selected').style.display='none'; document.getElementById('as-search').value=''; document.getElementById('as-results').innerHTML=''; };
+window.initDescontarStock = function() { _stockRep=null; document.getElementById('ds-selected').style.display='none'; document.getElementById('ds-search').value=''; document.getElementById('ds-results').innerHTML=''; };
+
+window.buscarParaStock = function(prefix) {
+  const q = document.getElementById(`${prefix}-search`).value.toLowerCase();
+  const res = document.getElementById(`${prefix}-results`);
+  if (!q || q.length < 2) { res.innerHTML=''; return; }
+  if (!window._repsAll) { res.innerHTML='<p style="font-size:12px;color:var(--text-muted)">Cargando...</p>'; loadRepuestos().then(()=>buscarParaStock(prefix)); return; }
+  const found = window._repsAll.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)).slice(0,8);
+  res.innerHTML = found.map(r=>`<div onclick="seleccionarParaStock('${prefix}','${r.id}')" style="padding:8px 12px;cursor:pointer;border-radius:6px;font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--border);margin-bottom:4px;display:flex;justify-content:space-between">
+    <span>${r.titulo_repuesto||'—'} <span style="color:var(--text-muted);font-size:11px">${r.codigo||''}</span></span>
+    <span style="color:var(--green);font-weight:600">${r.cant_artic||0}</span>
+  </div>`).join('');
+};
+
+window.seleccionarParaStock = function(prefix, id) {
+  if (!window._repsAll) return;
+  _stockRep = window._repsAll.find(r=>r.id===id);
+  if (!_stockRep) return;
+  document.getElementById(`${prefix}-results`).innerHTML='';
+  document.getElementById(`${prefix}-search`).value = _stockRep.titulo_repuesto||'';
+  document.getElementById(`${prefix}-sel-name`).textContent = _stockRep.titulo_repuesto||'—';
+  document.getElementById(`${prefix}-sel-stock`).textContent = _stockRep.cant_artic||0;
+  document.getElementById(`${prefix}-selected`).style.display='block';
+};
+
+window.confirmarAgregarStock = async function() {
+  if (!_stockRep) return;
+  const cant = parseInt(document.getElementById('as-cant').value)||0;
+  if (cant<=0) { toast('Ingresá una cantidad válida','error'); return; }
+  const nuevo = (_stockRep.cant_artic||0) + cant;
+  await updateDoc(doc(db,'repuestos',_stockRep.id),{cant_artic:nuevo,actualizado_en:serverTimestamp()});
+  toast(`✅ Stock actualizado: ${nuevo} unidades`,'success');
+  window._repsAll = null;
+  initAgregarStock();
+};
+
+window.confirmarDescontarStock = async function() {
+  if (!_stockRep) return;
+  const cant = parseInt(document.getElementById('ds-cant').value)||0;
+  if (cant<=0) { toast('Ingresá una cantidad válida','error'); return; }
+  const actual = _stockRep.cant_artic||0;
+  if (cant > actual) { toast(`No hay suficiente stock (actual: ${actual})`,'error'); return; }
+  await updateDoc(doc(db,'repuestos',_stockRep.id),{cant_artic:actual-cant,actualizado_en:serverTimestamp()});
+  toast(`✅ Venta registrada. Stock restante: ${actual-cant}`,'success');
+  window._repsAll = null;
+  initDescontarStock();
+};
+
+window.irAgregarStock = function(id, nombre) {
+  showPage('agregar-stock');
+  setTimeout(()=>{ document.getElementById('as-search').value=nombre; buscarParaStock('as'); setTimeout(()=>seleccionarParaStock('as',id),400); },200);
+};
+
+// ── GANANCIAS ─────────────────────────────────────────
+window.loadGanancias = async function() {
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const arr = window._repsAll;
+  const totalCosto = arr.reduce((a,r)=>a+(r.precio_costo||0),0);
+  const totalVenta = arr.reduce((a,r)=>a+(r.precio_venta_iva||0),0);
+  const totalGan   = totalVenta - totalCosto;
+  const pct        = totalCosto>0 ? ((totalGan/totalCosto)*100).toFixed(1) : 0;
+  document.getElementById('gan-cards').innerHTML = [
+    {label:'Costo total',val:fmt(totalCosto),color:'var(--text-muted)',icon:'💲'},
+    {label:'Valor de venta total',val:fmt(totalVenta),color:'var(--blue)',icon:'💰'},
+    {label:'Ganancia potencial',val:fmt(totalGan),color:'var(--green)',icon:'📈'},
+    {label:'Margen promedio',val:`${pct}%`,color:'var(--amber)',icon:'📊'},
+  ].map(c=>`<div class="panel" style="padding:18px;border-left:3px solid ${c.color}">
+    <div style="font-size:22px;margin-bottom:6px">${c.icon}</div>
+    <div style="font-size:20px;font-weight:700;color:${c.color}">${c.val}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${c.label}</div>
+  </div>`).join('');
+  const top20 = [...arr].filter(r=>r.precio_costo&&r.precio_venta_iva)
+    .map(r=>({...r,gan:r.precio_venta_iva-r.precio_costo,pct:((r.precio_venta_iva-r.precio_costo)/r.precio_costo*100).toFixed(1)}))
+    .sort((a,b)=>b.gan-a.gan).slice(0,20);
+  document.getElementById('gan-tbody').innerHTML = top20.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:8px 10px;text-align:right;color:var(--text-muted)">${fmt(r.precio_costo)}</td>
+    <td style="padding:8px 10px;text-align:right;color:var(--blue)">${fmt(r.precio_venta_iva)}</td>
+    <td style="padding:8px 10px;text-align:right;color:var(--green);font-weight:600">${fmt(r.gan)}</td>
+    <td style="padding:8px 10px;text-align:right;color:var(--amber)">${r.pct}%</td>
+  </tr>`).join('');
+};
+
+// ── CONSULTAS ─────────────────────────────────────────
+window.loadConsultas = async function() {
+  const wrap = document.getElementById('cons-wrap');
+  wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  try {
+    const snap = await getDocs(collection(db,'consultas'));
+    if (snap.empty) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:40px">No hay consultas todavía.</p>'; return; }
+    const items = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.creado_en?.seconds-a.creado_en?.seconds);
+    wrap.innerHTML = items.map(c=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div><span style="font-weight:600;color:var(--text)">${c.nombre||'Anónimo'}</span> <span style="color:var(--text-muted);font-size:12px">${c.email||''}</span></div>
+        <div style="font-size:11px;color:var(--text-muted)">${c.creado_en?.toDate?c.creado_en.toDate().toLocaleDateString('es-AR'):''}</div>
+      </div>
+      <div style="font-size:13px;color:var(--text-muted)">${c.mensaje||'—'}</div>
+    </div>`).join('');
+  } catch(e) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">Error cargando consultas.</p>'; }
+};
+
+// ── BUSCADOR AVANZADO ─────────────────────────────────
+window.initBuscador = async function() {
+  if (document.getElementById('bav-cat').options.length > 1) return;
+  const [cSnap, mvSnap] = await Promise.all([getDocs(collection(db,'categorias')),getDocs(collection(db,'marcas_vehiculo'))]);
+  const catSel = document.getElementById('bav-cat');
+  cSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'—'; catSel.appendChild(o); });
+  const mvSel = document.getElementById('bav-mv');
+  mvSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'—'; mvSel.appendChild(o); });
+};
+
+window.ejecutarBuscador = async function() {
+  const q    = document.getElementById('bav-texto').value.toLowerCase().trim();
+  const cat  = document.getElementById('bav-cat').value;
+  const mv   = document.getElementById('bav-mv').value;
+  const cond = document.getElementById('bav-cond').value;
+  const tipo = document.getElementById('bav-tipo').value;
+  const stock= parseInt(document.getElementById('bav-stock').value)||0;
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  let res = window._repsAll;
+  if (q)    res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)||(r.descripcion||'').toLowerCase().includes(q));
+  if (cat)  res = res.filter(r=>r.categoria_id===cat);
+  if (mv)   res = res.filter(r=>r.marcas_vehiculo?.includes(mv));
+  if (cond) res = res.filter(r=>r.condicion===cond);
+  if (tipo) res = res.filter(r=>r.tipo_repuesto===tipo);
+  res = res.filter(r=>(r.cant_artic||0)>=stock);
+  document.getElementById('bav-result-info').textContent = `${res.length} resultado${res.length!==1?'s':''} encontrado${res.length!==1?'s':''}`;
+  if (!res.length) { document.getElementById('bav-results').innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados para esa búsqueda.</p>'; return; }
+  document.getElementById('bav-results').innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="border-bottom:1px solid var(--border)">
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Producto</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Código</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Categoría</th>
+      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Stock</th>
+      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Precio</th>
+    </tr></thead>
+    <tbody>${res.map(r=>`<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="editarRepuesto('${r.id}')">
+      <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'—'}</td>
+      <td style="padding:8px 10px;color:var(--text-muted);font-family:monospace">${r.codigo||'—'}</td>
+      <td style="padding:8px 10px;color:var(--text-muted)">${r.categoria||'—'}</td>
+      <td style="padding:8px 10px;text-align:right"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><div class="sem ${(r.cant_artic||0)===0?'sem-r':(r.cant_artic||0)===1?'sem-a':'sem-g'}"></div>${r.cant_artic||0}</div></td>
+      <td style="padding:8px 10px;text-align:right;color:var(--green)">${fmt(r.precio_venta_iva)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+};
+
+window.limpiarBuscador = function() {
+  ['bav-texto','bav-stock'].forEach(id=>document.getElementById(id).value='');
+  ['bav-cat','bav-mv','bav-cond','bav-tipo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bav-result-info').textContent='';
+  document.getElementById('bav-results').innerHTML='';
 };
 </script>
 
