@@ -1078,6 +1078,7 @@ function toast(msg, type='info') {
 }
 window.toast = toast;
 
+window.openModal  = (id) => document.getElementById(id).classList.add('open');
 window.closeModal = (id) => document.getElementById(id).classList.remove('open');
 
 // ── DASHBOARD ─────────────────────────────────────────
