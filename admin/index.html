@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panel Admin â€” Repuestos ElectromecÃ¡nicos</title>
+<title>Panel Admin — Repuestos Electromecánicos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -21,7 +21,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;height:100vh;overflow:hidden;font-size:13px}
 
-/* â”€â”€ SIDEBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── SIDEBAR ─────────────────────────────────────────── */
 .sidebar{width:var(--sidebar);background:#060810;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
 .sidebar-logo{padding:14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--blue2),var(--indigo));border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -50,7 +50,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .logout-btn:hover{color:var(--red)}
 .logout-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
 
-/* â”€â”€ MAIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── MAIN ────────────────────────────────────────────── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 16px;height:48px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 .topbar-title{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--text);flex:1;letter-spacing:.03em}
@@ -65,12 +65,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
 .notif-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg2)}
 
-/* â”€â”€ CONTENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── CONTENT ─────────────────────────────────────────── */
 .content{flex:1;overflow-y:auto;padding:16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .page{display:none}
 .page.active{display:block}
 
-/* â”€â”€ STAT CARDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── STAT CARDS ──────────────────────────────────────── */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative;overflow:hidden;cursor:default}
 .stat-card::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:50%;opacity:.06;transform:translate(20px,-20px)}
@@ -91,7 +91,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .stat-delta{font-size:10px;color:var(--text3);margin-top:3px}
 .stat-delta span{color:var(--green)}
 
-/* â”€â”€ PANELS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── PANELS ──────────────────────────────────────────── */
 .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .panel-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
 .panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
@@ -100,7 +100,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .panel-action{font-size:11px;color:var(--blue);cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif}
 .panel-action:hover{color:var(--text)}
 
-/* â”€â”€ ALERTAS URGENTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── ALERTAS URGENTES ────────────────────────────────── */
 .alert-list{padding:4px 0}
 .alert-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--bg);transition:background .1s;cursor:pointer}
 .alert-row:last-child{border-bottom:none}
@@ -117,7 +117,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .alert-btn{font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
 .alert-btn:hover{border-color:var(--blue);color:var(--blue)}
 
-/* â”€â”€ REPUESTO ROWS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── REPUESTO ROWS ───────────────────────────────────── */
 .rep-list{padding:2px 0}
 .rep-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--bg);transition:background .1s;cursor:pointer}
 .rep-row:last-child{border-bottom:none}
@@ -135,7 +135,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .price-stock{font-size:10px;color:var(--text3);margin-top:1px}
 .price-stock.danger{color:var(--red)}
 
-/* â”€â”€ USUARIOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── USUARIOS ────────────────────────────────────────── */
 .user-list{padding:2px 0}
 .user-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--bg);transition:background .1s}
 .user-row:last-child{border-bottom:none}
@@ -155,7 +155,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .u-btn.bloquear{color:var(--red);border-color:rgba(239,68,68,.3)}
 .u-btn.bloquear:hover{background:var(--red-dim)}
 
-/* â”€â”€ FINANZAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── FINANZAS ────────────────────────────────────────── */
 .fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
 .fin-item{padding:10px 14px;border-bottom:1px solid var(--bg);border-right:1px solid var(--bg)}
 .fin-item:nth-child(even){border-right:none}
@@ -167,7 +167,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .fin-val.amber{color:var(--amber)}
 .fin-val.red{color:var(--red)}
 
-/* â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── TOAST ────────────────────────────────────────────── */
 .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
 .toast{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:12px;display:flex;align-items:center;gap:8px;min-width:220px;animation:slideIn .3s ease;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .toast.success{border-color:rgba(34,197,94,.3)}
@@ -175,7 +175,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .toast.info{border-color:rgba(59,130,246,.3)}
 @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 
-/* â”€â”€ MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── MODAL ────────────────────────────────────────────── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
@@ -187,7 +187,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .modal-body{padding:20px}
 .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
 
-/* â”€â”€ FORM ELEMENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── FORM ELEMENTS ───────────────────────────────────── */
 .form-group{margin-bottom:14px}
 .form-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em}
 .form-label .req{color:var(--red)}
@@ -201,7 +201,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .section-divider{height:1px;background:var(--border);margin:18px 0;position:relative}
 .section-divider::after{content:attr(data-label);position:absolute;left:14px;top:50%;transform:translateY(-50%);background:var(--bg2);padding:0 8px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
 
-/* â”€â”€ BOTONES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── BOTONES ─────────────────────────────────────────── */
 .btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px}
 .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
 .btn-primary{background:var(--blue2);color:#fff}
@@ -213,7 +213,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
 .btn-ghost:hover{border-color:var(--border2);color:var(--text)}
 
-/* â”€â”€ TABLA REPUESTOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── TABLA REPUESTOS ─────────────────────────────────── */
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 thead th{padding:8px 12px;font-size:10.5px;font-weight:500;color:var(--text3);text-align:left;border-bottom:1px solid var(--border);background:var(--bg3);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
@@ -233,7 +233,7 @@ tbody tr:last-child td{border-bottom:none}
 .action-btn.view{color:var(--text2)}
 .action-btn.view:hover{background:var(--bg4);border-color:var(--border2)}
 
-/* â”€â”€ PROGRESS / SEMÃFORO VISUAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── PROGRESS / SEMÁFORO VISUAL ──────────────────────── */
 .semafor-wrap{display:flex;align-items:center;gap:6px}
 .semafor-label{font-size:10px;color:var(--text3)}
 .semafor-bar{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
@@ -242,24 +242,24 @@ tbody tr:last-child td{border-bottom:none}
 .fill-amber{background:var(--amber)}
 .fill-red{background:var(--red)}
 
-/* â”€â”€ LOADING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── LOADING ─────────────────────────────────────────── */
 .loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:12px}
 .spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:12px;color:var(--text3)}
 
-/* â”€â”€ EMPTY STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── EMPTY STATE ─────────────────────────────────────── */
 .empty{text-align:center;padding:40px 20px}
 .empty-icon{font-size:32px;margin-bottom:12px}
 .empty-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px}
 .empty-sub{font-size:11px;color:var(--text3)}
 
-/* â”€â”€ SCROLLBAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── SCROLLBAR ───────────────────────────────────────── */
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
-/* â”€â”€ RESPONSIVE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── RESPONSIVE ──────────────────────────────────────── */
 @media(max-width:900px){
   .stats-grid{grid-template-columns:1fr 1fr}
   .panel-grid{grid-template-columns:1fr}
@@ -269,9 +269,9 @@ tbody tr:last-child td{border-bottom:none}
 </head>
 <body>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ══════════════════════════════════════════════════════
      SIDEBAR
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+══════════════════════════════════════════════════════ -->
 <nav class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-icon">
@@ -294,7 +294,7 @@ tbody tr:last-child td{border-bottom:none}
       <span class="nav-badge nb-amber" id="badge-pendientes">0</span>
     </div>
 
-    <div class="nav-section">CatÃ¡logo</div>
+    <div class="nav-section">Catálogo</div>
     <div class="nav-item" onclick="showPage('nuevo-repuesto')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
       Nuevo repuesto
@@ -305,11 +305,11 @@ tbody tr:last-child td{border-bottom:none}
     </div>
     <div class="nav-item" onclick="showPage('categorias')">
       <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-      CategorÃ­as
+      Categorías
     </div>
     <div class="nav-item" onclick="showPage('marcas-vehiculo')">
       <svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5"/><circle cx="15.5" cy="17.5" r="2.5"/><circle cx="5.5" cy="17.5" r="2.5"/></svg>
-      Marcas vehÃ­culo
+      Marcas vehículo
     </div>
     <div class="nav-item" onclick="showPage('marcas-repuesto')">
       <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -321,7 +321,7 @@ tbody tr:last-child td{border-bottom:none}
     </div>
     <div class="nav-item" onclick="showPage('catalogos')">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      CatÃ¡logos papel
+      Catálogos papel
     </div>
 
     <div class="nav-section">Stock</div>
@@ -389,36 +389,36 @@ tbody tr:last-child td{border-bottom:none}
         <div class="user-name" id="admin-name">Administrador</div>
         <div class="user-role">Admin</div>
       </div>
-      <button class="logout-btn" onclick="doLogout()" title="Cerrar sesiÃ³n">
+      <button class="logout-btn" onclick="doLogout()" title="Cerrar sesión">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </div>
 </nav>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ══════════════════════════════════════════════════════
      MAIN
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+══════════════════════════════════════════════════════ -->
 <div class="main">
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">Dashboard</div>
     <div class="topbar-date" id="topbar-date"></div>
     <div class="search-box">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="global-search" placeholder="Buscar repuesto, cÃ³digo..." oninput="globalSearch(this.value)">
+      <input type="text" id="global-search" placeholder="Buscar repuesto, código..." oninput="globalSearch(this.value)">
     </div>
     <div class="icon-btn" title="Notificaciones" onclick="showPage('consultas')">
       <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <div class="notif-dot" id="notif-dot" style="display:none"></div>
     </div>
-    <div class="icon-btn" title="Ir al catÃ¡logo pÃºblico" onclick="window.open('../catalogo/index.html','_blank')">
+    <div class="icon-btn" title="Ir al catálogo público" onclick="window.open('../catalogo/index.html','_blank')">
       <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- â”€â”€â”€ DASHBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── DASHBOARD ─────────────────────────────────── -->
     <div class="page active" id="page-dashboard">
       <div class="stats-grid">
         <div class="stat-card blue">
@@ -428,8 +428,8 @@ tbody tr:last-child td{border-bottom:none}
             </div>
             <div class="stat-label">Total repuestos</div>
           </div>
-          <div class="stat-val" id="stat-total">â€”</div>
-          <div class="stat-delta">en <span id="stat-cats">â€”</span> categorÃ­as</div>
+          <div class="stat-val" id="stat-total">—</div>
+          <div class="stat-delta">en <span id="stat-cats">—</span> categorías</div>
         </div>
         <div class="stat-card green">
           <div class="stat-top">
@@ -438,7 +438,7 @@ tbody tr:last-child td{border-bottom:none}
             </div>
             <div class="stat-label">Valor inventario ARS</div>
           </div>
-          <div class="stat-val mono" id="stat-valor">â€”</div>
+          <div class="stat-val mono" id="stat-valor">—</div>
           <div class="stat-delta">precio de costo total</div>
         </div>
         <div class="stat-card amber">
@@ -448,7 +448,7 @@ tbody tr:last-child td{border-bottom:none}
             </div>
             <div class="stat-label">Ganancia potencial</div>
           </div>
-          <div class="stat-val mono" id="stat-ganancia">â€”</div>
+          <div class="stat-val mono" id="stat-ganancia">—</div>
           <div class="stat-delta">con 40% de margen</div>
         </div>
         <div class="stat-card red">
@@ -458,14 +458,14 @@ tbody tr:last-child td{border-bottom:none}
             </div>
             <div class="stat-label">Usuarios pendientes</div>
           </div>
-          <div class="stat-val" id="stat-pendientes">â€”</div>
-          <div class="stat-delta">esperan aprobaciÃ³n</div>
+          <div class="stat-val" id="stat-pendientes">—</div>
+          <div class="stat-delta">esperan aprobación</div>
         </div>
       </div>
 
       <div class="panel" style="margin-bottom:14px">
         <div class="panel-header">
-          <div class="panel-title">âš¡ Alertas y acciones urgentes</div>
+          <div class="panel-title">⚡ Alertas y acciones urgentes</div>
           <button class="panel-action">Ver todas</button>
         </div>
         <div class="alert-list" id="alert-list">
@@ -476,8 +476,8 @@ tbody tr:last-child td{border-bottom:none}
       <div class="panel-grid">
         <div class="panel">
           <div class="panel-header">
-            <div class="panel-title">Ãšltimos repuestos cargados</div>
-            <button class="panel-action" onclick="showPage('repuestos')">Ver todos â†’</button>
+            <div class="panel-title">Últimos repuestos cargados</div>
+            <button class="panel-action" onclick="showPage('repuestos')">Ver todos →</button>
           </div>
           <div class="rep-list" id="ultimos-rep">
             <div class="loading-wrap"><div class="spinner"></div></div>
@@ -486,7 +486,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="panel">
           <div class="panel-header">
             <div class="panel-title">Usuarios recientes</div>
-            <button class="panel-action" onclick="showPage('usuarios')">Gestionar â†’</button>
+            <button class="panel-action" onclick="showPage('usuarios')">Gestionar →</button>
           </div>
           <div class="user-list" id="ultimos-users">
             <div class="loading-wrap"><div class="spinner"></div></div>
@@ -497,17 +497,17 @@ tbody tr:last-child td{border-bottom:none}
               <div class="fin-item"><div class="fin-label">Inventario ARS</div><div class="fin-val green" id="fin-ars">cargando...</div></div>
               <div class="fin-item"><div class="fin-label">Inventario USD</div><div class="fin-val blue" id="fin-usd">cargando...</div></div>
               <div class="fin-item"><div class="fin-label">Ganancia proyectada</div><div class="fin-val amber" id="fin-gan">cargando...</div></div>
-              <div class="fin-item"><div class="fin-label">Stock crÃ­tico</div><div class="fin-val red" id="fin-crit">cargando...</div></div>
+              <div class="fin-item"><div class="fin-label">Stock crítico</div><div class="fin-val red" id="fin-crit">cargando...</div></div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- â”€â”€â”€ USUARIOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── USUARIOS ──────────────────────────────────── -->
     <div class="page" id="page-usuarios">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600">GestiÃ³n de Usuarios</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600">Gestión de Usuarios</div>
         <div style="display:flex;gap:8px">
           <select class="form-select" style="width:140px" id="filter-estado" onchange="loadUsuarios()">
             <option value="">Todos</option>
@@ -521,8 +521,8 @@ tbody tr:last-child td{border-bottom:none}
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Usuario</th><th>Email</th><th>TelÃ©fono</th><th>Empresa</th>
-              <th>Estado</th><th>Ãšltimo acceso</th><th>Acciones</th>
+              <th>Usuario</th><th>Email</th><th>Teléfono</th><th>Empresa</th>
+              <th>Estado</th><th>Último acceso</th><th>Acciones</th>
             </tr></thead>
             <tbody id="tabla-usuarios">
               <tr><td colspan="7"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>
@@ -532,13 +532,13 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- â”€â”€â”€ REPUESTOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── REPUESTOS ─────────────────────────────────── -->
     <div class="page" id="page-repuestos">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
         <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600">Todos los repuestos</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <input type="text" class="form-input" style="width:180px" placeholder="Buscar..." id="rep-search" oninput="filterRepuestos()">
-          <select class="form-select" style="width:160px" id="rep-cat-filter" onchange="filterRepuestos()"><option value="">Todas las categorÃ­as</option></select>
+          <select class="form-select" style="width:160px" id="rep-cat-filter" onchange="filterRepuestos()"><option value="">Todas las categorías</option></select>
           <button class="btn btn-primary" onclick="showPage('nuevo-repuesto')">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Nuevo repuesto
@@ -549,7 +549,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Repuesto</th><th>CÃ³digo</th><th>CategorÃ­a</th><th>VehÃ­culo</th>
+              <th>Repuesto</th><th>Código</th><th>Categoría</th><th>Vehículo</th>
               <th>Stock</th><th>Precio venta c/IVA</th><th>Estado</th><th>Acciones</th>
             </tr></thead>
             <tbody id="tabla-repuestos">
@@ -561,40 +561,40 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- â”€â”€â”€ NUEVO REPUESTO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── NUEVO REPUESTO ────────────────────────────── -->
     <div class="page" id="page-nuevo-repuesto">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600" id="form-rep-title">Nuevo repuesto</div>
-        <button class="btn btn-ghost" onclick="showPage('repuestos')">â† Volver a la lista</button>
+        <button class="btn btn-ghost" onclick="showPage('repuestos')">← Volver a la lista</button>
       </div>
       <div id="form-rep-container"><!-- se carga con JS --></div>
     </div>
 
-    <!-- â”€â”€â”€ STOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── STOCK ──────────────────────────────────────── -->
     <div class="page" id="page-stock">
       <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;margin-bottom:14px">Stock total</div>
       <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
-        <div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-label">Con stock</div></div><div class="stat-val" id="stock-ok">â€”</div></div>
-        <div class="stat-card amber"><div class="stat-top"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-label">Queda 1</div></div><div class="stat-val" id="stock-one">â€”</div></div>
-        <div class="stat-card red"><div class="stat-top"><div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="stat-label">Sin stock</div></div><div class="stat-val" id="stock-zero">â€”</div></div>
+        <div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-label">Con stock</div></div><div class="stat-val" id="stock-ok">—</div></div>
+        <div class="stat-card amber"><div class="stat-top"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-label">Queda 1</div></div><div class="stat-val" id="stock-one">—</div></div>
+        <div class="stat-card red"><div class="stat-top"><div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="stat-label">Sin stock</div></div><div class="stat-val" id="stock-zero">—</div></div>
       </div>
       <div class="panel">
         <div class="panel-header"><div class="panel-title">Listado de stock</div></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Repuesto</th><th>CategorÃ­a</th><th>UbicaciÃ³n</th><th>Stock</th><th>Estado</th></tr></thead>
+            <thead><tr><th>Repuesto</th><th>Categoría</th><th>Ubicación</th><th>Stock</th><th>Estado</th></tr></thead>
             <tbody id="tabla-stock"><tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- â”€â”€â”€ AUMENTOS % â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── AUMENTOS % ────────────────────────────────── -->
     <div class="page" id="page-aumentos">
       <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;margin-bottom:14px">Aumentos de precios %</div>
       <div class="panel-grid">
         <div class="panel">
-          <div class="panel-header"><div class="panel-title">Aumento general â€” todos los productos</div></div>
+          <div class="panel-header"><div class="panel-title">Aumento general — todos los productos</div></div>
           <div style="padding:16px">
             <div class="form-group">
               <label class="form-label">Porcentaje de aumento</label>
@@ -602,23 +602,23 @@ tbody tr:last-child td{border-bottom:none}
             </div>
             <div style="display:flex;gap:8px">
               <button class="btn btn-primary" onclick="aplicarAumento('general')">Aplicar a todos</button>
-              <button class="btn btn-ghost" onclick="aplicarAumento('general', true)">SimulaciÃ³n</button>
+              <button class="btn btn-ghost" onclick="aplicarAumento('general', true)">Simulación</button>
             </div>
             <div id="aum-general-result" style="margin-top:10px;font-size:11px;color:var(--text3)"></div>
           </div>
         </div>
         <div class="panel">
-          <div class="panel-header"><div class="panel-title">Aumento por categorÃ­a</div></div>
+          <div class="panel-header"><div class="panel-title">Aumento por categoría</div></div>
           <div style="padding:16px">
             <div class="form-group">
-              <label class="form-label">CategorÃ­a</label>
-              <select class="form-select" id="aum-cat-sel"><option value="">SeleccionÃ¡ categorÃ­a</option></select>
+              <label class="form-label">Categoría</label>
+              <select class="form-select" id="aum-cat-sel"><option value="">Seleccioná categoría</option></select>
             </div>
             <div class="form-group">
               <label class="form-label">Porcentaje</label>
               <input type="number" class="form-input" id="aum-cat-pct" placeholder="Ej: 10" min="0" step="0.1">
             </div>
-            <button class="btn btn-primary" onclick="aplicarAumento('categoria')">Aplicar a categorÃ­a</button>
+            <button class="btn btn-primary" onclick="aplicarAumento('categoria')">Aplicar a categoría</button>
           </div>
         </div>
         <div class="panel">
@@ -626,7 +626,7 @@ tbody tr:last-child td{border-bottom:none}
           <div style="padding:16px">
             <div class="form-group">
               <label class="form-label">Marca de repuesto</label>
-              <select class="form-select" id="aum-marca-rep-sel"><option value="">SeleccionÃ¡ marca</option></select>
+              <select class="form-select" id="aum-marca-rep-sel"><option value="">Seleccioná marca</option></select>
             </div>
             <div class="form-group">
               <label class="form-label">Porcentaje</label>
@@ -636,11 +636,11 @@ tbody tr:last-child td{border-bottom:none}
           </div>
         </div>
         <div class="panel">
-          <div class="panel-header"><div class="panel-title">Aumento por marca de vehÃ­culo</div></div>
+          <div class="panel-header"><div class="panel-title">Aumento por marca de vehículo</div></div>
           <div style="padding:16px">
             <div class="form-group">
-              <label class="form-label">Marca de vehÃ­culo</label>
-              <select class="form-select" id="aum-marca-veh-sel"><option value="">SeleccionÃ¡ marca</option></select>
+              <label class="form-label">Marca de vehículo</label>
+              <select class="form-select" id="aum-marca-veh-sel"><option value="">Seleccioná marca</option></select>
             </div>
             <div class="form-group">
               <label class="form-label">Porcentaje</label>
@@ -652,89 +652,89 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- â”€â”€â”€ FINANZAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── FINANZAS ──────────────────────────────────── -->
     <div class="page" id="page-finanzas">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;margin-bottom:14px">Finanzas â€” Resumen total</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;margin-bottom:14px">Finanzas — Resumen total</div>
       <div class="stats-grid">
-        <div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-label">Costo total (ARS)</div></div><div class="stat-val mono" id="fin-total-ars">â€”</div><div class="stat-delta">lo que pagaste por todo</div></div>
-        <div class="stat-card blue"><div class="stat-top"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div class="stat-label">Costo total (USD)</div></div><div class="stat-val mono" id="fin-total-usd">â€”</div><div class="stat-delta">equivalente en dÃ³lares</div></div>
-        <div class="stat-card amber"><div class="stat-top"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div><div class="stat-label">Venta proyectada</div></div><div class="stat-val mono" id="fin-venta">â€”</div><div class="stat-delta">con 40% ganancia + IVA</div></div>
-        <div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="stat-label">Ganancia neta potencial</div></div><div class="stat-val mono" id="fin-gan-total">â€”</div><div class="stat-delta">si vendÃ©s todo</div></div>
+        <div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-label">Costo total (ARS)</div></div><div class="stat-val mono" id="fin-total-ars">—</div><div class="stat-delta">lo que pagaste por todo</div></div>
+        <div class="stat-card blue"><div class="stat-top"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><div class="stat-label">Costo total (USD)</div></div><div class="stat-val mono" id="fin-total-usd">—</div><div class="stat-delta">equivalente en dólares</div></div>
+        <div class="stat-card amber"><div class="stat-top"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div><div class="stat-label">Venta proyectada</div></div><div class="stat-val mono" id="fin-venta">—</div><div class="stat-delta">con 40% ganancia + IVA</div></div>
+        <div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="stat-label">Ganancia neta potencial</div></div><div class="stat-val mono" id="fin-gan-total">—</div><div class="stat-delta">si vendés todo</div></div>
       </div>
       <div class="panel">
-        <div class="panel-header"><div class="panel-title">Detalle por categorÃ­a</div></div>
+        <div class="panel-header"><div class="panel-title">Detalle por categoría</div></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>CategorÃ­a</th><th>Cantidad</th><th>Costo total</th><th>Venta proyectada</th><th>Ganancia</th></tr></thead>
+            <thead><tr><th>Categoría</th><th>Cantidad</th><th>Costo total</th><th>Venta proyectada</th><th>Ganancia</th></tr></thead>
             <tbody id="tabla-finanzas"><tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- â”€â”€â”€ ETIQUETAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── ETIQUETAS ─────────────────────────────────── -->
     <div class="page" id="page-etiquetas">
       <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;margin-bottom:14px">Imprimir Etiquetas</div>
       <div class="panel-grid-3">
         <div class="panel" style="cursor:pointer" onclick="showPage('etiq-portacarbones')">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">ðŸ”‹</div>
+            <div style="font-size:28px;margin-bottom:8px">🔋</div>
             <div style="font-size:13px;font-weight:500;color:var(--text)">Portacarbones</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
         </div>
         <div class="panel" style="cursor:pointer">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">âš™ï¸</div>
+            <div style="font-size:28px;margin-bottom:8px">⚙️</div>
             <div style="font-size:13px;font-weight:500;color:var(--text)">Impulsor Arranque</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
         </div>
         <div class="panel" style="cursor:pointer">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">ðŸ’¡</div>
-            <div style="font-size:13px;font-weight:500;color:var(--text)">LÃ¡mparas</div>
+            <div style="font-size:28px;margin-bottom:8px">💡</div>
+            <div style="font-size:13px;font-weight:500;color:var(--text)">Lámparas</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
         </div>
         <div class="panel" style="cursor:pointer">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">ðŸ”Œ</div>
+            <div style="font-size:28px;margin-bottom:8px">🔌</div>
             <div style="font-size:13px;font-weight:500;color:var(--text)">Mini Relay</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
         </div>
         <div class="panel" style="cursor:pointer">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">âš¡</div>
+            <div style="font-size:28px;margin-bottom:8px">⚡</div>
             <div style="font-size:13px;font-weight:500;color:var(--text)">Solenoide</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
         </div>
         <div class="panel" style="cursor:pointer">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">ðŸš—</div>
+            <div style="font-size:28px;margin-bottom:8px">🚗</div>
             <div style="font-size:13px;font-weight:500;color:var(--text)">Arranques</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
         </div>
         <div class="panel" style="cursor:pointer">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">ðŸ”†</div>
+            <div style="font-size:28px;margin-bottom:8px">🔆</div>
             <div style="font-size:13px;font-weight:500;color:var(--text)">Faros</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
         </div>
         <div class="panel" style="cursor:pointer">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">âš¡</div>
+            <div style="font-size:28px;margin-bottom:8px">⚡</div>
             <div style="font-size:13px;font-weight:500;color:var(--text)">Carbones</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
         </div>
         <div class="panel" style="cursor:pointer">
           <div style="padding:20px;text-align:center">
-            <div style="font-size:28px;margin-bottom:8px">ðŸŽ›ï¸</div>
+            <div style="font-size:28px;margin-bottom:8px">🎛️</div>
             <div style="font-size:13px;font-weight:500;color:var(--text)">Reguladores</div>
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Todas / Una x Una</div>
           </div>
@@ -742,52 +742,52 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- â”€â”€â”€ OTRAS PÃGINAS (placeholder) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
-    <!-- â”€â”€â”€ CATEGORÃAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── OTRAS PÁGINAS (placeholder) ──────────────── -->
+    <!-- ─── CATEGORÍAS ──────────────────────────────── -->
     <div class="page" id="page-categorias">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <div>
-          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">CategorÃ­as</h2>
-          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="cat-count">â€”</span></p>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Categorías</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="cat-count">—</span></p>
         </div>
-        <button class="btn btn-primary" onclick="abrirModalCategoria()">+ Nueva categorÃ­a</button>
+        <button class="btn btn-primary" onclick="abrirModalCategoria()">+ Nueva categoría</button>
       </div>
-      <div style="margin-bottom:14px"><input type="text" class="form-input" id="cat-search" placeholder="ðŸ” Buscar categorÃ­a..." oninput="filtrarCategorias()" style="max-width:360px"></div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="cat-search" placeholder="🔍 Buscar categoría..." oninput="filtrarCategorias()" style="max-width:360px"></div>
       <div id="cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
     </div>
 
-    <!-- â”€â”€â”€ MARCAS VEHÃCULO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── MARCAS VEHÍCULO ─────────────────────────── -->
     <div class="page" id="page-marcas-vehiculo">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <div>
-          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Marcas de VehÃ­culos</h2>
-          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="mv-count">â€”</span></p>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Marcas de Vehículos</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="mv-count">—</span></p>
         </div>
         <button class="btn btn-primary" onclick="abrirModalMarcaVeh()">+ Nueva marca</button>
       </div>
-      <div style="margin-bottom:14px"><input type="text" class="form-input" id="mv-search" placeholder="ðŸ” Buscar marca..." oninput="filtrarMarcasVeh()" style="max-width:360px"></div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="mv-search" placeholder="🔍 Buscar marca..." oninput="filtrarMarcasVeh()" style="max-width:360px"></div>
       <div id="mv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
     </div>
 
-    <!-- â”€â”€â”€ MARCAS REPUESTO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── MARCAS REPUESTO ─────────────────────────── -->
     <div class="page" id="page-marcas-repuesto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <div>
           <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Marcas de Repuestos</h2>
-          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="mr-count">â€”</span></p>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="mr-count">—</span></p>
         </div>
         <button class="btn btn-primary" onclick="abrirModalMarcaRep()">+ Nueva marca</button>
       </div>
-      <div style="margin-bottom:14px"><input type="text" class="form-input" id="mr-search" placeholder="ðŸ” Buscar marca..." oninput="filtrarMarcasRep()" style="max-width:360px"></div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="mr-search" placeholder="🔍 Buscar marca..." oninput="filtrarMarcasRep()" style="max-width:360px"></div>
       <div id="mr-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
     </div>
 
-    <!-- â”€â”€â”€ PROVEEDORES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── PROVEEDORES ─────────────────────────────── -->
     <div class="page" id="page-proveedores">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <div>
           <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Proveedores</h2>
-          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="prov-count">â€”</span></p>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="prov-count">—</span></p>
         </div>
         <button class="btn btn-primary" onclick="abrirModalProveedor()">+ Nuevo proveedor</button>
       </div>
@@ -795,9 +795,9 @@ tbody tr:last-child td{border-bottom:none}
         <table style="width:100%;border-collapse:collapse;font-size:13px">
           <thead><tr style="border-bottom:1px solid var(--border)">
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Nombre</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">CÃ³digo</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Contacto</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">TelÃ©fono</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Teléfono</th>
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acciones</th>
           </tr></thead>
           <tbody id="prov-tbody"></tbody>
@@ -805,19 +805,19 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- â”€â”€â”€ CATÃLOGOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── CATÁLOGOS ───────────────────────────────── -->
     <div class="page" id="page-catalogos">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <div>
-          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">CatÃ¡logos de Papel</h2>
-          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Registros de catÃ¡logos fÃ­sicos para referencia de pÃ¡ginas</p>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Catálogos de Papel</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Registros de catálogos físicos para referencia de páginas</p>
         </div>
-        <button class="btn btn-primary" onclick="abrirModalCatalogo()">+ Nuevo catÃ¡logo</button>
+        <button class="btn btn-primary" onclick="abrirModalCatalogo()">+ Nuevo catálogo</button>
       </div>
       <div id="cat-lista-wrap" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
     </div>
 
-    <!-- â”€â”€â”€ FALTANTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── FALTANTES ───────────────────────────────── -->
     <div class="page" id="page-faltantes">
       <div style="margin-bottom:20px">
         <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Repuestos Faltantes</h2>
@@ -827,28 +827,28 @@ tbody tr:last-child td{border-bottom:none}
         <table style="width:100%;border-collapse:collapse;font-size:13px">
           <thead><tr style="border-bottom:1px solid var(--border)">
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">CÃ³digo</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">CategorÃ­a</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Precio</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">AcciÃ³n</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acción</th>
           </tr></thead>
           <tbody id="falt-tbody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- â”€â”€â”€ QUEDA UNO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── QUEDA UNO ────────────────────────────────── -->
     <div class="page" id="page-queda-uno">
       <div style="margin-bottom:20px">
-        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">âš ï¸ Queda una unidad</h2>
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">⚠️ Queda una unidad</h2>
         <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Repuestos con stock = 1</p>
       </div>
       <div id="uno-wrap" style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:13px">
           <thead><tr style="border-bottom:1px solid var(--border)">
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">CÃ³digo</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">CategorÃ­a</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Precio</th>
           </tr></thead>
           <tbody id="uno-tbody"></tbody>
@@ -856,34 +856,34 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- â”€â”€â”€ SIN PRECIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── SIN PRECIO ──────────────────────────────── -->
     <div class="page" id="page-sin-precio">
       <div style="margin-bottom:20px">
-        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">ðŸ”´ Sin precio</h2>
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">🔴 Sin precio</h2>
         <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Repuestos sin precio de venta cargado</p>
       </div>
       <div id="sp-wrap" style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:13px">
           <thead><tr style="border-bottom:1px solid var(--border)">
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">CÃ³digo</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">CategorÃ­a</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
             <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Stock</th>
-            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">AcciÃ³n</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acción</th>
           </tr></thead>
           <tbody id="sp-tbody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- â”€â”€â”€ AGREGAR STOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── AGREGAR STOCK ────────────────────────────── -->
     <div class="page" id="page-agregar-stock">
       <div style="max-width:520px;margin:0 auto">
-        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">âž• Agregar al Stock</h2>
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">➕ Agregar al Stock</h2>
         <div class="panel" style="padding:24px">
           <div class="form-group">
             <label class="form-label">Buscar repuesto</label>
-            <input type="text" class="form-input" id="as-search" placeholder="Nombre o cÃ³digo..." oninput="buscarParaStock('as')">
+            <input type="text" class="form-input" id="as-search" placeholder="Nombre o código..." oninput="buscarParaStock('as')">
             <div id="as-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>
           </div>
           <div id="as-selected" style="display:none;margin-top:12px;padding:12px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:8px">
@@ -895,22 +895,22 @@ tbody tr:last-child td{border-bottom:none}
             </div>
             <div class="form-group">
               <label class="form-label">Motivo (opcional)</label>
-              <input type="text" class="form-input" id="as-motivo" placeholder="Ej: reposiciÃ³n de stock">
+              <input type="text" class="form-input" id="as-motivo" placeholder="Ej: reposición de stock">
             </div>
-            <button class="btn btn-primary" onclick="confirmarAgregarStock()">âœ… Confirmar agregado</button>
+            <button class="btn btn-primary" onclick="confirmarAgregarStock()">✅ Confirmar agregado</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- â”€â”€â”€ DESCONTAR STOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── DESCONTAR STOCK ──────────────────────────── -->
     <div class="page" id="page-descontar-stock">
       <div style="max-width:520px;margin:0 auto">
-        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">âž– Descontar del Stock (Venta)</h2>
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">➖ Descontar del Stock (Venta)</h2>
         <div class="panel" style="padding:24px">
           <div class="form-group">
             <label class="form-label">Buscar repuesto</label>
-            <input type="text" class="form-input" id="ds-search" placeholder="Nombre o cÃ³digo..." oninput="buscarParaStock('ds')">
+            <input type="text" class="form-input" id="ds-search" placeholder="Nombre o código..." oninput="buscarParaStock('ds')">
             <div id="ds-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>
           </div>
           <div id="ds-selected" style="display:none;margin-top:12px;padding:12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:8px">
@@ -924,15 +924,15 @@ tbody tr:last-child td{border-bottom:none}
               <label class="form-label">Comprador (opcional)</label>
               <input type="text" class="form-input" id="ds-comprador" placeholder="Nombre del comprador">
             </div>
-            <button class="btn" style="background:var(--red);color:#fff" onclick="confirmarDescontarStock()">âœ… Confirmar venta</button>
+            <button class="btn" style="background:var(--red);color:#fff" onclick="confirmarDescontarStock()">✅ Confirmar venta</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- â”€â”€â”€ GANANCIAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── GANANCIAS ───────────────────────────────── -->
     <div class="page" id="page-ganancias">
-      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">ðŸ’° Ganancias</h2>
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">💰 Ganancias</h2>
       <div id="gan-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:24px"></div>
       <div class="panel" style="padding:20px">
         <h3 style="font-size:14px;font-weight:600;color:var(--text);margin:0 0 16px">Detalle por repuesto (Top 20 por ganancia)</h3>
@@ -951,30 +951,30 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- â”€â”€â”€ BUSCADOR AVANZADO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── BUSCADOR AVANZADO ────────────────────────── -->
     <div class="page" id="page-buscador">
-      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">ðŸ” Buscador Avanzado</h2>
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">🔍 Buscador Avanzado</h2>
       <div class="panel" style="padding:20px;margin-bottom:20px">
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px">
-          <div class="form-group" style="margin:0"><label class="form-label">Nombre / cÃ³digo</label><input type="text" class="form-input" id="bav-texto" placeholder="Ej: alternador bosch"></div>
-          <div class="form-group" style="margin:0"><label class="form-label">CategorÃ­a</label><select class="form-select" id="bav-cat"><option value="">Todas</option></select></div>
-          <div class="form-group" style="margin:0"><label class="form-label">Marca vehÃ­culo</label><select class="form-select" id="bav-mv"><option value="">Todas</option></select></div>
-          <div class="form-group" style="margin:0"><label class="form-label">CondiciÃ³n</label><select class="form-select" id="bav-cond"><option value="">Cualquiera</option><option>NUEVO</option><option>USADO</option><option>RECAMBIO</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Nombre / código</label><input type="text" class="form-input" id="bav-texto" placeholder="Ej: alternador bosch"></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Categoría</label><select class="form-select" id="bav-cat"><option value="">Todas</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Marca vehículo</label><select class="form-select" id="bav-mv"><option value="">Todas</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Condición</label><select class="form-select" id="bav-cond"><option value="">Cualquiera</option><option>NUEVO</option><option>USADO</option><option>RECAMBIO</option></select></div>
           <div class="form-group" style="margin:0"><label class="form-label">Tipo</label><select class="form-select" id="bav-tipo"><option value="">Cualquiera</option><option>ORIGINAL</option><option>COPIA</option></select></div>
-          <div class="form-group" style="margin:0"><label class="form-label">Stock mÃ­nimo</label><input type="number" class="form-input" id="bav-stock" placeholder="0" min="0"></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Stock mínimo</label><input type="number" class="form-input" id="bav-stock" placeholder="0" min="0"></div>
         </div>
         <div style="margin-top:16px;display:flex;gap:10px">
-          <button class="btn btn-primary" onclick="ejecutarBuscador()">ðŸ” Buscar</button>
-          <button class="btn btn-ghost" onclick="limpiarBuscador()">âœ– Limpiar</button>
+          <button class="btn btn-primary" onclick="ejecutarBuscador()">🔍 Buscar</button>
+          <button class="btn btn-ghost" onclick="limpiarBuscador()">✖ Limpiar</button>
         </div>
       </div>
       <div id="bav-result-info" style="font-size:13px;color:var(--text-muted);margin-bottom:10px"></div>
       <div id="bav-results" style="overflow-x:auto"></div>
     </div>
 
-    <!-- â”€â”€â”€ CONSULTAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ─── CONSULTAS ───────────────────────────────── -->
     <div class="page" id="page-consultas">
-      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">ðŸ“© Consultas de compradores</h2>
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">📩 Consultas de compradores</h2>
       <div id="cons-wrap">
         <div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando consultas...</div></div>
       </div>
@@ -1002,13 +1002,13 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<!-- FIREBASE + LÃ“GICA -->
+<!-- FIREBASE + LÓGICA -->
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, deleteDoc, addDoc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// â”€â”€ CONFIG (mismo que index.html) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CONFIG (mismo que index.html) ─────────────────────
 const firebaseConfig = {
   apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
   authDomain:        "repuestos-automotor.firebaseapp.com",
@@ -1021,7 +1021,7 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// â”€â”€ GUARD: verificar que sea admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── GUARD: verificar que sea admin ────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = '../index.html'; return; }
   const snap = await getDoc(doc(db, 'usuarios', user.uid));
@@ -1034,10 +1034,10 @@ onAuthStateChanged(auth, async (user) => {
   initDashboard();
 });
 
-// â”€â”€ LOGOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── LOGOUT ────────────────────────────────────────────
 window.doLogout = () => signOut(auth).then(() => window.location.href = '../index.html');
 
-// â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── HELPERS ───────────────────────────────────────────
 const fmt = (n) => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n||0);
 const fmtN = (n) => new Intl.NumberFormat('es-AR').format(n||0);
 
@@ -1045,8 +1045,8 @@ function toast(msg, type='info') {
   const w = document.getElementById('toast-wrap');
   const t = document.createElement('div');
   t.className = `toast ${type}`;
-  const icons = {success:'âœ…',error:'âŒ',info:'ðŸ’¬'};
-  t.innerHTML = `<span>${icons[type]||'ðŸ’¬'}</span><span>${msg}</span>`;
+  const icons = {success:'✅',error:'❌',info:'💬'};
+  t.innerHTML = `<span>${icons[type]||'💬'}</span><span>${msg}</span>`;
   w.appendChild(t);
   setTimeout(()=>t.remove(), 3500);
 }
@@ -1054,10 +1054,10 @@ window.toast = toast;
 
 window.closeModal = (id) => document.getElementById(id).classList.remove('open');
 
-// â”€â”€ DASHBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── DASHBOARD ─────────────────────────────────────────
 async function initDashboard() {
   // Fecha
-  const dias = ['Domingo','Lunes','Martes','MiÃ©rcoles','Jueves','Viernes','SÃ¡bado'];
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const ahora = new Date();
   document.getElementById('topbar-date').textContent = `${dias[ahora.getDay()]} ${ahora.getDate()} de ${meses[ahora.getMonth()]} de ${ahora.getFullYear()}`;
@@ -1091,7 +1091,7 @@ async function initDashboard() {
   document.getElementById('badge-sin-precio').textContent  = sinPrecio;
   document.getElementById('notif-dot').style.display = pendientes > 0 ? 'block' : 'none';
 
-  // Finanzas rÃ¡pidas
+  // Finanzas rápidas
   document.getElementById('fin-ars').textContent  = fmt(totalCosto);
   document.getElementById('fin-usd').textContent  = 'U$D ' + fmtN(Math.round(totalCosto/1200));
   document.getElementById('fin-gan').textContent  = fmt(totalVenta-totalCosto);
@@ -1099,15 +1099,15 @@ async function initDashboard() {
 
   // Alertas
   const alertas = [];
-  if (faltantes>0) alertas.push({tipo:'red',ic:'alert',titulo:`${faltantes} repuestos sin stock`,desc:'Stock en 0 â€” no disponibles para compradores',accion:'Ver faltantes',page:'faltantes'});
-  if (pendientes>0) alertas.push({tipo:'amber',ic:'clock',titulo:`${pendientes} usuarios esperan aprobaciÃ³n`,desc:'RevisÃ¡ y aprobÃ¡ o rechazÃ¡ cada uno',accion:'Gestionar',page:'usuarios'});
+  if (faltantes>0) alertas.push({tipo:'red',ic:'alert',titulo:`${faltantes} repuestos sin stock`,desc:'Stock en 0 — no disponibles para compradores',accion:'Ver faltantes',page:'faltantes'});
+  if (pendientes>0) alertas.push({tipo:'amber',ic:'clock',titulo:`${pendientes} usuarios esperan aprobación`,desc:'Revisá y aprobá o rechazá cada uno',accion:'Gestionar',page:'usuarios'});
   if (sinPrecio>0) alertas.push({tipo:'amber',ic:'dollar',titulo:`${sinPrecio} repuestos sin precio`,desc:'Fueron cargados pero no tienen precio asignado',accion:'Completar',page:'sin-precio'});
-  const consultas = 0; // se podrÃ­a cargar de la colecciÃ³n consultas
+  const consultas = 0; // se podría cargar de la colección consultas
   if (consultas>0) alertas.push({tipo:'blue',ic:'msg',titulo:`${consultas} consultas nuevas`,desc:'Compradores interesados esperan respuesta',accion:'Responder',page:'consultas'});
 
   const al = document.getElementById('alert-list');
   if (alertas.length===0) {
-    al.innerHTML = '<div class="empty"><div class="empty-icon">âœ…</div><div class="empty-title">Todo en orden</div><div class="empty-sub">No hay alertas pendientes</div></div>';
+    al.innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">Todo en orden</div><div class="empty-sub">No hay alertas pendientes</div></div>';
   } else {
     al.innerHTML = alertas.map(a=>`
       <div class="alert-row" onclick="showPage('${a.page}')">
@@ -1122,19 +1122,19 @@ async function initDashboard() {
       </div>`).join('');
   }
 
-  // Ãšltimos repuestos (5)
+  // Últimos repuestos (5)
   const ultReps = reps.slice(-5).reverse();
   const ur = document.getElementById('ultimos-rep');
   ur.innerHTML = ultReps.length === 0
-    ? '<div class="empty"><div class="empty-icon">ðŸ“¦</div><div class="empty-title">Sin repuestos aÃºn</div><div class="empty-sub">CargÃ¡ tu primer repuesto</div></div>'
+    ? '<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Sin repuestos aún</div><div class="empty-sub">Cargá tu primer repuesto</div></div>'
     : ultReps.map(r=>{
         const stock = r.cant_artic||0;
         const sc = stock===0?'sem-r':stock===1?'sem-a':'sem-g';
         return `<div class="rep-row" onclick="showPage('repuestos')">
-          <div class="rep-thumb">âš¡</div>
+          <div class="rep-thumb">⚡</div>
           <div class="rep-info">
             <div class="rep-name">${r.titulo_repuesto||'Sin nombre'}</div>
-            <div class="rep-meta">${r.categoria||''} Â· ${r.marca_vehiculo_1||'Universal'}</div>
+            <div class="rep-meta">${r.categoria||''} · ${r.marca_vehiculo_1||'Universal'}</div>
           </div>
           <div class="sem ${sc}"></div>
           <div class="rep-price">
@@ -1144,11 +1144,11 @@ async function initDashboard() {
         </div>`;
       }).join('');
 
-  // Ãšltimos usuarios (5)
+  // Últimos usuarios (5)
   const ultUsers = users.slice(-5).reverse();
   const uu = document.getElementById('ultimos-users');
   uu.innerHTML = ultUsers.length===0
-    ? '<div class="empty"><div class="empty-icon">ðŸ‘¥</div><div class="empty-title">Sin usuarios</div></div>'
+    ? '<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Sin usuarios</div></div>'
     : ultUsers.map(u=>{
         const initials = (u.nombre_completo||'?').split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
         const colors = {pendiente:'var(--amber)',activo:'var(--green)',bloqueado:'var(--red)'};
@@ -1171,7 +1171,7 @@ async function initDashboard() {
   window._users = users;
 }
 
-// â”€â”€ USUARIOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── USUARIOS ──────────────────────────────────────────
 window.loadUsuarios = async function() {
   const filtro = document.getElementById('filter-estado')?.value || '';
   const tbody  = document.getElementById('tabla-usuarios');
@@ -1179,17 +1179,17 @@ window.loadUsuarios = async function() {
   const snap = await getDocs(collection(db,'usuarios'));
   let users = snap.docs.map(d=>({id:d.id,...d.data()}));
   if (filtro) users = users.filter(u=>u.estado===filtro);
-  if (users.length===0){ tbody.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">ðŸ‘¥</div><div class="empty-title">Sin usuarios</div></div></td></tr>'; return; }
+  if (users.length===0){ tbody.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Sin usuarios</div></div></td></tr>'; return; }
   const colors={pendiente:'var(--amber)',activo:'var(--green)',bloqueado:'var(--red)'};
   const badges={pendiente:'badge-pend',activo:'badge-act',bloqueado:'badge-blk'};
   const labels={pendiente:'Pendiente',activo:'Activo',bloqueado:'Bloqueado'};
   tbody.innerHTML = users.map(u=>{
-    const ts = u.ultimo_acceso?.toDate ? u.ultimo_acceso.toDate().toLocaleDateString('es-AR') : 'â€”';
+    const ts = u.ultimo_acceso?.toDate ? u.ultimo_acceso.toDate().toLocaleDateString('es-AR') : '—';
     return `<tr>
-      <td><span style="font-weight:500;color:var(--text)">${u.nombre_completo||'â€”'}</span></td>
-      <td>${u.email||'â€”'}</td>
-      <td>${u.telefono||'â€”'}</td>
-      <td>${u.empresa||'â€”'}</td>
+      <td><span style="font-weight:500;color:var(--text)">${u.nombre_completo||'—'}</span></td>
+      <td>${u.email||'—'}</td>
+      <td>${u.telefono||'—'}</td>
+      <td>${u.empresa||'—'}</td>
       <td><span class="badge ${badges[u.estado]||''}">${labels[u.estado]||u.estado}</span></td>
       <td>${ts}</td>
       <td>
@@ -1211,7 +1211,7 @@ window.cambiarEstadoUser = async function(uid, estado, event) {
   } catch(e) { toast('Error al actualizar usuario','error'); }
 };
 
-// â”€â”€ REPUESTOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── REPUESTOS ─────────────────────────────────────────
 window.loadRepuestos = async function() {
   const tbody = document.getElementById('tabla-repuestos');
   tbody.innerHTML = '<tr><td colspan="8"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
@@ -1224,14 +1224,14 @@ function renderRepuestos(reps) {
   const tbody = document.getElementById('tabla-repuestos');
   const cnt   = document.getElementById('rep-count');
   cnt.textContent = `${reps.length} repuesto${reps.length!==1?'s':''} encontrado${reps.length!==1?'s':''}`;
-  if (reps.length===0){ tbody.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">ðŸ“¦</div><div class="empty-title">Sin repuestos</div></div></td></tr>'; return; }
+  if (reps.length===0){ tbody.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Sin repuestos</div></div></td></tr>'; return; }
   const sem = (s)=>s===0?'sem-r':s===1?'sem-a':'sem-g';
   tbody.innerHTML = reps.map(r=>{
     const stock = r.cant_artic||0;
     return `<tr>
-      <td class="td-name" title="${r.titulo_repuesto||''}">${r.titulo_repuesto||'â€”'}</td>
-      <td class="td-code">${r.codigo||'â€”'}</td>
-      <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.categoria||'â€”'}</td>
+      <td class="td-name" title="${r.titulo_repuesto||''}">${r.titulo_repuesto||'—'}</td>
+      <td class="td-code">${r.codigo||'—'}</td>
+      <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.categoria||'—'}</td>
       <td style="font-size:11px">${r.marca_vehiculo_1||'Universal'}</td>
       <td><div style="display:flex;align-items:center;gap:5px"><div class="sem ${sem(stock)}"></div><span style="font-size:11.5px;font-family:'JetBrains Mono',monospace">${stock}</span></div></td>
       <td class="td-price">${fmt(r.precio_venta_iva)}</td>
@@ -1260,7 +1260,7 @@ window.editarRepuesto = function(id) {
   showPage('nuevo-repuesto');
 };
 
-// â”€â”€ APLICAR AUMENTOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── APLICAR AUMENTOS ──────────────────────────────────
 window.aplicarAumento = async function(tipo, simulacion=false) {
   let pct, filtro, campo;
   if (tipo==='general') {
@@ -1275,7 +1275,7 @@ window.aplicarAumento = async function(tipo, simulacion=false) {
     pct    = parseFloat(document.getElementById('aum-marca-veh-pct').value);
     filtro = document.getElementById('aum-marca-veh-sel').value;
   }
-  if (!pct || isNaN(pct)) { toast('IngresÃ¡ un porcentaje vÃ¡lido','error'); return; }
+  if (!pct || isNaN(pct)) { toast('Ingresá un porcentaje válido','error'); return; }
   if (!window._repsAll) await loadRepuestos();
   let reps = window._repsAll;
   if (tipo==='categoria' && filtro) reps=reps.filter(r=>r.categoria_id===filtro);
@@ -1283,7 +1283,7 @@ window.aplicarAumento = async function(tipo, simulacion=false) {
   if (tipo==='marca_veh' && filtro) reps=reps.filter(r=>r.marcas_vehiculo?.includes(filtro));
   if (simulacion) {
     const res = document.getElementById('aum-general-result');
-    res.textContent = `SimulaciÃ³n: se actualizarÃ­an ${reps.length} repuestos con +${pct}%. Sin cambios reales.`;
+    res.textContent = `Simulación: se actualizarían ${reps.length} repuestos con +${pct}%. Sin cambios reales.`;
     return;
   }
   const factor = 1 + pct/100;
@@ -1298,22 +1298,22 @@ window.aplicarAumento = async function(tipo, simulacion=false) {
       actualizados++;
     } catch(e){}
   }
-  toast(`âœ… ${actualizados} repuestos actualizados con +${pct}%`,'success');
+  toast(`✅ ${actualizados} repuestos actualizados con +${pct}%`,'success');
   await loadRepuestos();
 };
 
-// â”€â”€ NAVEGACIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── NAVEGACIÓN ────────────────────────────────────────
 window.showPage = function(id) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   const page = document.getElementById(`page-${id}`);
   if (page) page.classList.add('active');
   const ti = {
-    'dashboard':'Dashboard','usuarios':'GestiÃ³n de Usuarios',
+    'dashboard':'Dashboard','usuarios':'Gestión de Usuarios',
     'repuestos':'Todos los repuestos','nuevo-repuesto':'Nuevo Repuesto',
-    'categorias':'CategorÃ­as','marcas-vehiculo':'Marcas de VehÃ­culos',
+    'categorias':'Categorías','marcas-vehiculo':'Marcas de Vehículos',
     'marcas-repuesto':'Marcas de Repuestos','proveedores':'Proveedores',
-    'catalogos':'CatÃ¡logos de Papel','stock':'Stock total',
+    'catalogos':'Catálogos de Papel','stock':'Stock total',
     'faltantes':'Repuestos faltantes','queda-uno':'Queda una unidad',
     'sin-precio':'Sin precio','agregar-stock':'Agregar al stock',
     'descontar-stock':'Descontar del stock','aumentos':'Aumentos de precios %',
@@ -1346,7 +1346,7 @@ window.globalSearch = function(q) {
   if (q.length>2) { showPage('repuestos'); document.getElementById('rep-search').value=q; filterRepuestos(); }
 };
 
-// â”€â”€ UTILIDAD: card de Ã­tem de lista â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── UTILIDAD: card de ítem de lista ──────────────────
 function cardItem(nombre, extra='', onEdit='', onDel='') {
   return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
     <div><div style="font-size:13px;font-weight:500;color:var(--text)">${nombre}</div>${extra?`<div style="font-size:11px;color:var(--text-muted);margin-top:3px">${extra}</div>`:''}</div>
@@ -1357,7 +1357,7 @@ function cardItem(nombre, extra='', onEdit='', onDel='') {
   </div>`;
 }
 
-// â”€â”€ CATEGORÃAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CATEGORÍAS ────────────────────────────────────────
 let _cats = [];
 window.loadCategorias = async function() {
   const grid = document.getElementById('cat-grid');
@@ -1369,7 +1369,7 @@ window.loadCategorias = async function() {
 };
 function renderCats(arr) {
   const grid = document.getElementById('cat-grid');
-  if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay categorÃ­as.</p>'; return; }
+  if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay categorías.</p>'; return; }
   grid.innerHTML = arr.map(c=>cardItem(c.nombre,'',`editarCategoria('${c.id}')`,`eliminarCategoria('${c.id}')`)).join('');
 }
 window.filtrarCategorias = function() {
@@ -1377,12 +1377,12 @@ window.filtrarCategorias = function() {
   renderCats(q ? _cats.filter(c=>c.nombre?.toLowerCase().includes(q)) : _cats);
 };
 window.abrirModalCategoria = function(id='',nombre='') {
-  const n = prompt(id ? 'Editar nombre de categorÃ­a:' : 'Nombre de la nueva categorÃ­a:', nombre);
+  const n = prompt(id ? 'Editar nombre de categoría:' : 'Nombre de la nueva categoría:', nombre);
   if (!n?.trim()) return;
   if (id) {
-    updateDoc(doc(db,'categorias',id),{nombre:n.trim()}).then(()=>{ toast('CategorÃ­a actualizada','success'); loadCategorias(); });
+    updateDoc(doc(db,'categorias',id),{nombre:n.trim()}).then(()=>{ toast('Categoría actualizada','success'); loadCategorias(); });
   } else {
-    addDoc(collection(db,'categorias'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('CategorÃ­a creada','success'); loadCategorias(); });
+    addDoc(collection(db,'categorias'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('Categoría creada','success'); loadCategorias(); });
   }
 };
 window.editarCategoria = function(id) {
@@ -1390,13 +1390,13 @@ window.editarCategoria = function(id) {
   if (cat) abrirModalCategoria(id, cat.nombre);
 };
 window.eliminarCategoria = async function(id) {
-  if (!confirm('Â¿Eliminar esta categorÃ­a?')) return;
+  if (!confirm('¿Eliminar esta categoría?')) return;
   await deleteDoc(doc(db,'categorias',id));
-  toast('CategorÃ­a eliminada','success');
+  toast('Categoría eliminada','success');
   loadCategorias();
 };
 
-// â”€â”€ MARCAS VEHÃCULO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── MARCAS VEHÍCULO ───────────────────────────────────
 let _marcasVeh = [];
 window.loadMarcasVeh = async function() {
   const grid = document.getElementById('mv-grid');
@@ -1416,7 +1416,7 @@ window.filtrarMarcasVeh = function() {
   renderMarcasVeh(q ? _marcasVeh.filter(m=>m.nombre?.toLowerCase().includes(q)) : _marcasVeh);
 };
 window.abrirModalMarcaVeh = function(id='',nombre='') {
-  const n = prompt(id ? 'Editar marca:' : 'Nombre de la nueva marca de vehÃ­culo:', nombre);
+  const n = prompt(id ? 'Editar marca:' : 'Nombre de la nueva marca de vehículo:', nombre);
   if (!n?.trim()) return;
   if (id) {
     updateDoc(doc(db,'marcas_vehiculo',id),{nombre:n.trim()}).then(()=>{ toast('Marca actualizada','success'); loadMarcasVeh(); });
@@ -1426,12 +1426,12 @@ window.abrirModalMarcaVeh = function(id='',nombre='') {
 };
 window.editarMarcaVeh  = function(id) { const m=_marcasVeh.find(x=>x.id===id); if(m) abrirModalMarcaVeh(id,m.nombre); };
 window.eliminarMarcaVeh = async function(id) {
-  if (!confirm('Â¿Eliminar esta marca?')) return;
+  if (!confirm('¿Eliminar esta marca?')) return;
   await deleteDoc(doc(db,'marcas_vehiculo',id));
   toast('Marca eliminada','success'); loadMarcasVeh();
 };
 
-// â”€â”€ MARCAS REPUESTO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── MARCAS REPUESTO ───────────────────────────────────
 let _marcasRep = [];
 window.loadMarcasRep = async function() {
   const grid = document.getElementById('mr-grid');
@@ -1461,12 +1461,12 @@ window.abrirModalMarcaRep = function(id='',nombre='') {
 };
 window.editarMarcaRep  = function(id) { const m=_marcasRep.find(x=>x.id===id); if(m) abrirModalMarcaRep(id,m.nombre); };
 window.eliminarMarcaRep = async function(id) {
-  if (!confirm('Â¿Eliminar esta marca?')) return;
+  if (!confirm('¿Eliminar esta marca?')) return;
   await deleteDoc(doc(db,'marcas_repuesto',id));
   toast('Marca eliminada','success'); loadMarcasRep();
 };
 
-// â”€â”€ PROVEEDORES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PROVEEDORES ───────────────────────────────────────
 let _provs = [];
 window.loadProveedores = async function() {
   const tbody = document.getElementById('prov-tbody');
@@ -1475,10 +1475,10 @@ window.loadProveedores = async function() {
   _provs = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
   document.getElementById('prov-count').textContent = _provs.length;
   tbody.innerHTML = _provs.map(p=>`<tr style="border-bottom:1px solid var(--border)">
-    <td style="padding:10px 12px;color:var(--text);font-weight:500">${p.nombre||'â€”'}</td>
-    <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;font-family:monospace">${p.codigo||'â€”'}</td>
-    <td style="padding:10px 12px;color:var(--text-muted)">${p.contacto||'â€”'}</td>
-    <td style="padding:10px 12px;color:var(--text-muted)">${p.telefono||'â€”'}</td>
+    <td style="padding:10px 12px;color:var(--text);font-weight:500">${p.nombre||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;font-family:monospace">${p.codigo||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted)">${p.contacto||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted)">${p.telefono||'—'}</td>
     <td style="padding:10px 12px">
       <button class="action-btn edit" onclick="editarProveedor('${p.id}')" title="Editar"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
       <button class="action-btn del" onclick="eliminarProveedor('${p.id}')" title="Eliminar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
@@ -1487,9 +1487,9 @@ window.loadProveedores = async function() {
 };
 window.abrirModalProveedor = function(p={}) {
   const nombre   = prompt('Nombre del proveedor:', p.nombre||''); if (!nombre?.trim()) return;
-  const codigo   = prompt('CÃ³digo corto (ej: BOSCH):', p.codigo||'')||'';
+  const codigo   = prompt('Código corto (ej: BOSCH):', p.codigo||'')||'';
   const contacto = prompt('Nombre de contacto:', p.contacto||'')||'';
-  const telefono = prompt('TelÃ©fono:', p.telefono||'')||'';
+  const telefono = prompt('Teléfono:', p.telefono||'')||'';
   const data = {nombre:nombre.trim(),codigo:codigo.trim().toUpperCase(),contacto,telefono};
   if (p.id) {
     updateDoc(doc(db,'proveedores',p.id),data).then(()=>{ toast('Proveedor actualizado','success'); loadProveedores(); });
@@ -1499,25 +1499,25 @@ window.abrirModalProveedor = function(p={}) {
 };
 window.editarProveedor = function(id) { const p=_provs.find(x=>x.id===id); if(p) abrirModalProveedor(p); };
 window.eliminarProveedor = async function(id) {
-  if (!confirm('Â¿Eliminar este proveedor?')) return;
+  if (!confirm('¿Eliminar este proveedor?')) return;
   await deleteDoc(doc(db,'proveedores',id));
   toast('Proveedor eliminado','success'); loadProveedores();
 };
 
-// â”€â”€ CATÃLOGOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CATÁLOGOS ─────────────────────────────────────────
 let _catalogos = [];
 window.loadCatalogos = async function() {
   const wrap = document.getElementById('cat-lista-wrap');
   wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
   const snap = await getDocs(collection(db,'catalogos'));
   _catalogos = snap.docs.map(d=>({id:d.id,...d.data()}));
-  if (!_catalogos.length) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay catÃ¡logos registrados.</p>'; return; }
+  if (!_catalogos.length) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay catálogos registrados.</p>'; return; }
   wrap.innerHTML = _catalogos.map(c=>`
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
-          <div style="font-size:14px;font-weight:600;color:var(--text)">${c.nombre||'â€”'}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${c.editorial||''} ${c.anio?'Â· '+c.anio:''}</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${c.nombre||'—'}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${c.editorial||''} ${c.anio?'· '+c.anio:''}</div>
           ${c.notas?`<div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic">${c.notas}</div>`:''}
         </div>
         <div style="display:flex;gap:6px">
@@ -1527,36 +1527,36 @@ window.loadCatalogos = async function() {
     </div>`).join('');
 };
 window.abrirModalCatalogo = function() {
-  const nombre = prompt('Nombre del catÃ¡logo:', ''); if (!nombre?.trim()) return;
+  const nombre = prompt('Nombre del catálogo:', ''); if (!nombre?.trim()) return;
   const editorial = prompt('Editorial / Marca:', '')||'';
-  const anio = prompt('AÃ±o:', '')||'';
+  const anio = prompt('Año:', '')||'';
   const notas = prompt('Notas (opcional):', '')||'';
   addDoc(collection(db,'catalogos'),{nombre:nombre.trim(),editorial,anio,notas,creado_en:serverTimestamp()})
-    .then(()=>{ toast('CatÃ¡logo agregado','success'); loadCatalogos(); });
+    .then(()=>{ toast('Catálogo agregado','success'); loadCatalogos(); });
 };
 window.eliminarCatalogo = async function(id) {
-  if (!confirm('Â¿Eliminar este catÃ¡logo?')) return;
+  if (!confirm('¿Eliminar este catálogo?')) return;
   await deleteDoc(doc(db,'catalogos',id));
-  toast('CatÃ¡logo eliminado','success'); loadCatalogos();
+  toast('Catálogo eliminado','success'); loadCatalogos();
 };
 
-// â”€â”€ FALTANTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── FALTANTES ─────────────────────────────────────────
 window.loadFaltantes = async function() {
   const tbody = document.getElementById('falt-tbody');
   tbody.innerHTML = '<tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
   if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
   const arr = window._repsAll.filter(r=>!r.cant_artic||r.cant_artic===0);
-  if (!arr.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--green)">âœ… Â¡Sin faltantes!</td></tr>'; return; }
+  if (!arr.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--green)">✅ ¡Sin faltantes!</td></tr>'; return; }
   tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
-    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'â€”'}</td>
-    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'â€”'}</td>
-    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'â€”'}</td>
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
     <td style="padding:9px 12px;color:var(--text);font-size:12px">${fmt(r.precio_venta_iva)}</td>
     <td style="padding:9px 12px"><button class="btn btn-primary" style="font-size:11px;padding:4px 10px" onclick="irAgregarStock('${r.id}','${(r.titulo_repuesto||'').replace(/'/g,'&apos;')}')">+ Stock</button></td>
   </tr>`).join('');
 };
 
-// â”€â”€ QUEDA UNO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── QUEDA UNO ─────────────────────────────────────────
 window.loadQuedaUno = async function() {
   const tbody = document.getElementById('uno-tbody');
   tbody.innerHTML = '<tr><td colspan="4"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
@@ -1564,30 +1564,30 @@ window.loadQuedaUno = async function() {
   const arr = window._repsAll.filter(r=>r.cant_artic===1);
   if (!arr.length) { tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted)">No hay repuestos con stock = 1</td></tr>'; return; }
   tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
-    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'â€”'}</td>
-    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'â€”'}</td>
-    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'â€”'}</td>
-    <td style="padding:9px 12px"><span style="color:var(--amber);font-weight:600">âš ï¸ 1</span> ${fmt(r.precio_venta_iva)}</td>
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
+    <td style="padding:9px 12px"><span style="color:var(--amber);font-weight:600">⚠️ 1</span> ${fmt(r.precio_venta_iva)}</td>
   </tr>`).join('');
 };
 
-// â”€â”€ SIN PRECIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── SIN PRECIO ────────────────────────────────────────
 window.loadSinPrecio = async function() {
   const tbody = document.getElementById('sp-tbody');
   tbody.innerHTML = '<tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
   if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
   const arr = window._repsAll.filter(r=>!r.precio_venta_iva);
-  if (!arr.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--green)">âœ… Todos tienen precio cargado</td></tr>'; return; }
+  if (!arr.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--green)">✅ Todos tienen precio cargado</td></tr>'; return; }
   tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
-    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'â€”'}</td>
-    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'â€”'}</td>
-    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'â€”'}</td>
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
     <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.cant_artic||0}</td>
     <td style="padding:9px 12px"><button class="btn btn-primary" style="font-size:11px;padding:4px 10px" onclick="editarRepuesto('${r.id}')">Poner precio</button></td>
   </tr>`).join('');
 };
 
-// â”€â”€ AGREGAR / DESCONTAR STOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── AGREGAR / DESCONTAR STOCK ─────────────────────────
 let _stockRep = null;
 window.initAgregarStock = function() { _stockRep=null; document.getElementById('as-selected').style.display='none'; document.getElementById('as-search').value=''; document.getElementById('as-results').innerHTML=''; };
 window.initDescontarStock = function() { _stockRep=null; document.getElementById('ds-selected').style.display='none'; document.getElementById('ds-search').value=''; document.getElementById('ds-results').innerHTML=''; };
@@ -1599,7 +1599,7 @@ window.buscarParaStock = function(prefix) {
   if (!window._repsAll) { res.innerHTML='<p style="font-size:12px;color:var(--text-muted)">Cargando...</p>'; loadRepuestos().then(()=>buscarParaStock(prefix)); return; }
   const found = window._repsAll.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)).slice(0,8);
   res.innerHTML = found.map(r=>`<div onclick="seleccionarParaStock('${prefix}','${r.id}')" style="padding:8px 12px;cursor:pointer;border-radius:6px;font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--border);margin-bottom:4px;display:flex;justify-content:space-between">
-    <span>${r.titulo_repuesto||'â€”'} <span style="color:var(--text-muted);font-size:11px">${r.codigo||''}</span></span>
+    <span>${r.titulo_repuesto||'—'} <span style="color:var(--text-muted);font-size:11px">${r.codigo||''}</span></span>
     <span style="color:var(--green);font-weight:600">${r.cant_artic||0}</span>
   </div>`).join('');
 };
@@ -1610,7 +1610,7 @@ window.seleccionarParaStock = function(prefix, id) {
   if (!_stockRep) return;
   document.getElementById(`${prefix}-results`).innerHTML='';
   document.getElementById(`${prefix}-search`).value = _stockRep.titulo_repuesto||'';
-  document.getElementById(`${prefix}-sel-name`).textContent = _stockRep.titulo_repuesto||'â€”';
+  document.getElementById(`${prefix}-sel-name`).textContent = _stockRep.titulo_repuesto||'—';
   document.getElementById(`${prefix}-sel-stock`).textContent = _stockRep.cant_artic||0;
   document.getElementById(`${prefix}-selected`).style.display='block';
 };
@@ -1618,10 +1618,10 @@ window.seleccionarParaStock = function(prefix, id) {
 window.confirmarAgregarStock = async function() {
   if (!_stockRep) return;
   const cant = parseInt(document.getElementById('as-cant').value)||0;
-  if (cant<=0) { toast('IngresÃ¡ una cantidad vÃ¡lida','error'); return; }
+  if (cant<=0) { toast('Ingresá una cantidad válida','error'); return; }
   const nuevo = (_stockRep.cant_artic||0) + cant;
   await updateDoc(doc(db,'repuestos',_stockRep.id),{cant_artic:nuevo,actualizado_en:serverTimestamp()});
-  toast(`âœ… Stock actualizado: ${nuevo} unidades`,'success');
+  toast(`✅ Stock actualizado: ${nuevo} unidades`,'success');
   window._repsAll = null;
   initAgregarStock();
 };
@@ -1629,11 +1629,11 @@ window.confirmarAgregarStock = async function() {
 window.confirmarDescontarStock = async function() {
   if (!_stockRep) return;
   const cant = parseInt(document.getElementById('ds-cant').value)||0;
-  if (cant<=0) { toast('IngresÃ¡ una cantidad vÃ¡lida','error'); return; }
+  if (cant<=0) { toast('Ingresá una cantidad válida','error'); return; }
   const actual = _stockRep.cant_artic||0;
   if (cant > actual) { toast(`No hay suficiente stock (actual: ${actual})`,'error'); return; }
   await updateDoc(doc(db,'repuestos',_stockRep.id),{cant_artic:actual-cant,actualizado_en:serverTimestamp()});
-  toast(`âœ… Venta registrada. Stock restante: ${actual-cant}`,'success');
+  toast(`✅ Venta registrada. Stock restante: ${actual-cant}`,'success');
   window._repsAll = null;
   initDescontarStock();
 };
@@ -1643,7 +1643,7 @@ window.irAgregarStock = function(id, nombre) {
   setTimeout(()=>{ document.getElementById('as-search').value=nombre; buscarParaStock('as'); setTimeout(()=>seleccionarParaStock('as',id),400); },200);
 };
 
-// â”€â”€ GANANCIAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── GANANCIAS ─────────────────────────────────────────
 window.loadGanancias = async function() {
   if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
   const arr = window._repsAll;
@@ -1652,10 +1652,10 @@ window.loadGanancias = async function() {
   const totalGan   = totalVenta - totalCosto;
   const pct        = totalCosto>0 ? ((totalGan/totalCosto)*100).toFixed(1) : 0;
   document.getElementById('gan-cards').innerHTML = [
-    {label:'Costo total',val:fmt(totalCosto),color:'var(--text-muted)',icon:'ðŸ’²'},
-    {label:'Valor de venta total',val:fmt(totalVenta),color:'var(--blue)',icon:'ðŸ’°'},
-    {label:'Ganancia potencial',val:fmt(totalGan),color:'var(--green)',icon:'ðŸ“ˆ'},
-    {label:'Margen promedio',val:`${pct}%`,color:'var(--amber)',icon:'ðŸ“Š'},
+    {label:'Costo total',val:fmt(totalCosto),color:'var(--text-muted)',icon:'💲'},
+    {label:'Valor de venta total',val:fmt(totalVenta),color:'var(--blue)',icon:'💰'},
+    {label:'Ganancia potencial',val:fmt(totalGan),color:'var(--green)',icon:'📈'},
+    {label:'Margen promedio',val:`${pct}%`,color:'var(--amber)',icon:'📊'},
   ].map(c=>`<div class="panel" style="padding:18px;border-left:3px solid ${c.color}">
     <div style="font-size:22px;margin-bottom:6px">${c.icon}</div>
     <div style="font-size:20px;font-weight:700;color:${c.color}">${c.val}</div>
@@ -1665,7 +1665,7 @@ window.loadGanancias = async function() {
     .map(r=>({...r,gan:r.precio_venta_iva-r.precio_costo,pct:((r.precio_venta_iva-r.precio_costo)/r.precio_costo*100).toFixed(1)}))
     .sort((a,b)=>b.gan-a.gan).slice(0,20);
   document.getElementById('gan-tbody').innerHTML = top20.map(r=>`<tr style="border-bottom:1px solid var(--border)">
-    <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'â€”'}</td>
+    <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'—'}</td>
     <td style="padding:8px 10px;text-align:right;color:var(--text-muted)">${fmt(r.precio_costo)}</td>
     <td style="padding:8px 10px;text-align:right;color:var(--blue)">${fmt(r.precio_venta_iva)}</td>
     <td style="padding:8px 10px;text-align:right;color:var(--green);font-weight:600">${fmt(r.gan)}</td>
@@ -1673,32 +1673,32 @@ window.loadGanancias = async function() {
   </tr>`).join('');
 };
 
-// â”€â”€ CONSULTAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CONSULTAS ─────────────────────────────────────────
 window.loadConsultas = async function() {
   const wrap = document.getElementById('cons-wrap');
   wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
   try {
     const snap = await getDocs(collection(db,'consultas'));
-    if (snap.empty) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:40px">No hay consultas todavÃ­a.</p>'; return; }
+    if (snap.empty) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:40px">No hay consultas todavía.</p>'; return; }
     const items = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.creado_en?.seconds-a.creado_en?.seconds);
     wrap.innerHTML = items.map(c=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-        <div><span style="font-weight:600;color:var(--text)">${c.nombre||'AnÃ³nimo'}</span> <span style="color:var(--text-muted);font-size:12px">${c.email||''}</span></div>
+        <div><span style="font-weight:600;color:var(--text)">${c.nombre||'Anónimo'}</span> <span style="color:var(--text-muted);font-size:12px">${c.email||''}</span></div>
         <div style="font-size:11px;color:var(--text-muted)">${c.creado_en?.toDate?c.creado_en.toDate().toLocaleDateString('es-AR'):''}</div>
       </div>
-      <div style="font-size:13px;color:var(--text-muted)">${c.mensaje||'â€”'}</div>
+      <div style="font-size:13px;color:var(--text-muted)">${c.mensaje||'—'}</div>
     </div>`).join('');
   } catch(e) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">Error cargando consultas.</p>'; }
 };
 
-// â”€â”€ BUSCADOR AVANZADO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── BUSCADOR AVANZADO ─────────────────────────────────
 window.initBuscador = async function() {
   if (document.getElementById('bav-cat').options.length > 1) return;
   const [cSnap, mvSnap] = await Promise.all([getDocs(collection(db,'categorias')),getDocs(collection(db,'marcas_vehiculo'))]);
   const catSel = document.getElementById('bav-cat');
-  cSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'â€”'; catSel.appendChild(o); });
+  cSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'—'; catSel.appendChild(o); });
   const mvSel = document.getElementById('bav-mv');
-  mvSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'â€”'; mvSel.appendChild(o); });
+  mvSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'—'; mvSel.appendChild(o); });
 };
 
 window.ejecutarBuscador = async function() {
@@ -1717,19 +1717,19 @@ window.ejecutarBuscador = async function() {
   if (tipo) res = res.filter(r=>r.tipo_repuesto===tipo);
   res = res.filter(r=>(r.cant_artic||0)>=stock);
   document.getElementById('bav-result-info').textContent = `${res.length} resultado${res.length!==1?'s':''} encontrado${res.length!==1?'s':''}`;
-  if (!res.length) { document.getElementById('bav-results').innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados para esa bÃºsqueda.</p>'; return; }
+  if (!res.length) { document.getElementById('bav-results').innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados para esa búsqueda.</p>'; return; }
   document.getElementById('bav-results').innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead><tr style="border-bottom:1px solid var(--border)">
       <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Producto</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">CÃ³digo</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">CategorÃ­a</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Código</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Categoría</th>
       <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Stock</th>
       <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Precio</th>
     </tr></thead>
     <tbody>${res.map(r=>`<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="editarRepuesto('${r.id}')">
-      <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'â€”'}</td>
-      <td style="padding:8px 10px;color:var(--text-muted);font-family:monospace">${r.codigo||'â€”'}</td>
-      <td style="padding:8px 10px;color:var(--text-muted)">${r.categoria||'â€”'}</td>
+      <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'—'}</td>
+      <td style="padding:8px 10px;color:var(--text-muted);font-family:monospace">${r.codigo||'—'}</td>
+      <td style="padding:8px 10px;color:var(--text-muted)">${r.categoria||'—'}</td>
       <td style="padding:8px 10px;text-align:right"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><div class="sem ${(r.cant_artic||0)===0?'sem-r':(r.cant_artic||0)===1?'sem-a':'sem-g'}"></div>${r.cant_artic||0}</div></td>
       <td style="padding:8px 10px;text-align:right;color:var(--green)">${fmt(r.precio_venta_iva)}</td>
     </tr>`).join('')}</tbody>
@@ -1744,10 +1744,10 @@ window.limpiarBuscador = function() {
 };
 
 
-// â”€â”€ FINANZAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── FINANZAS ──────────────────────────────────────────
 window.loadFinanzas = async function() {
   ['fin-total-ars','fin-total-usd','fin-venta','fin-gan-total'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.textContent='â€”';
+    const el=document.getElementById(id); if(el) el.textContent='—';
   });
   const tbody = document.getElementById('tabla-finanzas');
   if(tbody) tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
@@ -1755,7 +1755,7 @@ window.loadFinanzas = async function() {
   const reps=window._repsAll;
   const catsSnap=await getDocs(collection(db,'categorias'));
   const catsMap={};
-  catsSnap.docs.forEach(d=>{ catsMap[d.id]=d.data().nombre||'Sin categorÃ­a'; });
+  catsSnap.docs.forEach(d=>{ catsMap[d.id]=d.data().nombre||'Sin categoría'; });
   const totalCosto=reps.reduce((a,r)=>a+(r.precio_costo||0),0);
   const totalVenta=reps.reduce((a,r)=>a+(r.precio_venta_iva||0),0);
   const ganancia=totalVenta-totalCosto;
@@ -1767,7 +1767,7 @@ window.loadFinanzas = async function() {
   const porCat={};
   reps.forEach(r=>{
     const cid=r.categoria_id||'__sin__';
-    if(!porCat[cid]) porCat[cid]={nombre:catsMap[cid]||r.categoria||'Sin categorÃ­a',cant:0,costo:0,venta:0};
+    if(!porCat[cid]) porCat[cid]={nombre:catsMap[cid]||r.categoria||'Sin categoría',cant:0,costo:0,venta:0};
     porCat[cid].cant++; porCat[cid].costo+=(r.precio_costo||0); porCat[cid].venta+=(r.precio_venta_iva||0);
   });
   const cats=Object.values(porCat).sort((a,b)=>b.costo-a.costo);
@@ -1777,7 +1777,7 @@ window.loadFinanzas = async function() {
   }).join(''):'<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text3)">Sin repuestos cargados</td></tr>';
 };
 
-// â”€â”€ STOCK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── STOCK ─────────────────────────────────────────────
 window.loadStock = async function() {
   if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
   const reps=window._repsAll;
@@ -1789,10 +1789,10 @@ window.loadStock = async function() {
   const elZ=document.getElementById('stock-zero'); if(elZ) elZ.textContent=zero;
   const tbody=document.getElementById('tabla-stock'); if(!tbody) return;
   const sem=(s)=>s===0?'sem-r':s===1?'sem-a':'sem-g';
-  tbody.innerHTML=reps.map(r=>'<tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;color:var(--text);font-size:12.5px">'+(r.titulo_repuesto||'â€”')+'</td><td style="padding:9px 14px;color:var(--text2);font-size:12px">'+(r.categoria||'â€”')+'</td><td style="padding:9px 14px;color:var(--text3);font-size:12px;font-family:monospace">'+([r.estanteria,r.estante].filter(Boolean).join(' E:')||'â€”')+'</td><td style="padding:9px 14px"><div style="display:flex;align-items:center;gap:6px"><div class="sem '+sem(r.cant_artic||0)+'"></div><span style="font-family:JetBrains Mono,monospace;font-size:12px">'+(r.cant_artic||0)+'</span></div></td><td style="padding:9px 14px"><span class="badge '+((r.cant_artic||0)===0?'badge-blk':(r.cant_artic||0)===1?'badge-pend':'badge-act')+'">'+(((r.cant_artic||0)===0)?'Sin stock':((r.cant_artic||0)===1)?'Ãšltimo':'OK')+'</span></td></tr>').join('');
+  tbody.innerHTML=reps.map(r=>'<tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;color:var(--text);font-size:12.5px">'+(r.titulo_repuesto||'—')+'</td><td style="padding:9px 14px;color:var(--text2);font-size:12px">'+(r.categoria||'—')+'</td><td style="padding:9px 14px;color:var(--text3);font-size:12px;font-family:monospace">'+([r.estanteria,r.estante].filter(Boolean).join(' E:')||'—')+'</td><td style="padding:9px 14px"><div style="display:flex;align-items:center;gap:6px"><div class="sem '+sem(r.cant_artic||0)+'"></div><span style="font-family:JetBrains Mono,monospace;font-size:12px">'+(r.cant_artic||0)+'</span></div></td><td style="padding:9px 14px"><span class="badge '+((r.cant_artic||0)===0?'badge-blk':(r.cant_artic||0)===1?'badge-pend':'badge-act')+'">'+(((r.cant_artic||0)===0)?'Sin stock':((r.cant_artic||0)===1)?'Último':'OK')+'</span></td></tr>').join('');
 };
 
-// â”€â”€ AUMENTOS: poblar selects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── AUMENTOS: poblar selects ──────────────────────────
 window.loadAumentos = async function() {
   const [cSnap,mrSnap,mvSnap]=await Promise.all([getDocs(collection(db,'categorias')),getDocs(collection(db,'marcas_repuesto')),getDocs(collection(db,'marcas_vehiculo'))]);
   const catSel=document.getElementById('aum-cat-sel');
@@ -1803,7 +1803,7 @@ window.loadAumentos = async function() {
   if(mvSel&&mvSel.options.length<=1) mvSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mvSel.appendChild(o);});
 };
 
-// â”€â”€ CÃLCULO DE PRECIOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CÁLCULO DE PRECIOS ────────────────────────────────
 window.calcularPrecios = function() {
   const costo=parseFloat(document.getElementById('fp-costo').value)||0;
   const pct=parseFloat(document.getElementById('fp-pct-gan').value)||40;
@@ -1817,32 +1817,32 @@ window.calcularPrecios = function() {
   document.getElementById('fp-con-iva').dataset.val=conIva;
 };
 
-// â”€â”€ INIT FORMULARIO NUEVO / EDITAR REPUESTO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── INIT FORMULARIO NUEVO / EDITAR REPUESTO ───────────
 window.initFormRepuesto = async function(repId) {
   const container = document.getElementById('form-rep-container');
   const title     = document.getElementById('form-rep-title');
   _codigosCount   = 0;
 
-  // TÃ­tulo del panel
+  // Título del panel
   title.textContent = repId ? 'Editar repuesto' : 'Nuevo repuesto';
 
   // Render HTML del formulario
   container.innerHTML = `
   <form onsubmit="guardarRepuesto(event, '${repId||''}')">
-    <!-- â”€â”€ IDENTIFICACIÃ“N â”€â”€ -->
+    <!-- ── IDENTIFICACIÓN ── -->
     <div class="panel" style="margin-bottom:14px">
-      <div class="panel-header"><div class="panel-title">IdentificaciÃ³n</div></div>
+      <div class="panel-header"><div class="panel-title">Identificación</div></div>
       <div style="padding:16px">
         <div class="form-row">
           <div class="form-group"><label class="form-label">Nombre del repuesto *</label><input type="text" class="form-input" id="fp-nombre" placeholder="Ej: Pastillas de freno delanteras" required></div>
-          <div class="form-group"><label class="form-label">CÃ³digo interno</label><input type="text" class="form-input" id="fp-codigo" placeholder="Ej: PFD-001"></div>
+          <div class="form-group"><label class="form-label">Código interno</label><input type="text" class="form-input" id="fp-codigo" placeholder="Ej: PFD-001"></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Modelo del repuesto</label><input type="text" class="form-input" id="fp-modelo" placeholder="Ej: GDB1234"></div>
           <div class="form-group"><label class="form-label">Fabricante / Marca</label><input type="text" class="form-input" id="fp-fabricante" placeholder="Ej: Bosch, NGK..."></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">CategorÃ­a *</label>
+          <div class="form-group"><label class="form-label">Categoría *</label>
             <select class="form-select" id="fp-cat" required><option value="">Cargando...</option></select>
           </div>
           <div class="form-group"><label class="form-label">Tipo de repuesto</label>
@@ -1855,14 +1855,14 @@ window.initFormRepuesto = async function(repId) {
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">CondiciÃ³n</label>
+          <div class="form-group"><label class="form-label">Condición</label>
             <select class="form-select" id="fp-condicion">
               <option value="nuevo">Nuevo</option>
               <option value="usado">Usado</option>
               <option value="reacondicionado">Reacondicionado</option>
             </select>
           </div>
-          <div class="form-group"><label class="form-label">Material</label><input type="text" class="form-input" id="fp-material" placeholder="Ej: CerÃ¡mica, Metal..."></div>
+          <div class="form-group"><label class="form-label">Material</label><input type="text" class="form-input" id="fp-material" placeholder="Ej: Cerámica, Metal..."></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Lado</label>
@@ -1876,35 +1876,35 @@ window.initFormRepuesto = async function(repId) {
           </div>
           <div class="form-group"><label class="form-label">Fecha de compra</label><input type="date" class="form-input" id="fp-fecha-compra"></div>
         </div>
-        <div class="form-group"><label class="form-label">DescripciÃ³n</label><textarea class="form-input" id="fp-desc" rows="2" placeholder="DescripciÃ³n general del repuesto..." style="resize:vertical"></textarea></div>
-        <div class="form-group"><label class="form-label">AplicaciÃ³n / Uso</label><input type="text" class="form-input" id="fp-aplicacion" placeholder="Ej: Frenos delanteros en seco"></div>
+        <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-input" id="fp-desc" rows="2" placeholder="Descripción general del repuesto..." style="resize:vertical"></textarea></div>
+        <div class="form-group"><label class="form-label">Aplicación / Uso</label><input type="text" class="form-input" id="fp-aplicacion" placeholder="Ej: Frenos delanteros en seco"></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Notas internas</label><input type="text" class="form-input" id="fp-notas" placeholder="Solo visible en el admin"></div>
-          <div class="form-group"><label class="form-label">âš ï¸ Importante</label><input type="text" class="form-input" id="fp-importante" placeholder="Ej: No usar en vehÃ­culos diÃ©sel"></div>
+          <div class="form-group"><label class="form-label">⚠️ Importante</label><input type="text" class="form-input" id="fp-importante" placeholder="Ej: No usar en vehículos diésel"></div>
         </div>
       </div>
     </div>
 
-    <!-- â”€â”€ VEHÃCULOS COMPATIBLES â”€â”€ -->
+    <!-- ── VEHÍCULOS COMPATIBLES ── -->
     <div class="panel" style="margin-bottom:14px">
-      <div class="panel-header"><div class="panel-title">VehÃ­culos compatibles</div></div>
+      <div class="panel-header"><div class="panel-title">Vehículos compatibles</div></div>
       <div style="padding:16px">
         <div class="form-row">
-          <div class="form-group"><label class="form-label">Tipo de vehÃ­culo</label>
+          <div class="form-group"><label class="form-label">Tipo de vehículo</label>
             <select class="form-select" id="fp-tipo-veh">
               <option value="">Sin especificar</option>
               <option value="auto">Auto</option>
               <option value="camioneta">Camioneta</option>
               <option value="suv">SUV</option>
               <option value="utilitario">Utilitario</option>
-              <option value="camion">CamiÃ³n</option>
+              <option value="camion">Camión</option>
               <option value="moto">Moto</option>
               <option value="universal">Universal</option>
             </select>
           </div>
-          <div class="form-group"><label class="form-label">Modelo de vehÃ­culo</label><input type="text" class="form-input" id="fp-modelo-veh" placeholder="Ej: Gol, Corsa, Hilux..."></div>
+          <div class="form-group"><label class="form-label">Modelo de vehículo</label><input type="text" class="form-input" id="fp-modelo-veh" placeholder="Ej: Gol, Corsa, Hilux..."></div>
         </div>
-        <div class="form-group"><label class="form-label">Marcas de vehÃ­culo compatibles</label>
+        <div class="form-group"><label class="form-label">Marcas de vehículo compatibles</label>
           <div class="form-row">
             <input type="text" class="form-input" id="fp-mv1" placeholder="Marca 1">
             <input type="text" class="form-input" id="fp-mv2" placeholder="Marca 2">
@@ -1915,30 +1915,30 @@ window.initFormRepuesto = async function(repId) {
       </div>
     </div>
 
-    <!-- â”€â”€ CÃ“DIGOS DE PROVEEDORES â”€â”€ -->
+    <!-- ── CÓDIGOS DE PROVEEDORES ── -->
     <div class="panel" style="margin-bottom:14px">
       <div class="panel-header">
-        <div class="panel-title">CÃ³digos de proveedores</div>
+        <div class="panel-title">Códigos de proveedores</div>
         <button type="button" class="btn btn-ghost" onclick="agregarCodigoProveedor()" style="font-size:12px">+ Agregar</button>
       </div>
       <div style="padding:16px">
         <div id="codigos-prov-list"></div>
-        <button type="button" class="btn btn-ghost" onclick="agregarCodigoProveedor()" style="width:100%;margin-top:4px">+ Agregar cÃ³digo de proveedor</button>
+        <button type="button" class="btn btn-ghost" onclick="agregarCodigoProveedor()" style="width:100%;margin-top:4px">+ Agregar código de proveedor</button>
       </div>
     </div>
 
-    <!-- â”€â”€ UBICACIÃ“N EN DEPÃ“SITO â”€â”€ -->
+    <!-- ── UBICACIÓN EN DEPÓSITO ── -->
     <div class="panel" style="margin-bottom:14px">
-      <div class="panel-header"><div class="panel-title">UbicaciÃ³n en depÃ³sito</div></div>
+      <div class="panel-header"><div class="panel-title">Ubicación en depósito</div></div>
       <div style="padding:16px">
         <div class="form-row">
-          <div class="form-group"><label class="form-label">EstanterÃ­a</label>
+          <div class="form-group"><label class="form-label">Estantería</label>
             <select class="form-select" id="fp-estanteria">
               <option value="">Sin asignar</option>
               ${['A','B','C','D','E','F','G','H'].map(l=>`<option value="${l}">${l}</option>`).join('')}
             </select>
           </div>
-          <div class="form-group"><label class="form-label">Estante (nÃºmero)</label>
+          <div class="form-group"><label class="form-label">Estante (número)</label>
             <select class="form-select" id="fp-estante">
               <option value="">Sin asignar</option>
               ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join('')}
@@ -1948,7 +1948,7 @@ window.initFormRepuesto = async function(repId) {
       </div>
     </div>
 
-    <!-- â”€â”€ STOCK Y PRECIOS â”€â”€ -->
+    <!-- ── STOCK Y PRECIOS ── -->
     <div class="panel" style="margin-bottom:14px">
       <div class="panel-header"><div class="panel-title">Stock y precios</div></div>
       <div style="padding:16px">
@@ -1976,7 +1976,7 @@ window.initFormRepuesto = async function(repId) {
             <select class="form-select" id="fp-entrega">
               <option value="">Sin especificar</option>
               <option value="mostrador">Mostrador</option>
-              <option value="envio">EnvÃ­o</option>
+              <option value="envio">Envío</option>
               <option value="ambas">Ambas</option>
             </select>
           </div>
@@ -1984,15 +1984,15 @@ window.initFormRepuesto = async function(repId) {
       </div>
     </div>
 
-    <!-- â”€â”€ IMAGEN Y PUBLICACIÃ“N â”€â”€ -->
+    <!-- ── IMAGEN Y PUBLICACIÓN ── -->
     <div class="panel" style="margin-bottom:14px">
-      <div class="panel-header"><div class="panel-title">Imagen y publicaciÃ³n</div></div>
+      <div class="panel-header"><div class="panel-title">Imagen y publicación</div></div>
       <div style="padding:16px">
         <div class="form-row">
           <div class="form-group"><label class="form-label">URL de imagen</label><input type="url" class="form-input" id="fp-imagen" placeholder="https://..."></div>
-          <div class="form-group"><label class="form-label">Â¿Publicar en el catÃ¡logo?</label>
+          <div class="form-group"><label class="form-label">¿Publicar en el catálogo?</label>
             <select class="form-select" id="fp-publicar">
-              <option value="1">SÃ­, publicar</option>
+              <option value="1">Sí, publicar</option>
               <option value="0">No, guardar sin publicar</option>
             </select>
           </div>
@@ -2000,28 +2000,28 @@ window.initFormRepuesto = async function(repId) {
       </div>
     </div>
 
-    <!-- â”€â”€ BOTONES â”€â”€ -->
+    <!-- ── BOTONES ── -->
     <div style="display:flex;gap:10px;justify-content:flex-end;padding-bottom:20px">
       <button type="button" class="btn btn-ghost" onclick="showPage('repuestos')">Cancelar</button>
       <button type="submit" class="btn btn-primary">Guardar repuesto</button>
     </div>
   </form>`;
 
-  // Cargar categorÃ­as en el select
+  // Cargar categorías en el select
   try {
     const snap = await getDocs(collection(db, 'categorias'));
     const catSel = document.getElementById('fp-cat');
     if (catSel) {
-      catSel.innerHTML = '<option value="">SeleccionÃ¡ categorÃ­a</option>';
+      catSel.innerHTML = '<option value="">Seleccioná categoría</option>';
       snap.forEach(d => {
         const o = document.createElement('option');
         o.value = d.id; o.textContent = d.data().nombre || d.id;
         catSel.appendChild(o);
       });
     }
-  } catch(e) { console.warn('Error cargando categorÃ­as:', e); }
+  } catch(e) { console.warn('Error cargando categorías:', e); }
 
-  // Si es ediciÃ³n, cargar datos del repuesto
+  // Si es edición, cargar datos del repuesto
   if (repId) {
     try {
       const snap = await getDoc(doc(db,'repuestos', repId));
@@ -2055,17 +2055,17 @@ window.initFormRepuesto = async function(repId) {
   }
 };
 
-// â”€â”€ CÃ“DIGOS DE PROVEEDORES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CÓDIGOS DE PROVEEDORES ────────────────────────────
 let _codigosCount=0;
 window.agregarCodigoProveedor=function(){
   _codigosCount++;
   const div=document.createElement('div');
   div.className='form-row'; div.id='cod-row-'+_codigosCount; div.style.marginBottom='8px';
-  div.innerHTML='<div class="form-group" style="margin:0"><label class="form-label">Proveedor</label><input type="text" class="form-input" id="cod-prov-'+_codigosCount+'" placeholder="Ej: BOSCH, AJ..."></div><div class="form-group" style="margin:0"><label class="form-label">CÃ³digo</label><div style="display:flex;gap:6px"><input type="text" class="form-input" id="cod-val-'+_codigosCount+'" placeholder="Ej: F000AL0304" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:0 10px;font-size:18px" onclick="document.getElementById(\'cod-row-'+_codigosCount+'\').remove()">Ã—</button></div></div>';
+  div.innerHTML='<div class="form-group" style="margin:0"><label class="form-label">Proveedor</label><input type="text" class="form-input" id="cod-prov-'+_codigosCount+'" placeholder="Ej: BOSCH, AJ..."></div><div class="form-group" style="margin:0"><label class="form-label">Código</label><div style="display:flex;gap:6px"><input type="text" class="form-input" id="cod-val-'+_codigosCount+'" placeholder="Ej: F000AL0304" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:0 10px;font-size:18px" onclick="document.getElementById(\'cod-row-'+_codigosCount+'\').remove()">×</button></div></div>';
   document.getElementById('codigos-prov-list').appendChild(div);
 };
 
-// â”€â”€ GUARDAR REPUESTO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── GUARDAR REPUESTO ──────────────────────────────────
 window.guardarRepuesto=async function(e, repId=''){
   e.preventDefault();
   const btn=e.target.querySelector('[type=submit]');
