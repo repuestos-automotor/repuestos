@@ -380,8 +380,11 @@ tbody tr:last-child td{border-bottom:none}
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Buscador avanzado
     </div>
+    <div class="nav-item" onclick="showPage('configuraciones')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configuraciones
+    </div>
   </div>
-
   <div class="sidebar-footer">
     <div class="user-chip">
       <div class="user-av" id="admin-av">AD</div>
@@ -980,6 +983,14 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
+    <!-- ─── CONFIGURACIONES ──────────────────────────── -->
+    <div class="page" id="page-configuraciones">
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">⚙️ Configuraciones</h2>
+      <div id="config-wrap">
+        <div class="loading-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -998,6 +1009,21 @@ tbody tr:last-child td{border-bottom:none}
       <button class="btn btn-ghost" onclick="closeModal('modal-usuario')">Cerrar</button>
       <button class="btn btn-success" id="modal-aprobar-btn">Aprobar acceso</button>
       <button class="btn btn-danger" id="modal-bloquear-btn">Bloquear</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER DETALLE REPUESTO -->
+<div class="modal-overlay" id="modal-rep">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Detalle del repuesto</div>
+      <button class="modal-close" onclick="closeModal('modal-rep')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modal-rep-body" style="max-height:65vh;overflow-y:auto"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-rep')">Cerrar</button>
+      <button class="btn btn-primary" id="modal-rep-edit-btn">✏️ Editar</button>
     </div>
   </div>
 </div>
@@ -1237,9 +1263,9 @@ function renderRepuestos(reps) {
       <td class="td-price">${fmt(r.precio_venta_iva)}</td>
       <td><span class="badge ${r.alta?'badge-act':'badge-blk'}">${r.alta?'Publicado':'Oculto'}</span></td>
       <td><div class="td-actions">
-        <button class="action-btn view" title="Ver detalle"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button class="action-btn view" title="Ver detalle" onclick="verDetalleRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         <button class="action-btn edit" title="Editar" onclick="editarRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="action-btn del" title="Eliminar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+        <button class="action-btn del" title="Eliminar" onclick="eliminarRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1339,6 +1365,7 @@ window.showPage = function(id) {
   if (id==='finanzas')        loadFinanzas();
   if (id==='ganancias')       loadGanancias();
   if (id==='consultas')       loadConsultas();
+  if (id==='configuraciones')  loadConfiguraciones();
   if (id==='buscador')        initBuscador();
 };
 
@@ -1683,10 +1710,13 @@ window.loadConsultas = async function() {
     const items = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.creado_en?.seconds-a.creado_en?.seconds);
     wrap.innerHTML = items.map(c=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-        <div><span style="font-weight:600;color:var(--text)">${c.nombre||'Anónimo'}</span> <span style="color:var(--text-muted);font-size:12px">${c.email||''}</span></div>
-        <div style="font-size:11px;color:var(--text-muted)">${c.creado_en?.toDate?c.creado_en.toDate().toLocaleDateString('es-AR'):''}</div>
+        <div><span style="font-weight:600;color:var(--text)">${c.usuario_nombre||c.nombre||'Anónimo'}</span> <span style="color:var(--text-muted);font-size:12px">${c.email||c.usuario_email||''}</span></div>
+        <div style="font-size:11px;color:var(--text-muted)">${c.creada_en?.toDate||c.creado_en?.toDate?c.creado_en.toDate().toLocaleDateString('es-AR'):''}</div>
       </div>
-      <div style="font-size:13px;color:var(--text-muted)">${c.mensaje||'—'}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">${c.mensaje||'—'}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="abrirWhatsAppConsulta('${c.usuario_nombre||c.nombre||'Cliente'}','${(c.repuesto_nombre||'').replace(/'/g,'\\'')}','${c.cantidad_solicitada||1}','${(c.mensaje||'').replace(/'/g,'\\'').replace(/\n/g,' ')}')">💬 WhatsApp</button>
+      </div>
     </div>`).join('');
   } catch(e) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">Error cargando consultas.</p>'; }
 };
@@ -2126,6 +2156,122 @@ window.guardarRepuesto=async function(e, repId=''){
     btn.disabled=false; btn.textContent='Guardar repuesto';
   }
 };
+
+// ── VER DETALLE REPUESTO ──────────────────────────────
+window.verDetalleRepuesto = async function(id) {
+  const snap = await getDoc(doc(db,'repuestos',id));
+  if (!snap.exists()) { toast('Repuesto no encontrado','error'); return; }
+  const r = {id:snap.id,...snap.data()};
+  const fmt2 = n => n ? new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n) : '—';
+  const row = (label,val) => val ? `<div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted);font-size:12px;min-width:140px">${label}</span><span style="color:var(--text);font-size:13px">${val}</span></div>` : '';
+  const marcas = [r.marca_vehiculo_1,r.marca_vehiculo_2,r.marca_vehiculo_3,r.marca_vehiculo_4].filter(Boolean).join(', ');
+  const provs = (r.proveedores||[]).map(p=>`${p.nombre||''} ${p.codigo?'('+p.codigo+')':''}`).filter(Boolean).join(' · ');
+  document.getElementById('modal-rep-body').innerHTML = `
+    ${r.imagen_url?`<img src="${r.imagen_url}" style="width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:12px">` : ''}
+    ${row('Nombre', r.titulo_repuesto)}
+    ${row('Código', r.codigo)}
+    ${row('Categoría', r.categoria)}
+    ${row('Tipo', r.tipo_repuesto)}
+    ${row('Condición', r.condicion)}
+    ${row('Material', r.material)}
+    ${row('Lado', r.lado)}
+    ${row('Vehículos', marcas||r.tipo_vehiculo)}
+    ${row('Modelo', r.modelo_vehiculo)}
+    ${row('Proveedores', provs)}
+    ${row('Ubicación', r.estanteria?`${r.estanteria}-${r.estante}`:'')}
+    ${row('Stock', r.cant_artic)}
+    ${row('Costo ARS', fmt2(r.costo_ars))}
+    ${row('Precio c/IVA', fmt2(r.precio_venta_iva))}
+    ${row('Estado', r.alta?'Publicado':'Oculto')}
+    ${r.descripcion?`<div style="margin-top:10px;font-size:13px;color:var(--text-muted)">${r.descripcion}</div>`:''}
+  `;
+  document.getElementById('modal-rep-edit-btn').onclick = () => { closeModal('modal-rep'); editarRepuesto(id); };
+  openModal('modal-rep');
+};
+
+// ── ELIMINAR REPUESTO ─────────────────────────────────
+window.eliminarRepuesto = async function(id) {
+  if (!confirm('¿Eliminar este repuesto? Esta acción no se puede deshacer.')) return;
+  try {
+    await deleteDoc(doc(db,'repuestos',id));
+    toast('Repuesto eliminado','success');
+    loadRepuestos();
+  } catch(e) { toast('Error al eliminar: '+e.message,'error'); }
+};
+
+// ── CONFIGURACIONES ───────────────────────────────────
+window.loadConfiguraciones = async function() {
+  const wrap = document.getElementById('config-wrap');
+  wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  try {
+    const snap = await getDoc(doc(db,'config','general'));
+    const cfg = snap.exists() ? snap.data() : {};
+    wrap.innerHTML = `
+      <div class="panel" style="max-width:600px">
+        <h3 style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 20px">⚙️ Configuración general</h3>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px">Número de WhatsApp (con código de país, sin + ni espacios)</label>
+          <input id="cfg-wsp" type="text" class="search-input" placeholder="ej: 5493515001234" value="${cfg.whatsapp_numero||''}" style="width:100%;max-width:340px">
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Ejemplo: para Argentina 351-500-1234 → 5493515001234</div>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px">Nombre del negocio</label>
+          <input id="cfg-nombre" type="text" class="search-input" placeholder="Repuestos Electromecanicos" value="${cfg.nombre_negocio||''}" style="width:100%;max-width:340px">
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px">Dirección (opcional)</label>
+          <input id="cfg-dir" type="text" class="search-input" placeholder="Av. Siempre Viva 742" value="${cfg.direccion||''}" style="width:100%;max-width:340px">
+        </div>
+        <button class="btn btn-primary" onclick="guardarConfiguraciones()">Guardar cambios</button>
+      </div>
+    `;
+  } catch(e) { wrap.innerHTML='<p style="color:var(--text-muted)">Error cargando configuración.</p>'; }
+};
+
+window.guardarConfiguraciones = async function() {
+  const num = document.getElementById('cfg-wsp').value.trim().replace(/[^0-9]/g,'');
+  const nombre = document.getElementById('cfg-nombre').value.trim();
+  const dir = document.getElementById('cfg-dir').value.trim();
+  try {
+    await updateDoc(doc(db,'config','general'), { whatsapp_numero: num, nombre_negocio: nombre, direccion: dir });
+    toast('Configuración guardada ✓','success');
+    // update cached value
+    window._wspNumero = num;
+  } catch(e) {
+    // doc may not exist yet
+    try {
+      const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      await setDoc(doc(db,'config','general'), { whatsapp_numero: num, nombre_negocio: nombre, direccion: dir });
+      toast('Configuración guardada ✓','success');
+      window._wspNumero = num;
+    } catch(e2) { toast('Error: '+e2.message,'error'); }
+  }
+};
+
+// ── WHATSAPP HELPER ───────────────────────────────────
+async function getWspNumero() {
+  if (window._wspNumero !== undefined) return window._wspNumero;
+  try {
+    const snap = await getDoc(doc(db,'config','general'));
+    window._wspNumero = snap.exists() ? (snap.data().whatsapp_numero||'') : '';
+  } catch(e) { window._wspNumero = ''; }
+  return window._wspNumero;
+}
+
+// ── WHATSAPP EN CONSULTAS ─────────────────────────────
+window.abrirWhatsAppConsulta = async function(nombre, repuesto, cantidad, mensaje) {
+  const num = await getWspNumero();
+  if (!num) { toast('Configurá el número de WhatsApp en Configuraciones','info'); return; }
+  const texto = encodeURIComponent(
+    `📦 *Nueva consulta*
+👤 Cliente: ${nombre}
+🔧 Repuesto: ${repuesto}
+📊 Cantidad: ${cantidad}
+💬 Mensaje: ${mensaje||'—'}`
+  );
+  window.open(`https://wa.me/${num}?text=${texto}`, '_blank');
+};
+
 
 </script>
 
