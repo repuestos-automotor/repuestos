@@ -380,11 +380,8 @@ tbody tr:last-child td{border-bottom:none}
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Buscador avanzado
     </div>
-    <div class="nav-item" onclick="showPage('configuraciones')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      Configuraciones
-    </div>
   </div>
+
   <div class="sidebar-footer">
     <div class="user-chip">
       <div class="user-av" id="admin-av">AD</div>
@@ -955,6 +952,12 @@ tbody tr:last-child td{border-bottom:none}
     </div>
 
     <!-- ─── BUSCADOR AVANZADO ────────────────────────── -->
+    
+
+        <div class="page" id="page-configuraciones">
+      <div id="config-wrap"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    </div>
+
     <div class="page" id="page-buscador">
       <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">🔍 Buscador Avanzado</h2>
       <div class="panel" style="padding:20px;margin-bottom:20px">
@@ -983,14 +986,6 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- ─── CONFIGURACIONES ──────────────────────────── -->
-    <div class="page" id="page-configuraciones">
-      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">⚙️ Configuraciones</h2>
-      <div id="config-wrap">
-        <div class="loading-wrap"><div class="spinner"></div></div>
-      </div>
-    </div>
-
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -1013,35 +1008,11 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 </div>
 
-<!-- MODAL VER DETALLE REPUESTO -->
-<div class="modal-overlay" id="modal-rep">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Detalle del repuesto</div>
-      <button class="modal-close" onclick="closeModal('modal-rep')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-    </div>
-    <div class="modal-body" id="modal-rep-body" style="max-height:65vh;overflow-y:auto"></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal('modal-rep')">Cerrar</button>
-      <button class="btn btn-primary" id="modal-rep-edit-btn">✏️ Editar</button>
-    </div>
-  </div>
-</div>
-
 <!-- FIREBASE + LÓGICA -->
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, deleteDoc, addDoc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-// ── TIMEOUT HELPER — primero para evitar ReferenceError en módulos ES ──
-function withTimeout(promise, ms = 12000) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() =>
-      reject(new Error('Sin respuesta de Firebase en ' + (ms/1000) + 's. Revisá las reglas de Firestore o tu conexión.')), ms))
-  ]);
-}
 
 // ── CONFIG (mismo que index.html) ─────────────────────
 const firebaseConfig = {
@@ -1059,22 +1030,14 @@ const db   = getFirestore(app);
 // ── GUARD: verificar que sea admin ────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = '../index.html'; return; }
-  try {
-    const snap = await withTimeout(getDoc(doc(db, 'usuarios', user.uid)), 10000);
-    if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
-      window.location.href = '../index.html'; return;
-    }
-    const d = snap.data();
-    document.getElementById('admin-name').textContent = d.nombre_completo || 'Admin';
-    document.getElementById('admin-av').textContent   = (d.nombre_completo||'AD').substring(0,2).toUpperCase();
-    initDashboard();
-  } catch(e) {
-    console.error('Error auth:', e);
-    // Si hay timeout en auth, intentar igual con el usuario actual
-    document.getElementById('admin-name').textContent = user.email?.split('@')[0] || 'Admin';
-    document.getElementById('admin-av').textContent   = (user.email||'AD').substring(0,2).toUpperCase();
-    initDashboard();
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
   }
+  const d = snap.data();
+  document.getElementById('admin-name').textContent = d.nombre_completo || 'Admin';
+  document.getElementById('admin-av').textContent   = (d.nombre_completo||'AD').substring(0,2).toUpperCase();
+  initDashboard();
 });
 
 // ── LOGOUT ────────────────────────────────────────────
@@ -1095,24 +1058,22 @@ function toast(msg, type='info') {
 }
 window.toast = toast;
 
-window.openModal  = (id) => document.getElementById(id).classList.add('open');
 window.closeModal = (id) => document.getElementById(id).classList.remove('open');
 
 // ── DASHBOARD ─────────────────────────────────────────
 async function initDashboard() {
-  try {
   // Fecha
   const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const ahora = new Date();
   document.getElementById('topbar-date').textContent = `${dias[ahora.getDay()]} ${ahora.getDate()} de ${meses[ahora.getMonth()]} de ${ahora.getFullYear()}`;
 
-  // Cargar datos en paralelo con timeout de 12 segundos
-  const [repsSnap, usersSnap, catsSnap] = await withTimeout(Promise.all([
+  // Cargar datos en paralelo
+  const [repsSnap, usersSnap, catsSnap] = await Promise.all([
     getDocs(collection(db, 'repuestos')),
     getDocs(collection(db, 'usuarios')),
     getDocs(collection(db, 'categorias'))
-  ]));
+  ]);
 
   const reps  = repsSnap.docs.map(d=>({id:d.id,...d.data()}));
   const users = usersSnap.docs.map(d=>({id:d.id,...d.data()}));
@@ -1214,19 +1175,7 @@ async function initDashboard() {
   // Guardar en window para reusar
   window._reps  = reps;
   window._users = users;
-  } catch(e) {
-    console.error('Error cargando dashboard:', e);
-    const msg = e.message || 'Error desconocido';
-    const al = document.getElementById('alert-list');
-    if (al) al.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">No se pudo conectar</div><div class="empty-sub">${msg}<br><br><button class="btn btn-primary" onclick="initDashboard()" style="margin-top:8px">🔄 Reintentar</button></div></div>`;
-    ['stat-total','stat-cats','stat-valor','stat-ganancia','stat-pendientes'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
-    ['fin-ars','fin-usd','fin-gan','fin-crit'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
-    const ur=document.getElementById('ultimos-rep'); if(ur) ur.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Sin conexión</div><div class="empty-sub"><button class="btn btn-primary" onclick="initDashboard()" style="margin-top:8px">🔄 Reintentar</button></div></div>`;
-    const uu=document.getElementById('ultimos-users'); if(uu) uu.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Sin conexión</div></div>';
-    toast('Sin conexión a Firebase. ' + msg,'error');
-  }
 }
-window.initDashboard = initDashboard;
 
 // ── USUARIOS ──────────────────────────────────────────
 window.loadUsuarios = async function() {
@@ -1294,9 +1243,9 @@ function renderRepuestos(reps) {
       <td class="td-price">${fmt(r.precio_venta_iva)}</td>
       <td><span class="badge ${r.alta?'badge-act':'badge-blk'}">${r.alta?'Publicado':'Oculto'}</span></td>
       <td><div class="td-actions">
-        <button class="action-btn view" title="Ver detalle" onclick="verDetalleRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button class="action-btn view" title="Ver detalle"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         <button class="action-btn edit" title="Editar" onclick="editarRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="action-btn del" title="Eliminar" onclick="eliminarRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+        <button class="action-btn del" title="Eliminar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -1741,13 +1690,10 @@ window.loadConsultas = async function() {
     const items = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.creado_en?.seconds-a.creado_en?.seconds);
     wrap.innerHTML = items.map(c=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
-        <div><span style="font-weight:600;color:var(--text)">${c.usuario_nombre||c.nombre||'Anónimo'}</span> <span style="color:var(--text-muted);font-size:12px">${c.email||c.usuario_email||''}</span></div>
-        <div style="font-size:11px;color:var(--text-muted)">${c.creada_en?.toDate||c.creado_en?.toDate?c.creado_en.toDate().toLocaleDateString('es-AR'):''}</div>
+        <div><span style="font-weight:600;color:var(--text)">${c.nombre||'Anónimo'}</span> <span style="color:var(--text-muted);font-size:12px">${c.email||''}</span></div>
+        <div style="font-size:11px;color:var(--text-muted)">${c.creado_en?.toDate?c.creado_en.toDate().toLocaleDateString('es-AR'):''}</div>
       </div>
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">${c.mensaje||'—'}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="abrirWhatsAppConsulta('${c.usuario_nombre||c.nombre||'Cliente'}','${(c.repuesto_nombre||'').replace(/'/g,'\\'')}','${c.cantidad_solicitada||1}','${(c.mensaje||'').replace(/'/g,'\\'').replace(/\n/g,' ')}')">💬 WhatsApp</button>
-      </div>
+      <div style="font-size:13px;color:var(--text-muted)">${c.mensaje||'—'}</div>
     </div>`).join('');
   } catch(e) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">Error cargando consultas.</p>'; }
 };
@@ -2188,7 +2134,7 @@ window.guardarRepuesto=async function(e, repId=''){
   }
 };
 
-// ── VER DETALLE REPUESTO ──────────────────────────────
+
 window.verDetalleRepuesto = async function(id) {
   const snap = await getDoc(doc(db,'repuestos',id));
   if (!snap.exists()) { toast('Repuesto no encontrado','error'); return; }
@@ -2231,6 +2177,7 @@ window.eliminarRepuesto = async function(id) {
 };
 
 // ── CONFIGURACIONES ───────────────────────────────────
+
 window.loadConfiguraciones = async function() {
   const wrap = document.getElementById('config-wrap');
   wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
