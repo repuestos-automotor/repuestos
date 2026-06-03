@@ -1324,16 +1324,20 @@ window.showPage = function(id) {
   document.getElementById('topbar-title').textContent = ti[id]||id;
   if (id==='usuarios')        loadUsuarios();
   if (id==='repuestos')       loadRepuestos();
+  if (id==='nuevo-repuesto')  initFormRepuesto();
   if (id==='categorias')      loadCategorias();
   if (id==='marcas-vehiculo') loadMarcasVeh();
   if (id==='marcas-repuesto') loadMarcasRep();
   if (id==='proveedores')     loadProveedores();
   if (id==='catalogos')       loadCatalogos();
+  if (id==='stock')           loadStock();
   if (id==='faltantes')       loadFaltantes();
   if (id==='queda-uno')       loadQuedaUno();
   if (id==='sin-precio')      loadSinPrecio();
   if (id==='agregar-stock')   initAgregarStock();
   if (id==='descontar-stock') initDescontarStock();
+  if (id==='aumentos')        loadAumentos();
+  if (id==='finanzas')        loadFinanzas();
   if (id==='ganancias')       loadGanancias();
   if (id==='consultas')       loadConsultas();
   if (id==='buscador')        initBuscador();
@@ -1739,6 +1743,149 @@ window.limpiarBuscador = function() {
   document.getElementById('bav-result-info').textContent='';
   document.getElementById('bav-results').innerHTML='';
 };
+
+
+// ── FINANZAS ──────────────────────────────────────────
+window.loadFinanzas = async function() {
+  ['fin-total-ars','fin-total-usd','fin-venta','fin-gan-total'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='—';
+  });
+  const tbody = document.getElementById('tabla-finanzas');
+  if(tbody) tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const reps=window._repsAll;
+  const catsSnap=await getDocs(collection(db,'categorias'));
+  const catsMap={};
+  catsSnap.docs.forEach(d=>{ catsMap[d.id]=d.data().nombre||'Sin categoría'; });
+  const totalCosto=reps.reduce((a,r)=>a+(r.precio_costo||0),0);
+  const totalVenta=reps.reduce((a,r)=>a+(r.precio_venta_iva||0),0);
+  const ganancia=totalVenta-totalCosto;
+  const usdRate=1200;
+  const elArs=document.getElementById('fin-total-ars'); if(elArs) elArs.textContent=fmt(totalCosto);
+  const elUsd=document.getElementById('fin-total-usd'); if(elUsd) elUsd.textContent='U$D '+Math.round(totalCosto/usdRate).toLocaleString('es-AR');
+  const elVen=document.getElementById('fin-venta'); if(elVen) elVen.textContent=fmt(totalVenta);
+  const elGan=document.getElementById('fin-gan-total'); if(elGan) elGan.textContent=fmt(ganancia);
+  const porCat={};
+  reps.forEach(r=>{
+    const cid=r.categoria_id||'__sin__';
+    if(!porCat[cid]) porCat[cid]={nombre:catsMap[cid]||r.categoria||'Sin categoría',cant:0,costo:0,venta:0};
+    porCat[cid].cant++; porCat[cid].costo+=(r.precio_costo||0); porCat[cid].venta+=(r.precio_venta_iva||0);
+  });
+  const cats=Object.values(porCat).sort((a,b)=>b.costo-a.costo);
+  if(tbody) tbody.innerHTML=cats.length?cats.map(c=>{
+    const gan=c.venta-c.costo;
+    return '<tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;color:var(--text);font-size:12.5px">'+c.nombre+'</td><td style="padding:9px 14px;color:var(--text2);text-align:center">'+c.cant+'</td><td style="padding:9px 14px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--text2)">'+fmt(c.costo)+'</td><td style="padding:9px 14px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--blue)">'+fmt(c.venta)+'</td><td style="padding:9px 14px;font-family:JetBrains Mono,monospace;font-size:12px;color:'+(gan>=0?'var(--green)':'var(--red)')+';font-weight:600">'+fmt(gan)+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text3)">Sin repuestos cargados</td></tr>';
+};
+
+// ── STOCK ─────────────────────────────────────────────
+window.loadStock = async function() {
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const reps=window._repsAll;
+  const ok=reps.filter(r=>(r.cant_artic||0)>1).length;
+  const uno=reps.filter(r=>r.cant_artic===1).length;
+  const zero=reps.filter(r=>!r.cant_artic||r.cant_artic===0).length;
+  const elOk=document.getElementById('stock-ok'); if(elOk) elOk.textContent=ok;
+  const elOne=document.getElementById('stock-one'); if(elOne) elOne.textContent=uno;
+  const elZ=document.getElementById('stock-zero'); if(elZ) elZ.textContent=zero;
+  const tbody=document.getElementById('tabla-stock'); if(!tbody) return;
+  const sem=(s)=>s===0?'sem-r':s===1?'sem-a':'sem-g';
+  tbody.innerHTML=reps.map(r=>'<tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;color:var(--text);font-size:12.5px">'+(r.titulo_repuesto||'—')+'</td><td style="padding:9px 14px;color:var(--text2);font-size:12px">'+(r.categoria||'—')+'</td><td style="padding:9px 14px;color:var(--text3);font-size:12px;font-family:monospace">'+([r.estanteria,r.estante].filter(Boolean).join(' E:')||'—')+'</td><td style="padding:9px 14px"><div style="display:flex;align-items:center;gap:6px"><div class="sem '+sem(r.cant_artic||0)+'"></div><span style="font-family:JetBrains Mono,monospace;font-size:12px">'+(r.cant_artic||0)+'</span></div></td><td style="padding:9px 14px"><span class="badge '+((r.cant_artic||0)===0?'badge-blk':(r.cant_artic||0)===1?'badge-pend':'badge-act')+'">'+(((r.cant_artic||0)===0)?'Sin stock':((r.cant_artic||0)===1)?'Último':'OK')+'</span></td></tr>').join('');
+};
+
+// ── AUMENTOS: poblar selects ──────────────────────────
+window.loadAumentos = async function() {
+  const [cSnap,mrSnap,mvSnap]=await Promise.all([getDocs(collection(db,'categorias')),getDocs(collection(db,'marcas_repuesto')),getDocs(collection(db,'marcas_vehiculo'))]);
+  const catSel=document.getElementById('aum-cat-sel');
+  if(catSel&&catSel.options.length<=1) cSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;catSel.appendChild(o);});
+  const mrSel=document.getElementById('aum-marca-rep-sel');
+  if(mrSel&&mrSel.options.length<=1) mrSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mrSel.appendChild(o);});
+  const mvSel=document.getElementById('aum-marca-veh-sel');
+  if(mvSel&&mvSel.options.length<=1) mvSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mvSel.appendChild(o);});
+};
+
+// ── CÁLCULO DE PRECIOS ────────────────────────────────
+window.calcularPrecios = function() {
+  const costo=parseFloat(document.getElementById('fp-costo').value)||0;
+  const pct=parseFloat(document.getElementById('fp-pct-gan').value)||40;
+  const sinIva=costo*(1+pct/100);
+  const conIva=sinIva*1.21;
+  const desc10=conIva*0.9;
+  document.getElementById('fp-sin-iva').value=fmt(sinIva);
+  document.getElementById('fp-con-iva').value=fmt(conIva);
+  document.getElementById('fp-desc10').value=fmt(desc10);
+  document.getElementById('fp-sin-iva').dataset.val=sinIva;
+  document.getElementById('fp-con-iva').dataset.val=conIva;
+};
+
+// ── CÓDIGOS DE PROVEEDORES ────────────────────────────
+let _codigosCount=0;
+window.agregarCodigoProveedor=function(){
+  _codigosCount++;
+  const div=document.createElement('div');
+  div.className='form-row'; div.id='cod-row-'+_codigosCount; div.style.marginBottom='8px';
+  div.innerHTML='<div class="form-group" style="margin:0"><label class="form-label">Proveedor</label><input type="text" class="form-input" id="cod-prov-'+_codigosCount+'" placeholder="Ej: BOSCH, AJ..."></div><div class="form-group" style="margin:0"><label class="form-label">Código</label><div style="display:flex;gap:6px"><input type="text" class="form-input" id="cod-val-'+_codigosCount+'" placeholder="Ej: F000AL0304" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:0 10px;font-size:18px" onclick="document.getElementById(\'cod-row-'+_codigosCount+'\').remove()">×</button></div></div>';
+  document.getElementById('codigos-prov-list').appendChild(div);
+};
+
+// ── GUARDAR REPUESTO ──────────────────────────────────
+window.guardarRepuesto=async function(e){
+  e.preventDefault();
+  const btn=e.target.querySelector('[type=submit]');
+  btn.disabled=true; btn.textContent='Guardando...';
+  try {
+    const codigos=[];
+    document.querySelectorAll('[id^="cod-prov-"]').forEach(el=>{
+      const n=el.id.split('-').pop();
+      const prov=el.value.trim();
+      const cod=(document.getElementById('cod-val-'+n)||{}).value||'';
+      if(prov||cod) codigos.push({proveedor:prov,codigo:cod.trim()});
+    });
+    const costo=parseFloat(document.getElementById('fp-costo').value)||0;
+    const sinIva=parseFloat(document.getElementById('fp-sin-iva').dataset.val)||0;
+    const conIva=parseFloat(document.getElementById('fp-con-iva').dataset.val)||0;
+    const catEl=document.getElementById('fp-cat');
+    const catId=catEl.value; const catNom=catEl.selectedOptions[0]?catEl.selectedOptions[0].text:'';
+    const marcasVeh=[1,2,3,4].map(n=>(document.getElementById('fp-mv'+n)||{}).value||'').filter(Boolean);
+    const data={
+      titulo_repuesto:(document.getElementById('fp-nombre').value||'').trim(),
+      categoria_id:catId,categoria:catNom,
+      codigo:(document.getElementById('fp-codigo').value||'').trim(),
+      modelo_repuesto:(document.getElementById('fp-modelo').value||'').trim(),
+      descripcion:(document.getElementById('fp-desc').value||'').trim(),
+      aplicacion:(document.getElementById('fp-aplicacion').value||'').trim(),
+      notas:(document.getElementById('fp-notas').value||'').trim(),
+      importante:(document.getElementById('fp-importante').value||'').trim(),
+      tipo_vehiculo:document.getElementById('fp-tipo-veh').value,
+      marcas_vehiculo:marcasVeh,marca_vehiculo_1:marcasVeh[0]||'',
+      modelo_vehiculo:(document.getElementById('fp-modelo-veh').value||'').trim(),
+      fabricante:(document.getElementById('fp-fabricante').value||'').trim(),
+      tipo_repuesto:document.getElementById('fp-tipo').value,
+      condicion:document.getElementById('fp-condicion').value,
+      material:(document.getElementById('fp-material').value||'').trim(),
+      lado:document.getElementById('fp-lado').value,
+      estanteria:document.getElementById('fp-estanteria').value,
+      estante:document.getElementById('fp-estante').value,
+      cant_artic:parseInt(document.getElementById('fp-stock').value)||0,
+      precio_costo:costo,precio_venta:sinIva,precio_venta_iva:conIva,
+      forma_pago:document.getElementById('fp-pago').value,
+      forma_entrega:document.getElementById('fp-entrega').value,
+      imagen_url:(document.getElementById('fp-imagen').value||'').trim(),
+      fecha_compra:document.getElementById('fp-fecha-compra').value,
+      alta:document.getElementById('fp-publicar').value==='1',
+      codigos_proveedores:codigos,
+      creado_en:serverTimestamp(),actualizado_en:serverTimestamp()
+    };
+    await addDoc(collection(db,'repuestos'),data);
+    window._repsAll=null;
+    toast('Repuesto guardado correctamente','success');
+    showPage('repuestos');
+  } catch(err){
+    toast('Error al guardar: '+err.message,'error');
+    btn.disabled=false; btn.textContent='Guardar repuesto';
+  }
+};
+
 </script>
 
 </body>
