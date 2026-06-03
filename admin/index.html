@@ -1034,6 +1034,15 @@ import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/fir
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, deleteDoc, addDoc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
+// ── TIMEOUT HELPER — primero para evitar ReferenceError en módulos ES ──
+function withTimeout(promise, ms = 12000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() =>
+      reject(new Error('Sin respuesta de Firebase en ' + (ms/1000) + 's. Revisá las reglas de Firestore o tu conexión.')), ms))
+  ]);
+}
+
 // ── CONFIG (mismo que index.html) ─────────────────────
 const firebaseConfig = {
   apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
@@ -1088,14 +1097,6 @@ window.toast = toast;
 
 window.openModal  = (id) => document.getElementById(id).classList.add('open');
 window.closeModal = (id) => document.getElementById(id).classList.remove('open');
-
-// ── HELPER: timeout para Firebase que se cuelga ───────
-function withTimeout(promise, ms = 12000) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera agotado. Revisá tu conexión a internet.')), ms))
-  ]);
-}
 
 // ── DASHBOARD ─────────────────────────────────────────
 async function initDashboard() {
