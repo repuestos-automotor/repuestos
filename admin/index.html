@@ -1082,6 +1082,7 @@ window.closeModal = (id) => document.getElementById(id).classList.remove('open')
 
 // ── DASHBOARD ─────────────────────────────────────────
 async function initDashboard() {
+  try {
   // Fecha
   const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -1195,6 +1196,16 @@ async function initDashboard() {
   // Guardar en window para reusar
   window._reps  = reps;
   window._users = users;
+  } catch(e) {
+    console.error('Error cargando dashboard:', e);
+    const al = document.getElementById('alert-list');
+    if (al) al.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div><div class="empty-sub">Recargá la página. Si el problema persiste, revisá la conexión a Firebase.</div></div>';
+    ['stat-total','stat-cats','stat-valor','stat-ganancia','stat-pendientes'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+    ['fin-ars','fin-usd','fin-gan','fin-crit'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='Error';});
+    const ur=document.getElementById('ultimos-rep'); if(ur) ur.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div></div>';
+    const uu=document.getElementById('ultimos-users'); if(uu) uu.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div></div>';
+    toast('Error cargando dashboard. Recargá la página.','error');
+  }
 }
 
 // ── USUARIOS ──────────────────────────────────────────
