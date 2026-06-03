@@ -1256,8 +1256,7 @@ window.filterRepuestos = function() {
 };
 
 window.editarRepuesto = function(id) {
-  window._editingId = id;
-  document.getElementById('form-rep-title').textContent = 'Editar repuesto';
+  window._editingRepId = id || null;
   showPage('nuevo-repuesto');
 };
 
@@ -1324,7 +1323,7 @@ window.showPage = function(id) {
   document.getElementById('topbar-title').textContent = ti[id]||id;
   if (id==='usuarios')        loadUsuarios();
   if (id==='repuestos')       loadRepuestos();
-  if (id==='nuevo-repuesto')  initFormRepuesto();
+  if (id==='nuevo-repuesto')  { initFormRepuesto(window._editingRepId||''); window._editingRepId=null; }
   if (id==='categorias')      loadCategorias();
   if (id==='marcas-vehiculo') loadMarcasVeh();
   if (id==='marcas-repuesto') loadMarcasRep();
@@ -1818,6 +1817,244 @@ window.calcularPrecios = function() {
   document.getElementById('fp-con-iva').dataset.val=conIva;
 };
 
+// ── INIT FORMULARIO NUEVO / EDITAR REPUESTO ───────────
+window.initFormRepuesto = async function(repId) {
+  const container = document.getElementById('form-rep-container');
+  const title     = document.getElementById('form-rep-title');
+  _codigosCount   = 0;
+
+  // Título del panel
+  title.textContent = repId ? 'Editar repuesto' : 'Nuevo repuesto';
+
+  // Render HTML del formulario
+  container.innerHTML = `
+  <form onsubmit="guardarRepuesto(event, '${repId||''}')">
+    <!-- ── IDENTIFICACIÓN ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Identificación</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Nombre del repuesto *</label><input type="text" class="form-input" id="fp-nombre" placeholder="Ej: Pastillas de freno delanteras" required></div>
+          <div class="form-group"><label class="form-label">Código interno</label><input type="text" class="form-input" id="fp-codigo" placeholder="Ej: PFD-001"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Modelo del repuesto</label><input type="text" class="form-input" id="fp-modelo" placeholder="Ej: GDB1234"></div>
+          <div class="form-group"><label class="form-label">Fabricante / Marca</label><input type="text" class="form-input" id="fp-fabricante" placeholder="Ej: Bosch, NGK..."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Categoría *</label>
+            <select class="form-select" id="fp-cat" required><option value="">Cargando...</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Tipo de repuesto</label>
+            <select class="form-select" id="fp-tipo">
+              <option value="">Sin especificar</option>
+              <option value="original">Original</option>
+              <option value="alternativo">Alternativo</option>
+              <option value="usado">Usado</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Condición</label>
+            <select class="form-select" id="fp-condicion">
+              <option value="nuevo">Nuevo</option>
+              <option value="usado">Usado</option>
+              <option value="reacondicionado">Reacondicionado</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Material</label><input type="text" class="form-input" id="fp-material" placeholder="Ej: Cerámica, Metal..."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Lado</label>
+            <select class="form-select" id="fp-lado">
+              <option value="">Sin especificar</option>
+              <option value="izquierdo">Izquierdo</option>
+              <option value="derecho">Derecho</option>
+              <option value="ambos">Ambos</option>
+              <option value="central">Central</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Fecha de compra</label><input type="date" class="form-input" id="fp-fecha-compra"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-input" id="fp-desc" rows="2" placeholder="Descripción general del repuesto..." style="resize:vertical"></textarea></div>
+        <div class="form-group"><label class="form-label">Aplicación / Uso</label><input type="text" class="form-input" id="fp-aplicacion" placeholder="Ej: Frenos delanteros en seco"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Notas internas</label><input type="text" class="form-input" id="fp-notas" placeholder="Solo visible en el admin"></div>
+          <div class="form-group"><label class="form-label">⚠️ Importante</label><input type="text" class="form-input" id="fp-importante" placeholder="Ej: No usar en vehículos diésel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VEHÍCULOS COMPATIBLES ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Vehículos compatibles</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Tipo de vehículo</label>
+            <select class="form-select" id="fp-tipo-veh">
+              <option value="">Sin especificar</option>
+              <option value="auto">Auto</option>
+              <option value="camioneta">Camioneta</option>
+              <option value="suv">SUV</option>
+              <option value="utilitario">Utilitario</option>
+              <option value="camion">Camión</option>
+              <option value="moto">Moto</option>
+              <option value="universal">Universal</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Modelo de vehículo</label><input type="text" class="form-input" id="fp-modelo-veh" placeholder="Ej: Gol, Corsa, Hilux..."></div>
+        </div>
+        <div class="form-group"><label class="form-label">Marcas de vehículo compatibles</label>
+          <div class="form-row">
+            <input type="text" class="form-input" id="fp-mv1" placeholder="Marca 1">
+            <input type="text" class="form-input" id="fp-mv2" placeholder="Marca 2">
+            <input type="text" class="form-input" id="fp-mv3" placeholder="Marca 3">
+            <input type="text" class="form-input" id="fp-mv4" placeholder="Marca 4">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CÓDIGOS DE PROVEEDORES ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header">
+        <div class="panel-title">Códigos de proveedores</div>
+        <button type="button" class="btn btn-ghost" onclick="agregarCodigoProveedor()" style="font-size:12px">+ Agregar</button>
+      </div>
+      <div style="padding:16px">
+        <div id="codigos-prov-list"></div>
+        <button type="button" class="btn btn-ghost" onclick="agregarCodigoProveedor()" style="width:100%;margin-top:4px">+ Agregar código de proveedor</button>
+      </div>
+    </div>
+
+    <!-- ── UBICACIÓN EN DEPÓSITO ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Ubicación en depósito</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Estantería</label>
+            <select class="form-select" id="fp-estanteria">
+              <option value="">Sin asignar</option>
+              ${['A','B','C','D','E','F','G','H'].map(l=>`<option value="${l}">${l}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Estante (número)</label>
+            <select class="form-select" id="fp-estante">
+              <option value="">Sin asignar</option>
+              ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STOCK Y PRECIOS ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Stock y precios</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Stock inicial</label><input type="number" class="form-input" id="fp-stock" value="1" min="0"></div>
+          <div class="form-group"><label class="form-label">Costo (ARS) *</label><input type="number" class="form-input" id="fp-costo" placeholder="0.00" step="0.01" oninput="calcularPrecios()" required></div>
+          <div class="form-group"><label class="form-label">% Ganancia</label><input type="number" class="form-input" id="fp-pct-gan" value="40" min="0" step="1" oninput="calcularPrecios()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Precio sin IVA</label><input type="text" class="form-input" id="fp-sin-iva" readonly placeholder="Calculado" style="background:var(--bg2)"></div>
+          <div class="form-group"><label class="form-label">Precio con IVA 21%</label><input type="text" class="form-input" id="fp-con-iva" readonly placeholder="Calculado" style="background:var(--bg2)"></div>
+          <div class="form-group"><label class="form-label">Con 10% descuento</label><input type="text" class="form-input" id="fp-desc10" readonly placeholder="Calculado" style="background:var(--bg2)"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Forma de pago</label>
+            <select class="form-select" id="fp-pago">
+              <option value="">Sin especificar</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="mercadopago">MercadoPago</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Forma de entrega</label>
+            <select class="form-select" id="fp-entrega">
+              <option value="">Sin especificar</option>
+              <option value="mostrador">Mostrador</option>
+              <option value="envio">Envío</option>
+              <option value="ambas">Ambas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── IMAGEN Y PUBLICACIÓN ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Imagen y publicación</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">URL de imagen</label><input type="url" class="form-input" id="fp-imagen" placeholder="https://..."></div>
+          <div class="form-group"><label class="form-label">¿Publicar en el catálogo?</label>
+            <select class="form-select" id="fp-publicar">
+              <option value="1">Sí, publicar</option>
+              <option value="0">No, guardar sin publicar</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOTONES ── -->
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding-bottom:20px">
+      <button type="button" class="btn btn-ghost" onclick="showPage('repuestos')">Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar repuesto</button>
+    </div>
+  </form>`;
+
+  // Cargar categorías en el select
+  try {
+    const snap = await getDocs(collection(db, 'categorias'));
+    const catSel = document.getElementById('fp-cat');
+    if (catSel) {
+      catSel.innerHTML = '<option value="">Seleccioná categoría</option>';
+      snap.forEach(d => {
+        const o = document.createElement('option');
+        o.value = d.id; o.textContent = d.data().nombre || d.id;
+        catSel.appendChild(o);
+      });
+    }
+  } catch(e) { console.warn('Error cargando categorías:', e); }
+
+  // Si es edición, cargar datos del repuesto
+  if (repId) {
+    try {
+      const snap = await getDoc(doc(db,'repuestos', repId));
+      if (snap.exists()) {
+        const r = snap.data();
+        const set = (id, val) => { const el=document.getElementById(id); if(el && val!==undefined) el.value=val; };
+        set('fp-nombre', r.titulo_repuesto); set('fp-codigo', r.codigo);
+        set('fp-modelo', r.modelo_repuesto); set('fp-fabricante', r.fabricante);
+        set('fp-cat', r.categoria_id); set('fp-tipo', r.tipo_repuesto);
+        set('fp-condicion', r.condicion); set('fp-material', r.material);
+        set('fp-lado', r.lado); set('fp-fecha-compra', r.fecha_compra);
+        set('fp-desc', r.descripcion); set('fp-aplicacion', r.aplicacion);
+        set('fp-notas', r.notas); set('fp-importante', r.importante);
+        set('fp-tipo-veh', r.tipo_vehiculo); set('fp-modelo-veh', r.modelo_vehiculo);
+        (r.marcas_vehiculo||[]).forEach((m,i)=>set('fp-mv'+(i+1),m));
+        set('fp-estanteria', r.estanteria); set('fp-estante', r.estante);
+        set('fp-stock', r.cant_artic); set('fp-costo', r.precio_costo);
+        set('fp-pct-gan','40'); set('fp-pago', r.forma_pago);
+        set('fp-entrega', r.forma_entrega); set('fp-imagen', r.imagen_url);
+        set('fp-publicar', r.alta ? '1' : '0');
+        (r.codigos_proveedores||[]).forEach(c=>{
+          agregarCodigoProveedor();
+          const el=document.getElementById('cod-prov-'+_codigosCount);
+          const ev=document.getElementById('cod-val-'+_codigosCount);
+          if(el) el.value=c.proveedor||'';
+          if(ev) ev.value=c.codigo||'';
+        });
+        calcularPrecios();
+      }
+    } catch(e) { console.warn('Error cargando repuesto:', e); }
+  }
+};
+
 // ── CÓDIGOS DE PROVEEDORES ────────────────────────────
 let _codigosCount=0;
 window.agregarCodigoProveedor=function(){
@@ -1829,7 +2066,7 @@ window.agregarCodigoProveedor=function(){
 };
 
 // ── GUARDAR REPUESTO ──────────────────────────────────
-window.guardarRepuesto=async function(e){
+window.guardarRepuesto=async function(e, repId=''){
   e.preventDefault();
   const btn=e.target.querySelector('[type=submit]');
   btn.disabled=true; btn.textContent='Guardando...';
@@ -1876,9 +2113,13 @@ window.guardarRepuesto=async function(e){
       codigos_proveedores:codigos,
       creado_en:serverTimestamp(),actualizado_en:serverTimestamp()
     };
-    await addDoc(collection(db,'repuestos'),data);
+    if (repId) {
+      await updateDoc(doc(db,'repuestos',repId), {...data, actualizado_en:serverTimestamp()});
+    } else {
+      await addDoc(collection(db,'repuestos'),data);
+    }
     window._repsAll=null;
-    toast('Repuesto guardado correctamente','success');
+    toast(repId ? 'Repuesto actualizado correctamente' : 'Repuesto guardado correctamente','success');
     showPage('repuestos');
   } catch(err){
     toast('Error al guardar: '+err.message,'error');
