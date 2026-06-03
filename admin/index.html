@@ -1050,14 +1050,22 @@ const db   = getFirestore(app);
 // ── GUARD: verificar que sea admin ────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = '../index.html'; return; }
-  const snap = await getDoc(doc(db, 'usuarios', user.uid));
-  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
-    window.location.href = '../index.html'; return;
+  try {
+    const snap = await withTimeout(getDoc(doc(db, 'usuarios', user.uid)), 10000);
+    if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+      window.location.href = '../index.html'; return;
+    }
+    const d = snap.data();
+    document.getElementById('admin-name').textContent = d.nombre_completo || 'Admin';
+    document.getElementById('admin-av').textContent   = (d.nombre_completo||'AD').substring(0,2).toUpperCase();
+    initDashboard();
+  } catch(e) {
+    console.error('Error auth:', e);
+    // Si hay timeout en auth, intentar igual con el usuario actual
+    document.getElementById('admin-name').textContent = user.email?.split('@')[0] || 'Admin';
+    document.getElementById('admin-av').textContent   = (user.email||'AD').substring(0,2).toUpperCase();
+    initDashboard();
   }
-  const d = snap.data();
-  document.getElementById('admin-name').textContent = d.nombre_completo || 'Admin';
-  document.getElementById('admin-av').textContent   = (d.nombre_completo||'AD').substring(0,2).toUpperCase();
-  initDashboard();
 });
 
 // ── LOGOUT ────────────────────────────────────────────
@@ -1081,6 +1089,14 @@ window.toast = toast;
 window.openModal  = (id) => document.getElementById(id).classList.add('open');
 window.closeModal = (id) => document.getElementById(id).classList.remove('open');
 
+// ── HELPER: timeout para Firebase que se cuelga ───────
+function withTimeout(promise, ms = 12000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo de espera agotado. Revisá tu conexión a internet.')), ms))
+  ]);
+}
+
 // ── DASHBOARD ─────────────────────────────────────────
 async function initDashboard() {
   try {
@@ -1090,12 +1106,12 @@ async function initDashboard() {
   const ahora = new Date();
   document.getElementById('topbar-date').textContent = `${dias[ahora.getDay()]} ${ahora.getDate()} de ${meses[ahora.getMonth()]} de ${ahora.getFullYear()}`;
 
-  // Cargar datos en paralelo
-  const [repsSnap, usersSnap, catsSnap] = await Promise.all([
+  // Cargar datos en paralelo con timeout de 12 segundos
+  const [repsSnap, usersSnap, catsSnap] = await withTimeout(Promise.all([
     getDocs(collection(db, 'repuestos')),
     getDocs(collection(db, 'usuarios')),
     getDocs(collection(db, 'categorias'))
-  ]);
+  ]));
 
   const reps  = repsSnap.docs.map(d=>({id:d.id,...d.data()}));
   const users = usersSnap.docs.map(d=>({id:d.id,...d.data()}));
@@ -1199,15 +1215,17 @@ async function initDashboard() {
   window._users = users;
   } catch(e) {
     console.error('Error cargando dashboard:', e);
+    const msg = e.message || 'Error desconocido';
     const al = document.getElementById('alert-list');
-    if (al) al.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div><div class="empty-sub">Recargá la página. Si el problema persiste, revisá la conexión a Firebase.</div></div>';
+    if (al) al.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">No se pudo conectar</div><div class="empty-sub">${msg}<br><br><button class="btn btn-primary" onclick="initDashboard()" style="margin-top:8px">🔄 Reintentar</button></div></div>`;
     ['stat-total','stat-cats','stat-valor','stat-ganancia','stat-pendientes'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
-    ['fin-ars','fin-usd','fin-gan','fin-crit'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='Error';});
-    const ur=document.getElementById('ultimos-rep'); if(ur) ur.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div></div>';
-    const uu=document.getElementById('ultimos-users'); if(uu) uu.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error al cargar</div></div>';
-    toast('Error cargando dashboard. Recargá la página.','error');
+    ['fin-ars','fin-usd','fin-gan','fin-crit'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+    const ur=document.getElementById('ultimos-rep'); if(ur) ur.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Sin conexión</div><div class="empty-sub"><button class="btn btn-primary" onclick="initDashboard()" style="margin-top:8px">🔄 Reintentar</button></div></div>`;
+    const uu=document.getElementById('ultimos-users'); if(uu) uu.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Sin conexión</div></div>';
+    toast('Sin conexión a Firebase. ' + msg,'error');
   }
 }
+window.initDashboard = initDashboard;
 
 // ── USUARIOS ──────────────────────────────────────────
 window.loadUsuarios = async function() {
