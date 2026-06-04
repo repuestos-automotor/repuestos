@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>🔬 Diagnóstico Firebase</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a0f; color: #e2e8f0; font-family: 'Courier New', monospace; font-size: 13px; padding: 24px; }
+  h1 { font-size: 18px; color: #fff; margin-bottom: 20px; }
+  h1 span { color: #3b82f6; }
+  #log { background: #0f1117; border: 1px solid #1e2433; border-radius: 10px; padding: 16px; max-width: 860px; }
+  .line { padding: 5px 0; border-bottom: 1px solid #111827; display: flex; gap: 10px; align-items: flex-start; }
+  .line:last-child { border-bottom: none; }
+  .icon { width: 18px; flex-shrink: 0; text-align: center; }
+  .msg { flex: 1; }
+  .sub { color: #6b7280; font-size: 11px; margin-top: 2px; word-break: break-all; }
+  .ok   { color: #22c55e; }
+  .err  { color: #ef4444; }
+  .warn { color: #f59e0b; }
+  .info { color: #3b82f6; }
+  .wait { color: #94a3b8; }
+  #resumen { margin-top: 20px; max-width: 860px; background: #0f1117; border: 1px solid #1e2433; border-radius: 10px; padding: 16px; display: none; }
+  #resumen h2 { font-size: 14px; margin-bottom: 12px; color: #fff; }
+  .causa { background: #1a1025; border: 1px solid #7c3aed44; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+  .causa.error { background: #1a0a0a; border-color: #ef444444; }
+  .causa.ok { background: #0a1a0a; border-color: #22c55e44; }
+  .causa-title { font-weight: bold; margin-bottom: 5px; font-size: 13px; }
+  .causa-fix { color: #94a3b8; font-size: 12px; margin-top: 6px; line-height: 1.6; }
+  .causa-fix code { color: #f59e0b; background: #0f1117; padding: 1px 5px; border-radius: 3px; }
+  #btn-run { margin-bottom: 20px; background: #2563eb; color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  #btn-run:hover { background: #1d4ed8; }
+  #btn-run:disabled { background: #374151; cursor: default; }
+</style>
+</head>
+<body>
+
+<h1>🔬 Diagnóstico <span>Firebase</span> — Repuestos Automotor</h1>
+<button id="btn-run" onclick="runDiag()">▶ Ejecutar diagnóstico</button>
+<div id="log"></div>
+<div id="resumen"></div>
+
+<script type="module">
+import { initializeApp }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, getDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+
+let app, auth, db;
+const logEl = document.getElementById('log');
+const resEl = document.getElementById('resumen');
+const resultados = {};
+
+function log(icon, tipo, msg, sub = '') {
+  const d = document.createElement('div');
+  d.className = 'line';
+  d.innerHTML = `<span class="icon">${icon}</span><div class="msg"><span class="${tipo}">${msg}</span>${sub ? `<div class="sub">${sub}</div>` : ''}</div>`;
+  logEl.appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function sep(titulo) {
+  const d = document.createElement('div');
+  d.style.cssText = 'padding:10px 0 4px;color:#4b5563;font-size:11px;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #1e2433;margin-bottom:4px';
+  d.textContent = '── ' + titulo;
+  logEl.appendChild(d);
+}
+
+function withTimeout(p, ms, label) {
+  return Promise.race([
+    p,
+    new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT (' + ms/1000 + 's) — ' + label)), ms))
+  ]);
+}
+
+window.runDiag = async function() {
+  logEl.innerHTML = '';
+  resEl.style.display = 'none';
+  resEl.innerHTML = '';
+  document.getElementById('btn-run').disabled = true;
+  document.getElementById('btn-run').textContent = '⏳ Corriendo...';
+
+  // ─── 1. INICIALIZAR FIREBASE ─────────────────────────
+  sep('1. Inicialización Firebase');
+  try {
+    app  = initializeApp(firebaseConfig, 'diag-' + Date.now());
+    auth = getAuth(app);
+    db   = getFirestore(app);
+    log('✅','ok','Firebase inicializado correctamente');
+    resultados.init = true;
+  } catch(e) {
+    log('❌','err','Firebase NO se pudo inicializar', e.message);
+    resultados.init = false;
+    mostrarResumen(); return;
+  }
+
+  // ─── 2. ESTADO DE AUTH ACTUAL ────────────────────────
+  sep('2. Estado de autenticación');
+  const user = await new Promise(resolve => {
+    const unsub = onAuthStateChanged(auth, u => { unsub(); resolve(u); });
+    setTimeout(() => resolve(null), 5000);
+  });
+
+  if (!user) {
+    log('⚠️','warn','No hay usuario logueado actualmente');
+    log('ℹ️','info','Para testear Firestore sin auth, continuamos igual...');
+    resultados.auth = null;
+  } else {
+    log('✅','ok',`Usuario autenticado: ${user.email}`, `UID: ${user.uid}`);
+    resultados.auth = { uid: user.uid, email: user.email };
+  }
+
+  // ─── 3. LECTURA PÚBLICA — REPUESTOS ─────────────────
+  sep('3. Lectura colección "repuestos" (sin auth requerida por reglas)');
+  try {
+    const snap = await withTimeout(getDocs(collection(db, 'repuestos')), 8000, 'getDocs repuestos');
+    log('✅','ok',`Colección "repuestos" leída correctamente — ${snap.size} documentos`);
+    resultados.repuestos = snap.size;
+  } catch(e) {
+    if (e.code === 'permission-denied') {
+      log('❌','err','PERMISSION DENIED en "repuestos"', 'Las reglas de Firestore están bloqueando la lectura. Publicaste las reglas pero puede no haberse propagado aún.');
+      resultados.repuestos = 'permission-denied';
+    } else {
+      log('❌','err','Error leyendo "repuestos"', `${e.code || ''} — ${e.message}`);
+      resultados.repuestos = e.message;
+    }
+  }
+
+  // ─── 4. LECTURA PÚBLICA — CATEGORIAS ────────────────
+  sep('4. Lectura colección "categorias"');
+  try {
+    const snap = await withTimeout(getDocs(collection(db, 'categorias')), 8000, 'getDocs categorias');
+    log('✅','ok',`Colección "categorias" leída — ${snap.size} documentos`);
+    resultados.categorias = snap.size;
+  } catch(e) {
+    log('❌','err','Error leyendo "categorias"', `${e.code || ''} — ${e.message}`);
+    resultados.categorias = e.code || e.message;
+  }
+
+  // ─── 5. DOC USUARIO ADMIN ───────────────────────────
+  sep('5. Documento del usuario en colección "usuarios"');
+  if (!resultados.auth) {
+    log('⚠️','warn','Saltando — no hay usuario logueado');
+    log('ℹ️','info','Abrí esta página desde el mismo navegador donde estás logueado en el panel admin');
+    resultados.usuarioDoc = 'sin-auth';
+  } else {
+    try {
+      const snap = await withTimeout(getDoc(doc(db, 'usuarios', resultados.auth.uid)), 8000, 'getDoc usuario');
+      if (!snap.exists()) {
+        log('❌','err',`El documento usuarios/${resultados.auth.uid} NO EXISTE`, 'El usuario está autenticado en Firebase Auth pero no tiene doc en Firestore. Esto hace que el panel admin redirija al login.');
+        resultados.usuarioDoc = 'no-existe';
+      } else {
+        const data = snap.data();
+        const rolOk    = data.rol === 'admin';
+        const estadoOk = data.estado === 'activo';
+        log(rolOk    ? '✅' : '❌', rolOk    ? 'ok' : 'err', `rol: "${data.rol}"`,    rolOk    ? 'Correcto' : 'DEBE SER "admin" — el panel rechaza cualquier otro valor');
+        log(estadoOk ? '✅' : '❌', estadoOk ? 'ok' : 'err', `estado: "${data.estado}"`, estadoOk ? 'Correcto' : 'DEBE SER "activo" — si es "pendiente" o "bloqueado" no entra');
+        log('ℹ️','info','Otros campos del doc:', JSON.stringify({ nombre_completo: data.nombre_completo, email: data.email }));
+        resultados.usuarioDoc = { rol: data.rol, estado: data.estado, rolOk, estadoOk };
+      }
+    } catch(e) {
+      if (e.code === 'permission-denied') {
+        log('❌','err','PERMISSION DENIED leyendo usuarios/' + resultados.auth.uid, 'Las reglas no permiten que el usuario lea su propio doc. Las reglas actuales requieren auth pero puede estar fallando.');
+        resultados.usuarioDoc = 'permission-denied';
+      } else {
+        log('❌','err','Error leyendo doc usuario', `${e.code || ''} — ${e.message}`);
+        resultados.usuarioDoc = e.message;
+      }
+    }
+  }
+
+  // ─── 6. LECTURA COLECCIÓN USUARIOS (requiere auth) ──
+  sep('6. Lectura colección "usuarios" completa (requiere auth)');
+  try {
+    const snap = await withTimeout(getDocs(collection(db, 'usuarios')), 8000, 'getDocs usuarios');
+    log('✅','ok',`Colección "usuarios" leída — ${snap.size} documentos`);
+    resultados.usuarios = snap.size;
+  } catch(e) {
+    if (e.code === 'permission-denied') {
+      log('❌','err','PERMISSION DENIED en "usuarios"', e.message);
+      resultados.usuarios = 'permission-denied';
+    } else {
+      log('❌','err','Error leyendo "usuarios"', `${e.code || ''} — ${e.message}`);
+      resultados.usuarios = e.code || e.message;
+    }
+  }
+
+  // ─── 7. TIMESTAMP / RELOJ ───────────────────────────
+  sep('7. Info del entorno');
+  log('ℹ️','info', `Navegador: ${navigator.userAgent.substring(0,80)}`);
+  log('ℹ️','info', `URL actual: ${window.location.href}`);
+  log('ℹ️','info', `Hora local: ${new Date().toLocaleString('es-AR')}`);
+
+  mostrarResumen();
+  document.getElementById('btn-run').disabled = false;
+  document.getElementById('btn-run').textContent = '▶ Ejecutar de nuevo';
+}
+
+function mostrarResumen() {
+  resEl.style.display = 'block';
+  resEl.innerHTML = '<h2>📋 Resumen y causas probables</h2>';
+
+  const r = resultados;
+  const causas = [];
+
+  // Sin auth
+  if (r.auth === null) {
+    causas.push({
+      tipo: 'error',
+      titulo: '⚠️ No hay sesión activa en esta pestaña',
+      fix: `Esta página de diagnóstico se abrió sin estar logueado. Abrila desde el mismo navegador donde usás el panel admin, o <strong>copiá el archivo a tu repositorio</strong> y abrilo desde <code>repuestos-automotor.github.io/repuestos/diagnostico.html</code> después de loguearte en el panel.`
+    });
+  }
+
+  // Repuestos permission-denied
+  if (r.repuestos === 'permission-denied') {
+    causas.push({
+      tipo: 'error',
+      titulo: '❌ CAUSA CONFIRMADA: Reglas de Firestore bloqueando "repuestos"',
+      fix: `Las reglas no permiten lectura de "repuestos". Esto puede pasar si:<br>
+      1. Las reglas que publicaste <strong>no se propagaron aún</strong> (esperá 2-3 minutos y correlo de nuevo)<br>
+      2. Publicaste las reglas pero quedó algún <strong>error de sintaxis</strong> silencioso<br>
+      3. Estás mirando la base de datos equivocada (chequeá que sea "default" en Firebase Console)`
+    });
+  } else if (r.repuestos === 0) {
+    causas.push({
+      tipo: 'warn',
+      titulo: '⚠️ La colección "repuestos" está vacía',
+      fix: `Firestore responde OK pero no hay documentos. El dashboard va a mostrar ceros, no "cargando". Si ves spinners infinitos, el problema es otro.`
+    });
+  }
+
+  // usuario doc no existe
+  if (r.usuarioDoc === 'no-existe') {
+    causas.push({
+      tipo: 'error',
+      titulo: '❌ CAUSA CONFIRMADA: Tu usuario no existe en Firestore',
+      fix: `Estás autenticado en Firebase Auth (email/password) pero no tenés un documento en la colección <code>usuarios</code> con tu UID. El panel admin busca ese doc para verificar que seas admin. <br><br>
+      <strong>Solución:</strong> Abrí <code>setup/set-admin.html</code> en tu repo para crear/arreglar ese documento, o crealo manualmente en Firebase Console → Firestore → usuarios → Agregar documento con ID = tu UID y campos: <code>rol: "admin"</code>, <code>estado: "activo"</code>`
+    });
+  } else if (r.usuarioDoc && r.usuarioDoc !== 'sin-auth' && r.usuarioDoc !== 'permission-denied') {
+    if (!r.usuarioDoc.rolOk) {
+      causas.push({
+        tipo: 'error',
+        titulo: `❌ CAUSA CONFIRMADA: rol incorrecto — es "${r.usuarioDoc.rol}", debe ser "admin"`,
+        fix: `En Firebase Console → Firestore → usuarios → tu documento → editá el campo <code>rol</code> y ponele exactamente <code>admin</code> (minúsculas, sin espacios)`
+      });
+    }
+    if (!r.usuarioDoc.estadoOk) {
+      causas.push({
+        tipo: 'error',
+        titulo: `❌ CAUSA CONFIRMADA: estado incorrecto — es "${r.usuarioDoc.estado}", debe ser "activo"`,
+        fix: `En Firebase Console → Firestore → usuarios → tu documento → editá el campo <code>estado</code> y ponele exactamente <code>activo</code>`
+      });
+    }
+  }
+
+  // usuarios permission denied
+  if (r.usuarios === 'permission-denied') {
+    causas.push({
+      tipo: 'error',
+      titulo: '❌ CAUSA CONFIRMADA: Reglas bloqueando lectura de "usuarios"',
+      fix: `Aunque estés logueado, Firestore rechaza la lectura de la colección "usuarios". Verificá que las reglas tengan el bloque <code>match /{document=**} { allow read, write: if request.auth != null; }</code> publicado correctamente.`
+    });
+  }
+
+  // Todo OK
+  const todoOk = r.init && r.repuestos !== 'permission-denied' && r.usuarios !== 'permission-denied' &&
+    r.usuarioDoc && r.usuarioDoc !== 'no-existe' && r.usuarioDoc !== 'permission-denied' &&
+    (r.usuarioDoc === 'sin-auth' || (r.usuarioDoc.rolOk && r.usuarioDoc.estadoOk));
+
+  if (todoOk && r.auth) {
+    causas.push({
+      tipo: 'ok',
+      titulo: '✅ Firestore y Auth funcionan correctamente',
+      fix: `Si el dashboard sigue en "cargando", el problema es de JavaScript (excepción silenciosa). Abrí la consola del navegador (F12 → Console) con el panel admin abierto y pasame el error exacto que aparece.`
+    });
+  }
+
+  if (causas.length === 0) {
+    causas.push({
+      tipo: 'warn',
+      titulo: '⚠️ Sin sesión activa — diagnóstico incompleto',
+      fix: `Subí este archivo a tu repo GitHub y abrilo desde <code>repuestos-automotor.github.io/repuestos/diagnostico.html</code> después de loguearte en el panel admin.`
+    });
+  }
+
+  causas.forEach(c => {
+    resEl.innerHTML += `<div class="causa ${c.tipo}"><div class="causa-title ${c.tipo === 'error' ? 'err' : c.tipo === 'ok' ? 'ok' : 'warn'}">${c.titulo}</div><div class="causa-fix">${c.fix}</div></div>`;
+  });
+}
+</script>
+</body>
+</html>
