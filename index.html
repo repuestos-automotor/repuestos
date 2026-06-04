@@ -26,7 +26,8 @@
   --indigo:   #6366f1;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;position:relative;padding:20px 0}
+@media(min-height:700px){body{align-items:center}}
 
 /* FONDO ANIMADO */
 .bg-grid{position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.3;pointer-events:none}
@@ -50,6 +51,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 
 /* CARD */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.card-body{max-height:calc(100vh - 220px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .card-tabs{display:flex;border-bottom:1px solid var(--border)}
 .tab{flex:1;padding:14px;text-align:center;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .2s;position:relative}
 .tab.active{color:var(--blue);background:var(--bg3)}
@@ -165,7 +167,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       </div>
 
       <!-- REGISTRO -->
-      <div class="card-body" id="form-register" style="display:none">
+      <div class="card-body" id="form-register" style="display:none;padding-bottom:20px">
         <div class="msg msg-info show">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <span>Tu solicitud será revisada y aprobada manualmente.</span>
