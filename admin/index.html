@@ -323,6 +323,10 @@ tbody tr:last-child td{border-bottom:none}
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       Catálogos papel
     </div>
+    <div class="nav-item" onclick="abrirEstanterias()">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Estanterías / Estantes
+    </div>
 
     <div class="nav-section">Stock</div>
     <div class="nav-item" onclick="showPage('stock')">
@@ -380,8 +384,11 @@ tbody tr:last-child td{border-bottom:none}
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       Buscador avanzado
     </div>
+    <div class="nav-item" onclick="showPage('configuraciones')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configuraciones
+    </div>
   </div>
-
   <div class="sidebar-footer">
     <div class="user-chip">
       <div class="user-av" id="admin-av">AD</div>
@@ -563,11 +570,14 @@ tbody tr:last-child td{border-bottom:none}
 
     <!-- ─── NUEVO REPUESTO ────────────────────────────── -->
     <div class="page" id="page-nuevo-repuesto">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600" id="form-rep-title">Nuevo repuesto</div>
         <button class="btn btn-ghost" onclick="showPage('repuestos')">← Volver a la lista</button>
       </div>
-      <div id="form-rep-container"><!-- se carga con JS --></div>
+      <iframe id="iframe-repuesto" src="form-repuesto.html"
+        style="width:100%;height:calc(100vh - 120px);border:none;background:var(--bg)"
+        onload="setupIframe(this)">
+      </iframe>
     </div>
 
     <!-- ─── STOCK ──────────────────────────────────────── -->
@@ -743,19 +753,250 @@ tbody tr:last-child td{border-bottom:none}
     </div>
 
     <!-- ─── OTRAS PÁGINAS (placeholder) ──────────────── -->
-    <div class="page" id="page-categorias"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando categorías...</div></div></div>
-    <div class="page" id="page-marcas-vehiculo"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando marcas...</div></div></div>
-    <div class="page" id="page-marcas-repuesto"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando marcas...</div></div></div>
-    <div class="page" id="page-proveedores"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando proveedores...</div></div></div>
-    <div class="page" id="page-catalogos"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando catálogos...</div></div></div>
-    <div class="page" id="page-faltantes"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando faltantes...</div></div></div>
-    <div class="page" id="page-queda-uno"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando...</div></div></div>
-    <div class="page" id="page-sin-precio"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando...</div></div></div>
-    <div class="page" id="page-agregar-stock"><div class="loading-wrap"><div class="spinner"></div></div></div>
-    <div class="page" id="page-descontar-stock"><div class="loading-wrap"><div class="spinner"></div></div></div>
-    <div class="page" id="page-ganancias"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Calculando ganancias...</div></div></div>
-    <div class="page" id="page-consultas"><div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando consultas...</div></div></div>
-    <div class="page" id="page-buscador"><div class="loading-wrap"><div class="spinner"></div></div></div>
+    <!-- ─── CATEGORÍAS ──────────────────────────────── -->
+    <div class="page" id="page-categorias">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Categorías</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="cat-count">—</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalCategoria()">+ Nueva categoría</button>
+      </div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="cat-search" placeholder="🔍 Buscar categoría..." oninput="filtrarCategorias()" style="max-width:360px"></div>
+      <div id="cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
+    </div>
+
+    <!-- ─── MARCAS VEHÍCULO ─────────────────────────── -->
+    <div class="page" id="page-marcas-vehiculo">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Marcas de Vehículos</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="mv-count">—</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalMarcaVeh()">+ Nueva marca</button>
+      </div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="mv-search" placeholder="🔍 Buscar marca..." oninput="filtrarMarcasVeh()" style="max-width:360px"></div>
+      <div id="mv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+    </div>
+
+    <!-- ─── MARCAS REPUESTO ─────────────────────────── -->
+    <div class="page" id="page-marcas-repuesto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Marcas de Repuestos</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="mr-count">—</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalMarcaRep()">+ Nueva marca</button>
+      </div>
+      <div style="margin-bottom:14px"><input type="text" class="form-input" id="mr-search" placeholder="🔍 Buscar marca..." oninput="filtrarMarcasRep()" style="max-width:360px"></div>
+      <div id="mr-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+    </div>
+
+    <!-- ─── PROVEEDORES ─────────────────────────────── -->
+    <div class="page" id="page-proveedores">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Proveedores</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="prov-count">—</span></p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalProveedor()">+ Nuevo proveedor</button>
+      </div>
+      <div id="prov-tabla-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Nombre</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Contacto</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Teléfono</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acciones</th>
+          </tr></thead>
+          <tbody id="prov-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── CATÁLOGOS ───────────────────────────────── -->
+    <div class="page" id="page-catalogos">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Catálogos de Papel</h2>
+          <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Registros de catálogos físicos para referencia de páginas</p>
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalCatalogo()">+ Nuevo catálogo</button>
+      </div>
+      <div id="cat-lista-wrap" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+    </div>
+
+    <!-- ─── FALTANTES ───────────────────────────────── -->
+    <div class="page" id="page-faltantes">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Repuestos Faltantes</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Repuestos con stock en 0</p>
+      </div>
+      <div id="falt-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Precio</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acción</th>
+          </tr></thead>
+          <tbody id="falt-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── QUEDA UNO ────────────────────────────────── -->
+    <div class="page" id="page-queda-uno">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">⚠️ Queda una unidad</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Repuestos con stock = 1</p>
+      </div>
+      <div id="uno-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Precio</th>
+          </tr></thead>
+          <tbody id="uno-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── SIN PRECIO ──────────────────────────────── -->
+    <div class="page" id="page-sin-precio">
+      <div style="margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">🔴 Sin precio</h2>
+        <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Repuestos sin precio de venta cargado</p>
+      </div>
+      <div id="sp-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead><tr style="border-bottom:1px solid var(--border)">
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Producto</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Código</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Categoría</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Stock</th>
+            <th style="text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500">Acción</th>
+          </tr></thead>
+          <tbody id="sp-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── AGREGAR STOCK ────────────────────────────── -->
+    <div class="page" id="page-agregar-stock">
+      <div style="max-width:520px;margin:0 auto">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">➕ Agregar al Stock</h2>
+        <div class="panel" style="padding:24px">
+          <div class="form-group">
+            <label class="form-label">Buscar repuesto</label>
+            <input type="text" class="form-input" id="as-search" placeholder="Nombre o código..." oninput="buscarParaStock('as')">
+            <div id="as-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>
+          </div>
+          <div id="as-selected" style="display:none;margin-top:12px;padding:12px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:8px">
+            <p id="as-sel-name" style="margin:0 0 8px;font-weight:500;color:var(--text)"></p>
+            <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">Stock actual: <span id="as-sel-stock" style="color:var(--green);font-weight:600"></span></p>
+            <div class="form-group">
+              <label class="form-label">Cantidad a agregar</label>
+              <input type="number" class="form-input" id="as-cant" min="1" value="1" style="max-width:140px">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Motivo (opcional)</label>
+              <input type="text" class="form-input" id="as-motivo" placeholder="Ej: reposición de stock">
+            </div>
+            <button class="btn btn-primary" onclick="confirmarAgregarStock()">✅ Confirmar agregado</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── DESCONTAR STOCK ──────────────────────────── -->
+    <div class="page" id="page-descontar-stock">
+      <div style="max-width:520px;margin:0 auto">
+        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">➖ Descontar del Stock (Venta)</h2>
+        <div class="panel" style="padding:24px">
+          <div class="form-group">
+            <label class="form-label">Buscar repuesto</label>
+            <input type="text" class="form-input" id="ds-search" placeholder="Nombre o código..." oninput="buscarParaStock('ds')">
+            <div id="ds-results" style="margin-top:8px;max-height:200px;overflow-y:auto"></div>
+          </div>
+          <div id="ds-selected" style="display:none;margin-top:12px;padding:12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:8px">
+            <p id="ds-sel-name" style="margin:0 0 8px;font-weight:500;color:var(--text)"></p>
+            <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px">Stock actual: <span id="ds-sel-stock" style="color:var(--red);font-weight:600"></span></p>
+            <div class="form-group">
+              <label class="form-label">Cantidad vendida</label>
+              <input type="number" class="form-input" id="ds-cant" min="1" value="1" style="max-width:140px">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Comprador (opcional)</label>
+              <input type="text" class="form-input" id="ds-comprador" placeholder="Nombre del comprador">
+            </div>
+            <button class="btn" style="background:var(--red);color:#fff" onclick="confirmarDescontarStock()">✅ Confirmar venta</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── GANANCIAS ───────────────────────────────── -->
+    <div class="page" id="page-ganancias">
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">💰 Ganancias</h2>
+      <div id="gan-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:24px"></div>
+      <div class="panel" style="padding:20px">
+        <h3 style="font-size:14px;font-weight:600;color:var(--text);margin:0 0 16px">Detalle por repuesto (Top 20 por ganancia)</h3>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Producto</th>
+              <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Costo</th>
+              <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Precio venta</th>
+              <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Ganancia unit.</th>
+              <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">%</th>
+            </tr></thead>
+            <tbody id="gan-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── BUSCADOR AVANZADO ────────────────────────── -->
+    <div class="page" id="page-buscador">
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">🔍 Buscador Avanzado</h2>
+      <div class="panel" style="padding:20px;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px">
+          <div class="form-group" style="margin:0"><label class="form-label">Nombre / código</label><input type="text" class="form-input" id="bav-texto" placeholder="Ej: alternador bosch"></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Categoría</label><select class="form-select" id="bav-cat"><option value="">Todas</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Marca vehículo</label><select class="form-select" id="bav-mv"><option value="">Todas</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Condición</label><select class="form-select" id="bav-cond"><option value="">Cualquiera</option><option>NUEVO</option><option>USADO</option><option>RECAMBIO</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Tipo</label><select class="form-select" id="bav-tipo"><option value="">Cualquiera</option><option>ORIGINAL</option><option>COPIA</option></select></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Stock mínimo</label><input type="number" class="form-input" id="bav-stock" placeholder="0" min="0"></div>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="ejecutarBuscador()">🔍 Buscar</button>
+          <button class="btn btn-ghost" onclick="limpiarBuscador()">✖ Limpiar</button>
+        </div>
+      </div>
+      <div id="bav-result-info" style="font-size:13px;color:var(--text-muted);margin-bottom:10px"></div>
+      <div id="bav-results" style="overflow-x:auto"></div>
+    </div>
+
+    <!-- ─── CONSULTAS ───────────────────────────────── -->
+    <div class="page" id="page-consultas">
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">📩 Consultas de compradores</h2>
+      <div id="cons-wrap">
+        <div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando consultas...</div></div>
+      </div>
+    </div>
+
+    <!-- ─── CONFIGURACIONES ──────────────────────────── -->
+    <div class="page" id="page-configuraciones">
+      <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0 0 20px">⚙️ Configuraciones</h2>
+      <div id="config-wrap">
+        <div class="loading-wrap"><div class="spinner"></div></div>
+      </div>
+    </div>
 
   </div><!-- /content -->
 </div><!-- /main -->
@@ -779,11 +1020,35 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+<!-- MODAL VER DETALLE REPUESTO -->
+<div class="modal-overlay" id="modal-rep">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Detalle del repuesto</div>
+      <button class="modal-close" onclick="closeModal('modal-rep')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="modal-rep-body" style="max-height:65vh;overflow-y:auto"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-rep')">Cerrar</button>
+      <button class="btn btn-primary" id="modal-rep-edit-btn">✏️ Editar</button>
+    </div>
+  </div>
+</div>
+
 <!-- FIREBASE + LÓGICA -->
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, getDoc, doc, updateDoc, deleteDoc, addDoc, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// ── TIMEOUT HELPER — primero para evitar ReferenceError en módulos ES ──
+function withTimeout(promise, ms = 12000) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() =>
+      reject(new Error('Sin respuesta de Firebase en ' + (ms/1000) + 's. Revisá las reglas de Firestore o tu conexión.')), ms))
+  ]);
+}
 
 // ── CONFIG (mismo que index.html) ─────────────────────
 const firebaseConfig = {
@@ -801,18 +1066,61 @@ const db   = getFirestore(app);
 // ── GUARD: verificar que sea admin ────────────────────
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = '../index.html'; return; }
-  const snap = await getDoc(doc(db, 'usuarios', user.uid));
-  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
-    window.location.href = '../index.html'; return;
+  try {
+    const snap = await withTimeout(getDoc(doc(db, 'usuarios', user.uid)), 10000);
+    if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+      window.location.href = '../index.html'; return;
+    }
+    const d = snap.data();
+    document.getElementById('admin-name').textContent = d.nombre_completo || 'Admin';
+    document.getElementById('admin-av').textContent   = (d.nombre_completo||'AD').substring(0,2).toUpperCase();
+    initDashboard();
+  } catch(e) {
+    console.error('Error auth:', e);
+    // Si hay timeout en auth, intentar igual con el usuario actual
+    document.getElementById('admin-name').textContent = user.email?.split('@')[0] || 'Admin';
+    document.getElementById('admin-av').textContent   = (user.email||'AD').substring(0,2).toUpperCase();
+    initDashboard();
   }
-  const d = snap.data();
-  document.getElementById('admin-name').textContent = d.nombre_completo || 'Admin';
-  document.getElementById('admin-av').textContent   = (d.nombre_completo||'AD').substring(0,2).toUpperCase();
-  initDashboard();
 });
 
 // ── LOGOUT ────────────────────────────────────────────
 window.doLogout = () => signOut(auth).then(() => window.location.href = '../index.html');
+
+// ── IFRAME FORMULARIO ─────────────────────────────────
+window.setupIframe = function(iframe) {
+  try {
+    // Pasar Firestore y funciones al iframe
+    iframe.contentWindow._db = db;
+    iframe.contentWindow._saveRepuesto = saveRepuesto;
+    iframe.contentWindow.toast = toast;
+  } catch(e) {}
+};
+
+async function saveRepuesto(datos) {
+  const { addDoc, updateDoc, doc: firestoreDoc, serverTimestamp: ts } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  const { collection: col } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  datos.creado_en    = ts();
+  datos.actualizado_en = ts();
+  datos.vistas       = 0;
+  if (window._editingId) {
+    await updateDoc(firestoreDoc(db,'repuestos',window._editingId), datos);
+    window._editingId = null;
+    toast('✅ Repuesto actualizado','success');
+  } else {
+    await addDoc(col(db,'repuestos'), datos);
+    toast('✅ Repuesto guardado en Firebase','success');
+  }
+  // Refrescar datos
+  window._repsAll = null;
+}
+
+// Escuchar mensajes del iframe
+window.addEventListener('message', async (e) => {
+  if (e.data?.type === 'save-repuesto') {
+    await saveRepuesto(e.data.data);
+  }
+});
 
 // ── HELPERS ───────────────────────────────────────────
 const fmt = (n) => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n||0);
@@ -829,37 +1137,41 @@ function toast(msg, type='info') {
 }
 window.toast = toast;
 
+window.openModal  = (id) => document.getElementById(id).classList.add('open');
 window.closeModal = (id) => document.getElementById(id).classList.remove('open');
 
 // ── DASHBOARD ─────────────────────────────────────────
 async function initDashboard() {
+  try {
   // Fecha
   const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const ahora = new Date();
   document.getElementById('topbar-date').textContent = `${dias[ahora.getDay()]} ${ahora.getDate()} de ${meses[ahora.getMonth()]} de ${ahora.getFullYear()}`;
 
-  // Cargar datos en paralelo
-  const [repsSnap, usersSnap, catsSnap] = await Promise.all([
+  // Cargar datos en paralelo con timeout de 12 segundos
+  const [repsSnap, usersSnap, catsSnap] = await withTimeout(Promise.all([
     getDocs(collection(db, 'repuestos')),
     getDocs(collection(db, 'usuarios')),
     getDocs(collection(db, 'categorias'))
-  ]);
+  ]));
 
   const reps  = repsSnap.docs.map(d=>({id:d.id,...d.data()}));
   const users = usersSnap.docs.map(d=>({id:d.id,...d.data()}));
 
-  // Stats
-  const pendientes = users.filter(u=>u.estado==='pendiente').length;
-  const faltantes  = reps.filter(r=>!r.cant_artic||r.cant_artic===0).length;
-  const sinPrecio  = reps.filter(r=>!r.precio_venta_iva).length;
-  const totalCosto = reps.reduce((a,r)=>a+(r.precio_costo||0),0);
-  const totalVenta = reps.reduce((a,r)=>a+(r.precio_venta_iva||0),0);
+  // Stats correctos
+  const pendientes  = users.filter(u=>u.estado==='pendiente').length;
+  const faltantes   = reps.filter(r=>(!r.cant_artic||r.cant_artic===0)&&r.alta).length;
+  const sinPrecio   = reps.filter(r=>!r.precio_venta_iva||r.precio_venta_iva===0).length;
+  // Valor total = suma(precio_costo * cant_artic) por cada repuesto
+  const totalCosto  = reps.reduce((a,r)=>a+(r.precio_costo||0)*(r.cant_artic||1),0);
+  const totalVenta  = reps.reduce((a,r)=>a+(r.precio_venta_iva||0)*(r.cant_artic||1),0);
+  const ganancia    = totalVenta - totalCosto;
 
   document.getElementById('stat-total').textContent     = fmtN(reps.length);
   document.getElementById('stat-cats').textContent      = fmtN(catsSnap.size);
   document.getElementById('stat-valor').textContent     = fmt(totalCosto);
-  document.getElementById('stat-ganancia').textContent  = fmt(totalVenta - totalCosto);
+  document.getElementById('stat-ganancia').textContent  = fmt(ganancia);
   document.getElementById('stat-pendientes').textContent= pendientes;
 
   // Badges sidebar
@@ -871,7 +1183,7 @@ async function initDashboard() {
   // Finanzas rápidas
   document.getElementById('fin-ars').textContent  = fmt(totalCosto);
   document.getElementById('fin-usd').textContent  = 'U$D ' + fmtN(Math.round(totalCosto/1200));
-  document.getElementById('fin-gan').textContent  = fmt(totalVenta-totalCosto);
+  document.getElementById('fin-gan').textContent  = fmt(ganancia);
   document.getElementById('fin-crit').textContent = faltantes + ' productos';
 
   // Alertas
@@ -946,7 +1258,19 @@ async function initDashboard() {
   // Guardar en window para reusar
   window._reps  = reps;
   window._users = users;
+  } catch(e) {
+    console.error('Error cargando dashboard:', e);
+    const msg = e.message || 'Error desconocido';
+    const al = document.getElementById('alert-list');
+    if (al) al.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">No se pudo conectar</div><div class="empty-sub">${msg}<br><br><button class="btn btn-primary" onclick="initDashboard()" style="margin-top:8px">🔄 Reintentar</button></div></div>`;
+    ['stat-total','stat-cats','stat-valor','stat-ganancia','stat-pendientes'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+    ['fin-ars','fin-usd','fin-gan','fin-crit'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+    const ur=document.getElementById('ultimos-rep'); if(ur) ur.innerHTML=`<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Sin conexión</div><div class="empty-sub"><button class="btn btn-primary" onclick="initDashboard()" style="margin-top:8px">🔄 Reintentar</button></div></div>`;
+    const uu=document.getElementById('ultimos-users'); if(uu) uu.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Sin conexión</div></div>';
+    toast('Sin conexión a Firebase. ' + msg,'error');
+  }
 }
+window.initDashboard = initDashboard;
 
 // ── USUARIOS ──────────────────────────────────────────
 window.loadUsuarios = async function() {
@@ -1014,13 +1338,53 @@ function renderRepuestos(reps) {
       <td class="td-price">${fmt(r.precio_venta_iva)}</td>
       <td><span class="badge ${r.alta?'badge-act':'badge-blk'}">${r.alta?'Publicado':'Oculto'}</span></td>
       <td><div class="td-actions">
-        <button class="action-btn view" title="Ver detalle"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        <button class="action-btn view" title="Ver detalle" onclick="verDetalleRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         <button class="action-btn edit" title="Editar" onclick="editarRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="action-btn del" title="Eliminar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+        <button class="action-btn del" title="Eliminar" onclick="eliminarRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
 }
+
+window.verRepuesto = function(id) {
+  const r = (window._repsAll||[]).find(x=>x.id===id);
+  if (!r) return;
+  const fmt2 = n => n ? new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n) : '—';
+  const marcas = Array.isArray(r.marcas_vehiculo) ? r.marcas_vehiculo.join(', ') : '—';
+  const imgs   = (r.imagenes||[r.imagen_url]).filter(Boolean);
+  document.getElementById('modal-usuario-body').innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      ${imgs[0] ? `<img src="${imgs[0]}" style="width:100px;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">` : '<div style="width:100px;height:100px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px">⚡</div>'}
+      <div style="flex:1">
+        <div style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;color:var(--text)">${r.titulo_repuesto||'—'}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${r.categoria||'—'}</div>
+        <div style="font-size:12px;color:var(--green);font-family:monospace;margin-top:6px;font-size:16px">${fmt2(r.precio_venta_iva)}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:var(--bg3);border-radius:8px;padding:8px 10px"><div style="font-size:9.5px;color:var(--text3);text-transform:uppercase;margin-bottom:2px">Código</div><div style="font-family:monospace;font-size:12px;color:var(--blue)">${r.codigo||'—'}</div></div>
+      <div style="background:var(--bg3);border-radius:8px;padding:8px 10px"><div style="font-size:9.5px;color:var(--text3);text-transform:uppercase;margin-bottom:2px">Stock</div><div style="font-size:13px;font-weight:500;color:${(r.cant_artic||0)===0?'var(--red)':'var(--green)'}">${r.cant_artic||0} unidades</div></div>
+      <div style="background:var(--bg3);border-radius:8px;padding:8px 10px"><div style="font-size:9.5px;color:var(--text3);text-transform:uppercase;margin-bottom:2px">Tipo</div><div style="font-size:12px;color:var(--text)">${r.tipo||'—'} · ${r.condicion||'—'}</div></div>
+      <div style="background:var(--bg3);border-radius:8px;padding:8px 10px"><div style="font-size:9.5px;color:var(--text3);text-transform:uppercase;margin-bottom:2px">Costo</div><div style="font-family:monospace;font-size:12px;color:var(--amber)">${fmt2(r.precio_costo)}</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Vehículos compatibles</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">${marcas}</div>
+    ${r.descripcion ? `<div style="font-size:11px;color:var(--text3);margin-bottom:4px">Descripción</div><div style="font-size:12px;color:var(--text2);margin-bottom:10px;max-height:80px;overflow:auto">${r.descripcion}</div>` : ''}
+    ${imgs.length>1 ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${imgs.slice(1).map(u=>`<img src="${u}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">`).join('')}</div>` : ''}
+  `;
+  document.getElementById('modal-aprobar-btn').style.display = 'none';
+  document.getElementById('modal-bloquear-btn').textContent  = 'Editar repuesto';
+  document.getElementById('modal-bloquear-btn').onclick      = () => { closeModal('modal-usuario'); editarRepuesto(id); };
+  document.getElementById('modal-usuario').classList.add('open');
+};
+
+window.eliminarRepuesto = async function(id, nombre) {
+  if (!confirm(`¿Eliminar el repuesto "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  const { deleteDoc, doc: firestoreDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await deleteDoc(firestoreDoc(db,'repuestos',id));
+  toast('🗑️ Repuesto eliminado','success');
+  loadRepuestos();
+};
 
 window.filterRepuestos = function() {
   if (!window._repsAll) return;
@@ -1033,8 +1397,7 @@ window.filterRepuestos = function() {
 };
 
 window.editarRepuesto = function(id) {
-  window._editingId = id;
-  document.getElementById('form-rep-title').textContent = 'Editar repuesto';
+  window._editingRepId = id || null;
   showPage('nuevo-repuesto');
 };
 
@@ -1099,14 +1462,940 @@ window.showPage = function(id) {
     'etiquetas':'Imprimir Etiquetas','buscador':'Buscador Avanzado'
   };
   document.getElementById('topbar-title').textContent = ti[id]||id;
-  // Lazy-load por sección
-  if (id==='usuarios')  loadUsuarios();
-  if (id==='repuestos') loadRepuestos();
+  if (id==='usuarios')        loadUsuarios();
+  if (id==='repuestos')       loadRepuestos();
+  if (id==='nuevo-repuesto')  { initFormRepuesto(window._editingRepId||''); window._editingRepId=null; }
+  if (id==='categorias')      loadCategorias();
+  if (id==='marcas-vehiculo') loadMarcasVeh();
+  if (id==='marcas-repuesto') loadMarcasRep();
+  if (id==='proveedores')     loadProveedores();
+  if (id==='catalogos')       loadCatalogos();
+  if (id==='stock')           loadStock();
+  if (id==='faltantes')       loadFaltantes();
+  if (id==='queda-uno')       loadQuedaUno();
+  if (id==='sin-precio')      loadSinPrecio();
+  if (id==='agregar-stock')   initAgregarStock();
+  if (id==='descontar-stock') initDescontarStock();
+  if (id==='aumentos')        loadAumentos();
+  if (id==='finanzas')        loadFinanzas();
+  if (id==='ganancias')       loadGanancias();
+  if (id==='consultas')       loadConsultas();
+  if (id==='configuraciones')  loadConfiguraciones();
+  if (id==='buscador')        initBuscador();
 };
 
 window.globalSearch = function(q) {
-  if (q.length>2) { showPage('repuestos'); document.getElementById('rep-search').value=q; filterRepuestos(); }
+  if (q.length>2) {
+    showPage('repuestos');
+    const repSearch = document.getElementById('rep-search');
+    if (repSearch) { repSearch.value = q; filterRepuestos(); }
+  }
 };
+
+window.abrirEstanterias = function() {
+  window.open('estanterias.html','_blank','width=700,height=600');
+};
+
+// ── UTILIDAD: card de ítem de lista ──────────────────
+function cardItem(nombre, extra='', onEdit='', onDel='') {
+  return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+    <div><div style="font-size:13px;font-weight:500;color:var(--text)">${nombre}</div>${extra?`<div style="font-size:11px;color:var(--text-muted);margin-top:3px">${extra}</div>`:''}</div>
+    <div style="display:flex;gap:6px">
+      ${onEdit?`<button class="action-btn edit" title="Editar" onclick="${onEdit}"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
+      ${onDel?`<button class="action-btn del" title="Eliminar" onclick="${onDel}"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`:''}
+    </div>
+  </div>`;
+}
+
+// ── CATEGORÍAS ────────────────────────────────────────
+let _cats = [];
+window.loadCategorias = async function() {
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  const snap = await getDocs(collection(db,'categorias'));
+  _cats = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  document.getElementById('cat-count').textContent = _cats.length;
+  renderCats(_cats);
+};
+function renderCats(arr) {
+  const grid = document.getElementById('cat-grid');
+  if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay categorías.</p>'; return; }
+  grid.innerHTML = arr.map(c=>cardItem(c.nombre,'',`editarCategoria('${c.id}')`,`eliminarCategoria('${c.id}')`)).join('');
+}
+window.filtrarCategorias = function() {
+  const q = document.getElementById('cat-search').value.toLowerCase();
+  renderCats(q ? _cats.filter(c=>c.nombre?.toLowerCase().includes(q)) : _cats);
+};
+window.abrirModalCategoria = function(id='',nombre='') {
+  const n = prompt(id ? 'Editar nombre de categoría:' : 'Nombre de la nueva categoría:', nombre);
+  if (!n?.trim()) return;
+  if (id) {
+    updateDoc(doc(db,'categorias',id),{nombre:n.trim()}).then(()=>{ toast('Categoría actualizada','success'); loadCategorias(); });
+  } else {
+    addDoc(collection(db,'categorias'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('Categoría creada','success'); loadCategorias(); });
+  }
+};
+window.editarCategoria = function(id) {
+  const cat = _cats.find(c=>c.id===id);
+  if (cat) abrirModalCategoria(id, cat.nombre);
+};
+window.eliminarCategoria = async function(id) {
+  if (!confirm('¿Eliminar esta categoría?')) return;
+  await deleteDoc(doc(db,'categorias',id));
+  toast('Categoría eliminada','success');
+  loadCategorias();
+};
+
+// ── MARCAS VEHÍCULO ───────────────────────────────────
+let _marcasVeh = [];
+window.loadMarcasVeh = async function() {
+  const grid = document.getElementById('mv-grid');
+  grid.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  const snap = await getDocs(collection(db,'marcas_vehiculo'));
+  _marcasVeh = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  document.getElementById('mv-count').textContent = _marcasVeh.length;
+  renderMarcasVeh(_marcasVeh);
+};
+function renderMarcasVeh(arr) {
+  const grid = document.getElementById('mv-grid');
+  if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay marcas.</p>'; return; }
+  grid.innerHTML = arr.map(m=>cardItem(m.nombre,'',`editarMarcaVeh('${m.id}')`,`eliminarMarcaVeh('${m.id}')`)).join('');
+}
+window.filtrarMarcasVeh = function() {
+  const q = document.getElementById('mv-search').value.toLowerCase();
+  renderMarcasVeh(q ? _marcasVeh.filter(m=>m.nombre?.toLowerCase().includes(q)) : _marcasVeh);
+};
+window.abrirModalMarcaVeh = function(id='',nombre='') {
+  const n = prompt(id ? 'Editar marca:' : 'Nombre de la nueva marca de vehículo:', nombre);
+  if (!n?.trim()) return;
+  if (id) {
+    updateDoc(doc(db,'marcas_vehiculo',id),{nombre:n.trim()}).then(()=>{ toast('Marca actualizada','success'); loadMarcasVeh(); });
+  } else {
+    addDoc(collection(db,'marcas_vehiculo'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('Marca creada','success'); loadMarcasVeh(); });
+  }
+};
+window.editarMarcaVeh  = function(id) { const m=_marcasVeh.find(x=>x.id===id); if(m) abrirModalMarcaVeh(id,m.nombre); };
+window.eliminarMarcaVeh = async function(id) {
+  if (!confirm('¿Eliminar esta marca?')) return;
+  await deleteDoc(doc(db,'marcas_vehiculo',id));
+  toast('Marca eliminada','success'); loadMarcasVeh();
+};
+
+// ── MARCAS REPUESTO ───────────────────────────────────
+let _marcasRep = [];
+window.loadMarcasRep = async function() {
+  const grid = document.getElementById('mr-grid');
+  grid.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  const snap = await getDocs(collection(db,'marcas_repuesto'));
+  _marcasRep = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  document.getElementById('mr-count').textContent = _marcasRep.length;
+  renderMarcasRep(_marcasRep);
+};
+function renderMarcasRep(arr) {
+  const grid = document.getElementById('mr-grid');
+  if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay marcas.</p>'; return; }
+  grid.innerHTML = arr.map(m=>cardItem(m.nombre,'',`editarMarcaRep('${m.id}')`,`eliminarMarcaRep('${m.id}')`)).join('');
+}
+window.filtrarMarcasRep = function() {
+  const q = document.getElementById('mr-search').value.toLowerCase();
+  renderMarcasRep(q ? _marcasRep.filter(m=>m.nombre?.toLowerCase().includes(q)) : _marcasRep);
+};
+window.abrirModalMarcaRep = function(id='',nombre='') {
+  const n = prompt(id ? 'Editar marca:' : 'Nombre de la nueva marca de repuesto:', nombre);
+  if (!n?.trim()) return;
+  if (id) {
+    updateDoc(doc(db,'marcas_repuesto',id),{nombre:n.trim()}).then(()=>{ toast('Marca actualizada','success'); loadMarcasRep(); });
+  } else {
+    addDoc(collection(db,'marcas_repuesto'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('Marca creada','success'); loadMarcasRep(); });
+  }
+};
+window.editarMarcaRep  = function(id) { const m=_marcasRep.find(x=>x.id===id); if(m) abrirModalMarcaRep(id,m.nombre); };
+window.eliminarMarcaRep = async function(id) {
+  if (!confirm('¿Eliminar esta marca?')) return;
+  await deleteDoc(doc(db,'marcas_repuesto',id));
+  toast('Marca eliminada','success'); loadMarcasRep();
+};
+
+// ── PROVEEDORES ───────────────────────────────────────
+let _provs = [];
+window.loadProveedores = async function() {
+  const tbody = document.getElementById('prov-tbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  const snap = await getDocs(collection(db,'proveedores'));
+  _provs = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  document.getElementById('prov-count').textContent = _provs.length;
+  tbody.innerHTML = _provs.map(p=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:10px 12px;color:var(--text);font-weight:500">${p.nombre||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;font-family:monospace">${p.codigo||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted)">${p.contacto||'—'}</td>
+    <td style="padding:10px 12px;color:var(--text-muted)">${p.telefono||'—'}</td>
+    <td style="padding:10px 12px">
+      <button class="action-btn edit" onclick="editarProveedor('${p.id}')" title="Editar"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="action-btn del" onclick="eliminarProveedor('${p.id}')" title="Eliminar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+    </td>
+  </tr>`).join('');
+};
+window.abrirModalProveedor = function(p={}) {
+  const nombre   = prompt('Nombre del proveedor:', p.nombre||''); if (!nombre?.trim()) return;
+  const codigo   = prompt('Código corto (ej: BOSCH):', p.codigo||'')||'';
+  const contacto = prompt('Nombre de contacto:', p.contacto||'')||'';
+  const telefono = prompt('Teléfono:', p.telefono||'')||'';
+  const data = {nombre:nombre.trim(),codigo:codigo.trim().toUpperCase(),contacto,telefono};
+  if (p.id) {
+    updateDoc(doc(db,'proveedores',p.id),data).then(()=>{ toast('Proveedor actualizado','success'); loadProveedores(); });
+  } else {
+    addDoc(collection(db,'proveedores'),{...data,creado_en:serverTimestamp()}).then(()=>{ toast('Proveedor creado','success'); loadProveedores(); });
+  }
+};
+window.editarProveedor = function(id) { const p=_provs.find(x=>x.id===id); if(p) abrirModalProveedor(p); };
+window.eliminarProveedor = async function(id) {
+  if (!confirm('¿Eliminar este proveedor?')) return;
+  await deleteDoc(doc(db,'proveedores',id));
+  toast('Proveedor eliminado','success'); loadProveedores();
+};
+
+// ── CATÁLOGOS ─────────────────────────────────────────
+let _catalogos = [];
+window.loadCatalogos = async function() {
+  const wrap = document.getElementById('cat-lista-wrap');
+  wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  const snap = await getDocs(collection(db,'catalogos'));
+  _catalogos = snap.docs.map(d=>({id:d.id,...d.data()}));
+  if (!_catalogos.length) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay catálogos registrados.</p>'; return; }
+  wrap.innerHTML = _catalogos.map(c=>`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${c.nombre||'—'}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${c.editorial||''} ${c.anio?'· '+c.anio:''}</div>
+          ${c.notas?`<div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic">${c.notas}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="action-btn del" onclick="eliminarCatalogo('${c.id}')" title="Eliminar"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+        </div>
+      </div>
+    </div>`).join('');
+};
+window.abrirModalCatalogo = function() {
+  const nombre = prompt('Nombre del catálogo:', ''); if (!nombre?.trim()) return;
+  const editorial = prompt('Editorial / Marca:', '')||'';
+  const anio = prompt('Año:', '')||'';
+  const notas = prompt('Notas (opcional):', '')||'';
+  addDoc(collection(db,'catalogos'),{nombre:nombre.trim(),editorial,anio,notas,creado_en:serverTimestamp()})
+    .then(()=>{ toast('Catálogo agregado','success'); loadCatalogos(); });
+};
+window.eliminarCatalogo = async function(id) {
+  if (!confirm('¿Eliminar este catálogo?')) return;
+  await deleteDoc(doc(db,'catalogos',id));
+  toast('Catálogo eliminado','success'); loadCatalogos();
+};
+
+// ── FALTANTES ─────────────────────────────────────────
+window.loadFaltantes = async function() {
+  const tbody = document.getElementById('falt-tbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const arr = window._repsAll.filter(r=>!r.cant_artic||r.cant_artic===0);
+  if (!arr.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--green)">✅ ¡Sin faltantes!</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text);font-size:12px">${fmt(r.precio_venta_iva)}</td>
+    <td style="padding:9px 12px"><button class="btn btn-primary" style="font-size:11px;padding:4px 10px" onclick="irAgregarStock('${r.id}','${(r.titulo_repuesto||'').replace(/'/g,'&apos;')}')">+ Stock</button></td>
+  </tr>`).join('');
+};
+
+// ── QUEDA UNO ─────────────────────────────────────────
+window.loadQuedaUno = async function() {
+  const tbody = document.getElementById('uno-tbody');
+  tbody.innerHTML = '<tr><td colspan="4"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const arr = window._repsAll.filter(r=>r.cant_artic===1);
+  if (!arr.length) { tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted)">No hay repuestos con stock = 1</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
+    <td style="padding:9px 12px"><span style="color:var(--amber);font-weight:600">⚠️ 1</span> ${fmt(r.precio_venta_iva)}</td>
+  </tr>`).join('');
+};
+
+// ── SIN PRECIO ────────────────────────────────────────
+window.loadSinPrecio = async function() {
+  const tbody = document.getElementById('sp-tbody');
+  tbody.innerHTML = '<tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const arr = window._repsAll.filter(r=>!r.precio_venta_iva);
+  if (!arr.length) { tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--green)">✅ Todos tienen precio cargado</td></tr>'; return; }
+  tbody.innerHTML = arr.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:9px 12px;color:var(--text);font-size:13px">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-family:monospace;font-size:12px">${r.codigo||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.categoria||'—'}</td>
+    <td style="padding:9px 12px;color:var(--text-muted);font-size:12px">${r.cant_artic||0}</td>
+    <td style="padding:9px 12px"><button class="btn btn-primary" style="font-size:11px;padding:4px 10px" onclick="editarRepuesto('${r.id}')">Poner precio</button></td>
+  </tr>`).join('');
+};
+
+// ── AGREGAR / DESCONTAR STOCK ─────────────────────────
+let _stockRep = null;
+window.initAgregarStock = function() { _stockRep=null; document.getElementById('as-selected').style.display='none'; document.getElementById('as-search').value=''; document.getElementById('as-results').innerHTML=''; };
+window.initDescontarStock = function() { _stockRep=null; document.getElementById('ds-selected').style.display='none'; document.getElementById('ds-search').value=''; document.getElementById('ds-results').innerHTML=''; };
+
+window.buscarParaStock = function(prefix) {
+  const q = document.getElementById(`${prefix}-search`).value.toLowerCase();
+  const res = document.getElementById(`${prefix}-results`);
+  if (!q || q.length < 2) { res.innerHTML=''; return; }
+  if (!window._repsAll) { res.innerHTML='<p style="font-size:12px;color:var(--text-muted)">Cargando...</p>'; loadRepuestos().then(()=>buscarParaStock(prefix)); return; }
+  const found = window._repsAll.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)).slice(0,8);
+  res.innerHTML = found.map(r=>`<div onclick="seleccionarParaStock('${prefix}','${r.id}')" style="padding:8px 12px;cursor:pointer;border-radius:6px;font-size:13px;color:var(--text);background:var(--surface);border:1px solid var(--border);margin-bottom:4px;display:flex;justify-content:space-between">
+    <span>${r.titulo_repuesto||'—'} <span style="color:var(--text-muted);font-size:11px">${r.codigo||''}</span></span>
+    <span style="color:var(--green);font-weight:600">${r.cant_artic||0}</span>
+  </div>`).join('');
+};
+
+window.seleccionarParaStock = function(prefix, id) {
+  if (!window._repsAll) return;
+  _stockRep = window._repsAll.find(r=>r.id===id);
+  if (!_stockRep) return;
+  document.getElementById(`${prefix}-results`).innerHTML='';
+  document.getElementById(`${prefix}-search`).value = _stockRep.titulo_repuesto||'';
+  document.getElementById(`${prefix}-sel-name`).textContent = _stockRep.titulo_repuesto||'—';
+  document.getElementById(`${prefix}-sel-stock`).textContent = _stockRep.cant_artic||0;
+  document.getElementById(`${prefix}-selected`).style.display='block';
+};
+
+window.confirmarAgregarStock = async function() {
+  if (!_stockRep) return;
+  const cant = parseInt(document.getElementById('as-cant').value)||0;
+  if (cant<=0) { toast('Ingresá una cantidad válida','error'); return; }
+  const nuevo = (_stockRep.cant_artic||0) + cant;
+  await updateDoc(doc(db,'repuestos',_stockRep.id),{cant_artic:nuevo,actualizado_en:serverTimestamp()});
+  toast(`✅ Stock actualizado: ${nuevo} unidades`,'success');
+  window._repsAll = null;
+  initAgregarStock();
+};
+
+window.confirmarDescontarStock = async function() {
+  if (!_stockRep) return;
+  const cant = parseInt(document.getElementById('ds-cant').value)||0;
+  if (cant<=0) { toast('Ingresá una cantidad válida','error'); return; }
+  const actual = _stockRep.cant_artic||0;
+  if (cant > actual) { toast(`No hay suficiente stock (actual: ${actual})`,'error'); return; }
+  await updateDoc(doc(db,'repuestos',_stockRep.id),{cant_artic:actual-cant,actualizado_en:serverTimestamp()});
+  toast(`✅ Venta registrada. Stock restante: ${actual-cant}`,'success');
+  window._repsAll = null;
+  initDescontarStock();
+};
+
+window.irAgregarStock = function(id, nombre) {
+  showPage('agregar-stock');
+  setTimeout(()=>{ document.getElementById('as-search').value=nombre; buscarParaStock('as'); setTimeout(()=>seleccionarParaStock('as',id),400); },200);
+};
+
+// ── GANANCIAS ─────────────────────────────────────────
+window.loadGanancias = async function() {
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const arr = window._repsAll;
+  const totalCosto = arr.reduce((a,r)=>a+(r.precio_costo||0),0);
+  const totalVenta = arr.reduce((a,r)=>a+(r.precio_venta_iva||0),0);
+  const totalGan   = totalVenta - totalCosto;
+  const pct        = totalCosto>0 ? ((totalGan/totalCosto)*100).toFixed(1) : 0;
+  document.getElementById('gan-cards').innerHTML = [
+    {label:'Costo total',val:fmt(totalCosto),color:'var(--text-muted)',icon:'💲'},
+    {label:'Valor de venta total',val:fmt(totalVenta),color:'var(--blue)',icon:'💰'},
+    {label:'Ganancia potencial',val:fmt(totalGan),color:'var(--green)',icon:'📈'},
+    {label:'Margen promedio',val:`${pct}%`,color:'var(--amber)',icon:'📊'},
+  ].map(c=>`<div class="panel" style="padding:18px;border-left:3px solid ${c.color}">
+    <div style="font-size:22px;margin-bottom:6px">${c.icon}</div>
+    <div style="font-size:20px;font-weight:700;color:${c.color}">${c.val}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-top:4px">${c.label}</div>
+  </div>`).join('');
+  const top20 = [...arr].filter(r=>r.precio_costo&&r.precio_venta_iva)
+    .map(r=>({...r,gan:r.precio_venta_iva-r.precio_costo,pct:((r.precio_venta_iva-r.precio_costo)/r.precio_costo*100).toFixed(1)}))
+    .sort((a,b)=>b.gan-a.gan).slice(0,20);
+  document.getElementById('gan-tbody').innerHTML = top20.map(r=>`<tr style="border-bottom:1px solid var(--border)">
+    <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'—'}</td>
+    <td style="padding:8px 10px;text-align:right;color:var(--text-muted)">${fmt(r.precio_costo)}</td>
+    <td style="padding:8px 10px;text-align:right;color:var(--blue)">${fmt(r.precio_venta_iva)}</td>
+    <td style="padding:8px 10px;text-align:right;color:var(--green);font-weight:600">${fmt(r.gan)}</td>
+    <td style="padding:8px 10px;text-align:right;color:var(--amber)">${r.pct}%</td>
+  </tr>`).join('');
+};
+
+// ── CONSULTAS ─────────────────────────────────────────
+window.loadConsultas = async function() {
+  const wrap = document.getElementById('cons-wrap');
+  wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  try {
+    const snap = await getDocs(collection(db,'consultas'));
+    if (snap.empty) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:40px">No hay consultas todavía.</p>'; return; }
+    const items = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.creado_en?.seconds-a.creado_en?.seconds);
+    wrap.innerHTML = items.map(c=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div><span style="font-weight:600;color:var(--text)">${c.usuario_nombre||c.nombre||'Anónimo'}</span> <span style="color:var(--text-muted);font-size:12px">${c.email||c.usuario_email||''}</span></div>
+        <div style="font-size:11px;color:var(--text-muted)">${c.creada_en?.toDate||c.creado_en?.toDate?c.creado_en.toDate().toLocaleDateString('es-AR'):''}</div>
+      </div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">${c.mensaje||'—'}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="abrirWhatsAppConsulta('${c.usuario_nombre||c.nombre||'Cliente'}','${(c.repuesto_nombre||'').replace(/'/g,'\\'')}','${c.cantidad_solicitada||1}','${(c.mensaje||'').replace(/'/g,'\\'').replace(/\n/g,' ')}')">💬 WhatsApp</button>
+      </div>
+    </div>`).join('');
+  } catch(e) { wrap.innerHTML='<p style="color:var(--text-muted);font-size:13px">Error cargando consultas.</p>'; }
+};
+
+// ── BUSCADOR AVANZADO ─────────────────────────────────
+window.initBuscador = async function() {
+  if (document.getElementById('bav-cat').options.length > 1) return;
+  const [cSnap, mvSnap] = await Promise.all([getDocs(collection(db,'categorias')),getDocs(collection(db,'marcas_vehiculo'))]);
+  const catSel = document.getElementById('bav-cat');
+  cSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'—'; catSel.appendChild(o); });
+  const mvSel = document.getElementById('bav-mv');
+  mvSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'—'; mvSel.appendChild(o); });
+};
+
+window.ejecutarBuscador = async function() {
+  const q    = document.getElementById('bav-texto').value.toLowerCase().trim();
+  const cat  = document.getElementById('bav-cat').value;
+  const mv   = document.getElementById('bav-mv').value;
+  const cond = document.getElementById('bav-cond').value;
+  const tipo = document.getElementById('bav-tipo').value;
+  const stock= parseInt(document.getElementById('bav-stock').value)||0;
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  let res = window._repsAll;
+  if (q)    res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)||(r.descripcion||'').toLowerCase().includes(q));
+  if (cat)  res = res.filter(r=>r.categoria_id===cat);
+  if (mv)   res = res.filter(r=>r.marcas_vehiculo?.includes(mv));
+  if (cond) res = res.filter(r=>r.condicion===cond);
+  if (tipo) res = res.filter(r=>r.tipo_repuesto===tipo);
+  res = res.filter(r=>(r.cant_artic||0)>=stock);
+  document.getElementById('bav-result-info').textContent = `${res.length} resultado${res.length!==1?'s':''} encontrado${res.length!==1?'s':''}`;
+  if (!res.length) { document.getElementById('bav-results').innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados para esa búsqueda.</p>'; return; }
+  document.getElementById('bav-results').innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="border-bottom:1px solid var(--border)">
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Producto</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Código</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Categoría</th>
+      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Stock</th>
+      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Precio</th>
+    </tr></thead>
+    <tbody>${res.map(r=>`<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="editarRepuesto('${r.id}')">
+      <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'—'}</td>
+      <td style="padding:8px 10px;color:var(--text-muted);font-family:monospace">${r.codigo||'—'}</td>
+      <td style="padding:8px 10px;color:var(--text-muted)">${r.categoria||'—'}</td>
+      <td style="padding:8px 10px;text-align:right"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><div class="sem ${(r.cant_artic||0)===0?'sem-r':(r.cant_artic||0)===1?'sem-a':'sem-g'}"></div>${r.cant_artic||0}</div></td>
+      <td style="padding:8px 10px;text-align:right;color:var(--green)">${fmt(r.precio_venta_iva)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+};
+
+window.limpiarBuscador = function() {
+  ['bav-texto','bav-stock'].forEach(id=>document.getElementById(id).value='');
+  ['bav-cat','bav-mv','bav-cond','bav-tipo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bav-result-info').textContent='';
+  document.getElementById('bav-results').innerHTML='';
+};
+
+
+// ── FINANZAS ──────────────────────────────────────────
+window.loadFinanzas = async function() {
+  ['fin-total-ars','fin-total-usd','fin-venta','fin-gan-total'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent='—';
+  });
+  const tbody = document.getElementById('tabla-finanzas');
+  if(tbody) tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const reps=window._repsAll;
+  const catsSnap=await getDocs(collection(db,'categorias'));
+  const catsMap={};
+  catsSnap.docs.forEach(d=>{ catsMap[d.id]=d.data().nombre||'Sin categoría'; });
+  const totalCosto=reps.reduce((a,r)=>a+(r.precio_costo||0),0);
+  const totalVenta=reps.reduce((a,r)=>a+(r.precio_venta_iva||0),0);
+  const ganancia=totalVenta-totalCosto;
+  const usdRate=1200;
+  const elArs=document.getElementById('fin-total-ars'); if(elArs) elArs.textContent=fmt(totalCosto);
+  const elUsd=document.getElementById('fin-total-usd'); if(elUsd) elUsd.textContent='U$D '+Math.round(totalCosto/usdRate).toLocaleString('es-AR');
+  const elVen=document.getElementById('fin-venta'); if(elVen) elVen.textContent=fmt(totalVenta);
+  const elGan=document.getElementById('fin-gan-total'); if(elGan) elGan.textContent=fmt(ganancia);
+  const porCat={};
+  reps.forEach(r=>{
+    const cid=r.categoria_id||'__sin__';
+    if(!porCat[cid]) porCat[cid]={nombre:catsMap[cid]||r.categoria||'Sin categoría',cant:0,costo:0,venta:0};
+    porCat[cid].cant++; porCat[cid].costo+=(r.precio_costo||0); porCat[cid].venta+=(r.precio_venta_iva||0);
+  });
+  const cats=Object.values(porCat).sort((a,b)=>b.costo-a.costo);
+  if(tbody) tbody.innerHTML=cats.length?cats.map(c=>{
+    const gan=c.venta-c.costo;
+    return '<tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;color:var(--text);font-size:12.5px">'+c.nombre+'</td><td style="padding:9px 14px;color:var(--text2);text-align:center">'+c.cant+'</td><td style="padding:9px 14px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--text2)">'+fmt(c.costo)+'</td><td style="padding:9px 14px;font-family:JetBrains Mono,monospace;font-size:12px;color:var(--blue)">'+fmt(c.venta)+'</td><td style="padding:9px 14px;font-family:JetBrains Mono,monospace;font-size:12px;color:'+(gan>=0?'var(--green)':'var(--red)')+';font-weight:600">'+fmt(gan)+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text3)">Sin repuestos cargados</td></tr>';
+};
+
+// ── STOCK ─────────────────────────────────────────────
+window.loadStock = async function() {
+  if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
+  const reps=window._repsAll;
+  const ok=reps.filter(r=>(r.cant_artic||0)>1).length;
+  const uno=reps.filter(r=>r.cant_artic===1).length;
+  const zero=reps.filter(r=>!r.cant_artic||r.cant_artic===0).length;
+  const elOk=document.getElementById('stock-ok'); if(elOk) elOk.textContent=ok;
+  const elOne=document.getElementById('stock-one'); if(elOne) elOne.textContent=uno;
+  const elZ=document.getElementById('stock-zero'); if(elZ) elZ.textContent=zero;
+  const tbody=document.getElementById('tabla-stock'); if(!tbody) return;
+  const sem=(s)=>s===0?'sem-r':s===1?'sem-a':'sem-g';
+  tbody.innerHTML=reps.map(r=>'<tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;color:var(--text);font-size:12.5px">'+(r.titulo_repuesto||'—')+'</td><td style="padding:9px 14px;color:var(--text2);font-size:12px">'+(r.categoria||'—')+'</td><td style="padding:9px 14px;color:var(--text3);font-size:12px;font-family:monospace">'+([r.estanteria,r.estante].filter(Boolean).join(' E:')||'—')+'</td><td style="padding:9px 14px"><div style="display:flex;align-items:center;gap:6px"><div class="sem '+sem(r.cant_artic||0)+'"></div><span style="font-family:JetBrains Mono,monospace;font-size:12px">'+(r.cant_artic||0)+'</span></div></td><td style="padding:9px 14px"><span class="badge '+((r.cant_artic||0)===0?'badge-blk':(r.cant_artic||0)===1?'badge-pend':'badge-act')+'">'+(((r.cant_artic||0)===0)?'Sin stock':((r.cant_artic||0)===1)?'Último':'OK')+'</span></td></tr>').join('');
+};
+
+// ── AUMENTOS: poblar selects ──────────────────────────
+window.loadAumentos = async function() {
+  const [cSnap,mrSnap,mvSnap]=await Promise.all([getDocs(collection(db,'categorias')),getDocs(collection(db,'marcas_repuesto')),getDocs(collection(db,'marcas_vehiculo'))]);
+  const catSel=document.getElementById('aum-cat-sel');
+  if(catSel&&catSel.options.length<=1) cSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;catSel.appendChild(o);});
+  const mrSel=document.getElementById('aum-marca-rep-sel');
+  if(mrSel&&mrSel.options.length<=1) mrSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mrSel.appendChild(o);});
+  const mvSel=document.getElementById('aum-marca-veh-sel');
+  if(mvSel&&mvSel.options.length<=1) mvSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mvSel.appendChild(o);});
+};
+
+// ── CÁLCULO DE PRECIOS ────────────────────────────────
+window.calcularPrecios = function() {
+  const costo=parseFloat(document.getElementById('fp-costo').value)||0;
+  const pct=parseFloat(document.getElementById('fp-pct-gan').value)||40;
+  const sinIva=costo*(1+pct/100);
+  const conIva=sinIva*1.21;
+  const desc10=conIva*0.9;
+  document.getElementById('fp-sin-iva').value=fmt(sinIva);
+  document.getElementById('fp-con-iva').value=fmt(conIva);
+  document.getElementById('fp-desc10').value=fmt(desc10);
+  document.getElementById('fp-sin-iva').dataset.val=sinIva;
+  document.getElementById('fp-con-iva').dataset.val=conIva;
+};
+
+// ── INIT FORMULARIO NUEVO / EDITAR REPUESTO ───────────
+window.initFormRepuesto = async function(repId) {
+  const container = document.getElementById('form-rep-container');
+  const title     = document.getElementById('form-rep-title');
+  _codigosCount   = 0;
+
+  // Título del panel
+  title.textContent = repId ? 'Editar repuesto' : 'Nuevo repuesto';
+
+  // Render HTML del formulario
+  container.innerHTML = `
+  <form onsubmit="guardarRepuesto(event, '${repId||''}')">
+    <!-- ── IDENTIFICACIÓN ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Identificación</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Nombre del repuesto *</label><input type="text" class="form-input" id="fp-nombre" placeholder="Ej: Pastillas de freno delanteras" required></div>
+          <div class="form-group"><label class="form-label">Código interno</label><input type="text" class="form-input" id="fp-codigo" placeholder="Ej: PFD-001"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Modelo del repuesto</label><input type="text" class="form-input" id="fp-modelo" placeholder="Ej: GDB1234"></div>
+          <div class="form-group"><label class="form-label">Fabricante / Marca</label><input type="text" class="form-input" id="fp-fabricante" placeholder="Ej: Bosch, NGK..."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Categoría *</label>
+            <select class="form-select" id="fp-cat" required><option value="">Cargando...</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Tipo de repuesto</label>
+            <select class="form-select" id="fp-tipo">
+              <option value="">Sin especificar</option>
+              <option value="original">Original</option>
+              <option value="alternativo">Alternativo</option>
+              <option value="usado">Usado</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Condición</label>
+            <select class="form-select" id="fp-condicion">
+              <option value="nuevo">Nuevo</option>
+              <option value="usado">Usado</option>
+              <option value="reacondicionado">Reacondicionado</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Material</label><input type="text" class="form-input" id="fp-material" placeholder="Ej: Cerámica, Metal..."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Lado</label>
+            <select class="form-select" id="fp-lado">
+              <option value="">Sin especificar</option>
+              <option value="izquierdo">Izquierdo</option>
+              <option value="derecho">Derecho</option>
+              <option value="ambos">Ambos</option>
+              <option value="central">Central</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Fecha de compra</label><input type="date" class="form-input" id="fp-fecha-compra"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Descripción</label><textarea class="form-input" id="fp-desc" rows="2" placeholder="Descripción general del repuesto..." style="resize:vertical"></textarea></div>
+        <div class="form-group"><label class="form-label">Aplicación / Uso</label><input type="text" class="form-input" id="fp-aplicacion" placeholder="Ej: Frenos delanteros en seco"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Notas internas</label><input type="text" class="form-input" id="fp-notas" placeholder="Solo visible en el admin"></div>
+          <div class="form-group"><label class="form-label">⚠️ Importante</label><input type="text" class="form-input" id="fp-importante" placeholder="Ej: No usar en vehículos diésel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VEHÍCULOS COMPATIBLES ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Vehículos compatibles</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Tipo de vehículo</label>
+            <select class="form-select" id="fp-tipo-veh">
+              <option value="">Sin especificar</option>
+              <option value="auto">Auto</option>
+              <option value="camioneta">Camioneta</option>
+              <option value="suv">SUV</option>
+              <option value="utilitario">Utilitario</option>
+              <option value="camion">Camión</option>
+              <option value="moto">Moto</option>
+              <option value="universal">Universal</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Modelo de vehículo</label><input type="text" class="form-input" id="fp-modelo-veh" placeholder="Ej: Gol, Corsa, Hilux..."></div>
+        </div>
+        <div class="form-group"><label class="form-label">Marcas de vehículo compatibles</label>
+          <div class="form-row">
+            <input type="text" class="form-input" id="fp-mv1" placeholder="Marca 1">
+            <input type="text" class="form-input" id="fp-mv2" placeholder="Marca 2">
+            <input type="text" class="form-input" id="fp-mv3" placeholder="Marca 3">
+            <input type="text" class="form-input" id="fp-mv4" placeholder="Marca 4">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CÓDIGOS DE PROVEEDORES ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header">
+        <div class="panel-title">Códigos de proveedores</div>
+        <button type="button" class="btn btn-ghost" onclick="agregarCodigoProveedor()" style="font-size:12px">+ Agregar</button>
+      </div>
+      <div style="padding:16px">
+        <div id="codigos-prov-list"></div>
+        <button type="button" class="btn btn-ghost" onclick="agregarCodigoProveedor()" style="width:100%;margin-top:4px">+ Agregar código de proveedor</button>
+      </div>
+    </div>
+
+    <!-- ── UBICACIÓN EN DEPÓSITO ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Ubicación en depósito</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Estantería</label>
+            <select class="form-select" id="fp-estanteria">
+              <option value="">Sin asignar</option>
+              ${['A','B','C','D','E','F','G','H'].map(l=>`<option value="${l}">${l}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Estante (número)</label>
+            <select class="form-select" id="fp-estante">
+              <option value="">Sin asignar</option>
+              ${[1,2,3,4,5,6,7,8,9,10].map(n=>`<option value="${n}">${n}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STOCK Y PRECIOS ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Stock y precios</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Stock inicial</label><input type="number" class="form-input" id="fp-stock" value="1" min="0"></div>
+          <div class="form-group"><label class="form-label">Costo (ARS) *</label><input type="number" class="form-input" id="fp-costo" placeholder="0.00" step="0.01" oninput="calcularPrecios()" required></div>
+          <div class="form-group"><label class="form-label">% Ganancia</label><input type="number" class="form-input" id="fp-pct-gan" value="40" min="0" step="1" oninput="calcularPrecios()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Precio sin IVA</label><input type="text" class="form-input" id="fp-sin-iva" readonly placeholder="Calculado" style="background:var(--bg2)"></div>
+          <div class="form-group"><label class="form-label">Precio con IVA 21%</label><input type="text" class="form-input" id="fp-con-iva" readonly placeholder="Calculado" style="background:var(--bg2)"></div>
+          <div class="form-group"><label class="form-label">Con 10% descuento</label><input type="text" class="form-input" id="fp-desc10" readonly placeholder="Calculado" style="background:var(--bg2)"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Forma de pago</label>
+            <select class="form-select" id="fp-pago">
+              <option value="">Sin especificar</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="mercadopago">MercadoPago</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Forma de entrega</label>
+            <select class="form-select" id="fp-entrega">
+              <option value="">Sin especificar</option>
+              <option value="mostrador">Mostrador</option>
+              <option value="envio">Envío</option>
+              <option value="ambas">Ambas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── IMAGEN Y PUBLICACIÓN ── -->
+    <div class="panel" style="margin-bottom:14px">
+      <div class="panel-header"><div class="panel-title">Imagen y publicación</div></div>
+      <div style="padding:16px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">URL de imagen</label><input type="url" class="form-input" id="fp-imagen" placeholder="https://..."></div>
+          <div class="form-group"><label class="form-label">¿Publicar en el catálogo?</label>
+            <select class="form-select" id="fp-publicar">
+              <option value="1">Sí, publicar</option>
+              <option value="0">No, guardar sin publicar</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOTONES ── -->
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding-bottom:20px">
+      <button type="button" class="btn btn-ghost" onclick="showPage('repuestos')">Cancelar</button>
+      <button type="submit" class="btn btn-primary">Guardar repuesto</button>
+    </div>
+  </form>`;
+
+  // Cargar categorías en el select
+  try {
+    const snap = await getDocs(collection(db, 'categorias'));
+    const catSel = document.getElementById('fp-cat');
+    if (catSel) {
+      catSel.innerHTML = '<option value="">Seleccioná categoría</option>';
+      snap.forEach(d => {
+        const o = document.createElement('option');
+        o.value = d.id; o.textContent = d.data().nombre || d.id;
+        catSel.appendChild(o);
+      });
+    }
+  } catch(e) { console.warn('Error cargando categorías:', e); }
+
+  // Si es edición, cargar datos del repuesto
+  if (repId) {
+    try {
+      const snap = await getDoc(doc(db,'repuestos', repId));
+      if (snap.exists()) {
+        const r = snap.data();
+        const set = (id, val) => { const el=document.getElementById(id); if(el && val!==undefined) el.value=val; };
+        set('fp-nombre', r.titulo_repuesto); set('fp-codigo', r.codigo);
+        set('fp-modelo', r.modelo_repuesto); set('fp-fabricante', r.fabricante);
+        set('fp-cat', r.categoria_id); set('fp-tipo', r.tipo_repuesto);
+        set('fp-condicion', r.condicion); set('fp-material', r.material);
+        set('fp-lado', r.lado); set('fp-fecha-compra', r.fecha_compra);
+        set('fp-desc', r.descripcion); set('fp-aplicacion', r.aplicacion);
+        set('fp-notas', r.notas); set('fp-importante', r.importante);
+        set('fp-tipo-veh', r.tipo_vehiculo); set('fp-modelo-veh', r.modelo_vehiculo);
+        (r.marcas_vehiculo||[]).forEach((m,i)=>set('fp-mv'+(i+1),m));
+        set('fp-estanteria', r.estanteria); set('fp-estante', r.estante);
+        set('fp-stock', r.cant_artic); set('fp-costo', r.precio_costo);
+        set('fp-pct-gan','40'); set('fp-pago', r.forma_pago);
+        set('fp-entrega', r.forma_entrega); set('fp-imagen', r.imagen_url);
+        set('fp-publicar', r.alta ? '1' : '0');
+        (r.codigos_proveedores||[]).forEach(c=>{
+          agregarCodigoProveedor();
+          const el=document.getElementById('cod-prov-'+_codigosCount);
+          const ev=document.getElementById('cod-val-'+_codigosCount);
+          if(el) el.value=c.proveedor||'';
+          if(ev) ev.value=c.codigo||'';
+        });
+        calcularPrecios();
+      }
+    } catch(e) { console.warn('Error cargando repuesto:', e); }
+  }
+};
+
+// ── CÓDIGOS DE PROVEEDORES ────────────────────────────
+let _codigosCount=0;
+window.agregarCodigoProveedor=function(){
+  _codigosCount++;
+  const div=document.createElement('div');
+  div.className='form-row'; div.id='cod-row-'+_codigosCount; div.style.marginBottom='8px';
+  div.innerHTML='<div class="form-group" style="margin:0"><label class="form-label">Proveedor</label><input type="text" class="form-input" id="cod-prov-'+_codigosCount+'" placeholder="Ej: BOSCH, AJ..."></div><div class="form-group" style="margin:0"><label class="form-label">Código</label><div style="display:flex;gap:6px"><input type="text" class="form-input" id="cod-val-'+_codigosCount+'" placeholder="Ej: F000AL0304" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:0 10px;font-size:18px" onclick="document.getElementById(\'cod-row-'+_codigosCount+'\').remove()">×</button></div></div>';
+  document.getElementById('codigos-prov-list').appendChild(div);
+};
+
+// ── GUARDAR REPUESTO ──────────────────────────────────
+window.guardarRepuesto=async function(e, repId=''){
+  e.preventDefault();
+  const btn=e.target.querySelector('[type=submit]');
+  btn.disabled=true; btn.textContent='Guardando...';
+  try {
+    const codigos=[];
+    document.querySelectorAll('[id^="cod-prov-"]').forEach(el=>{
+      const n=el.id.split('-').pop();
+      const prov=el.value.trim();
+      const cod=(document.getElementById('cod-val-'+n)||{}).value||'';
+      if(prov||cod) codigos.push({proveedor:prov,codigo:cod.trim()});
+    });
+    const costo=parseFloat(document.getElementById('fp-costo').value)||0;
+    const sinIva=parseFloat(document.getElementById('fp-sin-iva').dataset.val)||0;
+    const conIva=parseFloat(document.getElementById('fp-con-iva').dataset.val)||0;
+    const catEl=document.getElementById('fp-cat');
+    const catId=catEl.value; const catNom=catEl.selectedOptions[0]?catEl.selectedOptions[0].text:'';
+    const marcasVeh=[1,2,3,4].map(n=>(document.getElementById('fp-mv'+n)||{}).value||'').filter(Boolean);
+    const data={
+      titulo_repuesto:(document.getElementById('fp-nombre').value||'').trim(),
+      categoria_id:catId,categoria:catNom,
+      codigo:(document.getElementById('fp-codigo').value||'').trim(),
+      modelo_repuesto:(document.getElementById('fp-modelo').value||'').trim(),
+      descripcion:(document.getElementById('fp-desc').value||'').trim(),
+      aplicacion:(document.getElementById('fp-aplicacion').value||'').trim(),
+      notas:(document.getElementById('fp-notas').value||'').trim(),
+      importante:(document.getElementById('fp-importante').value||'').trim(),
+      tipo_vehiculo:document.getElementById('fp-tipo-veh').value,
+      marcas_vehiculo:marcasVeh,marca_vehiculo_1:marcasVeh[0]||'',
+      modelo_vehiculo:(document.getElementById('fp-modelo-veh').value||'').trim(),
+      fabricante:(document.getElementById('fp-fabricante').value||'').trim(),
+      tipo_repuesto:document.getElementById('fp-tipo').value,
+      condicion:document.getElementById('fp-condicion').value,
+      material:(document.getElementById('fp-material').value||'').trim(),
+      lado:document.getElementById('fp-lado').value,
+      estanteria:document.getElementById('fp-estanteria').value,
+      estante:document.getElementById('fp-estante').value,
+      cant_artic:parseInt(document.getElementById('fp-stock').value)||0,
+      precio_costo:costo,precio_venta:sinIva,precio_venta_iva:conIva,
+      forma_pago:document.getElementById('fp-pago').value,
+      forma_entrega:document.getElementById('fp-entrega').value,
+      imagen_url:(document.getElementById('fp-imagen').value||'').trim(),
+      fecha_compra:document.getElementById('fp-fecha-compra').value,
+      alta:document.getElementById('fp-publicar').value==='1',
+      codigos_proveedores:codigos,
+      creado_en:serverTimestamp(),actualizado_en:serverTimestamp()
+    };
+    if (repId) {
+      await updateDoc(doc(db,'repuestos',repId), {...data, actualizado_en:serverTimestamp()});
+    } else {
+      await addDoc(collection(db,'repuestos'),data);
+    }
+    window._repsAll=null;
+    toast(repId ? 'Repuesto actualizado correctamente' : 'Repuesto guardado correctamente','success');
+    showPage('repuestos');
+  } catch(err){
+    toast('Error al guardar: '+err.message,'error');
+    btn.disabled=false; btn.textContent='Guardar repuesto';
+  }
+};
+
+// ── VER DETALLE REPUESTO ──────────────────────────────
+window.verDetalleRepuesto = async function(id) {
+  const snap = await getDoc(doc(db,'repuestos',id));
+  if (!snap.exists()) { toast('Repuesto no encontrado','error'); return; }
+  const r = {id:snap.id,...snap.data()};
+  const fmt2 = n => n ? new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n) : '—';
+  const row = (label,val) => val ? `<div style="display:flex;gap:12px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text-muted);font-size:12px;min-width:140px">${label}</span><span style="color:var(--text);font-size:13px">${val}</span></div>` : '';
+  const marcas = [r.marca_vehiculo_1,r.marca_vehiculo_2,r.marca_vehiculo_3,r.marca_vehiculo_4].filter(Boolean).join(', ');
+  const provs = (r.proveedores||[]).map(p=>`${p.nombre||''} ${p.codigo?'('+p.codigo+')':''}`).filter(Boolean).join(' · ');
+  document.getElementById('modal-rep-body').innerHTML = `
+    ${r.imagen_url?`<img src="${r.imagen_url}" style="width:100%;max-height:180px;object-fit:contain;border-radius:8px;margin-bottom:12px">` : ''}
+    ${row('Nombre', r.titulo_repuesto)}
+    ${row('Código', r.codigo)}
+    ${row('Categoría', r.categoria)}
+    ${row('Tipo', r.tipo_repuesto)}
+    ${row('Condición', r.condicion)}
+    ${row('Material', r.material)}
+    ${row('Lado', r.lado)}
+    ${row('Vehículos', marcas||r.tipo_vehiculo)}
+    ${row('Modelo', r.modelo_vehiculo)}
+    ${row('Proveedores', provs)}
+    ${row('Ubicación', r.estanteria?`${r.estanteria}-${r.estante}`:'')}
+    ${row('Stock', r.cant_artic)}
+    ${row('Costo ARS', fmt2(r.costo_ars))}
+    ${row('Precio c/IVA', fmt2(r.precio_venta_iva))}
+    ${row('Estado', r.alta?'Publicado':'Oculto')}
+    ${r.descripcion?`<div style="margin-top:10px;font-size:13px;color:var(--text-muted)">${r.descripcion}</div>`:''}
+  `;
+  document.getElementById('modal-rep-edit-btn').onclick = () => { closeModal('modal-rep'); editarRepuesto(id); };
+  openModal('modal-rep');
+};
+
+// ── ELIMINAR REPUESTO ─────────────────────────────────
+window.eliminarRepuesto = async function(id) {
+  if (!confirm('¿Eliminar este repuesto? Esta acción no se puede deshacer.')) return;
+  try {
+    await deleteDoc(doc(db,'repuestos',id));
+    toast('Repuesto eliminado','success');
+    loadRepuestos();
+  } catch(e) { toast('Error al eliminar: '+e.message,'error'); }
+};
+
+// ── CONFIGURACIONES ───────────────────────────────────
+window.loadConfiguraciones = async function() {
+  const wrap = document.getElementById('config-wrap');
+  wrap.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
+  try {
+    const snap = await getDoc(doc(db,'config','general'));
+    const cfg = snap.exists() ? snap.data() : {};
+    wrap.innerHTML = `
+      <div class="panel" style="max-width:600px">
+        <h3 style="font-size:15px;font-weight:600;color:var(--text);margin:0 0 20px">⚙️ Configuración general</h3>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px">Número de WhatsApp (con código de país, sin + ni espacios)</label>
+          <input id="cfg-wsp" type="text" class="search-input" placeholder="ej: 5493515001234" value="${cfg.whatsapp_numero||''}" style="width:100%;max-width:340px">
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Ejemplo: para Argentina 351-500-1234 → 5493515001234</div>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px">Nombre del negocio</label>
+          <input id="cfg-nombre" type="text" class="search-input" placeholder="Repuestos Electromecanicos" value="${cfg.nombre_negocio||''}" style="width:100%;max-width:340px">
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px">Dirección (opcional)</label>
+          <input id="cfg-dir" type="text" class="search-input" placeholder="Av. Siempre Viva 742" value="${cfg.direccion||''}" style="width:100%;max-width:340px">
+        </div>
+        <button class="btn btn-primary" onclick="guardarConfiguraciones()">Guardar cambios</button>
+      </div>
+    `;
+  } catch(e) { wrap.innerHTML='<p style="color:var(--text-muted)">Error cargando configuración.</p>'; }
+};
+
+window.guardarConfiguraciones = async function() {
+  const num = document.getElementById('cfg-wsp').value.trim().replace(/[^0-9]/g,'');
+  const nombre = document.getElementById('cfg-nombre').value.trim();
+  const dir = document.getElementById('cfg-dir').value.trim();
+  try {
+    await updateDoc(doc(db,'config','general'), { whatsapp_numero: num, nombre_negocio: nombre, direccion: dir });
+    toast('Configuración guardada ✓','success');
+    // update cached value
+    window._wspNumero = num;
+  } catch(e) {
+    // doc may not exist yet
+    try {
+      const { setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      await setDoc(doc(db,'config','general'), { whatsapp_numero: num, nombre_negocio: nombre, direccion: dir });
+      toast('Configuración guardada ✓','success');
+      window._wspNumero = num;
+    } catch(e2) { toast('Error: '+e2.message,'error'); }
+  }
+};
+
+// ── WHATSAPP HELPER ───────────────────────────────────
+async function getWspNumero() {
+  if (window._wspNumero !== undefined) return window._wspNumero;
+  try {
+    const snap = await getDoc(doc(db,'config','general'));
+    window._wspNumero = snap.exists() ? (snap.data().whatsapp_numero||'') : '';
+  } catch(e) { window._wspNumero = ''; }
+  return window._wspNumero;
+}
+
+// ── WHATSAPP EN CONSULTAS ─────────────────────────────
+window.abrirWhatsAppConsulta = async function(nombre, repuesto, cantidad, mensaje) {
+  const num = await getWspNumero();
+  if (!num) { toast('Configurá el número de WhatsApp en Configuraciones','info'); return; }
+  const texto = encodeURIComponent(
+    `📦 *Nueva consulta*
+👤 Cliente: ${nombre}
+🔧 Repuesto: ${repuesto}
+📊 Cantidad: ${cantidad}
+💬 Mensaje: ${mensaje||'—'}`
+  );
+  window.open(`https://wa.me/${num}?text=${texto}`, '_blank');
+};
+
+
 </script>
 
 </body>
