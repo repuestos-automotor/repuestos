@@ -337,10 +337,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
       </div>
     </div>
     <div class="rep-grid" id="rep-grid">
-      <!-- skeletons -->
-      <div class="loading-grid" id="loading-skeletons">
-        ${Array(8).fill(`<div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line price"></div></div></div>`).join('')}
-      </div>
+      <div class="loading-grid" id="loading-skeletons"></div>
     </div>
   </main>
 
@@ -450,7 +447,16 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ── CARGAR CATÁLOGO ───────────────────────────────────
+function generarSkeletons() {
+  const sk = document.getElementById('loading-skeletons');
+  if (!sk) return;
+  let html = '';
+  for(let i=0;i<8;i++) html += '<div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line price"></div></div></div>';
+  sk.innerHTML = html;
+}
+
 async function cargarCatalogo() {
+  generarSkeletons();
   try {
     const snap = await getDocs(query(collection(db,'repuestos'), where('alta','==',true)));
     todosReps  = snap.docs.map(d=>({id:d.id,...d.data()}));
