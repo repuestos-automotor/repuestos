@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nuevo Repuesto</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -10,610 +11,544 @@
   --border:#1e2433;--border2:#2a3347;
   --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;--text4:#374151;
   --blue:#3b82f6;--blue2:#2563eb;--blue-dim:#1e3a5f;
-  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:0}
-.form-wrap{max-width:900px}
-.section-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.section-head{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg3)}
+.form-wrap{max-width:960px;padding-bottom:80px}
+.section-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.section-head{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg3)}
 .section-head svg{width:14px;height:14px;stroke:var(--blue);fill:none;stroke-width:1.8;flex-shrink:0}
 .section-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;color:var(--text);letter-spacing:.04em}
-.section-body{padding:16px}
-.form-group{margin-bottom:13px}
+.section-body{padding:14px}
+.form-group{margin-bottom:12px}
 .form-label{font-size:10.5px;color:var(--text2);font-weight:500;margin-bottom:5px;display:flex;align-items:center;gap:4px;text-transform:uppercase;letter-spacing:.04em}
-.req{color:var(--red);font-size:11px}
-.hint{font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px}
+.req{color:var(--red)}
+.hint{font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0}
 .form-input,.form-select,.form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:9px 11px;color:var(--text);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
 .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue2)}
 .form-input::placeholder,.form-textarea::placeholder{color:var(--text4)}
 .form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
-.form-textarea{resize:vertical;min-height:90px;line-height:1.5}
+.form-textarea{resize:vertical;min-height:90px;line-height:1.6}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
 
-/* MARCAS MULTI ─────────────────────────────────────── */
+/* MULTISELECT TIPO VEHICULO */
+.multicheck-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.mc-opt{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;font-size:12px;color:var(--text3);transition:all .15s;user-select:none}
+.mc-opt:hover{border-color:var(--border2);color:var(--text2)}
+.mc-opt.selected{border-color:var(--blue2);color:var(--blue);background:var(--blue-dim)}
+.mc-opt input[type=checkbox]{display:none}
+
+/* MULTI ROWS */
 .multi-wrap{display:flex;flex-direction:column;gap:6px}
 .multi-row{display:flex;gap:8px;align-items:center}
-.multi-row .form-select{flex:1}
-.multi-add{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text3);cursor:pointer;padding:9px 12px;font-size:11px;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .15s}
+.multi-row .form-select,.multi-row .form-input{flex:1}
+.multi-add{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text3);cursor:pointer;padding:8px 12px;font-size:11px;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .15s;font-family:'Inter',sans-serif}
 .multi-add:hover{border-color:var(--blue);color:var(--blue)}
 .multi-add svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
-.multi-remove{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;border-radius:5px}
+.multi-remove{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 6px;border-radius:5px;transition:color .15s;flex-shrink:0}
 .multi-remove:hover{color:var(--red)}
 .multi-remove svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
 
-/* CÓDIGOS PROVEEDORES ───────────────────────────────── */
-.codigos-wrap{display:flex;flex-direction:column;gap:6px}
-.codigo-row{display:grid;grid-template-columns:180px 1fr 32px;gap:8px;align-items:center}
-.codigo-row select{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;appearance:none;width:100%}
-.codigo-row select:focus{border-color:var(--blue2)}
-.codigo-row input{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .2s;width:100%}
-.codigo-row input:focus{border-color:var(--blue2)}
-.codigo-row input::placeholder{color:var(--text4);font-family:'Inter',sans-serif;font-size:11.5px}
+/* MARCA+MODELO VEHICULO */
+.marca-modelo-row{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:6px}
+.marca-modelo-top{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.marca-modelo-modelos{display:flex;gap:6px;align-items:center}
+.marca-modelo-modelos input{flex:1}
+.marca-modelo-hint{font-size:10px;color:var(--text3);margin-top:4px}
 
-/* CATÁLOGOS ─────────────────────────────────────────── */
-.catalogo-row{display:grid;grid-template-columns:1fr 80px 32px;gap:8px;align-items:center}
+/* IMAGENES */
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:8px}
+.img-slot{background:var(--bg3);border:2px dashed var(--border2);border-radius:8px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.img-slot:hover{border-color:var(--blue);background:var(--blue-dim)}
+.img-slot.filled{border-style:solid;border-color:var(--border)}
+.img-slot img{width:100%;height:100%;object-fit:cover;border-radius:6px}
+.img-slot .img-remove{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.7);border:none;color:var(--red);border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.img-slot .img-progress{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--blue);transform-origin:left;transition:transform .2s}
+.img-slot .img-label{font-size:10px;color:var(--text3);margin-top:4px;text-align:center;padding:0 4px}
+.img-slot svg{width:20px;height:20px;stroke:var(--text3);fill:none;stroke-width:1.5}
 
-/* IMAGEN ────────────────────────────────────────────── */
-.img-upload{background:var(--bg3);border:2px dashed var(--border2);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s}
-.img-upload:hover{border-color:var(--blue)}
-.img-upload input[type=file]{display:none}
-.img-preview{width:80px;height:80px;border-radius:8px;object-fit:cover;border:1px solid var(--border);margin:0 auto 8px}
-.img-placeholder{font-size:28px;margin-bottom:6px}
-.img-label{font-size:11px;color:var(--text3)}
-.img-hint{font-size:10px;color:var(--text4);margin-top:3px}
+/* CODIGOS */
+.codigo-row{display:grid;grid-template-columns:180px 1fr 32px;gap:8px;align-items:center;margin-bottom:6px}
+.codigo-row select,.codigo-row input{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;outline:none;width:100%}
+.codigo-row select:focus,.codigo-row input:focus{border-color:var(--blue2)}
+.codigo-row input{font-family:'JetBrains Mono',monospace}
+.codigo-row input::placeholder{font-family:'Inter',sans-serif;color:var(--text4)}
 
-/* PRECIOS ───────────────────────────────────────────── */
+/* CATALOGO ROWS */
+.catalogo-row{display:grid;grid-template-columns:1fr 90px 32px;gap:8px;align-items:center;margin-bottom:6px}
+
+/* TIPO ORIGINAL/COPIA */
+.tipo-row{display:flex;gap:8px}
+.tipo-opt{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);text-align:center;cursor:pointer;font-size:12px;color:var(--text3);background:var(--bg3);transition:all .15s;user-select:none}
+.tipo-opt.selected.orig{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.1)}
+.tipo-opt.selected.copy{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+
+/* CONDICION */
+.cond-row{display:flex;flex-wrap:wrap;gap:6px}
+.cond-opt{padding:6px 12px;border-radius:7px;border:1px solid var(--border2);font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;background:var(--bg3);user-select:none}
+.cond-opt.selected{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+
+/* PRECIOS */
 .precio-display{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
-.precio-display-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.precio-display-label{font-size:9.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
 .precio-display-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500}
-.pv-green{color:var(--green)}
-.pv-blue{color:var(--blue)}
-.pv-amber{color:var(--amber)}
+.pv-green{color:var(--green)}.pv-blue{color:var(--blue)}.pv-amber{color:var(--amber)}
 
-/* IMPORTANTE ────────────────────────────────────────── */
+/* IMPORTANTE */
 .importante-input{border-color:rgba(245,158,11,.4)!important;background:rgba(245,158,11,.04)!important}
-.importante-input:focus{border-color:var(--amber)!important}
 
-/* ACCIONES ──────────────────────────────────────────── */
-.actions-bar{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--border);padding:12px 0;display:flex;gap:10px;justify-content:flex-end;z-index:10}
-.btn{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+/* EDITOR ENRIQUECIDO */
+.rich-toolbar{display:flex;gap:4px;padding:6px 8px;background:var(--bg4);border:1px solid var(--border2);border-bottom:none;border-radius:8px 8px 0 0;flex-wrap:wrap}
+.rich-btn{background:none;border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;padding:3px 7px;font-size:11px;font-family:'Inter',sans-serif;transition:all .15s}
+.rich-btn:hover{background:var(--bg2);color:var(--text);border-color:var(--border2)}
+.rich-btn.active{background:var(--blue-dim);color:var(--blue);border-color:var(--blue2)}
+.rich-editor{background:var(--bg3);border:1px solid var(--border2);border-radius:0 0 8px 8px;min-height:100px;padding:10px 12px;color:var(--text);font-size:12.5px;line-height:1.6;outline:none}
+.rich-editor:focus{border-color:var(--blue2)}
+.rich-editor a{color:var(--blue)}
+
+/* ACCIONES */
+.actions-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;justify-content:flex-end;z-index:100}
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
 .btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
 .btn-primary{background:var(--blue2);color:#fff}
 .btn-primary:hover{background:#1d4ed8}
 .btn-success{background:rgba(34,197,94,.2);color:var(--green);border:1px solid rgba(34,197,94,.3)}
-.btn-success:hover{background:rgba(34,197,94,.3)}
 .btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border)}
-.btn-ghost:hover{border-color:var(--border2)}
 .spinner-inline{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* BADGE CONDICION ───────────────────────────────────── */
-.cond-row{display:flex;flex-wrap:wrap;gap:8px}
-.cond-opt{padding:6px 12px;border-radius:8px;border:1px solid var(--border2);font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;background:var(--bg3)}
-.cond-opt.selected{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
-
-/* TAG TIPO ──────────────────────────────────────────── */
-.tipo-row{display:flex;gap:8px}
-.tipo-opt{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);text-align:center;cursor:pointer;font-size:12px;color:var(--text3);background:var(--bg3);transition:all .15s}
-.tipo-opt.selected.orig{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.1)}
-.tipo-opt.selected.copy{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
-
-@media(max-width:650px){
+@media(max-width:600px){
   .row2,.row3,.row4{grid-template-columns:1fr}
   .codigo-row{grid-template-columns:1fr 32px}
   .codigo-row select{display:none}
+  .catalogo-row{grid-template-columns:1fr 32px}
+  .actions-bar{padding:8px 12px}
 }
 </style>
 </head>
 <body>
-
 <div class="form-wrap" id="form-repuesto-root">
 
-  <!-- ── 1. UBICACIÓN ─────────────────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <div class="section-title">Ubicación física en el depósito</div>
-    </div>
-    <div class="section-body">
-      <div class="row3">
-        <div class="form-group">
-          <label class="form-label"><span class="req">*</span> Tipo de vehículo</label>
-          <select class="form-select" id="f-tipo-vehiculo">
-            <option value="">Seleccione</option>
-            <option>Automóvil</option><option>Bus</option><option>Camión</option>
-            <option>Carro</option><option>Pick Up</option><option>Remolque</option>
-            <option>Tractor</option><option>Trailer</option><option>TODOS</option>
-            <option>Jeep</option><option>Unimog</option>
-            <option>Maquinaria Pesada</option><option>Maquinaria Agrícola</option>
-            <option>Maquinas de Construcción</option><option>Vehículo Militar</option>
-            <option>Omnibus - Bus</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label"><span class="req">*</span> Estantería <span class="hint">— Dónde está ubicado</span></label>
-          <select class="form-select" id="f-estanteria">
-            <option value="">Seleccione</option>
-            <option>1ra - Frente</option><option>1ra - Dorso</option>
-            <option>2da - Frente</option><option>2da - Dorso</option>
-            <option>3ra - Frente Izquierda</option><option>3ra - Frente Derecha</option>
-            <option>3ra - Dorso Izquierda</option><option>3ra - Dorso Derecha</option>
-            <option>4ta - Frente Izquierda</option><option>4ta - Frente Derecha</option>
-            <option>4ta - Dorso Izquierda</option><option>4ta - Dorso Derecha</option>
-            <option>5ta - Frente Izquierda</option><option>5ta - Frente Derecha</option>
-            <option>5ta - Dorso Izquierda</option><option>5ta - Dorso Derecha</option>
-            <option>Acomodar</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label"><span class="req">*</span> Estante <span class="hint">— En qué estante</span></label>
-          <select class="form-select" id="f-estante">
-            <option value="">Seleccione</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option>
-            <option>5</option><option>6</option><option>7</option><option>8</option>
-            <option>9</option><option>10</option><option>11</option><option>12</option>
-            <option>13</option><option>14</option><option>Acomodar</option>
-          </select>
-        </div>
+<!-- 1. UBICACIÓN -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <div class="section-title">Ubicación física en depósito</div>
+  </div>
+  <div class="section-body">
+    <div class="row3">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Estantería <span class="hint">— Dónde está</span></label>
+        <select class="form-select" id="f-estanteria"><option value="">Seleccione</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Estante <span class="hint">— Número</span></label>
+        <select class="form-select" id="f-estante"><option value="">Seleccione</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Publicar en catálogo</label>
+        <select class="form-select" id="f-publicar">
+          <option value="1">✅ Sí — visible para compradores</option>
+          <option value="0">🔒 No — oculto</option>
+        </select>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ── 2. IDENTIFICACIÓN ─────────────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-      <div class="section-title">Identificación del producto</div>
-    </div>
-    <div class="section-body">
-      <div class="row2">
-        <div class="form-group">
-          <label class="form-label"><span class="req">*</span> Nombre / Título del producto</label>
-          <input type="text" class="form-input" id="f-titulo" placeholder="Ej: Alternador, Motor de Arranque, Portacarbones...">
-        </div>
-        <div class="form-group">
-          <label class="form-label"><span class="req">*</span> Categoría</label>
-          <select class="form-select" id="f-categoria"><option value="">Cargando categorías...</option></select>
-        </div>
-      </div>
-      <div class="row3">
-        <div class="form-group">
-          <label class="form-label">Nombre del arranque <span class="hint">— Ej: Arr Bosch</span></label>
-          <input type="text" class="form-input" id="f-arranque" placeholder="Ej: Arr Bosch 12V">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Nombre del alternador <span class="hint">— Ej: Alternador Indiel</span></label>
-          <input type="text" class="form-input" id="f-alternador" placeholder="Ej: Alternador Indiel 14V">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Modelo del repuesto <span class="hint">— Ej: 20-30</span></label>
-          <input type="text" class="form-input" id="f-modelo-repuesto" placeholder="Ej: M74R, 20-30">
-        </div>
-      </div>
-      <div class="row2">
-        <div class="form-group">
-          <label class="form-label">Fabricante del producto <span class="hint">— Ej: Bosch</span></label>
-          <input type="text" class="form-input" id="f-fabricante" placeholder="Ej: Bosch, Valeo, Indiel...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Material <span class="hint">— Ej: Acrílico, Cobre</span></label>
-          <input type="text" class="form-input" id="f-material" placeholder="Ej: Acrílico">
-        </div>
-      </div>
-
-      <!-- Tipo original/copia -->
-      <div class="form-group">
-        <label class="form-label">Tipo de repuesto</label>
-        <div class="tipo-row">
-          <div class="tipo-opt orig selected" id="tipo-orig" onclick="selectTipo('ORIGINAL')">✅ ORIGINAL</div>
-          <div class="tipo-opt copy" id="tipo-copy" onclick="selectTipo('COPIA')">📋 COPIA</div>
-        </div>
-        <input type="hidden" id="f-tipo" value="ORIGINAL">
-      </div>
-
-      <!-- Condición -->
-      <div class="form-group">
-        <label class="form-label"><span class="req">*</span> Condición</label>
-        <div class="cond-row" id="cond-row">
-          <div class="cond-opt selected" onclick="selectCond(this,'NUEVO')">NUEVO</div>
-          <div class="cond-opt" onclick="selectCond(this,'USADO')">USADO</div>
-          <div class="cond-opt" onclick="selectCond(this,'RECAMBIO')">RECAMBIO</div>
-          <div class="cond-opt" onclick="selectCond(this,'DESCONTINUADO')">DESCONTINUADO</div>
-          <div class="cond-opt" onclick="selectCond(this,'REEMPLAZO')">REEMPLAZO</div>
-          <div class="cond-opt" onclick="selectCond(this,'OUTLET')">OUTLET</div>
-        </div>
-        <input type="hidden" id="f-condicion" value="NUEVO">
-      </div>
-
-      <div class="row2">
-        <div class="form-group">
-          <label class="form-label">Lado <span class="hint">— Ej: Derecho / Izquierdo</span></label>
-          <select class="form-select" id="f-lado">
-            <option value="">No aplica</option>
-            <option>Derecho</option><option>Izquierdo</option>
-            <option>Derecho e Izquierdo</option><option>Ambos lados</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Publicar en catálogo</label>
-          <select class="form-select" id="f-publicar">
-            <option value="1">Sí — visible para compradores</option>
-            <option value="0">No — oculto</option>
-          </select>
-        </div>
-      </div>
-    </div>
+<!-- 2. IDENTIFICACIÓN -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    <div class="section-title">Identificación del producto</div>
   </div>
-
-  <!-- ── 3. COMPATIBILIDAD VEHICULAR ───────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5"/><circle cx="15.5" cy="17.5" r="2.5"/><circle cx="5.5" cy="17.5" r="2.5"/></svg>
-      <div class="section-title">Compatibilidad vehicular</div>
-    </div>
-    <div class="section-body">
+  <div class="section-body">
+    <div class="row2">
       <div class="form-group">
-        <label class="form-label">Aplicación <span class="hint">— Ej: En todos los Volkswagen / Ford / Chevrolet</span></label>
-        <input type="text" class="form-input" id="f-aplicacion" placeholder="Ej: En todos los vehículos que se usa Volkswagen / Ford / Chevrolet">
+        <label class="form-label"><span class="req">*</span> Nombre / Título</label>
+        <input type="text" class="form-input" id="f-titulo" placeholder="Ej: Alternador, Motor de Arranque...">
       </div>
       <div class="form-group">
-        <label class="form-label">Modelo del vehículo <span class="hint">— Ej: 306, Bora, Corsa</span></label>
-        <input type="text" class="form-input" id="f-modelo-vehiculo" placeholder="Ej: 306 1.9 diesel, Bora 1.9 TDI, Corsa 1.6">
+        <label class="form-label"><span class="req">*</span> Categoría</label>
+        <select class="form-select" id="f-categoria"><option value="">Cargando...</option></select>
       </div>
-
-      <!-- Marcas de vehículo — múltiples -->
+    </div>
+    <div class="row3">
       <div class="form-group">
-        <label class="form-label">Marcas de vehículo compatibles <span class="hint">— Podés agregar varias</span></label>
-        <div class="multi-wrap" id="marcas-vehiculo-wrap">
-          <div class="multi-row">
-            <select class="form-select" data-field="marca-veh"><option value="">Seleccione</option></select>
-            <button class="multi-add" onclick="addMarcaVehiculo()">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Agregar otra
-            </button>
-          </div>
-        </div>
+        <label class="form-label">Nombre arranque <span class="hint">Ej: Arr Bosch</span></label>
+        <input type="text" class="form-input" id="f-arranque" placeholder="Ej: Arr Bosch 12V">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre alternador <span class="hint">Ej: Alt Indiel</span></label>
+        <input type="text" class="form-input" id="f-alternador" placeholder="Ej: Alternador Indiel 14V">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Modelo del repuesto <span class="hint">Ej: M74R</span></label>
+        <input type="text" class="form-input" id="f-modelo-repuesto" placeholder="Ej: M74R, 20-30">
       </div>
     </div>
-  </div>
 
-  <!-- ── 4. MARCAS DE REPUESTO ─────────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      <div class="section-title">Marcas del repuesto <span style="font-size:11px;color:var(--text3);font-weight:400">— Podés tener el mismo repuesto de varias marcas</span></div>
-    </div>
-    <div class="section-body">
-      <div class="multi-wrap" id="marcas-repuesto-wrap">
+    <!-- FABRICANTES MÚLTIPLES -->
+    <div class="form-group">
+      <label class="form-label">Fabricantes / Marcas del repuesto <span class="hint">— Podés agregar varios</span></label>
+      <div class="multi-wrap" id="fabricantes-wrap">
         <div class="multi-row">
-          <select class="form-select" data-field="marca-rep"><option value="">Seleccione marca</option></select>
-          <button class="multi-add" onclick="addMarcaRepuesto()">
+          <select class="form-select" data-field="fabricante"><option value="">Seleccione marca de repuesto</option></select>
+          <button class="multi-add" onclick="addFabricante()">
             <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Agregar otra
+            Agregar otro
           </button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ── 5. CÓDIGOS DE PROVEEDORES ──────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
-      <div class="section-title">Códigos por proveedor / marca <span style="font-size:11px;color:var(--text3);font-weight:400">— Código interno y códigos de cada proveedor</span></div>
-    </div>
-    <div class="section-body">
+    <div class="row3">
       <div class="form-group">
-        <label class="form-label"><span class="req">*</span> Código interno (COD.) <span class="hint">— Tu código propio</span></label>
-        <input type="text" class="form-input" id="f-codigo" placeholder="Ej: F000AL0304, alt00555">
+        <label class="form-label">Material <span class="hint">Ej: Acrílico</span></label>
+        <input type="text" class="form-input" id="f-material" placeholder="Ej: Cobre, Acrílico">
       </div>
       <div class="form-group">
-        <label class="form-label">Códigos de proveedores <span class="hint">— Cada proveedor tiene su propio código para el mismo producto</span></label>
-        <div class="codigos-wrap" id="codigos-wrap">
-          <!-- filas generadas por JS -->
-        </div>
-        <button class="multi-add" style="margin-top:6px" onclick="addCodigoProveedor()">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Agregar código de proveedor
-        </button>
+        <label class="form-label">Lado</label>
+        <select class="form-select" id="f-lado">
+          <option value="">No aplica</option>
+          <option>Derecho</option><option>Izquierdo</option>
+          <option>Derecho e Izquierdo</option><option>Ambos lados</option>
+          <option>Horario</option><option>Antihorario</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Código interno <span class="req">*</span></label>
+        <input type="text" class="form-input" id="f-codigo" placeholder="Ej: F000AL0304">
       </div>
     </div>
-  </div>
 
-  <!-- ── 6. CATÁLOGOS DE PAPEL ──────────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <div class="section-title">Catálogos de papel <span style="font-size:11px;color:var(--text3);font-weight:400">— En qué catálogo físico está y en qué página</span></div>
+    <!-- TIPO ORIGINAL/COPIA -->
+    <div class="form-group">
+      <label class="form-label">Tipo de repuesto</label>
+      <div class="tipo-row">
+        <div class="tipo-opt orig selected" id="tipo-orig" onclick="selectTipo('ORIGINAL')">✅ ORIGINAL</div>
+        <div class="tipo-opt copy" id="tipo-copy" onclick="selectTipo('COPIA')">📋 COPIA</div>
+      </div>
+      <input type="hidden" id="f-tipo" value="ORIGINAL">
     </div>
-    <div class="section-body">
-      <div class="codigos-wrap" id="catalogos-wrap"></div>
-      <button class="multi-add" style="margin-top:6px" onclick="addCatalogo()">
+
+    <!-- CONDICIÓN -->
+    <div class="form-group">
+      <label class="form-label"><span class="req">*</span> Condición</label>
+      <div class="cond-row">
+        <div class="cond-opt selected" onclick="selectCond(this,'NUEVO')">NUEVO</div>
+        <div class="cond-opt" onclick="selectCond(this,'USADO')">USADO</div>
+        <div class="cond-opt" onclick="selectCond(this,'RECAMBIO')">RECAMBIO</div>
+        <div class="cond-opt" onclick="selectCond(this,'DESCONTINUADO')">DESCONTINUADO</div>
+        <div class="cond-opt" onclick="selectCond(this,'REEMPLAZO')">REEMPLAZO</div>
+        <div class="cond-opt" onclick="selectCond(this,'OUTLET')">OUTLET</div>
+      </div>
+      <input type="hidden" id="f-condicion" value="NUEVO">
+    </div>
+  </div>
+</div>
+
+<!-- 3. TIPO Y COMPATIBILIDAD VEHICULAR -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5"/><circle cx="15.5" cy="17.5" r="2.5"/><circle cx="5.5" cy="17.5" r="2.5"/></svg>
+    <div class="section-title">Tipo y compatibilidad vehicular</div>
+  </div>
+  <div class="section-body">
+
+    <!-- TIPO DE VEHÍCULO MULTISELECT -->
+    <div class="form-group">
+      <label class="form-label">Tipo de vehículo <span class="hint">— Seleccioná todos los que aplican</span></label>
+      <div class="multicheck-wrap" id="tipo-vehiculo-wrap">
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="TODOS"> TODOS</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Automóvil"> Automóvil</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Bus"> Bus</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Camión"> Camión</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Carro"> Carro</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Pick Up"> Pick Up</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Remolque"> Remolque</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Tractor"> Tractor</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Trailer"> Trailer</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Jeep"> Jeep</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Unimog"> Unimog</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Maquinaria Pesada"> Maquinaria Pesada</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Maquinaria Agrícola"> Maquinaria Agrícola</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Máquina de Construcción"> Máquina de Construcción</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Vehículo Militar"> Vehículo Militar</label>
+        <label class="mc-opt" onclick="toggleMC(this)"><input type="checkbox" value="Omnibus - Bus"> Omnibus - Bus</label>
+      </div>
+    </div>
+
+    <!-- APLICACIÓN -->
+    <div class="form-group">
+      <label class="form-label">Aplicación general <span class="hint">Ej: Para todos los VW / Ford / Chevrolet</span></label>
+      <input type="text" class="form-input" id="f-aplicacion" placeholder="Ej: En todos los vehículos que usan Volkswagen / Ford / Chevrolet">
+    </div>
+
+    <!-- MARCAS + MODELOS DINÁMICOS -->
+    <div class="form-group">
+      <label class="form-label">Marcas y modelos compatibles <span class="hint">— Ej: PEUGEOT: 405, 306, 306 diesel · CITROËN: C3, C4</span></label>
+      <div id="marca-modelo-wrap"></div>
+      <button class="multi-add" onclick="addMarcaModelo()">
         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Agregar catálogo
+        + Agregar marca de vehículo
       </button>
     </div>
   </div>
+</div>
 
-  <!-- ── 7. DESCRIPCIÓN ─────────────────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      <div class="section-title">Descripción y observaciones</div>
-    </div>
-    <div class="section-body">
-      <div class="form-group">
-        <label class="form-label">Descripción completa</label>
-        <textarea class="form-textarea" id="f-descripcion" rows="4" placeholder="Descripción técnica detallada del repuesto..."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Notas del vendedor <span class="hint">— Ej: Incluye tornillos originales</span></label>
-        <textarea class="form-textarea" id="f-notas" rows="2" placeholder="Ej: Incluye Tornillos Originales, viene con instrucciones..."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label" style="color:var(--amber)">⚠️ IMPORTANTE <span class="hint" style="color:var(--text3)">— Ej: Piezas únicas y originales Renault. Made in France</span></label>
-        <input type="text" class="form-input importante-input" id="f-importante" placeholder="Ej: Piezas únicas y originales Renault. Made in France">
-      </div>
-    </div>
+<!-- 4. CÓDIGOS DE PROVEEDORES -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+    <div class="section-title">Códigos por proveedor</div>
   </div>
-
-  <!-- ── 8. STOCK Y LOGÍSTICA ────────────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-      <div class="section-title">Stock y logística</div>
-    </div>
-    <div class="section-body">
-      <div class="row4">
-        <div class="form-group">
-          <label class="form-label"><span class="req">*</span> Stock inicial</label>
-          <input type="number" class="form-input" id="f-stock" value="1" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Stock mínimo <span class="hint">— Alerta</span></label>
-          <input type="number" class="form-input" id="f-stock-min" value="1" min="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Forma de pago</label>
-          <select class="form-select" id="f-forma-pago">
-            <option>Contado Efectivo</option>
-            <option>Transferencia</option>
-            <option>Mercado Pago</option>
-            <option>A convenir</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Forma de entrega</label>
-          <select class="form-select" id="f-forma-entrega">
-            <option>A convenir</option>
-            <option>Correo Argentino</option>
-            <option>Comisionista</option>
-            <option>Micro (cargo del cliente)</option>
-            <option>Andreani</option>
-            <option>Retiro en persona</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Fecha de compra</label>
-        <input type="date" class="form-input" id="f-fecha-compra">
-      </div>
-    </div>
-  </div>
-
-  <!-- ── 9. PRECIOS ─────────────────────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      <div class="section-title">Precios</div>
-    </div>
-    <div class="section-body">
-      <div class="row3">
-        <div class="form-group">
-          <label class="form-label">Moneda</label>
-          <select class="form-select" id="f-moneda" onchange="calcularPrecios()">
-            <option value="ARS">$ ARS — Pesos Argentinos</option>
-            <option value="USD">U$D — Dólares</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label"><span class="req">*</span> Precio de compra (costo neto)</label>
-          <input type="number" class="form-input" id="f-precio-costo" placeholder="0.00" step="0.01" oninput="calcularPrecios()">
-        </div>
-        <div class="form-group">
-          <label class="form-label">% Ganancia</label>
-          <input type="number" class="form-input" id="f-ganancia-pct" value="40" step="1" oninput="calcularPrecios()">
-        </div>
-      </div>
-      <!-- Precios calculados -->
-      <div class="row4" style="margin-top:4px">
-        <div class="precio-display">
-          <div class="precio-display-label">Precio sin IVA + ganancia</div>
-          <div class="precio-display-val pv-blue" id="calc-sin-iva">$ 0</div>
-        </div>
-        <div class="precio-display">
-          <div class="precio-display-label">IVA 21%</div>
-          <div class="precio-display-val" style="color:var(--text3)" id="calc-iva">$ 0</div>
-        </div>
-        <div class="precio-display">
-          <div class="precio-display-label">Precio venta con IVA ✅</div>
-          <div class="precio-display-val pv-green" id="calc-con-iva">$ 0</div>
-        </div>
-        <div class="precio-display">
-          <div class="precio-display-label">Con 10% descuento</div>
-          <div class="precio-display-val pv-amber" id="calc-descuento">$ 0</div>
-        </div>
-      </div>
-      <div style="margin-top:10px;font-size:11px;color:var(--text3)">
-        Ganancia neta: <span id="calc-ganancia-neta" style="color:var(--green);font-weight:500">$ 0</span> &nbsp;·&nbsp;
-        Ganancia con descuento: <span id="calc-ganancia-desc" style="color:var(--amber);font-weight:500">$ 0</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── 10. IMAGEN ─────────────────────────────────────── -->
-  <div class="section-card">
-    <div class="section-head">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      <div class="section-title">Imagen del producto <span style="font-size:10px;color:var(--text3);font-weight:400">— Se sube automáticamente a Cloudinary</span></div>
-    </div>
-    <div class="section-body">
-      <div class="row2">
-        <div>
-          <div class="img-upload" onclick="document.getElementById('f-imagen').click()" id="img-upload-area">
-            <input type="file" id="f-imagen" accept="image/*" onchange="previewImagen(this)">
-            <div class="img-placeholder">📷</div>
-            <div class="img-label">Hacer clic para seleccionar imagen</div>
-            <div class="img-hint">JPG, PNG, WEBP — máx 5 MB</div>
-          </div>
-          <!-- Barra de progreso upload -->
-          <div id="upload-progress-wrap" style="display:none;margin-top:10px">
-            <div style="font-size:11px;color:var(--text2);margin-bottom:5px;display:flex;justify-content:space-between">
-              <span>Subiendo a Cloudinary...</span>
-              <span id="upload-pct">0%</span>
-            </div>
-            <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden">
-              <div id="upload-bar" style="height:100%;background:var(--blue);border-radius:3px;width:0%;transition:width .2s"></div>
-            </div>
-          </div>
-          <div id="upload-ok" style="display:none;margin-top:8px;font-size:11px;color:var(--green);display:flex;align-items:center;gap:5px">
-            ✅ Imagen subida correctamente a Cloudinary
-          </div>
-          <div id="upload-error" style="display:none;margin-top:8px;font-size:11px;color:var(--red)"></div>
-        </div>
-        <div id="img-preview-wrap" style="display:none">
-          <img id="img-preview" class="img-preview" src="" alt="Preview" style="width:100%;max-height:160px;object-fit:contain;border-radius:8px;border:1px solid var(--border)">
-          <div style="font-size:10px;color:var(--text3);text-align:center;margin-top:6px" id="img-filename"></div>
-          <div style="font-size:10px;color:var(--text3);text-align:center;word-break:break-all;margin-top:3px;padding:3px 6px;background:var(--bg4);border-radius:4px" id="img-url-display"></div>
-          <button onclick="removeImagen()" style="display:block;margin:8px auto 0;font-size:11px;color:var(--red);background:none;border:none;cursor:pointer">✕ Quitar imagen</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── ACCIONES ───────────────────────────────────────── -->
-  <div class="actions-bar">
-    <button class="btn btn-ghost" onclick="limpiarFormulario()">Limpiar formulario</button>
-    <button class="btn btn-success" onclick="guardarRepuesto(false)">
-      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      Guardar y seguir cargando
-    </button>
-    <button class="btn btn-primary" onclick="guardarRepuesto(true)" id="btn-guardar">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      Guardar repuesto
+  <div class="section-body">
+    <div id="codigos-wrap"></div>
+    <button class="multi-add" onclick="addCodigoProveedor()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      + Agregar código de proveedor
     </button>
   </div>
+</div>
+
+<!-- 5. CATÁLOGOS DE PAPEL -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <div class="section-title">Catálogos de papel <span style="font-size:11px;color:var(--text3);font-weight:400">— En qué lista de precio aparece y en qué página</span></div>
+  </div>
+  <div class="section-body">
+    <div id="catalogos-wrap"></div>
+    <button class="multi-add" onclick="addCatalogo()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      + Agregar catálogo / lista de precio
+    </button>
+  </div>
+</div>
+
+<!-- 6. DESCRIPCIÓN -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <div class="section-title">Descripción y observaciones</div>
+  </div>
+  <div class="section-body">
+    <div class="form-group">
+      <label class="form-label">Descripción completa <span class="hint">— Texto enriquecido</span></label>
+      <div class="rich-toolbar" id="tb-desc">
+        <button class="rich-btn" onclick="fmt('bold','desc')" title="Negrita"><b>B</b></button>
+        <button class="rich-btn" onclick="fmt('italic','desc')" title="Cursiva"><i>I</i></button>
+        <button class="rich-btn" onclick="fmt('underline','desc')" title="Subrayado"><u>U</u></button>
+        <button class="rich-btn" onclick="fmt('insertUnorderedList','desc')" title="Lista">≡</button>
+        <button class="rich-btn" onclick="fmt('insertOrderedList','desc')" title="Lista numerada">1.</button>
+        <button class="rich-btn" onclick="insertLink('desc')" title="Link">🔗</button>
+        <button class="rich-btn" onclick="fmt('removeFormat','desc')" title="Limpiar formato">✕</button>
+      </div>
+      <div class="rich-editor" id="f-descripcion" contenteditable="true" data-placeholder="Descripción técnica del repuesto, voltaje, amperios, dimensiones..."></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas internas <span class="hint">— Texto enriquecido, solo vos lo ves</span></label>
+      <div class="rich-toolbar">
+        <button class="rich-btn" onclick="fmt('bold','notas')"><b>B</b></button>
+        <button class="rich-btn" onclick="fmt('italic','notas')"><i>I</i></button>
+        <button class="rich-btn" onclick="fmt('insertUnorderedList','notas')">≡</button>
+        <button class="rich-btn" onclick="insertLink('notas')" title="Link">🔗</button>
+        <button class="rich-btn" onclick="fmt('removeFormat','notas')">✕</button>
+      </div>
+      <div class="rich-editor" id="f-notas" contenteditable="true" data-placeholder="Notas internas: dónde lo compré, a quién contactar, detalles de negociación..."></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="color:var(--amber)">⚠️ IMPORTANTE <span class="hint" style="color:var(--text3)">— Mensaje destacado para compradores</span></label>
+      <input type="text" class="form-input importante-input" id="f-importante" placeholder="Ej: Piezas únicas y originales Renault. Made in France">
+    </div>
+  </div>
+</div>
+
+<!-- 7. STOCK Y LOGÍSTICA -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+    <div class="section-title">Stock y logística</div>
+  </div>
+  <div class="section-body">
+    <div class="row4">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Stock inicial</label>
+        <input type="number" class="form-input" id="f-stock" value="1" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stock mínimo <span class="hint">Alerta</span></label>
+        <input type="number" class="form-input" id="f-stock-min" value="1" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Forma de pago</label>
+        <select class="form-select" id="f-forma-pago">
+          <option>Contado Efectivo</option><option>Transferencia</option>
+          <option>Mercado Pago</option><option>A convenir</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Forma de entrega</label>
+        <select class="form-select" id="f-forma-entrega">
+          <option>A convenir</option><option>Correo Argentino</option>
+          <option>Comisionista</option><option>Micro (cargo del cliente)</option>
+          <option>Andreani</option><option>Retiro en persona</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha de compra</label>
+      <input type="date" class="form-input" id="f-fecha-compra">
+    </div>
+  </div>
+</div>
+
+<!-- 8. PRECIOS -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <div class="section-title">Precios</div>
+  </div>
+  <div class="section-body">
+    <div class="row3">
+      <div class="form-group">
+        <label class="form-label">Moneda</label>
+        <select class="form-select" id="f-moneda" onchange="calcularPrecios()">
+          <option value="ARS">$ ARS — Pesos</option>
+          <option value="USD">U$D — Dólares</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Precio de costo (lo que pagué)</label>
+        <input type="number" class="form-input" id="f-precio-costo" placeholder="0.00" step="0.01" oninput="calcularPrecios()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">% Ganancia</label>
+        <input type="number" class="form-input" id="f-ganancia-pct" value="40" step="1" oninput="calcularPrecios()">
+      </div>
+    </div>
+    <div class="row4" style="margin-top:4px">
+      <div class="precio-display"><div class="precio-display-label">Sin IVA + ganancia</div><div class="precio-display-val pv-blue" id="calc-sin-iva">$ 0</div></div>
+      <div class="precio-display"><div class="precio-display-label">IVA 21%</div><div class="precio-display-val" style="color:var(--text3)" id="calc-iva">$ 0</div></div>
+      <div class="precio-display"><div class="precio-display-label">Precio venta con IVA ✅</div><div class="precio-display-val pv-green" id="calc-con-iva">$ 0</div></div>
+      <div class="precio-display"><div class="precio-display-label">Con 10% descuento</div><div class="precio-display-val pv-amber" id="calc-descuento">$ 0</div></div>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3)">
+      Ganancia neta: <span id="calc-ganancia-neta" style="color:var(--green);font-weight:500">$ 0</span> &nbsp;·&nbsp;
+      Con descuento: <span id="calc-ganancia-desc" style="color:var(--amber);font-weight:500">$ 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- 9. IMÁGENES MÚLTIPLES -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <div class="section-title">Imágenes del producto <span style="font-size:10px;color:var(--text3);font-weight:400">— Subidas automáticamente a Cloudinary</span></div>
+  </div>
+  <div class="section-body">
+    <div class="img-grid" id="img-grid"></div>
+    <button class="multi-add" onclick="addImageSlot()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      + Agregar imagen
+    </button>
+    <div style="font-size:10.5px;color:var(--text3);margin-top:6px">JPG, PNG, WEBP — máx 5MB por imagen · La primera imagen es la principal</div>
+  </div>
+</div>
+
+<!-- ACCIONES -->
+<div class="actions-bar">
+  <button class="btn btn-ghost" onclick="limpiarFormulario()">Limpiar</button>
+  <button class="btn btn-success" onclick="guardarRepuesto(false)">
+    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    Guardar y cargar otro
+  </button>
+  <button class="btn btn-primary" onclick="guardarRepuesto(true)" id="btn-guardar">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    Guardar repuesto
+  </button>
+</div>
 
 </div><!-- /form-wrap -->
 
 <script>
-// ── PROVEEDORES (se cargan del sistema) ───────────────
+// ── DATOS ─────────────────────────────────────────────
 const PROVEEDORES_LIST = [
-  'BOBINAR','AJ','ALFA (EP)','AR GON','AUTOBAT','AUTOLUBE','BAIML',
-  'BOSCH','BYC','BZM','CL - CARBONES LORRAINE','COR-PAC','DAIPART',
-  'DIPRA','DOG','DZE','ERALSA','FA','FESAL','GENOUD','GV','HARD','HDS',
-  'INDIEL','KESSEL','LC','MIRBA','ML','NOSSO','OMER','ORO','OSRAM','PH',
-  'PHILIPS','PORTAFICH','PRESTOLITE','RALUX','ROHER','ROTOFRANCE','RTM',
+  'BOBINAR','AJ','ALFA (EP)','AR GON','AUTOBAT','AUTOLUBE','BAIML','BOSCH','BYC','BZM',
+  'CL - CARBONES LORRAINE','COR-PAC','DAIPART','DIPRA','DOG','DZE','ERALSA','FA','FESAL',
+  'GENOUD','GV','HARD','HDS','INDIEL','KESSEL','LC','MIRBA','ML','NOSSO','OMER','ORO',
+  'OSRAM','PH','PHILIPS','PORTAFICH','PRESTOLITE','RALUX','ROHER','ROTOFRANCE','RTM',
   'SCHUNK','TCH','TURI','VALEO','VEYPA','VUARAM','ZEN','ZM','ZOCCHIO'
 ];
 
-const MARCAS_VEHICULO_LIST = [
-  '*UNIVERSAL*','Abarth','Acura','AGCO','AGRALE','Alfa Romeo','AMC',
-  'Audi','BMW','Chery','Chevrolet','Chrysler','Citroen','CUMMINS',
-  'Daewoo','Daihatsu','DEUTZ','Dodge','Fiat','Ford','GMC','Honda',
-  'Hyundai','IKA','INTERNATIONAL','Isuzu','Iveco','Jeep','John Deere',
-  'Kia','Lada','Land Rover','Maquinaria Agrícola','Maquinaria Pesada',
-  'MARCOPOLO','Massey Ferguson','Mazda','Mercedes Benz','Mini','Mitsubishi',
-  'MWM','NASHVILLE','Nissan','Opel','Perkins','Peugeot','Pontiac','Porsche',
-  'Renault','Rolls-Royce','Rover','Scania','Seat','Skoda','Smart','Subaru',
-  'Suzuki','Toyota','Unimog Vehiculo Militar','Volkswagen','Volvo','Yanmar','ZANELLO'
-];
-
 const MARCAS_REP_LIST = [
-  '***EN CAJA OTRA MARCA**','***SUELTA***','Ar-Gon','Autobat','Baiml',
-  'Bosch','ByC','Bzm','Carbones Lorraine','Champion','Delco Remi','Deutz',
-  'Dipra','Dog','Dze','Eralsa','Fa','Fesal','Genoud','Hard','Hds','Hella',
-  'Indiel','Kessel','Lc','Lucas','Magneti Marelli','Mirba','Mobiletron',
-  'Motorcraft','Narva','Nashville','Nosso','Omer','Original Renault','Oro',
-  'Osram','Ph Autopartes Eléctricas','Philips','Portafich','Prestolite',
-  'Ralux','Roher','Rotofrance','Rtm','Schunk','Tch','Turi','Unipoint',
-  'Valeo','Veypa','Zen','Zm','Zocchio'
+  '***EN CAJA OTRA MARCA**','***SUELTA***','Ar-Gon','Autobat','Baiml','Bosch','ByC','Bzm',
+  'Carbones Lorraine','Champion','Delco Remi','Deutz','Dipra','Dog','Dze','Eralsa','Fa',
+  'Fesal','Genoud','Hard','Hds','Hella','Indiel','Kessel','Lc','Lucas','Magneti Marelli',
+  'Mirba','Mobiletron','Motorcraft','Narva','Nashville','Nosso','Omer','Original Renault',
+  'Oro','Osram','Ph Autopartes Eléctricas','Philips','Portafich','Prestolite','Ralux',
+  'Roher','Rotofrance','Rtm','Schunk','Tch','Turi','Unipoint','Valeo','Veypa','Zen','Zm','Zocchio'
 ];
 
-const CATEGORIAS_LIST = [
-  'Abrazadera','Acoples','Alternador Completo','Alternador Completo | Bosch',
-  'Alternador Completo | Denso','Alternador Completo | Monoblock',
-  'Alternador Despiece','Alternador Despiece | Carbones de Alternador',
-  'Alternador Despiece | Porta Escobilla de Alternador',
-  'Alternador Despiece | Reguladores de voltaje',
-  'Alternador Despiece | Rulemán para Alternador',
-  'Alternador Despiece | Rotor Alternador',
-  'Arranque | Motor de Arranque','Arranque Despiece',
-  'Arranque Despiece | Carbones de Arranque',
-  'Arranque Despiece | Impulsor Motor de Arranque',
-  'Arranque Despiece | Porta Escobilla o Carbones Solo',
-  'Arranque Despiece | Relé o Solenoide',
-  'Bateria | Nuevas','Bateria | Bornes','Bateria | Cargadores de Baterías',
-  'Bobina de Ignición','Bocinas','Bujías de Encendido',
-  'Bujías de Pre-Calentamiento','Bujes','Bulbo de Aceite',
-  'Bulbo de Temperatura','Cables','Carbones o Escobillas de arranque y Alternador',
-  'Cerradura','Conmutador de Luces, Giros y Limpiaparabrisas',
-  'Distribuidor | Completo','Distribuidor Despiece | Condensadores',
-  'Distribuidor Despiece | Platinos','Distribuidor Despiece | Rotor',
-  'Electroventilador','Emuladores',
-  'Faros BAIML','Faros GAMA','Faros y Lentes Marcas',
-  'Ficha | Caja Fusibleras','Ficha | Conectores Inyectados',
-  'Ficha | Fusibles','Ficha | Porta Fusibles','Ficha | Terminales',
-  'Lámpara | Lámparas','Lámpara | Portalampara de Tablero',
-  'Llave | Llave de Contacto','Luces | Destelladores',
-  'Módulo | Módulos de Ignición','Módulo | Precalentador',
-  'Opticas | Livianos | Pesados | Deportivos | Público',
-  'Parrilla','Poleas','Relay | Minis Relays | Micro Relay DE ENCENDIDO',
-  'Ruleman | Alternador - Arranque - Otros','Sensores',
-  'Teclas','Termostatos','Varios'
+const MARCAS_VEH_LIST = [
+  '*UNIVERSAL*','Abarth','Acura','AGCO','AGRALE','Alfa Romeo','Audi','BMW','Chery',
+  'Chevrolet','Chrysler','Citroen','CUMMINS','Daewoo','Daihatsu','DEUTZ','Dodge','Fiat',
+  'Ford','GMC','Honda','Hyundai','IKA','INTERNATIONAL','Isuzu','Iveco','Jeep','John Deere',
+  'Kia','Lada','Land Rover','Maquinaria Agrícola','Maquinaria Pesada','MARCOPOLO',
+  'Massey Ferguson','Mazda','Mercedes Benz','Mini','Mitsubishi','MWM','NASHVILLE','Nissan',
+  'Opel','Perkins','Peugeot','Pontiac','Porsche','Renault','Rover','Scania','Seat','Skoda',
+  'Smart','Subaru','Suzuki','Toyota','Unimog Vehiculo Militar','Volkswagen','Volvo','Yanmar','ZANELLO'
 ];
 
-// ── INICIALIZAR ───────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  // Categorías
-  const catSel = document.getElementById('f-categoria');
-  catSel.innerHTML = '<option value="">Seleccione categoría</option>' +
-    CATEGORIAS_LIST.map(c=>`<option value="${c}">${c}</option>`).join('');
-
-  // Marcas vehículo select inicial
-  loadMarcasVehiculoOptions();
-  loadMarcasRepuestoOptions();
-
-  // Primera fila de código proveedor
+  document.getElementById('f-fecha-compra').valueAsDate = new Date();
+  // Cargar estanterías/estantes desde Firebase si están disponibles
+  cargarSelectsDesdeFirebase();
+  // Agregar filas iniciales
+  addMarcaModelo();
   addCodigoProveedor();
   addCatalogo();
-
-  // Fecha de hoy
-  document.getElementById('f-fecha-compra').valueAsDate = new Date();
+  addImageSlot();
+  // Fabricante inicial
+  loadMarcasRepSelect(document.querySelector('[data-field="fabricante"]'));
 });
 
-function getProvOption(sel='') {
-  return PROVEEDORES_LIST.map(p=>`<option value="${p}" ${sel===p?'selected':''}>${p}</option>`).join('');
-}
-function getMarcaVehOption(sel='') {
-  return MARCAS_VEHICULO_LIST.map(m=>`<option value="${m}" ${sel===m?'selected':''}>${m}</option>`).join('');
-}
-function getMarcaRepOption(sel='') {
-  return MARCAS_REP_LIST.map(m=>`<option value="${m}" ${sel===m?'selected':''}>${m}</option>`).join('');
-}
-
-function loadMarcasVehiculoOptions() {
-  document.querySelectorAll('[data-field="marca-veh"]').forEach(el=>{
-    el.innerHTML = `<option value="">Seleccione marca de vehículo</option>${getMarcaVehOption()}`;
-  });
-}
-function loadMarcasRepuestoOptions() {
-  document.querySelectorAll('[data-field="marca-rep"]').forEach(el=>{
-    el.innerHTML = `<option value="">Seleccione marca de repuesto</option>${getMarcaRepOption()}`;
-  });
+// Cargar desde Firebase si está disponible
+async function cargarSelectsDesdeFirebase() {
+  try {
+    if (!window._db) return;
+    const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    // Categorías
+    const catSnap = await getDocs(collection(window._db, 'categorias'));
+    const cats = catSnap.docs.map(d => d.data().nombre).sort((a,b)=>a.localeCompare(b,'es'));
+    const catSel = document.getElementById('f-categoria');
+    catSel.innerHTML = '<option value="">Seleccione categoría</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+    // Estanterías
+    const estSnap = await getDocs(collection(window._db, 'estanterias'));
+    const ests = estSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.orden-b.orden);
+    const estSel = document.getElementById('f-estanteria');
+    estSel.innerHTML = '<option value="">Seleccione</option>' + ests.map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('');
+    // Estantes
+    const estanSnap = await getDocs(collection(window._db, 'estantes'));
+    const estans = estanSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.numero-b.numero);
+    const estanSel = document.getElementById('f-estante');
+    estanSel.innerHTML = '<option value="">Seleccione</option>' + estans.map(e=>`<option value="${e.id}">${e.nombre}</option>`).join('');
+  } catch(e) {
+    // Fallback con datos estáticos
+    const catSel = document.getElementById('f-categoria');
+    const CATS = ['Abrazadera','Acoples','Alternador Completo','Alternador Completo | Bosch','Alternador Completo | Denso','Alternador Completo | Monoblock','Alternador Despiece','Alternador Despiece | Carbones de Alternador','Alternador Despiece | Porta Escobilla de Alternador','Alternador Despiece | Reguladores de voltaje','Alternador Despiece | Rotor Alternador','Alternador Despiece | Rulemán para Alternador','Arranque | Motor de Arranque','Arranque Despiece','Arranque Despiece | Carbones de Arranque','Arranque Despiece | Impulsor Motor de Arranque','Arranque Despiece | Porta Escobilla o Carbones Solo','Arranque Despiece | Relé o Solenoide','Bateria | Bornes','Bateria | Cargadores de Baterías','Bateria | Nuevas','Bobina de Ignición','Bocinas','Bujías de Encendido','Bujías de Pre-Calentamiento','Bujes','Bulbo de Aceite','Bulbo de Temperatura','Cables','Carbones o Escobillas de arranque y Alternador','Cerradura','Conmutador de Luces, Giros y Limpiaparabrisas','Distribuidor | Completo','Distribuidor Despiece | Condensadores','Distribuidor Despiece | Platinos','Distribuidor Despiece | Rotor','Electroventilador','Emuladores','Faros BAIML','Faros GAMA','Faros y Lentes Marcas','Ficha | Caja Fusibleras','Ficha | Fusibles','Ficha | Porta Fusibles','Ficha | Terminales','Lámpara | Lámparas','Lámpara | Portalampara de Tablero','Llave | Llave de Contacto','Luces | Destelladores','Módulo | Módulos de Ignición','Módulo | Precalentador','Opticas | Livianos | Pesados','Parrilla','Poleas','Relay | Minis Relays','Ruleman | Alternador - Arranque - Otros','Sensores','Teclas','Termostatos','Varios'].sort();
+    catSel.innerHTML = '<option value="">Seleccione categoría</option>' + CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
+    // Estanterías estáticas
+    const estList = ['1ra - Frente','1ra - Dorso','2da - Frente','2da - Dorso','3ra - Frente Izquierda','3ra - Frente Derecha','3ra - Dorso Izquierda','3ra - Dorso Derecha','4ta - Frente Izquierda','4ta - Frente Derecha','4ta - Dorso Izquierda','4ta - Dorso Derecha','5ta - Frente Izquierda','5ta - Frente Derecha','5ta - Dorso Izquierda','5ta - Dorso Derecha','Acomodar'];
+    document.getElementById('f-estanteria').innerHTML = '<option value="">Seleccione</option>' + estList.map(e=>`<option value="${e}">${e}</option>`).join('');
+    for(let i=1;i<=14;i++) document.getElementById('f-estante').innerHTML += `<option value="${i}">${i}</option>`;
+    document.getElementById('f-estante').innerHTML += '<option value="Acomodar">Acomodar</option>';
+  }
 }
 
 // ── TIPO ORIGINAL/COPIA ───────────────────────────────
@@ -630,15 +565,24 @@ window.selectCond = (el, val) => {
   document.getElementById('f-condicion').value = val;
 };
 
-// ── MARCAS VEHÍCULO MÚLTIPLES ─────────────────────────
-window.addMarcaVehiculo = () => {
-  const wrap = document.getElementById('marcas-vehiculo-wrap');
+// ── TIPO VEHÍCULO MULTICHECK ──────────────────────────
+window.toggleMC = (el) => {
+  el.classList.toggle('selected');
+  el.querySelector('input').checked = el.classList.contains('selected');
+};
+
+// ── FABRICANTES MÚLTIPLES ─────────────────────────────
+function loadMarcasRepSelect(sel) {
+  sel.innerHTML = '<option value="">Seleccione marca de repuesto</option>' + MARCAS_REP_LIST.map(m=>`<option value="${m}">${m}</option>`).join('');
+}
+window.addFabricante = () => {
+  const wrap = document.getElementById('fabricantes-wrap');
   const div  = document.createElement('div');
   div.className = 'multi-row';
   div.innerHTML = `
-    <select class="form-select" data-field="marca-veh">
-      <option value="">Seleccione marca de vehículo</option>
-      ${getMarcaVehOption()}
+    <select class="form-select" data-field="fabricante">
+      <option value="">Seleccione marca de repuesto</option>
+      ${MARCAS_REP_LIST.map(m=>`<option value="${m}">${m}</option>`).join('')}
     </select>
     <button class="multi-remove" onclick="this.parentElement.remove()">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -646,20 +590,26 @@ window.addMarcaVehiculo = () => {
   wrap.insertBefore(div, wrap.lastElementChild);
 };
 
-// ── MARCAS REPUESTO MÚLTIPLES ─────────────────────────
-window.addMarcaRepuesto = () => {
-  const wrap = document.getElementById('marcas-repuesto-wrap');
+// ── MARCAS + MODELOS ──────────────────────────────────
+window.addMarcaModelo = () => {
+  const wrap = document.getElementById('marca-modelo-wrap');
   const div  = document.createElement('div');
-  div.className = 'multi-row';
+  div.className = 'marca-modelo-row';
   div.innerHTML = `
-    <select class="form-select" data-field="marca-rep">
-      <option value="">Seleccione marca de repuesto</option>
-      ${getMarcaRepOption()}
-    </select>
-    <button class="multi-remove" onclick="this.parentElement.remove()">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>`;
-  wrap.insertBefore(div, wrap.lastElementChild);
+    <div class="marca-modelo-top">
+      <select class="form-select" style="flex:1" data-field="marca-veh">
+        <option value="">Seleccione marca de vehículo</option>
+        ${MARCAS_VEH_LIST.map(m=>`<option value="${m}">${m}</option>`).join('')}
+      </select>
+      <button class="multi-remove" onclick="this.closest('.marca-modelo-row').remove()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="marca-modelo-modelos">
+      <input type="text" class="form-input" data-field="modelos-veh" placeholder="Modelos compatibles: 306, 405, 206, PARTNER, 306 diesel...">
+    </div>
+    <div class="marca-modelo-hint">Separar modelos con coma: 306, 405, 206 1.9 diesel, PARTNER</div>`;
+  wrap.appendChild(div);
 };
 
 // ── CÓDIGOS PROVEEDORES ───────────────────────────────
@@ -668,7 +618,7 @@ window.addCodigoProveedor = () => {
   const div  = document.createElement('div');
   div.className = 'codigo-row';
   div.innerHTML = `
-    <select><option value="">Seleccione proveedor</option>${getProvOption()}</select>
+    <select><option value="">Seleccione proveedor</option>${PROVEEDORES_LIST.map(p=>`<option value="${p}">${p}</option>`).join('')}</select>
     <input type="text" placeholder="Código del proveedor para este producto">
     <button class="multi-remove" onclick="this.parentElement.remove()">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -681,9 +631,8 @@ window.addCatalogo = () => {
   const wrap = document.getElementById('catalogos-wrap');
   const div  = document.createElement('div');
   div.className = 'catalogo-row';
-  div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 32px;gap:8px;align-items:center;margin-bottom:6px';
   div.innerHTML = `
-    <input type="text" class="form-input" placeholder="Nombre del catálogo / lista (Ej: Hard, Dipra)">
+    <input type="text" class="form-input" placeholder="Nombre catálogo / lista (Ej: Hard, Dipra, Bosch)">
     <input type="text" class="form-input" placeholder="Página N°">
     <button class="multi-remove" onclick="this.parentElement.remove()">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -691,187 +640,192 @@ window.addCatalogo = () => {
   wrap.appendChild(div);
 };
 
+// ── IMÁGENES MÚLTIPLES ────────────────────────────────
+let imgCount = 0;
+window.addImageSlot = () => {
+  const grid = document.getElementById('img-grid');
+  const id   = `img-slot-${++imgCount}`;
+  const div  = document.createElement('div');
+  div.className = 'img-slot';
+  div.id = id;
+  div.innerHTML = `
+    <input type="file" id="file-${id}" accept="image/*" style="display:none" onchange="handleImageUpload(this,'${id}')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <div class="img-label">Clic para subir</div>`;
+  div.onclick = (e) => { if(e.target.tagName!=='BUTTON') document.getElementById(`file-${id}`).click(); };
+  grid.appendChild(div);
+};
+
+window.handleImageUpload = async (input, slotId) => {
+  if (!input.files[0]) return;
+  const file = input.files[0];
+  const slot = document.getElementById(slotId);
+  if (file.size > 5*1024*1024) { if(window.toast) window.toast('Imagen mayor a 5MB','error'); return; }
+  // Preview inmediato
+  const reader = new FileReader();
+  reader.onload = e => {
+    slot.innerHTML = `
+      <img src="${e.target.result}" alt="preview">
+      <button class="img-remove" onclick="event.stopPropagation();removeImageSlot('${slotId}')">✕</button>
+      <div class="img-progress" id="prog-${slotId}" style="transform:scaleX(0)"></div>`;
+    slot.classList.add('filled');
+  };
+  reader.readAsDataURL(file);
+  // Subir a Cloudinary
+  if (window.subirImagenCloudinary) {
+    try {
+      const url = await window.subirImagenCloudinary(file, (p) => {
+        const bar = document.getElementById(`prog-${slotId}`);
+        if (bar) bar.style.transform = `scaleX(${p/100})`;
+      });
+      slot.dataset.url = url;
+      if(window.toast) window.toast('Imagen subida ✅','success');
+    } catch(e) {
+      if(window.toast) window.toast('Error al subir imagen','error');
+    }
+  }
+};
+
+window.removeImageSlot = (slotId) => {
+  document.getElementById(slotId)?.remove();
+};
+
+// ── EDITOR ENRIQUECIDO ────────────────────────────────
+window.fmt = (cmd, field) => {
+  document.getElementById(`f-${field}`).focus();
+  document.execCommand(cmd, false, null);
+};
+window.insertLink = (field) => {
+  const url = prompt('URL del link:');
+  if (url) { document.getElementById(`f-${field}`).focus(); document.execCommand('createLink', false, url); }
+};
+
 // ── CÁLCULO DE PRECIOS ────────────────────────────────
-const fmt = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n||0);
+const fmtPeso = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n||0);
 window.calcularPrecios = () => {
   const costo = parseFloat(document.getElementById('f-precio-costo').value)||0;
   const pct   = parseFloat(document.getElementById('f-ganancia-pct').value)||40;
-  const sinIva      = costo * (1 + pct/100);
-  const iva         = sinIva * 0.21;
-  const conIva      = sinIva + iva;
-  const conDescuento= conIva * 0.9;
-  const ganNeta     = sinIva - costo;
-  const ganDesc     = conDescuento - costo;
-  document.getElementById('calc-sin-iva').textContent   = fmt(sinIva);
-  document.getElementById('calc-iva').textContent       = fmt(iva);
-  document.getElementById('calc-con-iva').textContent   = fmt(conIva);
-  document.getElementById('calc-descuento').textContent = fmt(conDescuento);
-  document.getElementById('calc-ganancia-neta').textContent = fmt(ganNeta);
-  document.getElementById('calc-ganancia-desc').textContent = fmt(ganDesc);
-  window._precios = {sinIva,iva,conIva,conDescuento,ganNeta,costo};
+  const sinIva  = costo * (1 + pct/100);
+  const iva     = sinIva * 0.21;
+  const conIva  = sinIva + iva;
+  const conDesc = conIva * 0.9;
+  document.getElementById('calc-sin-iva').textContent   = fmtPeso(sinIva);
+  document.getElementById('calc-iva').textContent       = fmtPeso(iva);
+  document.getElementById('calc-con-iva').textContent   = fmtPeso(conIva);
+  document.getElementById('calc-descuento').textContent = fmtPeso(conDesc);
+  document.getElementById('calc-ganancia-neta').textContent = fmtPeso(sinIva - costo);
+  document.getElementById('calc-ganancia-desc').textContent = fmtPeso(conDesc - costo);
+  window._precios = {sinIva, iva, conIva, conDesc, costo};
 };
 
-// ── IMAGEN CON CLOUDINARY ─────────────────────────────
-window._imagenUrl = '';
-
-window.previewImagen = async (input) => {
-  if (!input.files[0]) return;
-  const file = input.files[0];
-  if (file.size > 5 * 1024 * 1024) {
-    if(window.toast) window.toast('La imagen es mayor a 5MB','error');
-    return;
-  }
-  // Preview local inmediato
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('img-preview').src = e.target.result;
-    document.getElementById('img-filename').textContent = file.name;
-    document.getElementById('img-upload-area').style.display  = 'none';
-    document.getElementById('img-preview-wrap').style.display = 'block';
-  };
-  reader.readAsDataURL(file);
-
-  // Subir a Cloudinary
-  const progressWrap = document.getElementById('upload-progress-wrap');
-  const bar  = document.getElementById('upload-bar');
-  const pct  = document.getElementById('upload-pct');
-  const okEl = document.getElementById('upload-ok');
-  const errEl= document.getElementById('upload-error');
-  progressWrap.style.display = 'block';
-  okEl.style.display  = 'none';
-  errEl.style.display = 'none';
-
-  try {
-    const url = await subirImagenCloudinary(file, (p) => {
-      bar.style.width = p + '%';
-      pct.textContent = p + '%';
-    });
-    window._imagenUrl = url;
-    progressWrap.style.display = 'none';
-    okEl.style.display = 'flex';
-    document.getElementById('img-url-display').textContent = url;
-    if(window.toast) window.toast('Imagen subida a Cloudinary ✅','success');
-  } catch(e) {
-    progressWrap.style.display = 'none';
-    errEl.style.display = 'block';
-    errEl.textContent   = '❌ Error: ' + e.message;
-    if(window.toast) window.toast('Error al subir imagen','error');
-  }
-};
-
-window.removeImagen = () => {
-  document.getElementById('f-imagen').value = '';
-  document.getElementById('img-upload-area').style.display  = 'block';
-  document.getElementById('img-preview-wrap').style.display = 'none';
-  document.getElementById('upload-ok').style.display  = 'none';
-  document.getElementById('upload-error').style.display= 'none';
-  window._imagenUrl = '';
-};
-
-// ── LIMPIAR FORMULARIO ────────────────────────────────
-window.limpiarFormulario = () => {
-  document.querySelectorAll('.form-input,.form-select,.form-textarea').forEach(el=>{
-    if (el.type==='number') el.value = el.id==='f-stock'?'1':el.id==='f-stock-min'?'1':el.id==='f-ganancia-pct'?'40':'';
-    else el.value='';
-  });
-  document.getElementById('f-tipo').value     = 'ORIGINAL';
-  document.getElementById('f-condicion').value= 'NUEVO';
-  selectTipo('ORIGINAL');
-  document.querySelectorAll('.cond-opt').forEach((e,i)=>e.classList.toggle('selected',i===0));
-  removeImagen();
-  calcularPrecios();
-};
-
-// ── RECOLECTAR DATOS DEL FORMULARIO ──────────────────
+// ── RECOLECTAR DATOS ──────────────────────────────────
 function recolectarDatos() {
-  const marcasVeh = [...document.querySelectorAll('[data-field="marca-veh"]')]
-    .map(el=>el.value).filter(v=>v);
-  const marcasRep = [...document.querySelectorAll('[data-field="marca-rep"]')]
-    .map(el=>el.value).filter(v=>v);
-
-  const codigos = [...document.querySelectorAll('#codigos-wrap .codigo-row')].map(row=>{
-    const sel = row.querySelector('select');
-    const inp = row.querySelector('input');
-    return sel?.value && inp?.value ? {proveedor:sel.value, codigo:inp.value} : null;
+  const tiposVeh = [...document.querySelectorAll('#tipo-vehiculo-wrap .mc-opt.selected')]
+    .map(el => el.querySelector('input').value);
+  const fabricantes = [...document.querySelectorAll('[data-field="fabricante"]')]
+    .map(el => el.value).filter(v => v);
+  const marcasModelos = [...document.querySelectorAll('.marca-modelo-row')].map(row => ({
+    marca:   row.querySelector('[data-field="marca-veh"]')?.value || '',
+    modelos: row.querySelector('[data-field="modelos-veh"]')?.value || ''
+  })).filter(m => m.marca);
+  const codigos = [...document.querySelectorAll('#codigos-wrap .codigo-row')].map(row => {
+    const sel = row.querySelector('select'); const inp = row.querySelector('input');
+    return sel?.value && inp?.value ? {proveedor: sel.value, codigo: inp.value} : null;
   }).filter(Boolean);
-
-  const catalogos = [...document.querySelectorAll('#catalogos-wrap div')].map(row=>{
+  const catalogos = [...document.querySelectorAll('#catalogos-wrap .catalogo-row')].map(row => {
     const ins = row.querySelectorAll('input');
-    return ins[0]?.value && ins[1]?.value ? {nombre:ins[0].value, pagina:ins[1].value} : null;
+    return ins[0]?.value && ins[1]?.value ? {nombre: ins[0].value, pagina: ins[1].value} : null;
   }).filter(Boolean);
+  const imagenes = [...document.querySelectorAll('#img-grid .img-slot.filled')]
+    .map(slot => slot.dataset.url).filter(Boolean);
 
+  calcularPrecios();
   return {
-    titulo_repuesto:  document.getElementById('f-titulo').value.trim(),
-    categoria:        document.getElementById('f-categoria').value,
-    tipo_vehiculo:    document.getElementById('f-tipo-vehiculo').value,
-    id_estanteria:    document.getElementById('f-estanteria').value,
-    id_estante:       document.getElementById('f-estante').value,
-    tipo:             document.getElementById('f-tipo').value,
-    condicion:        document.getElementById('f-condicion').value,
-    fabricante:       document.getElementById('f-fabricante').value.trim(),
-    arranque:         document.getElementById('f-arranque').value.trim(),
-    alternador:       document.getElementById('f-alternador').value.trim(),
-    modelo_repuesto:  document.getElementById('f-modelo-repuesto').value.trim(),
-    material:         document.getElementById('f-material').value.trim(),
-    lado:             document.getElementById('f-lado').value,
-    aplicacion:       document.getElementById('f-aplicacion').value.trim(),
-    modelo_vehiculo:  document.getElementById('f-modelo-vehiculo').value.trim(),
-    marcas_vehiculo:  marcasVeh,
-    marcas_repuesto:  marcasRep,
-    codigo:           document.getElementById('f-codigo').value.trim(),
+    titulo_repuesto:   document.getElementById('f-titulo').value.trim(),
+    categoria:         document.getElementById('f-categoria').value,
+    id_estanteria:     document.getElementById('f-estanteria').value,
+    id_estante:        document.getElementById('f-estante').value,
+    tipos_vehiculo:    tiposVeh,
+    tipo:              document.getElementById('f-tipo').value,
+    condicion:         document.getElementById('f-condicion').value,
+    fabricantes:       fabricantes,
+    arranque:          document.getElementById('f-arranque').value.trim(),
+    alternador:        document.getElementById('f-alternador').value.trim(),
+    modelo_repuesto:   document.getElementById('f-modelo-repuesto').value.trim(),
+    material:          document.getElementById('f-material').value.trim(),
+    lado:              document.getElementById('f-lado').value,
+    codigo:            document.getElementById('f-codigo').value.trim(),
+    aplicacion:        document.getElementById('f-aplicacion').value.trim(),
+    marcas_modelos:    marcasModelos,
+    marcas_vehiculo:   marcasModelos.map(m => m.marca).filter(Boolean),
     codigos_proveedores: codigos,
-    catalogos_papel:  catalogos,
-    descripcion:      document.getElementById('f-descripcion').value.trim(),
-    notas:            document.getElementById('f-notas').value.trim(),
-    importante:       document.getElementById('f-importante').value.trim(),
-    cant_artic:       parseInt(document.getElementById('f-stock').value)||0,
-    stock_minimo:     parseInt(document.getElementById('f-stock-min').value)||1,
-    forma_pago:       document.getElementById('f-forma-pago').value,
-    forma_entrega:    document.getElementById('f-forma-entrega').value,
-    fecha_compra:     document.getElementById('f-fecha-compra').value,
-    moneda:           document.getElementById('f-moneda').value,
-    precio_costo:     parseFloat(document.getElementById('f-precio-costo').value)||0,
+    catalogos_papel:   catalogos,
+    descripcion:       document.getElementById('f-descripcion').innerHTML,
+    notas_internas:    document.getElementById('f-notas').innerHTML,
+    importante:        document.getElementById('f-importante').value.trim(),
+    cant_artic:        parseInt(document.getElementById('f-stock').value)||0,
+    stock_minimo:      parseInt(document.getElementById('f-stock-min').value)||1,
+    forma_pago:        document.getElementById('f-forma-pago').value,
+    forma_entrega:     document.getElementById('f-forma-entrega').value,
+    fecha_compra:      document.getElementById('f-fecha-compra').value,
+    moneda:            document.getElementById('f-moneda').value,
+    precio_costo:      window._precios?.costo || 0,
+    precio_venta:      window._precios?.sinIva || 0,
+    precio_venta_iva:  window._precios?.conIva || 0,
     precio_ganancia_pct: parseFloat(document.getElementById('f-ganancia-pct').value)||40,
-    precio_venta:     window._precios?.sinIva||0,
-    precio_venta_iva: window._precios?.conIva||0,
-    alta:             document.getElementById('f-publicar').value==='1',
+    imagenes:          imagenes,
+    imagen_url:        imagenes[0] || '',
+    alta:              document.getElementById('f-publicar').value === '1',
   };
 }
 
 // ── VALIDAR ───────────────────────────────────────────
-function validar(datos) {
-  if (!datos.titulo_repuesto) return 'El nombre/título del repuesto es obligatorio.';
-  if (!datos.categoria)       return 'Seleccioná una categoría.';
-  if (!datos.precio_costo)    return 'Ingresá el precio de costo.';
+function validar(d) {
+  if (!d.titulo_repuesto) return 'El nombre/título del repuesto es obligatorio.';
+  if (!d.categoria)       return 'Seleccioná una categoría.';
+  if (!d.precio_costo)    return 'Ingresá el precio de costo.';
   return null;
 }
 
+// ── LIMPIAR ───────────────────────────────────────────
+window.limpiarFormulario = () => {
+  document.querySelectorAll('.form-input,.form-select').forEach(el => {
+    if (el.type==='number') el.value = el.id==='f-stock'?'1':el.id==='f-stock-min'?'1':el.id==='f-ganancia-pct'?'40':'';
+    else if (!['f-publicar','f-forma-pago','f-forma-entrega','f-moneda'].includes(el.id)) el.value='';
+  });
+  document.getElementById('f-descripcion').innerHTML = '';
+  document.getElementById('f-notas').innerHTML = '';
+  document.getElementById('f-tipo').value = 'ORIGINAL';
+  document.getElementById('f-condicion').value = 'NUEVO';
+  selectTipo('ORIGINAL');
+  document.querySelectorAll('.cond-opt').forEach((e,i) => e.classList.toggle('selected', i===0));
+  document.querySelectorAll('.mc-opt').forEach(e => { e.classList.remove('selected'); e.querySelector('input').checked=false; });
+  document.getElementById('img-grid').innerHTML = '';
+  document.getElementById('marca-modelo-wrap').innerHTML = '';
+  document.getElementById('codigos-wrap').innerHTML = '';
+  document.getElementById('catalogos-wrap').innerHTML = '';
+  addMarcaModelo(); addCodigoProveedor(); addCatalogo(); addImageSlot();
+  calcularPrecios();
+  if(window.toast) window.toast('Formulario limpiado','info');
+};
+
 // ── GUARDAR ───────────────────────────────────────────
 window.guardarRepuesto = async function(irALista) {
-  const datos = recolectarDatos();
-  const error = validar(datos);
+  const datos  = recolectarDatos();
+  const error  = validar(datos);
   if (error) { if(window.toast) window.toast(error,'error'); else alert(error); return; }
-  calcularPrecios();
-  datos.precio_venta     = window._precios?.sinIva||0;
-  datos.precio_venta_iva = window._precios?.conIva||0;
-
   const btn = document.getElementById('btn-guardar');
   btn.innerHTML = '<div class="spinner-inline"></div><span>Guardando...</span>';
   btn.disabled  = true;
-
-  // Llamar al guardado del padre (admin/index.html) via postMessage
+  // Guardar en Firestore via parent
+  if (window._saveRepuesto) {
+    try { await window._saveRepuesto(datos); } catch(e) { console.error(e); }
+  }
   window.parent?.postMessage({type:'save-repuesto', data: datos}, '*');
-  // También intentar guardar directo si tenemos Firestore inyectado
-  try {
-    if (window._saveRepuesto) {
-      await window._saveRepuesto(datos);
-    }
-  } catch(e) {}
-
-  setTimeout(()=>{
+  setTimeout(() => {
     btn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Guardar repuesto';
     btn.disabled  = false;
-    if (window.toast) window.toast('Repuesto guardado correctamente','success');
+    if(window.toast) window.toast('¡Repuesto guardado correctamente!','success');
     if (!irALista) limpiarFormulario();
   }, 800);
 };
