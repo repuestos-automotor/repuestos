@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Agregar Categorías Faltantes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080b12;color:#e2e8f0;font-family:'Inter',sans-serif;padding:30px;min-height:100vh}
+h1{font-size:18px;color:#60a5fa;margin-bottom:8px}
+p{font-size:13px;color:#94a3b8;margin-bottom:20px}
+.log{background:#0f1117;border:1px solid #1e2433;border-radius:10px;padding:16px;font-size:12px;font-family:monospace;line-height:2;max-height:500px;overflow-y:auto;margin-bottom:16px}
+.log .ok{color:#22c55e}.log .err{color:#ef4444}.log .info{color:#60a5fa}.log .warn{color:#f59e0b}
+.btn{background:#2563eb;color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500}
+.btn:hover{background:#1d4ed8}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.info-box{background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12px;color:#93c5fd}
+</style>
+</head>
+<body>
+<h1>➕ Agregar Categorías Faltantes a Firestore</h1>
+<p>Este script lee las categorías que ya existen en Firestore y <strong>solo agrega las que faltan</strong>. No borra ni duplica nada.</p>
+<div class="info-box">
+  ℹ️ Categorías en la lista completa: <strong>380</strong>. Se agregarán solo las que no estén ya en Firestore.
+</div>
+<div class="log" id="log"><span class="info">Listo. Presioná el botón para empezar.</span></div>
+<button class="btn" id="btn" onclick="agregarCategorias()">Agregar categorías faltantes</button>
+
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, writeBatch }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+const log = (msg, type='info') => {
+  const el = document.getElementById('log');
+  el.innerHTML += `<div class="${type}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+};
+
+// ── LISTA COMPLETA DE 380 CATEGORÍAS ──────────────────
+const TODAS = ['Abrazadera','Acoples','Alternador Completo','Alternador Completo | Bosch','Alternador Completo | Denso','Alternador Completo | Monoblock','Alternador Completo | Reparaciones','Alternador Completo | Trifásico','Alternador con Refrigeración Líquida','Alternador Despiece','Alternador Despiece | Aislaciones para Alternador','Alternador Despiece | Aislación del Rotor','Alternador Despiece | Aislante Borne B+ Positivo Alternador','Alternador Despiece | Arandela de la Tuerca del Rotor','Alternador Despiece | Arandela Ondulada Alternador','Alternador Despiece | Borne Positivo y Negativo de Alternador','Alternador Despiece | Buje Soporta Alternador','Alternador Despiece | Bujes de Plástico para Rulemanes','Alternador Despiece | Bujes Partido de Alternador','Alternador Despiece | Carbones de Alternador','Alternador Despiece | Chaveta Medialuna','Alternador Despiece | Colector de Arranque','Alternador Despiece | Conjunto Electrónico Puente Rectificador','Alternador Despiece | Conjunto Tornillos Armado Alternador','Alternador Despiece | Diodos Positivos + - Diodos Negativos -','Alternador Despiece | Espaciador','Alternador Despiece | Estator (Alternador)','Alternador Despiece | Junta Porta Escobillas Alternador','Alternador Despiece | Plaqueta Circuito Impreso','Alternador Despiece | Plaqueta Porta DIODOS | RECTIFICADORAS | Conjunto Puente Rectificador','Alternador Despiece | Polea en V','Alternador Despiece | Polea Multivia','Alternador Despiece | Poleas','Alternador Despiece | Porta Escobilla de Alternador','Alternador Despiece | Reguladores de voltaje','Alternador Despiece | Retén Alternador','Alternador Despiece | Retén Alternador 2','Alternador Despiece | Retén o Goma Tope Rulemán','Alternador Despiece | Retén Sujeta Rulemán','Alternador Despiece | Retén Sujeta Rulemán 2','Alternador Despiece | Rodamiento TEI y TEC de alternador','Alternador Despiece | Rotor Alternador','Alternador Despiece | Rulemán para Alternador','Alternador Despiece | Seguro del Rotor de Alternador','Alternador Despiece | Separador de Alternador','Alternador Despiece | Soporte Alternador','Alternador Despiece | Tapa Alternador Trasera Entremo Colector','Alternador Despiece | Tapa de Alternador Delantera','Alternador Despiece | Tapa de Alternadores','Alternador Despiece | Tapa Porta Escobillas Alternador','Alternador Despiece | Tapa Soporte Rodamiento o Tapa Retén Ruleman','Alternador Despiece | Tornillo Alternador','Alternador Despiece | Tornillo Autoroscante Alternador','Alternador Despiece | Tornillo Renté','Alternador Despiece | Tornillo Sujeta Alternador','Alternador Despiece | Tornillos Armados para Alternador','Alternador Despiece | Tornillos Pasante Alternador','Alternador Despiece | Traba Porta Escobillas Alternador','Alternador Despiece | Tuerca - Tornillo - Arandela Aislante - Aislante - Terminal de Conexion - Tornillo Borne w','Alternador Despiece | Tuerca del rotor','Arandela Aluminio','Arandela de Plástico Nylon','Arandela Hierro','Arandelas de Hierro','Aro Bocina','Aros Opticas','Arranque BNG | Arandela de bronce','Arranque Despice | Seguro Tipo U Freno','Arranque Despiece','Arranque Despiece BNG | Borne Potencia Curvo','Arranque Despiece | Aislante Carcaza','Arranque Despiece | Aislante de Carcaza','Arranque Despiece | Anillo Seguer Seguro de Bobina','Arranque Despiece | Arandela Cónica de Hierro Freno','Arranque Despiece | Arandela de Freno','Arranque Despiece | Arandela de Freno Picadillo','Arranque Despiece | Arandela de Plástico para Impulsor de Arranque','Arranque Despiece | Arandela Fibra Freno EJD Bosch Brasil','Arranque Despiece | Arandela Freno Baquelita','Arranque Despiece | Arandela Hierro Doble pestaña de Freno','Arranque Despiece | Arandela Hierro EJD Bosch','Arranque Despiece | Arandela Hierro Freno Lado Colector Bosch JF','Arranque Despiece | Arandela Micarta Lado Colector','Arranque Despiece | Arandela Traba Impulsor de Arranque','Arranque Despiece | BAKELITA Porta escobilla','Arranque Despiece | Barrilito','Arranque Despiece | Barrilito Impulsor de Arranque','Arranque Despiece | BNG','Arranque Despiece | Borne de Maza de la Tapa del Solenoide','Arranque Despiece | Campos de Arranque','Arranque Despiece | Capuchón Goma Salida de Campo','Arranque Despiece | Capuchón Porta Escobilla o Carbón','Arranque Despiece | Carbones de Arranque','Arranque Despiece | Carcasa de Arranque','Arranque Despiece | Carcaza','Arranque Despiece | Chaveta Campana Impulsor','Arranque Despiece | Chavetas Varias','Arranque Despiece | Cinta para Campos','Arranque Despiece | Colectores Bobina de Arranque','Arranque Despiece | Collares y Seguros','Arranque Despiece | Contactor de Arranque','Arranque Despiece | Cubre Impulsor de Arranque o Tapa de Arranque','Arranque Despiece | Engranaje de Planetarios','Arranque Despiece | Engranajes','Arranque Despiece | Espina Tuerca Tope Impulsor','Arranque Despiece | Goma Aislación Planetario','Arranque Despiece | Goma Antivibradora Planetario','Arranque Despiece | Goma de Cierre','Arranque Despiece | Goma de Salida de Campo','Arranque Despiece | Goma Planetario','Arranque Despiece | Goma Salida de Campo','Arranque Despiece | Gomas Aislación Salida de Campo','Arranque Despiece | Impulsor Motor de Arranque','Arranque Despiece | Inducidos de Arranque - Bobina de Arranque','Arranque Despiece | Juego de Aislaciones Carcaza','Arranque Despiece | Juego de Aislación Carcaza','Arranque Despiece | Juego de Arandelas y Frenos','Arranque Despiece | Juego de Buje Salida de Arranque','Arranque Despiece | Juego de Goma Planetario','Arranque Despiece | Juego de Retén de Piñon','Arranque Despiece | Juego Juntas Cierre Tapa','Arranque Despiece | Juego para Reparar Tapa Porta Escobillas o Carbones','Arranque Despiece | Juego Retenes de Goma Tornillos Pasantes','Arranque Despiece | Junta Tapa Guardapolvo','Arranque Despiece | Junta Tapa Solenoide','Arranque Despiece | Masa Polar','Arranque Despiece | ORing de Cierre Tapa Intermedia','Arranque Despiece | Planetario','Arranque Despiece | Planetario con Eje Reductor y Engranajes','Arranque Despiece | Planetario de Arranque','Arranque Despiece | Porta Escobilla o Carbones Solo','Arranque Despiece | Porta Escobillas o Carbones Completo','Arranque Despiece | Porta Escobillas o Carbones Supresor de Ruido','Arranque Despiece | Relé o Solenoide','Arranque Despiece | Resorte Barrilito','Arranque Despiece | Resorte Porta Escobilla o Carbón','Arranque Despiece | Resortes Varios Porta Escobillas o Carbones','Arranque Despiece | Retén Tapa Intermedia','Arranque Despiece | Salidas y Mallas de Arranque','Arranque Despiece | Seguro Traba Inducido','Arranque Despiece | Seguros de Bobina de Arranque','Arranque Despiece | Solenoide de Arranque Tipo Bosch','Arranque Despiece | Solenoide o Automático - Bendix - Relé de Engrane - Relé de Arranque - Chanchito','Arranque Despiece | Solenoide | Contacto Solenoide','Arranque Despiece | Solenoide | Pistón de Solenoide','Arranque Despiece | Solenoide | Puente Cobre de Solenoide','Arranque Despiece | Solenoide | Registros de Solenoide','Arranque Despiece | Solenoide | Tapón Registro de solenoide arranque','Arranque Despiece | Solenoide | Tornillo Registro de solenoide de Arranque','Arranque Despiece | Suncho Arranque','Arranque Despiece | Suplemento de Arranque','Arranque Despiece | Suplementos de Arranque','Arranque Despiece | Tacos de Goma Salida de Campos','Arranque Despiece | Tapa de Solenoide','Arranque Despiece | Tapa Intermedia','Arranque Despiece | Tapa Porta Carbon de Arranque','Arranque Despiece | Tapa Portaescobillas','Arranque Despiece | Tapa Retén Piñon Arranque','Arranque Despiece | Tope Impulsor','Arranque Despiece | Tornillo de Masa Polar','Arranque Despiece | Tornillo Freno Arranque con Rosca Giro Izquierdo','Arranque Despiece | Tornillo Pasante de Arranque','Arranque Despiece | Tornillo Sujeta Solenoide','Arranque Despiece | Traba Inducido','Arranque Despiece | Tuerca Bonina','Arranque Despiece | Tuerca y Seguro de Eje Tensor','Arranque FKB -','Arranque FKB | Arandela de Tope','Arranque FKB | Arandela Deflectora de Piñón','Arranque FKB | Chaveta Plana Eje Lado Piñón','Arranque FKB | Eje Tensor Largo Corto Mediano','Arranque | Horquilla de Mando Arranque','Arranque | Horquilla de Mando Sola','Arranque | Motor de Arranque','Arranque | Patines de Horquilla de Mando','Arranque | Patines Horquilla de Mando','Arranque | Perno y Trabas de Horquilla de Mando','Arranque | Pivote Plástico de Horquilla','Arranque | Porta Patines de Horquilla de Mando','Arranque | Reparaciones','Arranque | Trabas y Pivote y de Metal de Horquilla','Barreros | Goma para Barro','Bateria | Borne 1056 Plomo Antimonioso','Bateria | Borne 1500 Bronce','Bateria | Borne 1700 Bronce','Bateria | Borne 1800 Bronce','Bateria | Borne 1856 Plomo Antimonioso','Bateria | Borne 1900 Plomo Antimonioso','Bateria | Borne 2005 Bronce','Bateria | Borne 2006 Bronce','Bateria | Borne 2056 Plomo Antimonioso','Bateria | Borne 2100 Bronce','Bateria | Carga de Baterías','Bateria | Cargadores de Baterías','Bateria | Clips de Baterias','Bateria | Corta Corriente','Bateria | Corta Corriente Sobre Batería','Bateria | Nuevas','Bateria | Pinza Puente','Bateria | Servicio de Carga de Bateria','Batería | Bornes','Bobina de Ignición','Bobina de Ignición o Resistores','Bocinas','Bomba de Combustible Mecánica y Eléctrica','Bomba de Inyección | Solenoide de Pare','Buje Centrador','Bujes','Bujía Post-Calentamiento','Bujías de Encendido','Bujías de Pre-Calentamiento','Bulbo de Aceite','Bulbo de Electroventilador','Bulbo de Temperatura','Bulbo Marcha Atrás','Bulbos | Interruptores, Bulbos','Bulones Tuercas Arandelas','Cable | Espaguetti Termocontraible','Cable | Espaguettis','Cable | Instalaciones Eléctricas, Elementos para','Cables','Capuchón Tapa Goma Óptica','Carbones o Escobillas de arranque y Alternador','Cerradura','Cerraduras','Cinta Aislante','Conmutador de Luces, Giros y Limpiaparabrisas','Contactores','Correa','Distribuidor Despiece | Avance Al Vacio','Distribuidor Despiece | Cable de Bujía','Distribuidor Despiece | Cables de Bujías','Distribuidor Despiece | Captor','Distribuidor Despiece | Condensadores','Distribuidor Despiece | Placa Electrónica con Captor Hall','Distribuidor Despiece | Platinos','Distribuidor Despiece | Rotor','Distribuidor Despiece | Tapa','Distribuidor | Completo','Distribuidor | Despiece','Dínamo','Electroventilador','Electroventilador | Resistencia','Electroventilador | Resistencia Electroventilador','Electroventilador | Soporte','Electroventiladores, y Paletas','Emuladores','Encendedor de Cigarrillos automático','Escobillas','Estaño y Estañolín','Faros BAIML','Faros GAMA','Faros y Lentes Marcas','Faros | Circuito Impreso','Faros | Lente BAIML','Ficha | Caja Fusibleras','Ficha | Conectores Inyectados','Ficha | Conectores Linea Pesada','Ficha | Conectores para Armar','Ficha | Conectores para Trailers','Ficha | Contactores Inyección Electrónica','Ficha | Enchufes de Acoplados, Motorhome.','Ficha | Fusible | 1 Amper','Ficha | Fusible | 2 Amper','Ficha | Fusible | 4 Amper','Ficha | Fusible | 5 Amper','Ficha | Fusible | Maxi 100 Amper','Ficha | Fusible | Maxi 20 Amper','Ficha | Fusible | Maxi 30 Amper','Ficha | Fusible | Maxi 40 Amper','Ficha | Fusible | Maxi 50 Amper','Ficha | Fusible | Maxi 60 Amper','Ficha | Fusible | Maxi 70 Amper','Ficha | Fusible | Maxi 80 Amper','Ficha | Fusible | Muela Macho 100 Amper','Ficha | Fusible | Muela Macho 30 Amper','Ficha | Fusible | Muela Macho 40 Amper','Ficha | Fusible | Muela Macho 50 Amper','Ficha | Fusible | Muela Macho 60 Amper','Ficha | Fusible | Muela Macho 80 Amper','Ficha | Fusibles','Ficha | Fusibles | Cónico Europeo','Ficha | Fusibles | Desnudo','Ficha | Fusibles | Fusible Ficha','Ficha | Fusibles | Mega 100 Amper','Ficha | Fusibles | Mega 150 Amper','Ficha | Fusibles | Mega 175 Amper','Ficha | Fusibles | Mega 200 Amper','Ficha | Fusibles | Mega 225 Amper','Ficha | Fusibles | Mega 250 Amper','Ficha | Fusibles | Mega 300 Amper','Ficha | Fusibles | Mega 350 Amper','Ficha | Fusibles | Mega 400 Amper','Ficha | Fusibles | Mega Mini','Ficha | Fusibles | Mini 10 Amper','Ficha | Fusibles | Mini 15 Amper','Ficha | Fusibles | Mini 2 Amper','Ficha | Fusibles | Mini 20 Amper','Ficha | Fusibles | Mini 25 Amper','Ficha | Fusibles | Mini 3 Amper','Ficha | Fusibles | Mini 30 Amper','Ficha | Fusibles | Mini 35 Amper','Ficha | Fusibles | Mini 4 Amper','Ficha | Fusibles | Mini 5 Amper','Ficha | Fusibles | Mini 7.5 Amper','Ficha | Fusibles | Pal Clip','Ficha | Fusibles | Pal Clip Mini','Ficha | Fusibles | Pal Hembra','Ficha | Fusibles | Pal Hembra Micro','Ficha | Fusibles | Pal Hembra Mini','Ficha | Fusibles | Pal Hembra Mini Perfil Bajo','Ficha | Fusibles | Pal Macho','Ficha | Fusibles | Pal Macho 48','Ficha | Fusibles | Pal Macho 62','Ficha | Fusibles | Vidrio','Ficha | Porta Fusibles','Ficha | Ramal Bomba Combustible','Ficha | Tablero - Mazos de Conexión','Ficha | Terminales','Ficha | Terminales de Instalación de Bronce','Ficha | Terminales de Instalación para Cables','Fichas para portalámparas','Flotantes','Hélices','Instrumental Relojes','Llave | Cortacorriente','Llave | Llave Anti Robo','Llave | Llave Conmutador Interruptor Comando Luces','Llave | Llave Contacto y Luces Universal','Llave | Llave Cromada','Llave | Llave de Contacto','Llave | Llave de Luces Volante','Llave | Llave de Precalentamiento y Arranque Universal','Llave | Llave Inversora Tablero','Llave | Llave Limpia Parabrizas','Llave | Llave un Punto Tablero','Luces | Cambio de Luz de Piso','Luces | Destelladores','Luces | Luz Led Piloto Indicador Testigo','Luces | Luz Piloto Testigo','Luces | Luz Piloto | LED','Luces | Portátiles','Luces | Volante | Plaqueta de Giro | Interruptor Direccional','Lámpara | Lampara Tablero','Lámpara | Lampara Tablero | LED','Lámpara | Lamparitas para Tableros','Lámpara | Lámpara Portátil','Lámpara | Lámparas','Lámpara | Porta Lampara Metal','Lámpara | Porta Lampara Plastico','Lámpara | Portalampara de Tablero','Lámpara | Portalampara | Chicote','Lámpara | Portalámparas Metálicos','Lámpara | Portalámparas Plásticos','Módulo | Modulo de Encendido','Módulo | Módulos de Ignición','Módulo | Precalentador','Opticas | Livianos | Pesados | Deportivos | Público','Parrilla','Parrilla | Insignia Parrilla o Logo','Poleas','Precinto Plástico','Relay | Minis Relays | Micro Relay DE ENCENDIDO','Resorte | Resorte Bulbo de Freno','Resorte | Resorte de Acelerador','Resorte | Resorte de Ópticas','Resorte | Resorte Impulsor','Ruleman | Alternador - Arranque - Otros','Sensores','Soldador de Estaño','Tecla Llave un Punto Metal','Tecla o Interruptores','Tecla o Llave de Punto','Teclas','Teclas | Teclas y Módulos','Temporizadores','Terminal de Cobre para Cable','Terminal de Cobre Reforzado Estaño para Cable','Termostatos','Varios'];
+
+window.agregarCategorias = async function() {
+  const btn = document.getElementById('btn');
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+
+  try {
+    // 1. Leer las que ya existen en Firestore
+    log('→ Leyendo categorías existentes en Firestore...', 'info');
+    const snap = await getDocs(collection(db, 'categorias'));
+    const existentes = new Set();
+    snap.forEach(d => {
+      const n = d.data().nombre;
+      if (n) existentes.add(n.trim());
+    });
+    log(`✓ Encontradas ${existentes.size} categorías existentes`, 'ok');
+
+    // 2. Filtrar las que faltan
+    const faltantes = TODAS.filter(c => !existentes.has(c));
+    log(`→ Faltan agregar: ${faltantes.length} categorías`, faltantes.length > 0 ? 'warn' : 'ok');
+
+    if (faltantes.length === 0) {
+      log('✅ ¡Todo ya está actualizado! No hay nada que agregar.', 'ok');
+      btn.textContent = '✅ Ya estaba actualizado';
+      btn.style.background = '#22c55e';
+      return;
+    }
+
+    // 3. Agregar las faltantes en batches de 450
+    let idx = existentes.size; // orden empieza después de las existentes
+    let agregadas = 0;
+    for (let i = 0; i < faltantes.length; i += 450) {
+      const chunk = faltantes.slice(i, i + 450);
+      const batch = writeBatch(db);
+      for (const cat of chunk) {
+        const ref = doc(collection(db, 'categorias'));
+        const partes = cat.split(' | ');
+        batch.set(ref, {
+          nombre:        cat,
+          nombre_base:   partes[0],
+          sub_categoria: partes[1] || '',
+          activo:        true,
+          orden:         idx++,
+          aumento_x_cat: 0,
+          imagen_url:    ''
+        });
+        agregadas++;
+      }
+      await batch.commit();
+      log(`  → Batch guardado: ${Math.min(i + 450, faltantes.length)} / ${faltantes.length}`, 'info');
+    }
+
+    log(`✅ ¡Listo! Se agregaron ${agregadas} categorías nuevas.`, 'ok');
+    log(`📊 Total en Firestore ahora: ${existentes.size + agregadas}`, 'ok');
+    btn.textContent = `✅ ${agregadas} categorías agregadas`;
+    btn.style.background = '#22c55e';
+
+  } catch(e) {
+    log(`❌ Error: ${e.message}`, 'err');
+    console.error(e);
+    btn.disabled = false;
+    btn.textContent = 'Reintentar';
+  }
+};
+</script>
+</body>
+</html>
