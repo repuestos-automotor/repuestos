@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar MySQL → Firestore v2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 24px; }
+  h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
+  .card { background: #1e2130; border: 1px solid #2d3347; border-radius: 12px; padding: 22px; margin-bottom: 18px; }
+  .card h2 { font-size: 15px; font-weight: 600; color: #94a3b8; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-done { background: #22c55e !important; }
+  .drop-zone { border: 2px dashed #334155; border-radius: 8px; padding: 36px; text-align: center; cursor: pointer; transition: all .2s; }
+  .drop-zone:hover, .drop-zone.over { border-color: #3b82f6; background: rgba(59,130,246,.06); }
+  .drop-zone p { color: #64748b; font-size: 14px; margin-top: 8px; }
+  .drop-zone .icon { font-size: 32px; }
+  input[type=file] { display: none; }
+  .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-blue { background: #3b82f6; color: #fff; }
+  .btn-green { background: #22c55e; color: #fff; }
+  .btn-red { background: #ef4444; color: #fff; }
+  .btn-amber { background: #f59e0b; color: #000; }
+  .btn:not(:disabled):hover { opacity: .85; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 14px; }
+  .stat { background: #151822; border-radius: 8px; padding: 14px; text-align: center; }
+  .stat .n { font-size: 26px; font-weight: 700; color: #3b82f6; }
+  .stat .l { font-size: 11px; color: #64748b; margin-top: 3px; }
+  .log { background: #0d1117; border-radius: 8px; padding: 14px; max-height: 350px; overflow-y: auto; font-family: monospace; font-size: 12px; line-height: 1.7; }
+  .log .ok   { color: #22c55e; }
+  .log .err  { color: #ef4444; }
+  .log .inf  { color: #94a3b8; }
+  .log .warn { color: #f59e0b; }
+  .progress-wrap { background: #151822; border-radius: 100px; height: 10px; margin-top: 12px; overflow: hidden; }
+  .progress-bar  { height: 100%; background: linear-gradient(90deg, #3b82f6, #22c55e); border-radius: 100px; transition: width .3s; }
+  .section-title { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+  .warning-box { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.3); border-radius: 8px; padding: 14px; font-size: 13px; color: #fbbf24; margin-bottom: 14px; }
+  .info-box { background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.3); border-radius: 8px; padding: 14px; font-size: 13px; color: #93c5fd; margin-bottom: 14px; }
+  .checkbox-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #94a3b8; margin-bottom: 10px; }
+  .checkbox-row input { width: 16px; height: 16px; accent-color: #3b82f6; }
+  select, input[type=text] { background: #151822; border: 1px solid #2d3347; border-radius: 6px; color: #e2e8f0; padding: 8px 12px; font-size: 13px; width: 100%; margin-bottom: 10px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  label { font-size: 12px; color: #64748b; display: block; margin-bottom: 4px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+  .badge-ok   { background: rgba(34,197,94,.15); color: #22c55e; }
+  .badge-warn { background: rgba(245,158,11,.15); color: #f59e0b; }
+  .badge-err  { background: rgba(239,68,68,.15); color: #ef4444; }
+  .flex-gap { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .summary-table th { text-align: left; padding: 6px 10px; color: #64748b; font-weight: 600; border-bottom: 1px solid #2d3347; }
+  .summary-table td { padding: 7px 10px; border-bottom: 1px solid #1a1f2e; color: #e2e8f0; }
+  .issues-list { font-size: 12px; color: #f59e0b; margin-top: 10px; background: rgba(245,158,11,.05); border-radius: 6px; padding: 10px 14px; line-height: 2; }
+</style>
+</head>
+<body>
+
+<h1>🔄 Importar MySQL → Firestore <span style="font-size:14px;color:#22c55e;font-weight:400">v2 — corregido</span></h1>
+<p class="sub">Corrige: encoding latin1/utf-8 · HTML en descripción/notas · categorías por nombre · marcas vehículo · tipo vehículo · campo tipo/condición en MAYÚSCULAS</p>
+
+<!-- PASO 1: Cargar SQL -->
+<div class="card" id="card-step1">
+  <h2><span class="step-num" id="snum1">1</span> Cargar archivo SQL exportado de phpMyAdmin</h2>
+
+  <div class="info-box">
+    ℹ️ Este importador necesita <strong>dos archivos SQL</strong>: el de repuestos (<code>repuestos_pa</code>) y el de tablas relacionadas (categorías, marcas, estanterías). Si exportaste todo junto, cargá ese archivo primero. Si no tenés las tablas relacionadas, el importador las detecta y avisa.
+  </div>
+
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="icon">📂</div>
+    <strong id="drop-title">Arrastrá tu archivo .sql aquí</strong>
+    <p>o hacé clic para seleccionarlo · se puede cargar uno de repuestos y uno de tablas relacionadas</p>
+  </div>
+  <input type="file" id="fileInput" accept=".sql,.txt" multiple>
+
+  <div id="parse-result" style="display:none; margin-top:14px;">
+    <div class="stats" id="stats-area"></div>
+    <div class="issues-list" id="issues-list" style="display:none"></div>
+  </div>
+</div>
+
+<!-- PASO 2: Opciones -->
+<div class="card" id="card-step2" style="opacity:.4; pointer-events:none;">
+  <h2><span class="step-num" id="snum2">2</span> Opciones de importación</h2>
+
+  <div class="warning-box" id="warn-existentes">
+    ⚠️ Cargá el SQL para ver cuántos repuestos ya hay en Firestore.
+  </div>
+
+  <div class="section-title">Repuestos (colección "repuestos")</div>
+  <label>
+    <select id="opt-repuestos">
+      <option value="add">✅ Agregar los del SQL sin tocar los existentes (RECOMENDADO)</option>
+      <option value="skip">Saltear si el código interno ya existe</option>
+      <option value="replace">⚠️ Reemplazar todo (BORRA los existentes)</option>
+    </select>
+  </label>
+
+  <div class="section-title" style="margin-top:6px;">Otras colecciones</div>
+  <div class="checkbox-row">
+    <input type="checkbox" id="opt-categorias" checked>
+    <span>Importar <strong>categorías</strong> (repuestos_cat)</span>
+  </div>
+  <div class="checkbox-row">
+    <input type="checkbox" id="opt-marcas-veh" checked>
+    <span>Importar <strong>marcas de vehículo</strong> (repuestos_marcas)</span>
+  </div>
+  <div class="checkbox-row">
+    <input type="checkbox" id="opt-marcas-rep" checked>
+    <span>Importar <strong>marcas de repuesto</strong> (rep_marcas_rep)</span>
+  </div>
+  <div class="checkbox-row">
+    <input type="checkbox" id="opt-estanterias" checked>
+    <span>Importar <strong>estanterías y estantes</strong></span>
+  </div>
+
+  <div class="section-title" style="margin-top:10px;">Filtro</div>
+  <div class="row2">
+    <div>
+      <label>Publicados</label>
+      <select id="opt-publicados">
+        <option value="all">Todos (publicados y no publicados)</option>
+        <option value="only">Solo publicados (publicado = 1)</option>
+      </select>
+    </div>
+    <div>
+      <label>Precio mínimo de venta (0 = sin filtro)</label>
+      <input type="text" id="opt-precio-min" value="0" placeholder="Ej: 1000">
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:10px;">Opciones de texto</div>
+  <div class="checkbox-row">
+    <input type="checkbox" id="opt-strip-html" checked>
+    <span>Convertir HTML de descripción/notas a texto plano (quitar tags, decodificar entidades)</span>
+  </div>
+  <div class="checkbox-row">
+    <input type="checkbox" id="opt-fix-encoding" checked>
+    <span>Corregir encoding latin1/utf-8 (Ã¡→á, Ã±→ñ, etc.)</span>
+  </div>
+
+  <div class="flex-gap" style="margin-top:12px;">
+    <button class="btn btn-blue" id="btn-preview" onclick="doPreview()">👁️ Vista previa</button>
+  </div>
+
+  <div id="preview-area" style="display:none; margin-top:16px;">
+    <div class="section-title">Resumen de lo que se va a importar</div>
+    <table class="summary-table">
+      <thead><tr><th>Colección Firestore</th><th>Registros</th><th>Acción</th></tr></thead>
+      <tbody id="preview-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PASO 3: Importar -->
+<div class="card" id="card-step3" style="opacity:.4; pointer-events:none;">
+  <h2><span class="step-num" id="snum3">3</span> Ejecutar importación</h2>
+
+  <div class="flex-gap" style="margin-bottom:14px;">
+    <button class="btn btn-green" id="btn-import" onclick="doImport()" disabled>🚀 Iniciar importación</button>
+    <button class="btn btn-red" id="btn-stop" onclick="stopImport()" style="display:none;">⏹ Detener</button>
+    <span id="import-status" style="font-size:13px; color:#64748b;"></span>
+  </div>
+
+  <div class="progress-wrap" style="display:none;" id="prog-wrap">
+    <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+  </div>
+
+  <div class="log" id="log-area" style="margin-top:14px;">
+    <span class="inf">— Esperando para iniciar —</span>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, serverTimestamp, query, where }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── Estado global ──────────────────────────────────────────────────────
+let parsedData = { repuestos:[], categorias:[], marcasVeh:[], marcasRep:[], estanterias:[], estantes:[] };
+let stopFlag = false;
+
+// ── Log ───────────────────────────────────────────────────────────────
+function log(msg, cls='inf') {
+  const el = document.getElementById('log-area');
+  el.innerHTML += `<div class="${cls}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog() { document.getElementById('log-area').innerHTML = ''; }
+function setProgress(pct) { document.getElementById('prog-bar').style.width = pct + '%'; }
+
+// ══════════════════════════════════════════════════════════════════════
+// CORRECCIÓN DE ENCODING
+// phpMyAdmin exporta con SET NAMES utf8mb4 pero los datos originales
+// estaban en latin1 → los bytes de acentos quedaron doblemente codificados.
+// Ej: "á" en latin1 = 0xE1 → interpretado como utf8 → "Ã¡"
+// ══════════════════════════════════════════════════════════════════════
+function fixEncoding(str) {
+  if (!str || typeof str !== 'string') return str;
+  // Tabla de reemplazos más comunes (latin1 mal interpretado como utf8)
+  return str
+    .replace(/Ã¡/g,'á').replace(/Ã©/g,'é').replace(/Ã­/g,'í').replace(/Ã³/g,'ó').replace(/Ãº/g,'ú')
+    .replace(/Ã\x81/g,'Á').replace(/Ã\x89/g,'É').replace(/Ã\x8d/g,'Í').replace(/Ã\x93/g,'Ó').replace(/Ã\x9a/g,'Ú')
+    .replace(/Ã±/g,'ñ').replace(/Ã\x91/g,'Ñ')
+    .replace(/Ã¼/g,'ü').replace(/Ã¶/g,'ö').replace(/Ã¤/g,'ä')
+    .replace(/â€"/g,'–').replace(/â€"/g,'—').replace(/â€œ/g,'"').replace(/â€/g,'"')
+    .replace(/Â°/g,'°').replace(/Â¿/g,'¿').replace(/Â¡/g,'¡')
+    .replace(/Â·/g,'·').replace(/Â½/g,'½').replace(/Â²/g,'²').replace(/Â³/g,'³')
+    // Variantes adicionales
+    .replace(/Ã\x80/g,'À').replace(/Ã\x88/g,'È').replace(/Ã\x8c/g,'Ì').replace(/Ã\x92/g,'Ò').replace(/Ã\x99/g,'Ù')
+    .replace(/Ã\xa0/g,'à').replace(/Ã\xa8/g,'è').replace(/Ã\xac/g,'ì').replace(/Ã\xb2/g,'ò').replace(/Ã\xb9/g,'ù');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// LIMPIEZA DE HTML
+// descripcion y notas vienen con HTML completo incluyendo <p>, <img>,
+// &nbsp;, entidades HTML, etc. Convertimos a texto plano legible.
+// ══════════════════════════════════════════════════════════════════════
+function stripHTML(str) {
+  if (!str || typeof str !== 'string') return '';
+
+  let s = str;
+
+  // 1. Decodificar escapes del SQL (\\r\\n → \n)
+  s = s.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\\r/g, '\n');
+  s = s.replace(/\\"/g, '"').replace(/\\'/g, "'").replace(/\\\\/g, '\\');
+
+  // 2. Entidades HTML comunes
+  s = s.replace(/&nbsp;/gi, ' ')
+       .replace(/&amp;/gi, '&')
+       .replace(/&lt;/gi, '<')
+       .replace(/&gt;/gi, '>')
+       .replace(/&quot;/gi, '"')
+       .replace(/&#39;/gi, "'")
+       .replace(/&aacute;/gi,'á').replace(/&eacute;/gi,'é').replace(/&iacute;/gi,'í')
+       .replace(/&oacute;/gi,'ó').replace(/&uacute;/gi,'ú')
+       .replace(/&Aacute;/gi,'Á').replace(/&Eacute;/gi,'É').replace(/&Iacute;/gi,'Í')
+       .replace(/&Oacute;/gi,'Ó').replace(/&Uacute;/gi,'Ú')
+       .replace(/&ntilde;/gi,'ñ').replace(/&Ntilde;/gi,'Ñ')
+       .replace(/&uuml;/gi,'ü').replace(/&ouml;/gi,'ö').replace(/&#\d+;/gi, '');
+
+  // 3. Reemplazar <br>, </p>, </li> por saltos de línea
+  s = s.replace(/<br\s*\/?>/gi, '\n')
+       .replace(/<\/p>/gi, '\n')
+       .replace(/<\/li>/gi, '\n')
+       .replace(/<\/tr>/gi, '\n')
+       .replace(/<\/h[1-6]>/gi, '\n')
+       .replace(/<\/div>/gi, '\n');
+
+  // 4. Quitar todas las tags restantes
+  s = s.replace(/<[^>]+>/g, '');
+
+  // 5. Limpiar líneas vacías múltiples y espacios
+  s = s.split('\n').map(l => l.trim()).filter(l => l && l !== '&nbsp;' && l !== ' ').join('\n');
+
+  // 6. Quitar textos basura típicos del sistema viejo
+  s = s.replace(/\s*<br \/>\s*\\r\\n\s*<b>Notice<\/b>[^<]*/gi, '');
+
+  return s.trim();
+}
+
+// Decide si aplicar stripHTML según opción del usuario
+function processText(str) {
+  if (!str) return '';
+  let s = String(str);
+  const fixEnc = document.getElementById('opt-fix-encoding').checked;
+  const stripHtml = document.getElementById('opt-strip-html').checked;
+  if (fixEnc) s = fixEncoding(s);
+  if (stripHtml) s = stripHTML(s); else {
+    // Al menos decodificar escapes del SQL
+    s = s.replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\"/g,'"');
+  }
+  return s;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PARSER SQL
+// ══════════════════════════════════════════════════════════════════════
+function splitValues(str) {
+  const parts = [];
+  let depth = 0, inStr = false, cur = '', i = 0;
+  while (i < str.length) {
+    const ch = str[i];
+    if (ch === "'" && !inStr) { inStr = true; cur += ch; }
+    else if (ch === "'" && inStr) {
+      // escaped quote: '' o \'
+      if (str[i+1] === "'") { cur += "'"; i++; }
+      else { inStr = false; cur += ch; }
+    }
+    else if (ch === '\\' && inStr) {
+      // secuencia de escape dentro de string
+      i++;
+      const nc = str[i] || '';
+      if (nc === 'n') cur += '\n';
+      else if (nc === 'r') cur += '\r';
+      else if (nc === 't') cur += '\t';
+      else if (nc === "'") cur += "'";
+      else if (nc === '\\') cur += '\\';
+      else if (nc === '"') cur += '"';
+      else cur += nc;
+    }
+    else if (!inStr && ch === '(') { depth++; cur += ch; }
+    else if (!inStr && ch === ')') { depth--; cur += ch; }
+    else if (!inStr && ch === ',' && depth === 0) { parts.push(cur.trim()); cur = ''; }
+    else cur += ch;
+    i++;
+  }
+  if (cur.trim()) parts.push(cur.trim());
+  return parts;
+}
+
+function extractTable(sql, tableName) {
+  const rows = [];
+  const blockRe = new RegExp(
+    `INSERT INTO \`${tableName}\` \\(([^)]+)\\) VALUES\\s*\\n?([\\s\\S]*?);\\s*\\n(?:--|INSERT|ALTER|COMMIT|$)`,
+    'g'
+  );
+  let m;
+  while ((m = blockRe.exec(sql)) !== null) {
+    const cols = m[1].split(',').map(c => c.trim().replace(/`/g,''));
+    const valsPart = m[2];
+    // Cada fila empieza con ( al inicio del bloque o después de ),\n
+    const rawRows = valsPart.split(/\n\(/);
+    rawRows.forEach((rawRow, ri) => {
+      let rowStr = rawRow.replace(/^\(/, '').replace(/\),?\s*$/, '').replace(/\);?\s*$/, '');
+      const vals = splitValues(rowStr);
+      if (vals.length !== cols.length) return;
+      const obj = {};
+      cols.forEach((c, i) => {
+        let v = vals[i].trim();
+        if (v === 'NULL') v = null;
+        else if (v.startsWith("'") && v.endsWith("'")) v = v.slice(1,-1);
+        else if (!isNaN(v) && v !== '') v = Number(v);
+        obj[c] = v;
+      });
+      rows.push(obj);
+    });
+  }
+  return rows;
+}
+
+function parseSQL(sql) {
+  const result = { repuestos:[], categorias:[], marcasVeh:[], marcasRep:[], estanterias:[], estantes:[] };
+  result.repuestos   = extractTable(sql, 'repuestos_pa');
+  result.categorias  = extractTable(sql, 'repuestos_cat');
+  result.marcasVeh   = extractTable(sql, 'repuestos_marcas');
+  result.marcasRep   = extractTable(sql, 'rep_marcas_rep');
+  result.estanterias = extractTable(sql, 'repuestos_estanteria');
+  result.estantes    = extractTable(sql, 'repuestos_estantes');
+  return result;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// MAPEO id_vehiculo → texto
+// Basado en los valores reales encontrados en tu BD:
+// 1=Auto, 2=Bus, 3=Camión, 5=Pick Up, 7=Tractor, 9=Universal/Todos
+// También acepta texto directo ("Automovil", "Camion")
+// ══════════════════════════════════════════════════════════════════════
+const TIPO_VEH_MAP = {
+  '1': 'Auto', '2': 'Bus', '3': 'Camión', '4': 'Camioneta',
+  '5': 'Pick Up', '6': 'Remolque', '7': 'Tractor', '8': 'Trailer',
+  '9': 'Universal', '10': 'Jeep', '11': 'Unimog',
+  '12': 'Maquinaria Pesada', '13': 'Maquinaria Agrícola',
+  '14': 'Construcción', '15': 'Militar', '16': 'Bus',
+  // Texto directo (algunos rows lo traen así)
+  'automovil': 'Auto', 'auto': 'Auto',
+  'camion': 'Camión', 'camión': 'Camión',
+  'pickup': 'Pick Up', 'pick up': 'Pick Up',
+  'todos': 'Universal', 'universal': 'Universal',
+};
+
+function resolverTipoVeh(idVeh) {
+  if (!idVeh && idVeh !== 0) return 'Auto';
+  const s = String(idVeh).trim().toLowerCase();
+  // Si tiene HTML basura (error de PHP), es Auto por defecto
+  if (s.includes('<') || s.includes('notice') || s.includes('undefined')) return 'Auto';
+  return TIPO_VEH_MAP[s] || TIPO_VEH_MAP[String(idVeh)] || 'Auto';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RESOLUCIÓN DE CATEGORÍAS Y MARCAS
+// El problema: el SQL guarda id_categoria=103, id_marca=59 (IDs numéricos)
+// pero las tablas relacionadas (repuestos_cat, repuestos_marcas) pueden no
+// estar en el mismo archivo. Usamos dos estrategias:
+// 1. Si tenemos las tablas: hacer lookup por id_mysql
+// 2. Si no tenemos las tablas: buscar en Firebase por id_mysql
+// ══════════════════════════════════════════════════════════════════════
+let catMap = {};       // id_mysql → nombre (de Firebase o del SQL)
+let marcaVehMap = {};  // id_mysql → nombre
+let marcaRepMap = {};  // id_mysql → nombre
+
+async function buildMaps() {
+  // Categorías desde datos parseados del SQL
+  if (parsedData.categorias.length > 0) {
+    for (const c of parsedData.categorias) {
+      const id = String(c.id || c.id_cat || '');
+      const nombre = c.nombre || c.nombre_cat || c.categoria || '';
+      if (id) catMap[id] = fixEncoding(String(nombre));
+    }
+    log(`📁 Mapa categorías del SQL: ${Object.keys(catMap).length} entradas`, 'inf');
+  }
+
+  // Marcas vehículo desde datos parseados
+  if (parsedData.marcasVeh.length > 0) {
+    for (const m of parsedData.marcasVeh) {
+      const id = String(m.id || m.id_marca || '');
+      // Campo nombre puede variar según la tabla
+      const nombre = m.marca || m.marca_logo || m.nombre || m[Object.keys(m)[1]] || '';
+      if (id) marcaVehMap[id] = fixEncoding(String(nombre));
+    }
+    log(`🚗 Mapa marcas vehículo del SQL: ${Object.keys(marcaVehMap).length} entradas`, 'inf');
+  }
+
+  // Marcas repuesto desde datos parseados
+  if (parsedData.marcasRep.length > 0) {
+    for (const m of parsedData.marcasRep) {
+      const id = String(m.id || '');
+      const nombre = m.marca_rep || m.marca || m.nombre || m[Object.keys(m)[1]] || '';
+      if (id) marcaRepMap[id] = fixEncoding(String(nombre));
+    }
+    log(`🔧 Mapa marcas repuesto del SQL: ${Object.keys(marcaRepMap).length} entradas`, 'inf');
+  }
+
+  // Si no encontramos categorías en el SQL, buscar en Firebase
+  if (Object.keys(catMap).length === 0) {
+    log('⚠️ No se encontraron categorías en el SQL. Buscando en Firebase...', 'warn');
+    try {
+      const snap = await getDocs(collection(db, 'categorias'));
+      snap.forEach(d => {
+        const data = d.data();
+        if (data.id_mysql) catMap[String(data.id_mysql)] = data.nombre || '';
+      });
+      log(`📁 Categorías cargadas de Firebase: ${Object.keys(catMap).length}`, Object.keys(catMap).length ? 'ok' : 'warn');
+    } catch(e) {
+      log('❌ No se pudo cargar categorías de Firebase: ' + e.message, 'err');
+    }
+  }
+
+  // Si no encontramos marcas vehículo, buscar en Firebase
+  if (Object.keys(marcaVehMap).length === 0) {
+    log('⚠️ No se encontraron marcas de vehículo en el SQL. Buscando en Firebase...', 'warn');
+    try {
+      const snap = await getDocs(collection(db, 'marcas_vehiculo'));
+      snap.forEach(d => {
+        const data = d.data();
+        const ids = [data.id_mysql, data.id_marca_mysql].filter(Boolean);
+        ids.forEach(id => { marcaVehMap[String(id)] = data.nombre || ''; });
+      });
+      log(`🚗 Marcas vehículo de Firebase: ${Object.keys(marcaVehMap).length}`, Object.keys(marcaVehMap).length ? 'ok' : 'warn');
+    } catch(e) {
+      log('❌ Error cargando marcas vehículo: ' + e.message, 'err');
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// MAPEO repuesto MySQL → documento Firestore
+// ══════════════════════════════════════════════════════════════════════
+function mapRepuesto(r) {
+  // ── Marcas de vehículo: resolver IDs a nombres ──
+  const marcasNombres = [];
+  for (let i = 1; i <= 20; i++) {
+    const key = i === 1 ? 'id_marca' : `id_marca_${i}`;
+    const idMarca = r[key];
+    if (idMarca && idMarca !== '0' && idMarca !== 0) {
+      const nombre = marcaVehMap[String(idMarca)];
+      if (nombre) marcasNombres.push(nombre);
+      else if (String(idMarca).match(/[a-zA-Z]/)) marcasNombres.push(fixEncoding(String(idMarca)));
+      // Si no encontramos nombre y es solo número, lo dejamos como referencia
+      else marcasNombres.push(`ID:${idMarca}`);
+    }
+  }
+
+  // ── Categoría: resolver ID a nombre ──
+  const idCat = String(r.id_categoria || '');
+  const nombreCat = catMap[idCat] || (idCat && idCat !== '0' ? `cat_${idCat}` : '');
+
+  // ── Tipo vehículo ──
+  const tipoVeh = resolverTipoVeh(r.id_vehiculo);
+
+  // ── Tipo y condición: siempre MAYÚSCULAS como en tu BD original ──
+  // tipo = ORIGINAL | COPIA
+  let tipo = 'ORIGINAL';
+  if (r.tipo) {
+    const t = String(r.tipo).toUpperCase().trim();
+    if (t === 'COPIA' || t === 'ALTERNATIVO' || t === 'GENERICO') tipo = 'COPIA';
+    else tipo = 'ORIGINAL';
+  }
+
+  // condicion = NUEVO | USADO
+  let condicion = 'NUEVO';
+  if (r.condicion) {
+    const c = String(r.condicion).toUpperCase().trim();
+    if (c === 'USADO' || c.includes('USADO')) condicion = 'USADO';
+    else condicion = 'NUEVO';
+  }
+
+  // ── Textos con limpieza de HTML y encoding ──
+  const titulo    = processText(r.titulo_repuesto || r.titulo_principal || '');
+  const descripcion = processText(r.descripcion_ok || r.descripcion || '');
+  const aplicacion  = processText(r.aplicacion || '');
+  const notasRaw    = processText(r.notas || '');
+  const importante  = processText(r.importante || '');
+  const material    = processText(r.material || '');
+
+  // Filtrar notas que son solo imágenes o HTML de imágenes → las ignoramos
+  const notas = notasRaw.includes('[img]') || notasRaw.match(/^\[?img/i) ? '' : notasRaw;
+
+  // ── Códigos de proveedores ──
+  const codsFields = ['codigo_sin','codigo_zen','codigo_nosso','codigo_zm','codigo_bosch','codigo_indiel',
+    'codigo_bzm','codigo_oro','codigo_ml','codigo_dipra','codigo_hard','codigo_autolube','codigo_baiml',
+    'codigo_turi','codigo_aj','codigo_lc','codigo_genoud','codigo_dze','codigo_alfa','codigo_roher',
+    'codigo_ph','codigo_fesal','codigo_eralsa','codigo_dog','codigo_kessel','codigo_fa','codigo_corpac',
+    'codigo_autobat','codigo_veypa','codigo_daipart','codigo_hds','codigo_rotofrance','codigo_tch',
+    'codigo_portafich','codigo_omer','codigo_vuaram','codigo_byc','codigo_schunk','codigo_gv_esc',
+    'codigo_ar_gon','codigo_lorraine','codigo_zocchio','codigo_prestolite','codigo_lampara',
+    'codigo_osram','codigo_philips','codigo_ralux','codigo_rtm','codigo_mirba','codigo_valeo','codigo_bobinar'];
+  const provNames = ['SIN','ZEN','NOSSO','ZM','BOSCH','INDIEL','BZM','ORO','ML','DIPRA','HARD','AUTOLUBE',
+    'BAIML','TURI','AJ','LC','GENOUD','DZE','ALFA','ROHER','PH','FESAL','ERALSA','DOG','KESSEL','FA',
+    'CORPAC','AUTOBAT','VEYPA','DAIPART','HDS','ROTOFRANCE','TCH','PORTAFICH','OMER','VUARAM','BYC',
+    'SCHUNK','GV ESC','AR GON','LORRAINE','ZOCCHIO','PRESTOLITE','LAMPARA','OSRAM','PHILIPS','RALUX',
+    'RTM','MIRBA','VALEO','BOBINAR'];
+
+  const codigos = [];
+  codsFields.forEach((f, idx) => {
+    const v = r[f];
+    if (v && String(v).trim() !== '' && String(v).trim() !== '0') {
+      codigos.push({ proveedor: provNames[idx] || f, codigo: String(v).trim() });
+    }
+  });
+
+  // ── Marcas del repuesto (id_rep_marca 1-5) ──
+  const marcasRep = [];
+  for (let i = 1; i <= 5; i++) {
+    const key = i === 1 ? 'id_rep_marca' : `id_rep_marca_${i}`;
+    const idMR = r[key];
+    if (idMR && idMR !== '0' && idMR !== 0) {
+      const nombre = marcaRepMap[String(idMR)];
+      if (nombre) marcasRep.push(nombre);
+      else if (String(idMR).match(/[a-zA-Z]/)) marcasRep.push(fixEncoding(String(idMR)));
+    }
+  }
+  // Agregar fabricante_repuesto si no está ya
+  if (r.fabricante_repuesto && String(r.fabricante_repuesto).trim()) {
+    const fab = fixEncoding(String(r.fabricante_repuesto).trim());
+    if (!marcasRep.includes(fab)) marcasRep.push(fab);
+  }
+
+  // ── Precio ──
+  const precioCompre = parseFloat(r.precio_compre) || 0;
+  const tarifa       = parseFloat(r.tarifa)        || 0;
+
+  return {
+    // Identificación
+    titulo_repuesto:   titulo,
+    arranque:          r.arr_marca ? fixEncoding(String(r.arr_marca)) : '',
+    alternador:        r.alt_marca ? fixEncoding(String(r.alt_marca)) : '',
+    modelo_repuesto:   r.modelo    ? fixEncoding(String(r.modelo))    : '',
+    aplicacion:        aplicacion,
+
+    // Clasificación
+    tipo:              tipo,          // ORIGINAL | COPIA (campo del catálogo)
+    tipo_repuesto:     tipo,          // mismo, para compatibilidad
+    condicion:         condicion,     // NUEVO | USADO
+    tipo_vehiculo:     tipoVeh,       // texto: "Auto", "Camión", etc.
+
+    // Categoría (nombre resuelto, no ID)
+    categoria:         nombreCat,
+    id_categoria_mysql: idCat,
+
+    // Vehículos compatibles (nombres resueltos)
+    marcas_vehiculo:   marcasNombres,
+    marcas_modelos_texto: r.modelo_vehiculo ? fixEncoding(String(r.modelo_vehiculo)) : '',
+
+    // Marcas del repuesto (nombres)
+    marcas_repuesto:   marcasRep,
+    fabricante_repuesto: r.fabricante_repuesto ? fixEncoding(String(r.fabricante_repuesto)) : '',
+
+    // Códigos
+    codigos_proveedores: codigos,
+    codigo:            codigos[0]?.codigo || '',
+
+    // Ubicación
+    id_estanteria:     String(r.id_estanteria || ''),
+    id_estante:        String(r.id_estante    || ''),
+
+    // Stock y precios
+    cant_artic:        parseInt(r.cant_artic) || 0,
+    precio_costo:      precioCompre,
+    precio_venta:      tarifa,
+
+    // Textos
+    descripcion:       descripcion,
+    notas:             notas,
+    importante:        importante,
+    material:          material,
+    lado:              r.lado   ? fixEncoding(String(r.lado))   : '',
+
+    // Imágenes (las de localhost las dejamos vacías, hay importador separado para imágenes)
+    imagen_url:        '',
+    imagenes:          [],
+
+    // Estado
+    alta:              r.publicado == 1 || r.publicado === '1',
+    publicado:         r.publicado == 1,
+
+    // Metadatos de importación
+    origen:            'mysql-import-v2',
+    id_mysql:          String(r.id || ''),
+    fecha_importacion: new Date().toISOString(),
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════════════════════════════════════════════
+const dropZone  = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('over');
+  handleFiles(Array.from(e.dataTransfer.files));
+});
+fileInput.addEventListener('change', () => handleFiles(Array.from(fileInput.files)));
+
+async function handleFiles(files) {
+  if (!files.length) return;
+  document.getElementById('drop-title').textContent = `⏳ Leyendo ${files.length} archivo(s)...`;
+
+  let combinedSQL = '';
+  for (const file of files) {
+    const text = await readFileAsText(file);
+    combinedSQL += '\n' + text;
+  }
+  processSQL(combinedSQL, files.map(f=>f.name).join(' + '));
+}
+
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    // Leer como UTF-8 (el archivo real ES utf-8 aunque el encabezado diga latin1)
+    reader.onload  = e => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('Error al leer ' + file.name));
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+function processSQL(sql, filename) {
+  try {
+    parsedData = parseSQL(sql);
+    document.getElementById('drop-title').textContent = `✅ ${filename}`;
+    document.getElementById('snum1').classList.add('step-done');
+
+    const statsHTML = [
+      { n: parsedData.repuestos.length,   l: 'Repuestos' },
+      { n: parsedData.categorias.length,  l: 'Categorías' },
+      { n: parsedData.marcasVeh.length,   l: 'Marcas vehículo' },
+      { n: parsedData.marcasRep.length,   l: 'Marcas repuesto' },
+      { n: parsedData.estanterias.length, l: 'Estanterías' },
+      { n: parsedData.estantes.length,    l: 'Estantes' },
+    ].map(s => `<div class="stat"><div class="n">${s.n}</div><div class="l">${s.l}</div></div>`).join('');
+
+    document.getElementById('stats-area').innerHTML = statsHTML;
+    document.getElementById('parse-result').style.display = 'block';
+
+    // Avisos sobre tablas faltantes
+    const issues = [];
+    if (parsedData.categorias.length  === 0) issues.push('⚠️ No se encontró tabla <strong>repuestos_cat</strong> → se buscarán categorías en Firebase por id_mysql');
+    if (parsedData.marcasVeh.length   === 0) issues.push('⚠️ No se encontró tabla <strong>repuestos_marcas</strong> → se buscarán marcas de vehículo en Firebase');
+    if (parsedData.marcasRep.length   === 0) issues.push('⚠️ No se encontró tabla <strong>rep_marcas_rep</strong> → marcas de repuesto sin resolver');
+    if (parsedData.estanterias.length === 0) issues.push('ℹ️ No se encontró tabla de estanterías');
+
+    const issuesEl = document.getElementById('issues-list');
+    if (issues.length) {
+      issuesEl.innerHTML = issues.join('<br>');
+      issuesEl.style.display = 'block';
+    }
+
+    const step2 = document.getElementById('card-step2');
+    step2.style.opacity = '1';
+    step2.style.pointerEvents = 'auto';
+
+    // Verificar cuántos hay en Firestore
+    getDocs(collection(db, 'repuestos')).then(snap => {
+      document.getElementById('warn-existentes').innerHTML =
+        `⚠️ Actualmente hay <strong>${snap.size} repuestos en Firestore</strong>. Elegí qué hacer con ellos:`;
+    });
+
+  } catch(err) {
+    alert('Error al parsear: ' + err.message);
+    console.error(err);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// VISTA PREVIA
+// ══════════════════════════════════════════════════════════════════════
+window.doPreview = function() {
+  const opt = document.getElementById('opt-repuestos').value;
+  const soloPub = document.getElementById('opt-publicados').value === 'only';
+  const precioMin = parseFloat(document.getElementById('opt-precio-min').value) || 0;
+
+  let reps = parsedData.repuestos;
+  if (soloPub)    reps = reps.filter(r => r.publicado == 1 || r.publicado === '1');
+  if (precioMin > 0) reps = reps.filter(r => (parseFloat(r.tarifa)||0) >= precioMin);
+
+  const rows = [
+    { col: 'repuestos',       n: reps.length,                                        accion: opt === 'replace' ? '⚠️ Borrar y reemplazar todo' : '➕ Agregar sin borrar existentes' },
+    { col: 'categorias',      n: document.getElementById('opt-categorias').checked   ? parsedData.categorias.length  : 0, accion: 'Agregar' },
+    { col: 'marcas_vehiculo', n: document.getElementById('opt-marcas-veh').checked   ? parsedData.marcasVeh.length   : 0, accion: 'Agregar' },
+    { col: 'marcas_repuesto', n: document.getElementById('opt-marcas-rep').checked   ? parsedData.marcasRep.length   : 0, accion: 'Agregar' },
+    { col: 'estanterias',     n: document.getElementById('opt-estanterias').checked  ? parsedData.estanterias.length : 0, accion: 'Agregar' },
+    { col: 'estantes',        n: document.getElementById('opt-estanterias').checked  ? parsedData.estantes.length    : 0, accion: 'Agregar' },
+  ];
+
+  document.getElementById('preview-tbody').innerHTML = rows.map(r =>
+    `<tr>
+      <td><strong>${r.col}</strong></td>
+      <td><span class="badge ${r.n > 0 ? 'badge-ok' : 'badge-warn'}">${r.n} registros</span></td>
+      <td style="color:#94a3b8;font-size:12px">${r.accion}</td>
+    </tr>`
+  ).join('');
+
+  document.getElementById('preview-area').style.display = 'block';
+
+  const step3 = document.getElementById('card-step3');
+  step3.style.opacity = '1';
+  step3.style.pointerEvents = 'auto';
+  document.getElementById('btn-import').disabled = false;
+  document.getElementById('snum2').classList.add('step-done');
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// IMPORTACIÓN PRINCIPAL
+// ══════════════════════════════════════════════════════════════════════
+window.doImport = async function() {
+  stopFlag = false;
+  clearLog();
+  document.getElementById('btn-import').disabled = true;
+  document.getElementById('btn-stop').style.display = 'inline-block';
+  document.getElementById('prog-wrap').style.display = 'block';
+
+  const opt      = document.getElementById('opt-repuestos').value;
+  const soloPub  = document.getElementById('opt-publicados').value === 'only';
+  const precioMin= parseFloat(document.getElementById('opt-precio-min').value) || 0;
+  const impCats  = document.getElementById('opt-categorias').checked;
+  const impMVeh  = document.getElementById('opt-marcas-veh').checked;
+  const impMRep  = document.getElementById('opt-marcas-rep').checked;
+  const impEst   = document.getElementById('opt-estanterias').checked;
+
+  try {
+    // ─── Construir mapas de referencia ───────────────────────────────
+    log('🗺️ Construyendo mapas de categorías y marcas...', 'inf');
+    await buildMaps();
+    setProgress(5);
+
+    // ─── 1. CATEGORÍAS ────────────────────────────────────────────────
+    if (impCats && parsedData.categorias.length > 0) {
+      log('📁 Importando categorías...', 'inf');
+      for (const cat of parsedData.categorias) {
+        if (stopFlag) break;
+        const nombre = fixEncoding(String(cat.nombre || cat.nombre_cat || cat.categoria || ''));
+        await addDoc(collection(db, 'categorias'), {
+          nombre:    nombre,
+          id_mysql:  String(cat.id || cat.id_cat || ''),
+          creado_en: serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.categorias.length} categorías importadas`, 'ok');
+    }
+    setProgress(10);
+
+    // ─── 2. MARCAS VEHÍCULO ───────────────────────────────────────────
+    if (impMVeh && parsedData.marcasVeh.length > 0) {
+      log('🚗 Importando marcas de vehículo...', 'inf');
+      for (const m of parsedData.marcasVeh) {
+        if (stopFlag) break;
+        const nombre = fixEncoding(String(m.marca || m.marca_logo || m.nombre || m[Object.keys(m)[1]] || ''));
+        await addDoc(collection(db, 'marcas_vehiculo'), {
+          nombre:          nombre,
+          id_mysql:        String(m.id || ''),
+          id_marca_mysql:  String(m.id_marca || m.id || ''),
+          creado_en:       serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.marcasVeh.length} marcas de vehículo importadas`, 'ok');
+    }
+    setProgress(15);
+
+    // ─── 3. MARCAS REPUESTO ───────────────────────────────────────────
+    if (impMRep && parsedData.marcasRep.length > 0) {
+      log('🔧 Importando marcas de repuesto...', 'inf');
+      for (const m of parsedData.marcasRep) {
+        if (stopFlag) break;
+        const nombre = fixEncoding(String(m.marca_rep || m.marca || m.nombre || m[Object.keys(m)[1]] || ''));
+        await addDoc(collection(db, 'marcas_repuesto'), {
+          nombre:    nombre,
+          id_mysql:  String(m.id || ''),
+          creado_en: serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.marcasRep.length} marcas de repuesto importadas`, 'ok');
+    }
+    setProgress(20);
+
+    // ─── 4. ESTANTERÍAS ───────────────────────────────────────────────
+    if (impEst) {
+      if (parsedData.estanterias.length > 0) {
+        log('📦 Importando estanterías...', 'inf');
+        for (const e of parsedData.estanterias) {
+          if (stopFlag) break;
+          await addDoc(collection(db, 'estanterias'), {
+            nombre:    fixEncoding(String(e.nombre_estanteria || e.nombre || '')),
+            id_mysql:  String(e.id || ''),
+            creado_en: serverTimestamp()
+          });
+        }
+        log(`✅ ${parsedData.estanterias.length} estanterías importadas`, 'ok');
+      }
+      if (parsedData.estantes.length > 0) {
+        log('🗂️ Importando estantes...', 'inf');
+        for (const e of parsedData.estantes) {
+          if (stopFlag) break;
+          await addDoc(collection(db, 'estantes'), {
+            nombre:    fixEncoding(String(e.nombre_estante || e.nombre || '')),
+            id_mysql:  String(e.id || ''),
+            creado_en: serverTimestamp()
+          });
+        }
+        log(`✅ ${parsedData.estantes.length} estantes importados`, 'ok');
+      }
+    }
+    setProgress(25);
+
+    // ─── 5. REPUESTOS ─────────────────────────────────────────────────
+    let reps = parsedData.repuestos;
+    if (soloPub)    reps = reps.filter(r => r.publicado == 1 || r.publicado === '1');
+    if (precioMin > 0) reps = reps.filter(r => (parseFloat(r.tarifa)||0) >= precioMin);
+
+    log(`\n🔩 Importando ${reps.length} repuestos...`, 'inf');
+
+    // Si reemplazar: borrar colección primero
+    if (opt === 'replace') {
+      log('⚠️ Borrando colección repuestos existente...', 'warn');
+      const snap = await getDocs(collection(db, 'repuestos'));
+      for (const d of snap.docs) await deleteDoc(doc(db, 'repuestos', d.id));
+      log(`🗑️ ${snap.docs.length} documentos eliminados`, 'warn');
+    }
+
+    // Códigos existentes para el modo "skip"
+    let codsExistentes = new Set();
+    if (opt === 'skip') {
+      const snap = await getDocs(collection(db, 'repuestos'));
+      snap.forEach(d => { const c = d.data().codigo; if(c) codsExistentes.add(c); });
+      log(`ℹ️ Modo SKIP: ${codsExistentes.size} códigos ya existentes`, 'inf');
+    }
+
+    let ok = 0, skipped = 0, err = 0;
+    const total = reps.length;
+    const BATCH = 8;
+
+    for (let i = 0; i < reps.length; i += BATCH) {
+      if (stopFlag) { log('⏹ Detenido por el usuario', 'warn'); break; }
+
+      const chunk = reps.slice(i, i + BATCH);
+      await Promise.all(chunk.map(async r => {
+        try {
+          const data = mapRepuesto(r);
+
+          if (opt === 'skip' && data.codigo && codsExistentes.has(data.codigo)) {
+            skipped++;
+            return;
+          }
+
+          await addDoc(collection(db, 'repuestos'), { ...data, creado_en: serverTimestamp() });
+          ok++;
+        } catch(e) {
+          err++;
+          log(`  ❌ id=${r.id}: ${e.message}`, 'err');
+        }
+      }));
+
+      const pct = 25 + Math.round((i / total) * 73);
+      setProgress(pct);
+      document.getElementById('import-status').textContent = `${ok+skipped} / ${total}...`;
+
+      if (i > 0 && i % 80 === 0) log(`  ✔ ${ok} repuestos importados...`, 'ok');
+    }
+
+    setProgress(100);
+    log(`\n🎉 ¡Importación completada!`, 'ok');
+    log(`   ✅ ${ok} repuestos importados`, 'ok');
+    if (skipped > 0) log(`   ⏩ ${skipped} salteados (código ya existía)`, 'warn');
+    if (err > 0)     log(`   ❌ ${err} con error`, 'err');
+
+    document.getElementById('snum3').classList.add('step-done');
+    document.getElementById('import-status').textContent = `✅ Listo — ${ok} importados`;
+
+  } catch(e) {
+    log(`❌ Error fatal: ${e.message}`, 'err');
+    console.error(e);
+  }
+
+  document.getElementById('btn-import').disabled = false;
+  document.getElementById('btn-stop').style.display = 'none';
+};
+
+window.stopImport = function() { stopFlag = true; };
+
+</script>
+</body>
+</html>
