@@ -1980,12 +1980,49 @@ window.toast = toast;
 <style id="mobile-css">
 @media screen and (max-width:480px){
 
+  /* ── TOPBAR ── */
+  .topbar{height:62px !important;padding:0 12px !important;gap:8px !important}
+  .brand-name,.brand-sub{display:none !important}
+  .cart-toggle-total{display:none !important}
+  .brand-icon{width:36px !important;height:36px !important}
+
+  /* BUSCADOR */
+  .search-main{font-size:16px !important;height:42px !important;border-radius:12px !important;padding:0 14px !important}
+  .search-main input{font-size:16px !important}
+  .search-main svg{width:18px !important;height:18px !important}
+
+  /* ICONOS TOPBAR (chat, corazon, carrito) */
+  .icon-btn{width:42px !important;height:42px !important}
+  .icon-btn svg{width:24px !important;height:24px !important}
+  .icon-btn .badge{font-size:11px !important;min-width:20px !important;height:20px !important;top:-6px !important;right:-6px !important}
+
+  /* TEXTO CARRITO EN TOPBAR */
+  .cart-toggle-btn{font-size:15px !important;padding:8px 14px !important;gap:7px !important;border-radius:10px !important}
+  .cart-toggle-btn svg{width:18px !important;height:18px !important}
+
+  /* NOMBRE USUARIO */
+  .user-name{font-size:14px !important;color:#e2e8f0 !important;max-width:60px !important}
+  .user-dot{width:10px !important;height:10px !important}
+
+  /* ── FILTROS TIPO ── */
+  .type-bar{overflow-x:auto !important;scrollbar-width:none !important;padding:8px 12px !important;gap:8px !important}
+  .type-bar::-webkit-scrollbar{display:none}
+  .type-btn{font-size:15px !important;padding:9px 18px !important;white-space:nowrap !important;border-radius:10px !important;font-weight:500 !important}
+  .type-btn.active{font-weight:700 !important}
+
+  /* CONDICION (Nuevo/Original) */
+  .cond-bar .type-btn{font-size:15px !important;padding:9px 18px !important}
+
+  /* ── TÍTULO Y CONTADOR ── */
+  .cat-title{font-size:22px !important;color:#f1f5f9 !important;font-weight:700 !important}
+  #cat-results-count{font-size:14px !important;color:#94a3b8 !important}
+
   /* ── GRID ── */
   .rep-grid{grid-template-columns:1fr !important;gap:16px !important;padding:12px !important}
 
   /* ── IMAGEN ── */
-  .card-img{height:auto !important;min-height:0 !important;border-radius:0 !important}
-  .card-img img{width:100% !important;height:auto !important;max-height:none !important;object-fit:contain !important;background:#1a1f2e;border-radius:0 !important;display:block !important}
+  .card-img{height:auto !important;min-height:0 !important;border-radius:0 !important;background:#f8f8f8 !important}
+  .card-img img{width:100% !important;height:auto !important;max-height:none !important;object-fit:contain !important;padding:0 !important;background:#f8f8f8 !important;border-radius:0 !important;display:block !important}
   .card-img-placeholder{height:180px !important}
 
   /* ── TEXTOS CARD ── */
@@ -2007,48 +2044,36 @@ window.toast = toast;
   /* ── BADGES ── */
   .cbadge{font-size:12px !important;padding:4px 9px !important}
 
-  /* ── TOPBAR ── */
-  .topbar{height:52px !important;padding:0 10px !important;gap:6px !important}
-  .brand-name,.brand-sub{display:none !important}
-  .cart-toggle-total{display:none !important}
-  .search-main{font-size:14px !important;height:36px !important}
-  .icon-btn svg{width:20px !important;height:20px !important}
-  .icon-btn .badge{font-size:10px !important;min-width:18px !important;height:18px !important}
-  .user-name{font-size:12px !important;color:#e2e8f0 !important}
-
-  /* ── FILTROS TIPO ── */
-  .type-bar{overflow-x:auto !important;scrollbar-width:none !important;padding:6px 10px !important;gap:7px !important}
-  .type-bar::-webkit-scrollbar{display:none}
-  .type-btn{font-size:14px !important;padding:8px 16px !important;white-space:nowrap !important;color:#cbd5e1 !important}
-  .type-btn.active{color:#fff !important}
-
-  /* ── TÍTULO Y CONTADOR ── */
-  .cat-title{font-size:20px !important;color:#f1f5f9 !important}
-  #cat-results-count{font-size:13px !important;color:#94a3b8 !important}
-
-  /* ── CARRITO FULL WIDTH ── */
+  /* ── CART PANEL FULL WIDTH ── */
   .cart-panel.mobile-open{width:100vw !important;border-left:none !important}
 
   /* ── CART HEADER ── */
-  .cart-header{padding:14px 16px !important}
-  .cart-header-title{font-size:18px !important;color:#f1f5f9 !important}
-  .cart-count-badge{font-size:13px !important;color:#94a3b8 !important}
-  .cart-limpiar-btn{font-size:14px !important;color:#f87171 !important;padding:6px 12px !important}
+  .cart-head{padding:16px 18px !important}
+  .cart-head-title{font-size:20px !important;color:#f1f5f9 !important;font-weight:700 !important;gap:10px !important}
+  .cart-head-title svg{width:22px !important;height:22px !important}
+  #cart-items-count{font-size:15px !important;color:#94a3b8 !important}
+
+  /* BOTÓN LIMPIAR */
+  .cart-clear{font-size:15px !important;color:#f87171 !important;padding:8px 14px !important;border-radius:9px !important;border:1px solid rgba(248,113,113,.35) !important;background:rgba(248,113,113,.08) !important}
+
+  /* BOTÓN CERRAR (flechita) */
+  .cart-head .icon-btn{width:42px !important;height:42px !important;border-radius:10px !important}
+  .cart-head .icon-btn svg{width:24px !important;height:24px !important}
 
   /* ── CART ITEMS ── */
   .cart-item{padding:14px !important}
-  .cart-item-img{width:56px !important;height:56px !important}
+  .cart-item-img{width:58px !important;height:58px !important}
   .cart-item-name{font-size:15px !important;color:#f1f5f9 !important}
   .cart-item-price{font-size:15px !important;color:#4ade80 !important}
-  .qty-btn{width:32px !important;height:32px !important;font-size:18px !important;color:#e2e8f0 !important}
-  .qty-num{font-size:17px !important;color:#f1f5f9 !important}
+  .qty-btn{width:34px !important;height:34px !important;font-size:20px !important;color:#e2e8f0 !important}
+  .qty-num{font-size:18px !important;color:#f1f5f9 !important}
 
   /* ── SECCIÓN COBRO ── */
-  .cs-label{font-size:13px !important;color:#cbd5e1 !important;margin-bottom:9px !important}
+  .cs-label{font-size:14px !important;color:#cbd5e1 !important;margin-bottom:9px !important}
   .cs-monto-btn{font-size:15px !important;padding:10px 14px !important;color:#fb923c !important;border-color:#fb923c !important}
   .cs-monto-input{font-size:16px !important;padding:12px 14px !important;color:#f1f5f9 !important}
-  .cs-monto-input::placeholder{font-size:14px !important;color:#64748b !important}
-  .cs-monto-clear{width:34px !important;height:34px !important;font-size:15px !important;color:#94a3b8 !important}
+  .cs-monto-input::placeholder{font-size:15px !important;color:#64748b !important}
+  .cs-monto-clear{width:36px !important;height:36px !important;font-size:16px !important;color:#94a3b8 !important}
   .cs-diferencia{font-size:19px !important}
   .cs-billete{font-size:14px !important;padding:7px 13px !important;color:#4ade80 !important}
   .cs-metodo-btn{padding:15px 4px !important;border-radius:11px !important}
