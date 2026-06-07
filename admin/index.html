@@ -297,6 +297,19 @@ tbody tr:last-child td{border-bottom:none}
   :root{--sidebar:180px}
 }
 
+.compat-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.compat-tag{font-size:11px;padding:3px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+.det-sec-title{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.price-boxes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.price-box{background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)}
+.price-box.main{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.05)}
+.price-box.desc{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)}
+.pb-label{font-size:9.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.pb-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500}
+.pb-val.green{color:var(--green)}
+.pb-val.muted{color:var(--text2);font-size:13px}
+.pb-val.amber{color:var(--amber)}
+.pb-sub{font-size:10px;color:var(--text3);margin-top:2px}
 .nota-html table,.desc-html table{width:100%;border-collapse:collapse;margin:6px 0;font-size:11px}
 .nota-html td,.nota-html th,.desc-html td,.desc-html th{border:1px solid var(--border);padding:4px 8px;color:var(--text2)}
 .nota-html th,.desc-html th{background:var(--bg3);color:var(--text3);font-weight:600;font-size:10px}
@@ -3350,39 +3363,40 @@ window.verRepuesto = function(id) {
         </div>
       </div>
 
-      <!-- PRECIOS Y STOCK -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px">
-        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
-          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Precio venta c/IVA</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--green)">${fmt2(r.precio_venta_iva)}</div>
+      <!-- PRECIOS COMPLETOS -->
+      <div style="margin-bottom:18px">
+        <div class="det-sec-title">Precios</div>
+        <div class="price-boxes">
+          <div class="price-box"><div class="pb-label">Sin IVA</div><div class="pb-val muted">${fmt2(r.precio_venta)}</div></div>
+          <div class="price-box main"><div class="pb-label">Precio final c/IVA</div><div class="pb-val green">${fmt2(r.precio_venta_iva)}</div><div class="pb-sub">IVA 21% incluido</div></div>
+          <div class="price-box desc"><div class="pb-label">Con 10% descuento</div><div class="pb-val amber">${fmt2((r.precio_venta_iva||0)*0.9)}</div><div class="pb-sub">Ahorrás ${fmt2((r.precio_venta_iva||0)*0.1)}</div></div>
+          <div class="price-box"><div class="pb-label">Precio costo</div><div class="pb-val amber" style="font-size:14px">${fmt2(r.precio_costo)}</div></div>
         </div>
-        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
-          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Precio costo</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--amber)">${fmt2(r.precio_costo)}</div>
-        </div>
-        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
-          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Stock</div>
-          <div style="font-size:18px;font-weight:600;color:${(r.cant_artic||0)===0?'var(--red)':'var(--green)'}">${r.cant_artic||0} uds.</div>
-        </div>
-        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
-          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Código interno</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--blue)">${codigos.length ? ((codigos[0].proveedor||'') + ' ' + (codigos[0].codigo||'')).trim() : (r.codigo||'—')}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)">
+            <div class="pb-label">Stock</div>
+            <div class="pb-val" style="font-size:16px;color:${(r.cant_artic||0)===0?'var(--red)':'var(--green)'}">${r.cant_artic||0} uds.</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)">
+            <div class="pb-label">Código interno</div>
+            <div class="pb-val" style="font-size:13px;color:var(--blue)">${r.codigo||'—'}</div>
+          </div>
         </div>
       </div>
 
       <!-- MARCA DE REPUESTO (en stock) -->
       ${(r.marcas_repuesto||[]).filter(Boolean).length ? `
       <div style="margin-bottom:18px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Marca del repuesto en stock</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${(r.marcas_repuesto||[]).filter(Boolean).map(m=>`<span style="padding:6px 14px;border-radius:8px;font-size:14px;font-weight:700;background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.35);letter-spacing:.03em">${m}</span>`).join('')}
+        <div class="det-sec-title">Marca del repuesto en stock</div>
+        <div class="compat-tags">
+          ${(r.marcas_repuesto||[]).filter(Boolean).map(m=>`<span class="compat-tag" style="border-color:rgba(245,158,11,.35);color:var(--amber);font-weight:700">${m}</span>`).join('')}
         </div>
       </div>` : ''}
 
-      <!-- CÓDIGOS PROVEEDORES (arriba, lo más útil) -->
+      <!-- CÓDIGOS PROVEEDORES -->
       ${codigos.length ? `
       <div style="margin-bottom:18px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Códigos por proveedor</div>
+        <div class="det-sec-title">Códigos por proveedor</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">
           ${codigos.map(c=>`<div style="display:flex;gap:10px;align-items:center;background:var(--bg3);border-radius:8px;padding:9px 14px;border:1px solid var(--border)"><span style="font-size:12px;color:var(--text3);min-width:80px">${c.proveedor}</span><span style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--blue)">${c.codigo}</span></div>`).join('')}
         </div>
@@ -3390,33 +3404,36 @@ window.verRepuesto = function(id) {
 
       <!-- UBICACIÓN (estantería + estante destacados) -->
       ${r.id_estanteria ? `
-      <div style="margin-bottom:18px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#6366f1;fill:none;stroke-width:1.8;flex-shrink:0"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <div>
-          <div style="font-size:10px;color:#6366f1;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Ubicación en depósito</div>
+      <div style="margin-bottom:18px">
+        <div class="det-sec-title">Ubicación en depósito</div>
+        <div style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:12px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#6366f1;fill:none;stroke-width:1.8;flex-shrink:0"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <div style="font-size:16px;font-weight:600;color:var(--text)">${getNombreEstanteria(r)} &nbsp;·&nbsp; ${getNombreEstante(r)}</div>
         </div>
       </div>` : ''}
 
       <!-- DETALLES TÉCNICOS -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
-        ${r.lado ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Lado</div><div style="font-size:14px;color:var(--text)">${r.lado}</div></div>` : ''}
-        ${r.material ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Material</div><div style="font-size:14px;color:var(--text)">${r.material}</div></div>` : ''}
-        ${r.contenedor ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Contenedor</div><div style="font-size:14px;color:var(--text)">${r.contenedor}</div></div>` : ''}
-        ${r.forma_entrega ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Entrega</div><div style="font-size:14px;color:var(--text)">${r.forma_entrega}</div></div>` : ''}
-        ${r.fecha_compra ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Fecha compra</div><div style="font-size:14px;color:var(--text)">${r.fecha_compra}</div></div>` : ''}
-      </div>
+      ${(r.lado||r.material||r.contenedor||r.forma_entrega||r.fecha_compra) ? `
+      <div style="margin-bottom:18px">
+        <div class="det-sec-title">Detalles técnicos</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${r.lado ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Lado</div><div style="font-size:14px;color:var(--text)">${r.lado}</div></div>` : ''}
+          ${r.material ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Material</div><div style="font-size:14px;color:var(--text)">${r.material}</div></div>` : ''}
+          ${r.contenedor ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Contenedor</div><div style="font-size:14px;color:var(--text)">${r.contenedor}</div></div>` : ''}
+          ${r.forma_entrega ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Entrega</div><div style="font-size:14px;color:var(--text)">${r.forma_entrega}</div></div>` : ''}
+          ${r.fecha_compra ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Fecha compra</div><div style="font-size:14px;color:var(--text)">${r.fecha_compra}</div></div>` : ''}
+        </div>
+      </div>` : ''}
 
       <!-- FABRICANTES -->
       ${fabricantes.length ? `
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Fabricantes / Marcas del repuesto</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">${fabricantes.map(f=>`<span style="padding:4px 10px;border-radius:6px;font-size:13px;background:var(--bg3);color:var(--text2);border:1px solid var(--border)">${f}</span>`).join('')}</div>
+        <div class="det-sec-title">Fabricantes / Marcas del repuesto</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${fabricantes.map(f=>`<span class="compat-tag">${f}</span>`).join('')}</div>
       </div>` : ''}
 
-      <!-- IMÁGENES (después de fabricantes) -->
+      <!-- IMÁGENES -->
       ${(()=>{
-        // Prioridad: r.imagenes[] (array de Firestore, URLs grandes) + imagen_url como fallback
         const todasImgs = [];
         if (Array.isArray(r.imagenes) && r.imagenes.length) {
           r.imagenes.forEach(u=>{ if(u && !todasImgs.includes(u)) todasImgs.push(u); });
@@ -3425,7 +3442,7 @@ window.verRepuesto = function(id) {
         }
         if (!todasImgs.length) return '';
         return `<div style="margin-bottom:18px">
-          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Imágenes del producto</div>
+          <div class="det-sec-title">Imágenes del producto</div>
           <div style="display:flex;gap:14px;flex-wrap:wrap">
             ${todasImgs.map(u=>`<div style="width:320px;height:320px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);overflow:hidden;cursor:zoom-in;flex-shrink:0" onclick="window.open(urlGrande('${u}'),'_blank')" title="Clic para ver en tamaño completo"><img src="${u}" style="width:100%;height:100%;object-fit:contain;padding:12px;box-sizing:border-box" onerror="this.parentElement.style.display='none'"></div>`).join('')}
           </div>
@@ -3436,50 +3453,53 @@ window.verRepuesto = function(id) {
       <!-- TIPOS VEHÍCULO -->
       ${tiposVeh.length ? `
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Tipo de vehículo</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">${tiposVeh.map(t=>`<span style="padding:4px 10px;border-radius:6px;font-size:13px;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2)">${t}</span>`).join('')}</div>
+        <div class="det-sec-title">Tipo de vehículo</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${tiposVeh.map(t=>`<span class="compat-tag" style="border-color:rgba(59,130,246,.2);color:var(--blue)">${t}</span>`).join('')}</div>
       </div>` : ''}
 
       <!-- MARCAS Y MODELOS -->
-      ${marcasModelos.length ? `
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Vehículos compatibles</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          ${marcasModelos.map(m=>`<div style="background:var(--bg3);border-radius:8px;padding:8px 12px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><span style="font-size:14px;font-weight:600;color:var(--text);min-width:130px">${m.marca}</span><span style="font-size:13px;color:var(--text2)">${m.modelos||'—'}</span></div>`).join('')}
+        <div class="det-sec-title">Vehículos compatibles</div>
+        <div class="compat-tags">
+          ${(r.marcas_vehiculo||['Universal']).map(m=>`<span class="compat-tag">${m}</span>`).join('')}
+          ${r.marcas_modelos_texto ? `<span class="compat-tag" style="border-color:rgba(59,130,246,.35);color:var(--blue)">📋 ${r.marcas_modelos_texto}</span>` : ''}
         </div>
-        ${r.marcas_modelos_texto ? `<div style="margin-top:8px;padding:8px 12px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:12px;color:var(--blue)">📋 ${r.marcas_modelos_texto}</div>` : ''}
-      </div>` : (marcas !== '—' ? `<div style="margin-bottom:16px"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Vehículos compatibles</div><div style="font-size:14px;color:var(--text2)">${marcas}</div></div>` : '')}
+        ${marcasModelos.length ? `
+        <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+          ${marcasModelos.map(m=>`<div style="background:var(--bg3);border-radius:8px;padding:7px 12px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;border:1px solid var(--border)"><span style="font-size:13px;font-weight:600;color:var(--text);min-width:110px">${m.marca}</span><span style="font-size:12px;color:var(--text2)">${m.modelos||'—'}</span></div>`).join('')}
+        </div>` : ''}
+      </div>
 
       ${r.aplicacion ? `
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Aplicación</div>
+        <div class="det-sec-title">Aplicación</div>
         <div class="desc-html" style="font-size:13px;line-height:1.7;background:var(--bg3);border-radius:8px;padding:12px 14px;border:1px solid var(--border)">${r.aplicacion}</div>
       </div>` : ''}
 
       <!-- CATÁLOGOS -->
       ${catalogos.length ? `
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Catálogos de papel</div>
+        <div class="det-sec-title">Catálogos de papel</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${catalogos.map(c=>`<div style="background:var(--bg3);border-radius:7px;padding:6px 12px;font-size:13px;color:var(--text2)">${c.nombre}${c.pagina ? ` — pág. ${c.pagina}` : ''}</div>`).join('')}
+          ${catalogos.map(c=>`<span class="compat-tag">${c.nombre}${c.pagina ? ` — pág. ${c.pagina}` : ''}</span>`).join('')}
         </div>
       </div>` : ''}
 
       <!-- IMPORTANTE -->
-      ${r.importante ? `<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 14px;margin-bottom:16px"><div style="font-size:10px;color:var(--amber);text-transform:uppercase;font-weight:600;margin-bottom:4px">⚠️ Importante</div><div style="font-size:15px;color:#f1f5f9">${r.importante}</div></div>` : ''}
+      ${r.importante ? `<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 14px;margin-bottom:16px"><div style="font-size:10px;color:var(--amber);text-transform:uppercase;font-weight:600;margin-bottom:4px">⚠️ Importante</div><div style="font-size:13px;color:#f1f5f9">${r.importante}</div></div>` : ''}
 
       <!-- DESCRIPCIÓN -->
       ${r.descripcion ? `
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Descripción</div>
+        <div class="det-sec-title">Descripción</div>
         <div class="desc-html" style="font-size:13px;line-height:1.7;background:var(--bg3);border-radius:8px;padding:14px 16px;border:1px solid var(--border)">${r.descripcion}</div>
       </div>` : ''}
 
       <!-- NOTAS INTERNAS -->
       ${(r.notas_internas||r.notas) ? `
       <div style="margin-bottom:16px">
-        <div style="font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">🔒 Notas internas</div>
-        <div class="notas-box nota-html" style="font-size:13px;line-height:1.7;background:rgba(245,158,11,.05) !important;border-radius:8px;padding:16px 18px;border:1px solid rgba(245,158,11,.2)">${r.notas_internas||r.notas}</div>
+        <div class="det-sec-title" style="color:var(--amber);border-bottom-color:rgba(245,158,11,.3)">🔒 Notas internas</div>
+        <div class="nota-html" style="font-size:13px;line-height:1.7;background:rgba(245,158,11,.05);border-radius:8px;padding:14px 16px;border:1px solid rgba(245,158,11,.2)">${r.notas_internas||r.notas}</div>
       </div>` : ''}
 
     </div>
