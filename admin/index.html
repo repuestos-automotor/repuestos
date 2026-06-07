@@ -3301,6 +3301,18 @@ window.addEventListener('message', async (e) => {
   }
 });
 
+// ── HELPER: convierte URL img_promo_chica → img_promo_grande ──
+window.urlGrande = function(url) {
+  if (!url) return url;
+  // Reemplaza carpeta chica por grande y quita el guión bajo del nombre
+  // Ej: .../img_promo_chica/338-ch-0502_.jpg → .../img_promo_grande/338-gr-0502.jpg
+  return url
+    .replace('/img_promo_chica/', '/img_promo_grande/')
+    .replace(/-ch-/g, '-gr-')
+    .replace(/_\.jpg$/, '.jpg')
+    .replace(/_\.png$/, '.png');
+};
+
 // ── VER DETALLE REPUESTO ──────────────────────────────
 window.verRepuesto = function(id) {
   const r = (window._repsAll||[]).find(x=>x.id===id);
@@ -3322,7 +3334,7 @@ window.verRepuesto = function(id) {
       <!-- CABECERA -->
       <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-start">
         ${r.imagen_url
-          ? `<img src="${r.imagen_url}" style="width:240px;height:240px;object-fit:contain;border-radius:10px;border:1px solid var(--border);flex-shrink:0;cursor:zoom-in;background:var(--bg3)" onclick="window.open('${r.imagen_url}','_blank')" title="Ver imagen">`
+          ? `<img src="${r.imagen_url}" style="width:240px;height:240px;object-fit:contain;border-radius:10px;border:1px solid var(--border);flex-shrink:0;cursor:zoom-in;background:var(--bg3)" onclick="window.open(urlGrande('${r.imagen_url}'),'_blank')" title="Ver imagen grande">`
           : `<div style="width:240px;height:240px;background:var(--bg3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:48px;flex-shrink:0">⚡</div>`}
         <div style="flex:1;min-width:200px">
           <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--text);line-height:1.2">${r.titulo_repuesto||'—'}</div>
@@ -3407,8 +3419,8 @@ window.verRepuesto = function(id) {
         const cols = Math.min(todasImgs.length, 3);
         return `<div style="margin-bottom:18px">
           <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Imágenes del producto</div>
-          <div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:14px">
-            ${todasImgs.map(u=>`<div style="aspect-ratio:1/1;border-radius:12px;border:1px solid var(--border);background:var(--bg3);overflow:hidden;cursor:zoom-in" onclick="window.open('${u}','_blank')" title="Clic para ver en tamaño completo"><img src="${u}" style="width:100%;height:100%;object-fit:contain;padding:10px;box-sizing:border-box" onerror="this.parentElement.style.display='none'"></div>`).join('')}
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            ${todasImgs.map(u=>`<div style="width:200px;height:200px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);overflow:hidden;cursor:zoom-in;flex-shrink:0" onclick="window.open(urlGrande('${u}'),'_blank')" title="Clic para ver en tamaño completo"><img src="${u}" style="width:100%;height:100%;object-fit:contain;padding:10px;box-sizing:border-box" onerror="this.parentElement.style.display='none'"></div>`).join('')}
           </div>
           <div style="font-size:10px;color:var(--text3);margin-top:8px">Clic en la imagen para verla en tamaño completo</div>
         </div>`;
@@ -3493,10 +3505,10 @@ window.buscarML = function(repId) {
   if (!panel) return;
 
   var codigos = (r.codigos_proveedores||[]).filter(function(c){return c.codigo;});
-  // Buscar con todos los códigos de proveedores: ZEN0502 INDIEL 22.3266
-  var query = codigos.length
-    ? codigos.map(function(c){ return ((c.proveedor||'')+c.codigo).trim(); }).join(' ')
-    : (r.titulo_repuesto||r.codigo||'');
+  // Buscar con título + todos los códigos de proveedores: IMPULSOR DE ARRANQUE ZEN0502 INDIEL22.3266
+  var codigosStr = codigos.map(function(c){ return ((c.proveedor||'')+c.codigo).trim(); }).join(' ');
+  var titulo = (r.titulo_repuesto||'').trim();
+  var query = titulo ? (codigosStr ? titulo + ' ' + codigosStr : titulo) : (codigosStr || (r.codigo||''));
   if (!query) { panel.innerHTML='<div style="padding:12px;color:var(--text4);font-size:12px">Sin datos suficientes para buscar</div>'; return; }
 
   // ML API permite CORS solo desde ciertos origins — abrimos en nueva pestaña con resultados
