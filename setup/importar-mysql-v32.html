@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar MySQL → Firestore v3</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 24px; }
+  h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 28px; }
+  .card { background: #1e2130; border: 1px solid #2d3347; border-radius: 12px; padding: 22px; margin-bottom: 18px; }
+  .card h2 { font-size: 15px; font-weight: 600; color: #94a3b8; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-done { background: #22c55e !important; }
+  .drop-zone { border: 2px dashed #334155; border-radius: 8px; padding: 36px; text-align: center; cursor: pointer; transition: all .2s; }
+  .drop-zone:hover, .drop-zone.over { border-color: #3b82f6; background: rgba(59,130,246,.06); }
+  .drop-zone p { color: #64748b; font-size: 14px; margin-top: 8px; }
+  .drop-zone .icon { font-size: 32px; }
+  input[type=file] { display: none; }
+  .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-blue  { background: #3b82f6; color: #fff; }
+  .btn-green { background: #22c55e; color: #fff; }
+  .btn-red   { background: #ef4444; color: #fff; }
+  .btn:not(:disabled):hover { opacity: .85; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-top: 14px; }
+  .stat { background: #151822; border-radius: 8px; padding: 14px; text-align: center; }
+  .stat .n { font-size: 26px; font-weight: 700; color: #3b82f6; }
+  .stat .l { font-size: 11px; color: #64748b; margin-top: 3px; }
+  .log { background: #0d1117; border-radius: 8px; padding: 14px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; line-height: 1.7; }
+  .log .ok   { color: #22c55e; }
+  .log .err  { color: #ef4444; }
+  .log .inf  { color: #94a3b8; }
+  .log .warn { color: #f59e0b; }
+  .progress-wrap { background: #151822; border-radius: 100px; height: 10px; margin-top: 12px; overflow: hidden; }
+  .progress-bar  { height: 100%; background: linear-gradient(90deg, #3b82f6, #22c55e); border-radius: 100px; transition: width .3s; }
+  .warning-box { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.3); border-radius: 8px; padding: 14px; font-size: 13px; color: #fbbf24; margin-bottom: 14px; }
+  .danger-box  { background: rgba(239,68,68,.08);  border: 1px solid rgba(239,68,68,.3);  border-radius: 8px; padding: 14px; font-size: 13px; color: #fca5a5; margin-bottom: 14px; }
+  .info-box    { background: rgba(59,130,246,.08);  border: 1px solid rgba(59,130,246,.3);  border-radius: 8px; padding: 14px; font-size: 13px; color: #93c5fd; margin-bottom: 14px; }
+  .section-title { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; margin-top: 14px; }
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .summary-table th { text-align: left; padding: 6px 10px; color: #64748b; font-weight: 600; border-bottom: 1px solid #2d3347; }
+  .summary-table td { padding: 7px 10px; border-bottom: 1px solid #1a1f2e; color: #e2e8f0; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 600; }
+  .badge-ok   { background: rgba(34,197,94,.15);  color: #22c55e; }
+  .badge-warn { background: rgba(245,158,11,.15); color: #f59e0b; }
+  .badge-red  { background: rgba(239,68,68,.15);  color: #ef4444; }
+  .flex-gap { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .issues-list { font-size: 12px; color: #f59e0b; margin-top: 10px; background: rgba(245,158,11,.05); border-radius: 6px; padding: 10px 14px; line-height: 2; }
+  .col-delete-list { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+  .col-delete-list span { display: inline-block; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25); border-radius: 6px; padding: 2px 8px; margin: 2px; color: #fca5a5; }
+</style>
+</head>
+<body>
+
+<h1>🔄 Importar MySQL → Firestore <span style="font-size:14px;color:#22c55e;font-weight:400">v3 — BORRA TODO y recarga desde cero</span></h1>
+<p class="sub">Soluciona duplicados · Borra todas las colecciones antes de importar · Importa tipos de vehículo · Corrige encoding · Limpia HTML</p>
+
+<!-- ══ PASO 1: Cargar SQL ══ -->
+<div class="card" id="card-step1">
+  <h2><span class="step-num" id="snum1">1</span> Cargar archivo SQL (rubrosya_datos.sql)</h2>
+
+  <div class="info-box">
+    ℹ️ Cargá <strong>rubrosya_datos.sql</strong> que contiene todas las tablas: <code>repuestos_pa</code>, <code>repuestos_cat</code>, <code>repuestos_marcas</code>, <code>rep_marcas_rep</code>, <code>repuestos_estanteria</code>, <code>repuestos_estantes</code>, <code>repuestos_tipo_vehiculos</code>.<br>
+    También podés cargar <strong>dos archivos a la vez</strong> si tenés los repuestos separados de las tablas relacionadas.
+  </div>
+
+  <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="icon">📂</div>
+    <strong id="drop-title">Arrastrá tu archivo .sql aquí</strong>
+    <p>o hacé clic para seleccionarlo · podés cargar uno o dos archivos SQL a la vez</p>
+  </div>
+  <input type="file" id="fileInput" accept=".sql,.txt" multiple>
+
+  <div id="parse-result" style="display:none; margin-top:14px;">
+    <div class="stats" id="stats-area"></div>
+    <div class="issues-list" id="issues-list" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ PASO 2: Verificar y configurar ══ -->
+<div class="card" id="card-step2" style="opacity:.4; pointer-events:none;">
+  <h2><span class="step-num" id="snum2">2</span> Verificar y configurar</h2>
+
+  <div class="danger-box">
+    ⚠️ <strong>ESTE IMPORTADOR BORRA TODO Y RECARGA DESDE CERO.</strong><br>
+    Se eliminarán completamente estas colecciones de Firestore antes de importar:
+    <div class="col-delete-list" id="col-delete-list">
+      <span>repuestos</span><span>categorias</span><span>marcas_vehiculo</span>
+      <span>marcas_repuesto</span><span>estanterias</span><span>estantes</span><span>tipos_vehiculo</span>
+    </div>
+    <div id="warn-existentes" style="margin-top:8px;">Verificando Firestore...</div>
+  </div>
+
+  <div class="section-title">Filtro de repuestos</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div>
+      <label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px;">Publicados</label>
+      <select id="opt-publicados" style="background:#151822;border:1px solid #2d3347;border-radius:6px;color:#e2e8f0;padding:8px 12px;font-size:13px;width:100%">
+        <option value="all">Todos (publicados y no publicados)</option>
+        <option value="only">Solo publicados (publicado = 1)</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:12px;color:#64748b;display:block;margin-bottom:4px;">Precio mínimo de venta (0 = sin filtro)</label>
+      <input type="text" id="opt-precio-min" value="0" placeholder="Ej: 1000"
+        style="background:#151822;border:1px solid #2d3347;border-radius:6px;color:#e2e8f0;padding:8px 12px;font-size:13px;width:100%">
+    </div>
+  </div>
+
+  <div class="section-title">Opciones de texto</div>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:#94a3b8;cursor:pointer">
+      <input type="checkbox" id="opt-fix-encoding" checked checked style="width:16px;height:16px;accent-color:#3b82f6">
+      Corregir encoding latin1/utf-8 (Ã¡→á · Ã±→ñ · CÃ³nico→Cónico)
+    </label>
+    <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:#94a3b8;cursor:pointer">
+      <input type="checkbox" id="opt-strip-html" checked checked style="width:16px;height:16px;accent-color:#3b82f6">
+      Convertir HTML de descripción/notas a texto plano (quitar &lt;p&gt;, &lt;br&gt;, entidades)
+    </label>
+  </div>
+
+  <div style="margin-top:16px;">
+    <button class="btn btn-blue" onclick="doPreview()">👁️ Ver resumen y continuar</button>
+  </div>
+
+  <div id="preview-area" style="display:none; margin-top:16px;">
+    <div class="section-title">Lo que se va a importar</div>
+    <table class="summary-table">
+      <thead><tr><th>Colección Firestore</th><th>Registros</th><th>Acción</th></tr></thead>
+      <tbody id="preview-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ PASO 3: Importar ══ -->
+<div class="card" id="card-step3" style="opacity:.4; pointer-events:none;">
+  <h2><span class="step-num" id="snum3">3</span> Ejecutar importación</h2>
+
+  <div class="flex-gap" style="margin-bottom:14px;">
+    <button class="btn btn-green" id="btn-import" onclick="doImport()" disabled>🚀 Iniciar importación</button>
+    <button class="btn btn-red"   id="btn-stop"   onclick="stopImport()" style="display:none;">⏹ Detener</button>
+    <span id="import-status" style="font-size:13px;color:#64748b;"></span>
+  </div>
+
+  <div class="progress-wrap" style="display:none;" id="prog-wrap">
+    <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+  </div>
+
+  <div class="log" id="log-area" style="margin-top:14px;">
+    <span class="inf">— Esperando para iniciar —</span>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── Estado global ──────────────────────────────────────────────────────
+let parsedData = { repuestos:[], categorias:[], marcasVeh:[], marcasRep:[], estanterias:[], estantes:[], tiposVeh:[] };
+let stopFlag = false;
+
+// ── Log ────────────────────────────────────────────────────────────────
+function log(msg, cls='inf') {
+  const el = document.getElementById('log-area');
+  el.innerHTML += `<div class="${cls}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog() { document.getElementById('log-area').innerHTML = ''; }
+function setProgress(pct) { document.getElementById('prog-bar').style.width = pct + '%'; }
+
+// ══════════════════════════════════════════════════════════════════════
+// CORRECCIÓN DE ENCODING (latin1 mal interpretado como utf-8)
+// ══════════════════════════════════════════════════════════════════════
+function fixEncoding(str) {
+  if (!str || typeof str !== 'string') return str;
+  return str
+    .replace(/Ã¡/g,'á').replace(/Ã©/g,'é').replace(/Ã­/g,'í').replace(/Ã³/g,'ó').replace(/Ãº/g,'ú')
+    .replace(/Ã\x81/g,'Á').replace(/Ã\x89/g,'É').replace(/Ã\x8d/g,'Í').replace(/Ã\x93/g,'Ó').replace(/Ã\x9a/g,'Ú')
+    .replace(/Ã±/g,'ñ').replace(/Ã\x91/g,'Ñ')
+    .replace(/Ã¼/g,'ü').replace(/Ã¶/g,'ö').replace(/Ã¤/g,'ä')
+    .replace(/â€"/g,'–').replace(/â€"/g,'—').replace(/â€œ/g,'"').replace(/â€/g,'"')
+    .replace(/Â°/g,'°').replace(/Â¿/g,'¿').replace(/Â¡/g,'¡').replace(/Â·/g,'·')
+    .replace(/Ã\x80/g,'À').replace(/Ã\x88/g,'È').replace(/Ã\x8c/g,'Ì').replace(/Ã\x92/g,'Ò').replace(/Ã\x99/g,'Ù')
+    .replace(/Ã\xa0/g,'à').replace(/Ã\xa8/g,'è').replace(/Ã\xac/g,'ì').replace(/Ã\xb2/g,'ò').replace(/Ã\xb9/g,'ù');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// LIMPIEZA DE HTML
+// ══════════════════════════════════════════════════════════════════════
+// Limpia texto plano (para titulo, aplicacion, etc.)
+function stripHTML(str) {
+  if (!str || typeof str !== 'string') return '';
+  let s = fixEscapes(str);
+  s = fixHtmlEntities(s);
+  s = s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/p>/gi,'\n').replace(/<\/li>/gi,'\n')
+       .replace(/<\/div>/gi,'\n').replace(/<\/h[1-6]>/gi,'\n');
+  s = s.replace(/<[^>]+>/g,'');
+  s = s.split('\n').map(l=>l.trim()).filter(l=>l && l!=='&nbsp;' && l!=='&nbsp').join('\n');
+  return s.trim();
+}
+
+// Sanitiza HTML conservando tablas y formato, removiendo imgs y scripts
+function sanitizeHTML(str) {
+  if (!str || typeof str !== 'string') return '';
+  let s = fixEscapes(str);
+  s = fixHtmlEntities(s);
+  // Remover scripts, style, iframes
+  s = s.replace(/<script[\s\S]*?<\/script>/gi,'');
+  s = s.replace(/<style[\s\S]*?<\/style>/gi,'');
+  s = s.replace(/<iframe[\s\S]*?<\/iframe>/gi,'');
+  // Remover imágenes (son de localhost, no sirven online)
+  s = s.replace(/<img[^>]*>/gi,'');
+  // Limpiar atributos peligrosos pero conservar estructura
+  s = s.replace(/\s+on\w+="[^"]*"/gi,'');
+  s = s.replace(/\s+style="[^"]*"/gi,'');
+  s = s.replace(/\s+class="[^"]*"/gi,'');
+  // Limpiar tags vacíos repetidos
+  s = s.replace(/(<p>\s*<\/p>\s*)+/gi,'');
+  s = s.replace(/(<p>&nbsp;<\/p>\s*)+/gi,'');
+  // Hacer todos los links seguros: abrir en nueva pestaña
+  s = s.replace(/<a\s+/gi, '<a target="_blank" rel="noopener" ');
+  // Limpiar doble target si ya tenía
+  s = s.replace(/target="_blank"\s+target="_blank"/gi, 'target="_blank"');
+  return s.trim();
+}
+
+function fixEscapes(s) {
+  return s.replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\r/g,'\n')
+           .replace(/\\"/g,'"').replace(/\\'/g,"'").replace(/\\\\/g,'\\');
+}
+
+function fixHtmlEntities(s) {
+  return s.replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>')
+          .replace(/&quot;/gi,'"').replace(/&#39;/gi,"'")
+          .replace(/&aacute;/gi,'á').replace(/&eacute;/gi,'é').replace(/&iacute;/gi,'í')
+          .replace(/&oacute;/gi,'ó').replace(/&uacute;/gi,'ú').replace(/&ntilde;/gi,'ñ')
+          .replace(/&Aacute;/gi,'Á').replace(/&Eacute;/gi,'É').replace(/&Iacute;/gi,'Í')
+          .replace(/&Oacute;/gi,'Ó').replace(/&Uacute;/gi,'Ú').replace(/&Ntilde;/gi,'Ñ')
+          .replace(/&#\d+;/gi,'');
+}
+
+function processText(str) {
+  if (!str) return '';
+  let s = String(str);
+  s = fixEncoding(s);
+  s = stripHTML(s);
+  return s;
+}
+
+// Para notas y descripcion: conserva HTML con tablas, solo quita imágenes y scripts
+function processHTML(str) {
+  if (!str) return '';
+  let s = String(str);
+  s = fixEncoding(s);
+  s = sanitizeHTML(s);
+  return s;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PARSER SQL — robusto para phpMyAdmin multi-row y single-row
+// ══════════════════════════════════════════════════════════════════════
+function splitValues(str) {
+  const parts = [];
+  let depth = 0, inStr = false, cur = '', i = 0;
+  while (i < str.length) {
+    const ch = str[i];
+    if (ch === "'" && !inStr) { inStr = true; cur += ch; }
+    else if (ch === "'" && inStr) {
+      if (str[i+1] === "'") { cur += "'"; i++; }
+      else { inStr = false; cur += ch; }
+    }
+    else if (ch === '\\' && inStr) {
+      i++;
+      const nc = str[i] || '';
+      if (nc === 'n') cur += '\n';
+      else if (nc === 'r') cur += '\r';
+      else if (nc === 't') cur += '\t';
+      else if (nc === "'") cur += "'";
+      else if (nc === '\\') cur += '\\';
+      else if (nc === '"') cur += '"';
+      else cur += nc;
+    }
+    else if (!inStr && ch === '(') { depth++; cur += ch; }
+    else if (!inStr && ch === ')') { depth--; cur += ch; }
+    else if (!inStr && ch === ',' && depth === 0) { parts.push(cur.trim()); cur = ''; }
+    else cur += ch;
+    i++;
+  }
+  if (cur.trim()) parts.push(cur.trim());
+  return parts;
+}
+
+function extractTable(sql, tableName) {
+  const rows = [];
+  // Regex que captura tanto single-row como multi-row INSERTs
+  const blockRe = new RegExp(
+    `INSERT INTO \`${tableName}\` \\(([^)]+)\\) VALUES\\s*\\n?([\\s\\S]*?);[ \\t]*(?=\\n|$)`,
+    'g'
+  );
+  let m;
+  while ((m = blockRe.exec(sql)) !== null) {
+    const cols = m[1].split(',').map(c => c.trim().replace(/`/g,''));
+    const valsPart = m[2].trim();
+    // Separar filas: cada fila empieza con '('
+    const rawRows = valsPart.split(/\n\(/);
+    rawRows.forEach(rawRow => {
+      let rowStr = rawRow.replace(/^\(/, '').replace(/[),;\s]+$/, '');
+      const vals = splitValues(rowStr);
+      if (vals.length < 1) return;
+      const obj = {};
+      cols.forEach((c, i) => {
+        let v = (vals[i] || '').trim();
+        if (v === 'NULL' || v === '') v = null;
+        else if (v.startsWith("'") && v.endsWith("'")) v = v.slice(1,-1);
+        else if (!isNaN(v) && v !== '') v = Number(v);
+        obj[c] = v;
+      });
+      // Solo agregar si tiene al menos un campo con valor
+      if (Object.values(obj).some(v => v !== null && v !== '')) {
+        rows.push(obj);
+      }
+    });
+  }
+  return rows;
+}
+
+function parseSQL(sql) {
+  return {
+    repuestos:   extractTable(sql, 'repuestos_pa'),
+    categorias:  extractTable(sql, 'repuestos_cat'),
+    marcasVeh:   extractTable(sql, 'repuestos_marcas'),
+    marcasRep:   extractTable(sql, 'rep_marcas_rep'),
+    estanterias: extractTable(sql, 'repuestos_estanteria'),
+    estantes:    extractTable(sql, 'repuestos_estantes'),
+    tiposVeh:    extractTable(sql, 'repuestos_tipo_vehiculos'),
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// MAPEO id_vehiculo → texto
+// Prioridad: tabla repuestos_tipo_vehiculos del SQL → fallback hardcoded
+// ══════════════════════════════════════════════════════════════════════
+const TIPO_VEH_FALLBACK = {
+  '1':'Automovil','2':'Bus','3':'Camion','4':'Camioneta',
+  '5':'Pick Up','6':'Remolque','7':'Tractor','8':'Trailer',
+  '9':'Universal','10':'Jeep','11':'Unimog',
+  '12':'Maquinaria Pesada','13':'Maquinaria Agricola',
+  '14':'Construccion','15':'Militar','16':'Bus',
+  'automovil':'Automovil','auto':'Automovil',
+  'camion':'Camion','camión':'Camion',
+  'pickup':'Pick Up','pick up':'Pick Up',
+  'todos':'Universal','universal':'Universal',
+};
+
+// Se llena con los datos del SQL repuestos_tipo_vehiculos
+let tipoVehMap = {};
+
+function resolverTipoVeh(idVeh) {
+  if (!idVeh && idVeh !== 0) return 'Automovil';
+  const s = String(idVeh).trim();
+  const sl = s.toLowerCase();
+  if (sl.includes('<') || sl.includes('notice') || sl.includes('undefined')) return 'Automovil';
+  // Buscar en mapa del SQL primero
+  return tipoVehMap[s] || tipoVehMap[sl] || TIPO_VEH_FALLBACK[s] || TIPO_VEH_FALLBACK[sl] || 'Automovil';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RESOLUCIÓN DE IDs → NOMBRES
+// ══════════════════════════════════════════════════════════════════════
+let catMap = {};
+let marcaVehMap = {};
+let marcaRepMap = {};
+
+function buildLocalMaps() {
+  // Tipos de vehículo desde SQL
+  tipoVehMap = {};
+  for (const t of parsedData.tiposVeh) {
+    const id     = String(t.id_tipo_vehiculo || t.id || '');
+    const nombre = fixEncoding(String(t.nombre_tipo_vehiculo || t.nombre || ''));
+    if (id && nombre) {
+      tipoVehMap[id] = nombre;
+      tipoVehMap[nombre.toLowerCase()] = nombre;
+    }
+  }
+
+  // Categorías
+  catMap = {};
+  for (const c of parsedData.categorias) {
+    const id     = String(c.id || c.id_cat || '');
+    const nombre = fixEncoding(String(c.nombre || c.nombre_cat || ''));
+    if (id) catMap[id] = nombre;
+  }
+
+  // Marcas vehículo
+  marcaVehMap = {};
+  for (const m of parsedData.marcasVeh) {
+    const id     = String(m.id || m.id_marca || '');
+    const nombre = fixEncoding(String(m.marca || m.marca_logo || m.nombre || ''));
+    if (id) marcaVehMap[id] = nombre;
+    // también por id_marca
+    const id2 = String(m.id_marca || '');
+    if (id2 && id2 !== id) marcaVehMap[id2] = nombre;
+  }
+
+  // Marcas repuesto
+  marcaRepMap = {};
+  for (const m of parsedData.marcasRep) {
+    const id     = String(m.id || m.id_marca_rep || '');
+    const nombre = fixEncoding(String(m.nombre_rep || m.marca_rep || m.nombre || ''));
+    if (id) marcaRepMap[id] = nombre;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// MAPEO repuesto MySQL → documento Firestore
+// ══════════════════════════════════════════════════════════════════════
+function mapRepuesto(r) {
+  // Marcas de vehículo (IDs 1-20)
+  const marcasNombres = [];
+  for (let i = 1; i <= 20; i++) {
+    const key = i === 1 ? 'id_marca' : `id_marca_${i}`;
+    const idMarca = r[key];
+    if (idMarca && String(idMarca) !== '0' && idMarca !== null) {
+      const nombre = marcaVehMap[String(idMarca)];
+      if (nombre) marcasNombres.push(nombre);
+      else if (String(idMarca).match(/[a-zA-Z]/)) marcasNombres.push(fixEncoding(String(idMarca)));
+    }
+  }
+
+  // Categoría
+  const idCat    = String(r.id_categoria || '');
+  const nombreCat = catMap[idCat] || '';
+
+  // Tipo vehículo
+  const tipoVeh = resolverTipoVeh(r.id_vehiculo);
+
+  // Tipo (ORIGINAL | COPIA)
+  let tipo = 'ORIGINAL';
+  if (r.tipo) {
+    const t = String(r.tipo).toUpperCase().trim();
+    if (t === 'COPIA' || t === 'ALTERNATIVO' || t === 'GENERICO') tipo = 'COPIA';
+  }
+
+  // Condición (NUEVO | USADO)
+  let condicion = 'NUEVO';
+  if (r.condicion) {
+    const c = String(r.condicion).toUpperCase().trim();
+    if (c.includes('USADO') || c.includes('USED')) condicion = 'USADO';
+  }
+
+  // Textos
+  const titulo      = processText(r.titulo_repuesto || r.titulo_principal || '');
+  const descripcion = processHTML(r.descripcion_ok  || r.descripcion || '');
+  const aplicacion  = processText(r.aplicacion || '');
+  let   notas       = processHTML(r.notas || '');
+  const importante  = processText(r.importante || '');
+  const material    = processText(r.material || '');
+
+  // Solo limpiar notas que son SOLO whitespace
+  if (!notas.trim()) notas = '';
+
+  // Códigos de proveedores
+  const codsFields = [
+    'codigo_sin','codigo_zen','codigo_nosso','codigo_zm','codigo_bosch','codigo_indiel',
+    'codigo_bzm','codigo_oro','codigo_ml','codigo_dipra','codigo_hard','codigo_autolube',
+    'codigo_baiml','codigo_turi','codigo_aj','codigo_lc','codigo_genoud','codigo_dze',
+    'codigo_alfa','codigo_roher','codigo_ph','codigo_fesal','codigo_eralsa','codigo_dog',
+    'codigo_kessel','codigo_fa','codigo_corpac','codigo_autobat','codigo_veypa','codigo_daipart',
+    'codigo_hds','codigo_rotofrance','codigo_tch','codigo_portafich','codigo_omer','codigo_vuaram',
+    'codigo_byc','codigo_schunk','codigo_gv_esc','codigo_ar_gon','codigo_lorraine','codigo_zocchio',
+    'codigo_prestolite','codigo_lampara','codigo_osram','codigo_philips','codigo_ralux','codigo_rtm',
+    'codigo_mirba','codigo_valeo','codigo_bobinar'
+  ];
+  const provNames = [
+    'SIN','ZEN','NOSSO','ZM','BOSCH','INDIEL','BZM','ORO','ML','DIPRA','HARD','AUTOLUBE',
+    'BAIML','TURI','AJ','LC','GENOUD','DZE','ALFA','ROHER','PH','FESAL','ERALSA','DOG',
+    'KESSEL','FA','CORPAC','AUTOBAT','VEYPA','DAIPART','HDS','ROTOFRANCE','TCH','PORTAFICH',
+    'OMER','VUARAM','BYC','SCHUNK','GV ESC','AR GON','LORRAINE','ZOCCHIO','PRESTOLITE',
+    'LAMPARA','OSRAM','PHILIPS','RALUX','RTM','MIRBA','VALEO','BOBINAR'
+  ];
+  const codigos = [];
+  codsFields.forEach((f, idx) => {
+    const v = r[f];
+    if (v && String(v).trim() !== '' && String(v).trim() !== '0') {
+      codigos.push({ proveedor: provNames[idx] || f, codigo: String(v).trim() });
+    }
+  });
+
+  // Marcas del repuesto (id_rep_marca 1-5)
+  const marcasRep = [];
+  for (let i = 1; i <= 5; i++) {
+    const key = i === 1 ? 'id_rep_marca' : `id_rep_marca_${i}`;
+    const idMR = r[key];
+    if (idMR && String(idMR) !== '0' && idMR !== null) {
+      const nombre = marcaRepMap[String(idMR)];
+      if (nombre) marcasRep.push(nombre);
+      else if (String(idMR).match(/[a-zA-Z]/)) marcasRep.push(fixEncoding(String(idMR)));
+    }
+  }
+  if (r.fabricante_repuesto && String(r.fabricante_repuesto).trim()) {
+    const fab = fixEncoding(String(r.fabricante_repuesto).trim());
+    if (!marcasRep.includes(fab)) marcasRep.push(fab);
+  }
+
+  const precioCompre = parseFloat(r.precio_compre) || 0;
+  const tarifa       = parseFloat(r.tarifa)        || 0;
+
+  return {
+    titulo_repuesto:      titulo,
+    arranque:             r.arr_marca ? fixEncoding(String(r.arr_marca)) : '',
+    alternador:           r.alt_marca ? fixEncoding(String(r.alt_marca)) : '',
+    modelo_repuesto:      r.modelo    ? fixEncoding(String(r.modelo))    : '',
+    aplicacion:           aplicacion,
+    tipo:                 tipo,
+    tipo_repuesto:        tipo,
+    condicion:            condicion,
+    tipo_vehiculo:        tipoVeh,
+    categoria:            nombreCat,
+    id_categoria_mysql:   idCat,
+    marcas_vehiculo:      marcasNombres,
+    marcas_modelos_texto: r.modelo_vehiculo ? fixEncoding(String(r.modelo_vehiculo)) : '',
+    marcas_repuesto:      marcasRep,
+    fabricante_repuesto:  r.fabricante_repuesto ? fixEncoding(String(r.fabricante_repuesto)) : '',
+    codigos_proveedores:  codigos,
+    codigo:               codigos[0]?.codigo || '',
+    id_estanteria:        String(r.id_estanteria || ''),
+    id_estante:           String(r.id_estante    || ''),
+    cant_artic:           parseInt(r.cant_artic) || 0,
+    precio_costo:         precioCompre,
+    precio_venta:         tarifa,
+    precio_venta_iva:     tarifa,
+    descripcion:          descripcion,
+    notas:                notas,
+    importante:           importante,
+    material:             material,
+    lado:                 r.lado ? fixEncoding(String(r.lado)) : '',
+    imagen_url:           '',
+    imagenes:             [],
+    alta:                 r.publicado == 1 || r.publicado === '1',
+    publicado:            r.publicado == 1,
+    origen:               'mysql-import-v3',
+    id_mysql:             String(r.id || ''),
+    fecha_importacion:    new Date().toISOString(),
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// BORRAR COLECCIÓN COMPLETA EN LOTES
+// ══════════════════════════════════════════════════════════════════════
+async function deleteCollection(colName) {
+  const snap = await getDocs(collection(db, colName));
+  if (snap.empty) { log(`  🗑️ ${colName}: vacía (nada que borrar)`, 'inf'); return 0; }
+  let deleted = 0;
+  // Borrar en lotes de 10 en paralelo
+  const chunks = [];
+  for (let i = 0; i < snap.docs.length; i += 10) chunks.push(snap.docs.slice(i, i+10));
+  for (const chunk of chunks) {
+    await Promise.all(chunk.map(d => deleteDoc(doc(db, colName, d.id))));
+    deleted += chunk.length;
+  }
+  log(`  🗑️ ${colName}: ${deleted} documentos eliminados`, 'warn');
+  return deleted;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// DRAG & DROP
+// ══════════════════════════════════════════════════════════════════════
+const dropZone  = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('over');
+  handleFiles(Array.from(e.dataTransfer.files));
+});
+fileInput.addEventListener('change', () => handleFiles(Array.from(fileInput.files)));
+
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = e => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('Error al leer ' + file.name));
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+async function handleFiles(files) {
+  if (!files.length) return;
+  document.getElementById('drop-title').textContent = `⏳ Leyendo ${files.length} archivo(s)...`;
+  let combinedSQL = '';
+  for (const file of files) {
+    const text = await readFileAsText(file);
+    combinedSQL += '\n' + text;
+  }
+  processSQL(combinedSQL, files.map(f => f.name).join(' + '));
+}
+
+function processSQL(sql, filename) {
+  try {
+    parsedData = parseSQL(sql);
+    document.getElementById('drop-title').textContent = `✅ ${filename}`;
+    document.getElementById('snum1').classList.add('step-done');
+
+    const statsHTML = [
+      { n: parsedData.repuestos.length,   l: 'Repuestos' },
+      { n: parsedData.categorias.length,  l: 'Categorías' },
+      { n: parsedData.marcasVeh.length,   l: 'Marcas vehículo' },
+      { n: parsedData.marcasRep.length,   l: 'Marcas repuesto' },
+      { n: parsedData.estanterias.length, l: 'Estanterías' },
+      { n: parsedData.estantes.length,    l: 'Estantes' },
+      { n: parsedData.tiposVeh.length,    l: 'Tipos vehículo' },
+    ].map(s => `<div class="stat"><div class="n" style="color:${s.n>0?'#22c55e':'#ef4444'}">${s.n}</div><div class="l">${s.l}</div></div>`).join('');
+
+    document.getElementById('stats-area').innerHTML = statsHTML;
+    document.getElementById('parse-result').style.display = 'block';
+
+    // Alertas sobre tablas faltantes
+    const issues = [];
+    if (parsedData.repuestos.length   === 0) issues.push('❌ No se encontró la tabla <strong>repuestos_pa</strong> — no hay nada para importar');
+    if (parsedData.categorias.length  === 0) issues.push('⚠️ No se encontró <strong>repuestos_cat</strong> — las categorías quedarán vacías');
+    if (parsedData.marcasVeh.length   === 0) issues.push('⚠️ No se encontró <strong>repuestos_marcas</strong> — marcas de vehículo vacías');
+    if (parsedData.marcasRep.length   === 0) issues.push('⚠️ No se encontró <strong>rep_marcas_rep</strong> — marcas de repuesto vacías');
+    if (parsedData.tiposVeh.length    === 0) issues.push('⚠️ No se encontró <strong>repuestos_tipo_vehiculos</strong> — se usará mapeo por defecto');
+
+    const issuesEl = document.getElementById('issues-list');
+    if (issues.length) {
+      issuesEl.innerHTML = issues.join('<br>');
+      issuesEl.style.display = 'block';
+    } else {
+      issuesEl.style.display = 'none';
+    }
+
+    // Contar existentes en Firestore
+    getDocs(collection(db, 'repuestos')).then(snap => {
+      document.getElementById('warn-existentes').innerHTML =
+        `Actualmente hay <strong>${snap.size} repuestos en Firestore</strong> que serán eliminados y reemplazados por los ${parsedData.repuestos.length} del SQL.`;
+    });
+
+    const step2 = document.getElementById('card-step2');
+    step2.style.opacity = '1';
+    step2.style.pointerEvents = 'auto';
+
+  } catch(err) {
+    alert('Error al parsear el SQL: ' + err.message);
+    console.error(err);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// VISTA PREVIA
+// ══════════════════════════════════════════════════════════════════════
+window.doPreview = function() {
+  const soloPub  = document.getElementById('opt-publicados').value === 'only';
+  const precioMin = parseFloat(document.getElementById('opt-precio-min').value) || 0;
+  let reps = parsedData.repuestos;
+  if (soloPub)     reps = reps.filter(r => r.publicado == 1 || r.publicado === '1');
+  if (precioMin>0) reps = reps.filter(r => (parseFloat(r.tarifa)||0) >= precioMin);
+
+  const rows = [
+    { col: 'repuestos',       n: reps.length,                    accion: '🗑️ BORRAR TODO + Reimportar' },
+    { col: 'categorias',      n: parsedData.categorias.length,   accion: '🗑️ BORRAR TODO + Reimportar' },
+    { col: 'marcas_vehiculo', n: parsedData.marcasVeh.length,    accion: '🗑️ BORRAR TODO + Reimportar' },
+    { col: 'marcas_repuesto', n: parsedData.marcasRep.length,    accion: '🗑️ BORRAR TODO + Reimportar' },
+    { col: 'estanterias',     n: parsedData.estanterias.length,  accion: '🗑️ BORRAR TODO + Reimportar' },
+    { col: 'estantes',        n: parsedData.estantes.length,     accion: '🗑️ BORRAR TODO + Reimportar' },
+    { col: 'tipos_vehiculo',  n: parsedData.tiposVeh.length,     accion: '🗑️ BORRAR TODO + Reimportar' },
+  ];
+
+  document.getElementById('preview-tbody').innerHTML = rows.map(r =>
+    `<tr>
+      <td><strong>${r.col}</strong></td>
+      <td><span class="badge ${r.n > 0 ? 'badge-ok' : 'badge-warn'}">${r.n} registros</span></td>
+      <td style="color:#fca5a5;font-size:12px">${r.accion}</td>
+    </tr>`
+  ).join('');
+
+  document.getElementById('preview-area').style.display = 'block';
+  document.getElementById('snum2').classList.add('step-done');
+
+  const step3 = document.getElementById('card-step3');
+  step3.style.opacity = '1';
+  step3.style.pointerEvents = 'auto';
+  document.getElementById('btn-import').disabled = false;
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// IMPORTACIÓN PRINCIPAL
+// ══════════════════════════════════════════════════════════════════════
+window.doImport = async function() {
+  stopFlag = false;
+  clearLog();
+  document.getElementById('btn-import').disabled = true;
+  document.getElementById('btn-stop').style.display = 'inline-block';
+  document.getElementById('prog-wrap').style.display = 'block';
+  setProgress(0);
+
+  const soloPub  = document.getElementById('opt-publicados').value === 'only';
+  const precioMin = parseFloat(document.getElementById('opt-precio-min').value) || 0;
+
+  try {
+    // ─── 0. CONSTRUIR MAPAS LOCALES ──────────────────────────────────
+    log('🗺️ Construyendo mapas de categorías, marcas y tipos...', 'inf');
+    buildLocalMaps();
+    log(`   📁 Categorías: ${Object.keys(catMap).length} entradas`, 'inf');
+    log(`   🚗 Marcas vehículo: ${Object.keys(marcaVehMap).length} entradas`, 'inf');
+    log(`   🔧 Marcas repuesto: ${Object.keys(marcaRepMap).length} entradas`, 'inf');
+    log(`   🚙 Tipos vehículo: ${Object.keys(tipoVehMap).length} entradas`, 'inf');
+    setProgress(3);
+
+    // ─── 1. BORRAR TODAS LAS COLECCIONES ────────────────────────────
+    log('\n🗑️ Borrando colecciones existentes...', 'warn');
+    const collections = ['repuestos','categorias','marcas_vehiculo','marcas_repuesto','estanterias','estantes','tipos_vehiculo'];
+    for (const col of collections) {
+      if (stopFlag) break;
+      await deleteCollection(col);
+    }
+    setProgress(15);
+    log('✅ Limpieza completada', 'ok');
+
+    // ─── 2. IMPORTAR TIPOS DE VEHÍCULO ──────────────────────────────
+    if (parsedData.tiposVeh.length > 0) {
+      log('\n🚙 Importando tipos de vehículo...', 'inf');
+      for (const t of parsedData.tiposVeh) {
+        if (stopFlag) break;
+        const nombre = fixEncoding(String(t.nombre_tipo_vehiculo || t.nombre || ''));
+        await addDoc(collection(db, 'tipos_vehiculo'), {
+          nombre:    nombre,
+          id_mysql:  String(t.id_tipo_vehiculo || t.id || ''),
+          creado_en: serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.tiposVeh.length} tipos de vehículo importados`, 'ok');
+    }
+    setProgress(20);
+
+    // ─── 3. IMPORTAR CATEGORÍAS ──────────────────────────────────────
+    if (parsedData.categorias.length > 0) {
+      log('\n📁 Importando categorías...', 'inf');
+      for (const cat of parsedData.categorias) {
+        if (stopFlag) break;
+        const nombre = fixEncoding(String(cat.nombre || cat.nombre_cat || ''));
+        await addDoc(collection(db, 'categorias'), {
+          nombre:    nombre,
+          id_mysql:  String(cat.id || cat.id_cat || ''),
+          creado_en: serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.categorias.length} categorías importadas`, 'ok');
+    }
+    setProgress(30);
+
+    // ─── 4. IMPORTAR MARCAS VEHÍCULO ────────────────────────────────
+    if (parsedData.marcasVeh.length > 0) {
+      log('\n🚗 Importando marcas de vehículo...', 'inf');
+      for (const m of parsedData.marcasVeh) {
+        if (stopFlag) break;
+        const nombre = fixEncoding(String(m.marca || m.marca_logo || m.nombre || ''));
+        await addDoc(collection(db, 'marcas_vehiculo'), {
+          nombre:         nombre,
+          id_mysql:       String(m.id || ''),
+          id_marca_mysql: String(m.id_marca || m.id || ''),
+          creado_en:      serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.marcasVeh.length} marcas de vehículo importadas`, 'ok');
+    }
+    setProgress(40);
+
+    // ─── 5. IMPORTAR MARCAS REPUESTO ────────────────────────────────
+    if (parsedData.marcasRep.length > 0) {
+      log('\n🔧 Importando marcas de repuesto...', 'inf');
+      for (const m of parsedData.marcasRep) {
+        if (stopFlag) break;
+        const nombre = fixEncoding(String(m.nombre_rep || m.marca_rep || m.nombre || ''));
+        await addDoc(collection(db, 'marcas_repuesto'), {
+          nombre:    nombre,
+          id_mysql:  String(m.id || m.id_marca_rep || ''),
+          creado_en: serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.marcasRep.length} marcas de repuesto importadas`, 'ok');
+    }
+    setProgress(50);
+
+    // ─── 6. IMPORTAR ESTANTERÍAS ────────────────────────────────────
+    if (parsedData.estanterias.length > 0) {
+      log('\n📦 Importando estanterías...', 'inf');
+      for (const e of parsedData.estanterias) {
+        if (stopFlag) break;
+        await addDoc(collection(db, 'estanterias'), {
+          nombre:    fixEncoding(String(e.nombre_estanteria || e.nombre || '')),
+          id_mysql:  String(e.id || ''),
+          creado_en: serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.estanterias.length} estanterías importadas`, 'ok');
+    }
+    if (parsedData.estantes.length > 0) {
+      log('🗂️ Importando estantes...', 'inf');
+      for (const e of parsedData.estantes) {
+        if (stopFlag) break;
+        await addDoc(collection(db, 'estantes'), {
+          nombre:    fixEncoding(String(e.nombre_estante || e.nombre || '')),
+          id_mysql:  String(e.id || ''),
+          creado_en: serverTimestamp()
+        });
+      }
+      log(`✅ ${parsedData.estantes.length} estantes importados`, 'ok');
+    }
+    setProgress(55);
+
+    // ─── 7. IMPORTAR REPUESTOS ──────────────────────────────────────
+    let reps = parsedData.repuestos;
+    if (soloPub)     reps = reps.filter(r => r.publicado == 1 || r.publicado === '1');
+    if (precioMin>0) reps = reps.filter(r => (parseFloat(r.tarifa)||0) >= precioMin);
+
+    log(`\n🔩 Importando ${reps.length} repuestos...`, 'inf');
+    document.getElementById('import-status').textContent = `0 / ${reps.length}...`;
+
+    let ok = 0, err = 0;
+    const total = reps.length;
+    const BATCH = 6; // Conservador para evitar errores de cuota
+
+    for (let i = 0; i < reps.length; i += BATCH) {
+      if (stopFlag) { log('⏹ Detenido por el usuario', 'warn'); break; }
+
+      const chunk = reps.slice(i, i + BATCH);
+      await Promise.all(chunk.map(async r => {
+        try {
+          const data = mapRepuesto(r);
+          await addDoc(collection(db, 'repuestos'), { ...data, creado_en: serverTimestamp() });
+          ok++;
+        } catch(e) {
+          err++;
+          log(`  ❌ id_mysql=${r.id}: ${e.message}`, 'err');
+        }
+      }));
+
+      const pct = 55 + Math.round((ok / total) * 43);
+      setProgress(pct);
+      document.getElementById('import-status').textContent = `${ok} / ${total}...`;
+
+      if (ok > 0 && ok % 50 === 0) log(`  ✔ ${ok} repuestos importados...`, 'ok');
+    }
+
+    setProgress(100);
+    log(`\n🎉 ¡Importación completada!`, 'ok');
+    log(`   ✅ ${ok} repuestos importados correctamente`, 'ok');
+    if (err > 0) log(`   ❌ ${err} con error (ver arriba)`, 'err');
+    if (parsedData.categorias.length > 0)  log(`   📁 ${parsedData.categorias.length} categorías`, 'ok');
+    if (parsedData.marcasVeh.length > 0)   log(`   🚗 ${parsedData.marcasVeh.length} marcas de vehículo`, 'ok');
+    if (parsedData.marcasRep.length > 0)   log(`   🔧 ${parsedData.marcasRep.length} marcas de repuesto`, 'ok');
+    if (parsedData.tiposVeh.length > 0)    log(`   🚙 ${parsedData.tiposVeh.length} tipos de vehículo`, 'ok');
+
+    document.getElementById('snum3').classList.add('step-done');
+    document.getElementById('import-status').textContent = `✅ Listo — ${ok} importados`;
+
+  } catch(e) {
+    log(`❌ Error fatal: ${e.message}`, 'err');
+    console.error(e);
+  }
+
+  document.getElementById('btn-import').disabled = false;
+  document.getElementById('btn-stop').style.display = 'none';
+};
+
+window.stopImport = function() { stopFlag = true; };
+
+</script>
+</body>
+</html>
