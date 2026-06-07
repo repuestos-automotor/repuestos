@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Actualizar Precios — Bobinar</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;background:#0f0f0f;color:#e0e0e0;padding:24px;max-width:960px;margin:0 auto}
+  h1{color:#f90;font-size:22px;margin-bottom:4px}
+  .sub{color:#888;font-size:13px;margin-bottom:24px}
+  .card{background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:20px;margin-bottom:16px}
+  .card h2{font-size:15px;color:#ccc;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .btn{padding:11px 24px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+  .btn-primary{background:#f90;color:#000}
+  .btn-primary:disabled{background:#555;color:#888;cursor:not-allowed}
+  .btn-ghost{background:#333;color:#ccc;border:1px solid #444}
+  .drop-zone{border:2px dashed #444;border-radius:10px;padding:40px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:14px}
+  .drop-zone:hover,.drop-zone.drag{border-color:#f90}
+  .drop-zone p{color:#888;font-size:14px;margin-top:8px}
+  .drop-zone .icon{font-size:40px}
+  input[type=file]{display:none}
+  .config-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+  .config-item label{display:block;font-size:11px;color:#888;margin-bottom:4px}
+  .config-item input,.config-item select{width:100%;background:#111;border:1px solid #333;color:#e0e0e0;padding:8px 10px;border-radius:6px;font-size:13px}
+  .preview-table{width:100%;border-collapse:collapse;font-size:12px}
+  .preview-table th{background:#111;color:#888;padding:7px 10px;text-align:left;border-bottom:1px solid #333;font-weight:500}
+  .preview-table td{padding:7px 10px;border-bottom:1px solid #1e1e1e}
+  .preview-table tr:hover td{background:#1f1f1f}
+  .badge{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
+  .badge-match{background:rgba(34,197,94,.15);color:#4ade80}
+  .badge-new{background:rgba(59,130,246,.15);color:#60a5fa}
+  .badge-nomatch{background:rgba(100,100,100,.15);color:#888}
+  .price-old{color:#e55;text-decoration:line-through;font-size:11px}
+  .price-new{color:#4ade80;font-weight:600}
+  .barra-wrap{background:#111;border-radius:20px;height:10px;overflow:hidden;margin:10px 0}
+  .barra{height:100%;background:linear-gradient(90deg,#f90,#fc0);border-radius:20px;width:0%;transition:width .3s}
+  #log{background:#111;border:1px solid #222;border-radius:6px;padding:10px;height:260px;overflow-y:auto;font-size:11px;font-family:monospace}
+  .log-ok{color:#4ade80} .log-skip{color:#666} .log-err{color:#e55} .log-info{color:#68d}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+  .stat-box{background:#111;border-radius:8px;padding:12px;text-align:center}
+  .stat-num{font-size:26px;font-weight:700;color:#f90}
+  .stat-lbl{font-size:11px;color:#666;margin-top:2px}
+  .info-box{background:#101820;border:1px solid #246;border-radius:6px;padding:10px 14px;font-size:12px;color:#68d;margin-bottom:14px}
+  .tab-bar{display:flex;gap:8px;margin-bottom:14px}
+  .tab-btn{padding:6px 14px;border-radius:6px;border:1px solid #333;background:#111;color:#888;font-size:12px;cursor:pointer}
+  .tab-btn.active{background:#f90;color:#000;border-color:#f90;font-weight:700}
+  .tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;background:#222;color:#888;margin-right:3px}
+</style>
+</head>
+<body>
+
+<h1>🔄 Actualizador de Precios — Bobinar</h1>
+<p class="sub">Subí el Excel exportado desde el Gestor de Pedidos Bobinar para actualizar los precios en tu sistema</p>
+
+<div class="card">
+  <h2>📂 Paso 1 — Seleccioná el Excel de Bobinar</h2>
+  <div class="info-box">
+    💡 En el programa <b>Gestor Pedidos Bobinar</b>, hacé click en el botón <b>Excel</b> (arriba a la derecha) para exportar el listado. El archivo se llama algo como <code>ListadoPrecios_2026-06-07_15-17-38.xls</code>
+  </div>
+  <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <div class="icon">📊</div>
+    <p>Hacé click o arrastrá el archivo <b>.xls / .xlsx</b> de Bobinar aquí</p>
+    <input type="file" id="file-input" accept=".xls,.xlsx">
+  </div>
+  <div id="file-info" style="display:none;font-size:13px;color:#4ade80;margin-bottom:10px">✅ <span id="file-name"></span></div>
+</div>
+
+<div class="card" id="config-card" style="display:none">
+  <h2>⚙️ Paso 2 — Configuración</h2>
+  <div class="config-grid">
+    <div class="config-item">
+      <label>¿Qué precio actualizar?</label>
+      <select id="cfg-campo">
+        <option value="precio_costo">Precio de costo (Costo Final)</option>
+        <option value="precio_venta_iva">Precio de venta c/IVA (Precio Público)</option>
+        <option value="ambos">Ambos</option>
+      </select>
+    </div>
+    <div class="config-item">
+      <label>Columna código en Excel</label>
+      <select id="cfg-col-codigo">
+        <option value="0">Columna A (Código)</option>
+        <option value="1">Columna B (Detalle)</option>
+      </select>
+    </div>
+    <div class="config-item">
+      <label>Nombre del proveedor en tu sistema</label>
+      <input type="text" id="cfg-prov-nombre" value="BOBINAR" placeholder="BOBINAR">
+    </div>
+    <div class="config-item">
+      <label>Solo actualizar si el precio cambió</label>
+      <select id="cfg-solo-cambios">
+        <option value="1">Sí (recomendado)</option>
+        <option value="0">No (actualizar todos)</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="analizarExcel()">🔎 Analizar y previsualizar</button>
+</div>
+
+<div class="card" id="preview-card" style="display:none">
+  <h2>👁️ Paso 3 — Previsualización</h2>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="mostrarTab('con-match',this)">✅ Con match (<span id="cnt-match">0</span>)</button>
+    <button class="tab-btn" onclick="mostrarTab('sin-match',this)">⚠️ Sin match en tu sistema (<span id="cnt-nomatch">0</span>)</button>
+    <button class="tab-btn" onclick="mostrarTab('sin-codigo',this)">🔲 Sin código Bobinar cargado (<span id="cnt-nocode">0</span>)</button>
+  </div>
+
+  <div id="tab-con-match">
+    <div style="font-size:12px;color:#888;margin-bottom:8px">Repuestos de tu sistema que matchean con Bobinar — se van a actualizar los precios:</div>
+    <div style="overflow-x:auto;max-height:300px;overflow-y:auto">
+      <table class="preview-table" id="tbl-match">
+        <thead><tr>
+          <th>Código Bobinar</th><th>Detalle Bobinar</th><th>Tu repuesto</th>
+          <th>Costo actual</th><th>Costo nuevo</th><th>Precio venta actual</th><th>Precio venta nuevo</th>
+        </tr></thead>
+        <tbody id="tbody-match"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-sin-match" style="display:none">
+    <div style="font-size:12px;color:#888;margin-bottom:8px">Productos de Bobinar que no encontramos en tu sistema (no se tocan):</div>
+    <div style="overflow-x:auto;max-height:300px;overflow-y:auto">
+      <table class="preview-table">
+        <thead><tr><th>Código</th><th>Detalle</th><th>Costo Final</th><th>Precio Público</th><th>Marca</th></tr></thead>
+        <tbody id="tbody-nomatch"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab-sin-codigo" style="display:none">
+    <div style="font-size:12px;color:#888;margin-bottom:8px">Repuestos en tu sistema sin código Bobinar cargado — no se pueden matchear automáticamente:</div>
+    <div style="overflow-x:auto;max-height:300px;overflow-y:auto">
+      <table class="preview-table">
+        <thead><tr><th>Tu repuesto</th><th>Código interno</th><th>Categoría</th><th>Precio actual</th></tr></thead>
+        <tbody id="tbody-nocode"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;display:flex;gap:10px;align-items:center">
+    <button class="btn btn-primary" id="btn-aplicar" onclick="aplicarActualizacion()">⚡ Aplicar actualización</button>
+    <span id="preview-resumen" style="font-size:13px;color:#888"></span>
+  </div>
+</div>
+
+<div class="card" id="progreso-card" style="display:none">
+  <h2>⏳ Actualizando precios en Firestore...</h2>
+  <div style="display:flex;justify-content:space-between;font-size:13px;color:#f90;margin-bottom:6px">
+    <span id="prog-estado">Iniciando...</span>
+    <span id="prog-nums">0 / 0</span>
+  </div>
+  <div class="barra-wrap"><div class="barra" id="barra-prog"></div></div>
+  <div id="log"></div>
+  <div class="stats-grid" id="stats-final" style="display:none">
+    <div class="stat-box"><div class="stat-num" id="s-ok">0</div><div class="stat-lbl">Actualizados</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-skip">0</div><div class="stat-lbl">Sin cambios</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-err">0</div><div class="stat-lbl">Errores</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Procesados</div></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="module">
+import { initializeApp }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, updateDoc }
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+let excelData   = [];  // filas del Excel de Bobinar
+let matchList   = [];  // { repId, repNombre, codBobinar, costoViejo, costoNuevo, ventaViejo, ventaNuevo }
+let repsFirestore = [];
+
+const fmt = n => n ? new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n) : '—';
+const logEl = () => document.getElementById('log');
+function log(msg, tipo='info') {
+  const el = logEl(); if (!el) return;
+  const d = document.createElement('div');
+  d.className = 'log-'+tipo; d.textContent = msg;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+
+// ── DRAG & DROP ──────────────────────────────────────
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e=>{ e.preventDefault(); dropZone.classList.remove('drag'); handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e=>handleFile(e.target.files[0]));
+
+function handleFile(file) {
+  if (!file) return;
+  document.getElementById('file-name').textContent = file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
+  document.getElementById('file-info').style.display = 'block';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, {type:'array'});
+    // Buscar la hoja con más datos (puede tener Hoja1/Hoja2)
+    let bestSheet = null, bestRows = 0;
+    wb.SheetNames.forEach(name => {
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], {header:1, defval:''});
+      if (rows.length > bestRows) { bestRows = rows.length; bestSheet = name; }
+    });
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[bestSheet], {header:1, defval:''});
+    // Saltar la fila de encabezado si existe
+    const start = (String(rows[0]?.[0]||'').toLowerCase().includes('cod')) ? 1 : 0;
+    excelData = rows.slice(start).filter(r=>r[0]&&String(r[0]).trim());
+    document.getElementById('config-card').style.display = 'block';
+    document.getElementById('config-card').scrollIntoView({behavior:'smooth'});
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── ANALIZAR ─────────────────────────────────────────
+window.analizarExcel = async function() {
+  if (!excelData.length) { alert('Primero subí el Excel'); return; }
+  document.getElementById('btn-aplicar') && (document.getElementById('btn-aplicar').disabled = true);
+
+  const campo       = document.getElementById('cfg-campo').value;
+  const colCodigo   = parseInt(document.getElementById('cfg-col-codigo').value);
+  const provNombre  = document.getElementById('cfg-prov-nombre').value.trim().toUpperCase();
+  const soloCambios = document.getElementById('cfg-solo-cambios').value === '1';
+
+  // Cargar repuestos de Firestore
+  if (!repsFirestore.length) {
+    document.getElementById('preview-card').style.display = 'none';
+    const snap = await getDocs(collection(db,'repuestos'));
+    repsFirestore = snap.docs.map(d=>({id:d.id,...d.data()}));
+  }
+
+  // Construir mapa código Bobinar → repuesto Firestore
+  // Busca en codigos_proveedores donde proveedor.toUpperCase() incluye el nombre configurado
+  const mapaCodigoBobinar = {}; // codigo_bobinar_upper → rep
+  repsFirestore.forEach(r => {
+    (r.codigos_proveedores||[]).forEach(cp => {
+      if (cp.proveedor && cp.proveedor.toUpperCase().includes(provNombre) && cp.codigo) {
+        mapaCodigoBobinar[cp.codigo.trim().toUpperCase()] = r;
+      }
+    });
+  });
+
+  // Repuestos SIN código Bobinar
+  const sinCodigo = repsFirestore.filter(r =>
+    !(r.codigos_proveedores||[]).some(cp => cp.proveedor && cp.proveedor.toUpperCase().includes(provNombre) && cp.codigo)
+  );
+
+  matchList = [];
+  const noMatch = [];
+
+  // Parsear Excel: A=código, B=detalle, C=precio público, D=precio sin IVA, E=costo final, F=marca, G=rubro
+  excelData.forEach(row => {
+    const codBobinar = String(row[0]||'').trim().toUpperCase();
+    if (!codBobinar) return;
+    const detalle    = String(row[1]||'').trim();
+    const precPub    = parseFloat(String(row[2]||'').replace(/[^0-9.,]/g,'').replace(',','.')) || 0;
+    const costoFinal = parseFloat(String(row[4]||'').replace(/[^0-9.,]/g,'').replace(',','.')) || 0;
+    const marca      = String(row[5]||'').trim();
+    const rubro      = String(row[6]||'').trim();
+
+    const rep = mapaCodigoBobinar[codBobinar];
+    if (!rep) {
+      noMatch.push({codBobinar, detalle, costoFinal, precPub, marca, rubro});
+      return;
+    }
+
+    const costoViejo = rep.precio_costo||0;
+    const ventaViejo = rep.precio_venta_iva||0;
+    const costoNuevo = costoFinal > 0 ? costoFinal : costoViejo;
+    const ventaNuevo = precPub   > 0 ? precPub    : ventaViejo;
+
+    // Si solo cambios, verificar que al menos uno cambió más de $1
+    if (soloCambios && Math.abs(costoNuevo-costoViejo)<1 && Math.abs(ventaNuevo-ventaViejo)<1) return;
+
+    matchList.push({ repId:rep.id, repNombre:rep.titulo_repuesto||rep.codigo||rep.id,
+      codBobinar, detalle, costoViejo, costoNuevo, ventaViejo, ventaNuevo, campo, marca, rubro });
+  });
+
+  // Renderizar preview
+  document.getElementById('cnt-match').textContent   = matchList.length;
+  document.getElementById('cnt-nomatch').textContent  = noMatch.length;
+  document.getElementById('cnt-nocode').textContent   = sinCodigo.length;
+
+  // Tabla con match
+  document.getElementById('tbody-match').innerHTML = matchList.map(m=>`<tr>
+    <td><span style="font-family:monospace;color:#60a5fa">${m.codBobinar}</span></td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.detalle}">${m.detalle}</td>
+    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m.repNombre}">${m.repNombre}</td>
+    <td><div class="price-old">${fmt(m.costoViejo)}</div></td>
+    <td><div class="price-new">${fmt(m.costoNuevo)}</div></td>
+    <td><div class="price-old">${fmt(m.ventaViejo)}</div></td>
+    <td><div class="price-new">${fmt(m.ventaNuevo)}</div></td>
+  </tr>`).join('') || '<tr><td colspan="7" style="color:#666;text-align:center;padding:16px">Sin matches</td></tr>';
+
+  // Tabla sin match
+  document.getElementById('tbody-nomatch').innerHTML = noMatch.slice(0,200).map(m=>`<tr>
+    <td style="font-family:monospace;color:#888">${m.codBobinar}</td>
+    <td>${m.detalle}</td>
+    <td>${fmt(m.costoFinal)}</td>
+    <td>${fmt(m.precPub)}</td>
+    <td>${m.marca}</td>
+  </tr>`).join('') || '<tr><td colspan="5" style="color:#666;text-align:center;padding:16px">—</td></tr>';
+
+  // Tabla sin código
+  document.getElementById('tbody-nocode').innerHTML = sinCodigo.slice(0,200).map(r=>`<tr>
+    <td>${r.titulo_repuesto||'—'}</td>
+    <td style="font-family:monospace">${r.codigo||'—'}</td>
+    <td>${r.categoria||'—'}</td>
+    <td>${fmt(r.precio_costo)}</td>
+  </tr>`).join('') || '<tr><td colspan="4" style="color:#666;text-align:center;padding:16px">—</td></tr>';
+
+  document.getElementById('preview-resumen').textContent = `${matchList.length} repuestos van a actualizarse`;
+  document.getElementById('preview-card').style.display = 'block';
+  document.getElementById('btn-aplicar').disabled = false;
+  document.getElementById('preview-card').scrollIntoView({behavior:'smooth'});
+};
+
+// ── TABS PREVIEW ─────────────────────────────────────
+window.mostrarTab = function(tab, btn) {
+  ['con-match','sin-match','sin-codigo'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab?'':'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+};
+
+// ── APLICAR ──────────────────────────────────────────
+window.aplicarActualizacion = async function() {
+  if (!matchList.length) { alert('No hay nada para actualizar'); return; }
+  if (!confirm(`¿Actualizar ${matchList.length} repuestos en Firestore? Esta acción modifica los precios.`)) return;
+
+  document.getElementById('btn-aplicar').disabled = true;
+  document.getElementById('progreso-card').style.display = 'block';
+  document.getElementById('progreso-card').scrollIntoView({behavior:'smooth'});
+
+  const campo = document.getElementById('cfg-campo').value;
+  let ok=0, skip=0, err=0;
+
+  for (let i=0; i<matchList.length; i++) {
+    const m = matchList[i];
+    const pct = Math.round(((i+1)/matchList.length)*100);
+    document.getElementById('barra-prog').style.width = pct+'%';
+    document.getElementById('prog-nums').textContent = `${i+1} / ${matchList.length}`;
+    document.getElementById('prog-estado').textContent = `Actualizando: ${m.repNombre.substring(0,40)}...`;
+
+    const updates = {};
+    if (campo==='precio_costo'||campo==='ambos')     updates.precio_costo    = m.costoNuevo;
+    if (campo==='precio_venta_iva'||campo==='ambos') updates.precio_venta_iva= m.ventaNuevo;
+    updates.ultimo_precio_bobinar = new Date().toISOString();
+
+    try {
+      await updateDoc(doc(db,'repuestos',m.repId), updates);
+      ok++;
+      log(`✓ ${m.codBobinar} → ${m.repNombre.substring(0,35)} | costo: ${fmt(m.costoViejo)}→${fmt(m.costoNuevo)}`, 'ok');
+    } catch(e) {
+      err++;
+      log(`✗ ${m.codBobinar}: ${e.message}`, 'err');
+    }
+
+    if (i % 5 === 0) await new Promise(r=>setTimeout(r,80));
+  }
+
+  document.getElementById('s-ok').textContent    = ok;
+  document.getElementById('s-skip').textContent   = skip;
+  document.getElementById('s-err').textContent    = err;
+  document.getElementById('s-total').textContent  = matchList.length;
+  document.getElementById('stats-final').style.display = 'grid';
+  document.getElementById('prog-estado').textContent = '✅ ¡Completado!';
+  log(`=== FIN: ${ok} actualizados, ${err} errores ===`, 'info');
+};
+
+</script>
+</body>
+</html>
