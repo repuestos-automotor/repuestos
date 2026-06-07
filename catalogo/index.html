@@ -1701,6 +1701,8 @@ window.abrirDetalle = function(id) {
   const conDesc   = conIva * 0.9;
 
   document.getElementById('detail-body').innerHTML = `
+    ${codigos.length > 0 ? `<div class="detail-section-title">Códigos por proveedor</div><table class="codigo-table">${codigos.map(c=>`<tr><td>${c.proveedor}</td><td>${c.codigo}</td></tr>`).join('')}</table>` : ''}
+
     <div class="detail-grid">
       <div class="detail-field"><div class="df-label">Fabricante</div><div class="df-val">${r.fabricante_repuesto||'—'}</div></div>
       <div class="detail-field"><div class="df-label">Condición</div><div class="df-val amber">${r.condicion||'—'}</div></div>
@@ -1732,7 +1734,7 @@ window.abrirDetalle = function(id) {
       <div class="price-box"><div class="pb-label">Código interno</div><div class="pb-val" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--blue)">${r.codigo||'—'}</div></div>
     </div>
 
-    ${codigos.length > 0 ? `<div class="detail-section-title">Códigos por proveedor</div><table class="codigo-table">${codigos.map(c=>`<tr><td>${c.proveedor}</td><td>${c.codigo}</td></tr>`).join('')}</table>` : ''}
+
     ${r.importante ? `<div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--amber)">⚠️ <strong>IMPORTANTE:</strong> ${r.importante}</div>` : ''}
     ${r.notas ? `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--text2)"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">📌 Notas</div><div class="nota-html" style="line-height:1.6">${r.notas}</div></div>` : ''}
 
