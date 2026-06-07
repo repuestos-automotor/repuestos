@@ -3321,9 +3321,9 @@ window.verRepuesto = function(id) {
 
       <!-- CABECERA -->
       <div style="display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-start">
-        ${r.imagen_url
-          ? `<img src="${r.imagen_url}" style="width:120px;height:120px;object-fit:contain;border-radius:10px;border:1px solid var(--border);flex-shrink:0;cursor:zoom-in;background:var(--bg3)" onclick="window.open('${r.imagen_url}','_blank')" title="Ver imagen">`
-          : `<div style="width:120px;height:120px;background:var(--bg3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:48px;flex-shrink:0">⚡</div>`}
+        ${imgs[0]
+          ? (()=>{const grande=imgs[0].replace('/img_promo_chica/','/img_promo_grande/').replace('/img_promo_promo/','/img_promo_grande/');return `<img src="${grande}" style="width:240px;height:240px;object-fit:contain;border-radius:10px;border:1px solid var(--border);flex-shrink:0;cursor:zoom-in;background:var(--bg3)" onclick="window.open('${grande}','_blank')" onerror="this.src='${imgs[0]}';this.onerror=null">`})()
+          : `<div style="width:240px;height:240px;background:var(--bg3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:48px;flex-shrink:0">⚡</div>`}
         <div style="flex:1;min-width:200px">
           <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--text);line-height:1.2">${r.titulo_repuesto||'—'}</div>
           <div style="font-size:13px;color:var(--blue);margin-top:4px">${r.categoria||'—'}</div>
@@ -3354,7 +3354,7 @@ window.verRepuesto = function(id) {
         </div>
         <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
           <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Código interno</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--blue)">${codigos.length ? ((codigos[0].proveedor||'') + ' ' + (codigos[0].codigo||'')).trim() : (r.codigo||'—')}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--blue)">${codigos.length ? (codigos[0].proveedor||'') + (codigos[0].codigo||'') : (r.codigo||'—')}</div>
         </div>
       </div>
 
@@ -3393,22 +3393,21 @@ window.verRepuesto = function(id) {
         <div style="display:flex;gap:6px;flex-wrap:wrap">${fabricantes.map(f=>`<span style="padding:4px 10px;border-radius:6px;font-size:13px;background:var(--bg3);color:var(--text2);border:1px solid var(--border)">${f}</span>`).join('')}</div>
       </div>` : ''}
 
-      <!-- IMÁGENES (después de fabricantes) -->
+      <!-- IMÁGENES (grandes, después de fabricantes) -->
       ${(()=>{
-        // Usar solo imagen_url (existe seguro) + imágenes de notas
-        const todasImgs = [];
-        if (r.imagen_url) todasImgs.push(r.imagen_url);
+        // Armar lista con versiones grandes + imágenes de notas
+        const todasGrandes = (imgs||[]).map(u=>u.replace('/img_promo_chica/','/img_promo_grande/').replace('/img_promo_promo/','/img_promo_grande/'));
         // Agregar imágenes embebidas en notas
         if (r.notas) {
           const ms = [...(r.notas.matchAll(/src=["']([^"']*cloudinary[^"']+)["']/gi))];
-          ms.forEach(m=>{ if (m[1] && !todasImgs.includes(m[1])) todasImgs.push(m[1]); });
+          ms.forEach(m=>{ if (!todasGrandes.includes(m[1])) todasGrandes.push(m[1]); });
         }
-        if (!todasImgs.length) return '';
-        const cols = Math.min(todasImgs.length, 3);
+        if (!todasGrandes.length) return '';
+        const cols = Math.min(todasGrandes.length, 3);
         return `<div style="margin-bottom:18px">
           <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Imágenes del producto</div>
           <div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:14px">
-            ${todasImgs.map(u=>{const g=u.replace('/img_promo_chica/','/img_promo_grande/').replace('/img_promo_promo/','/img_promo_grande/');return `<div style="aspect-ratio:1/1;border-radius:12px;border:1px solid var(--border);background:var(--bg3);overflow:hidden;cursor:zoom-in" onclick="window.open('${g}','_blank')" title="Clic para ver en tamaño completo"><img src="${u}" style="width:100%;height:100%;object-fit:contain;padding:10px;box-sizing:border-box" onerror="this.parentElement.style.display='none'"></div>`}).join('')}
+            ${todasGrandes.map(u=>`<div style="aspect-ratio:1/1;border-radius:12px;border:1px solid var(--border);background:var(--bg3);overflow:hidden;cursor:zoom-in" onclick="window.open('${u}','_blank')" title="Clic para ver en tamaño completo"><img src="${u}" style="width:100%;height:100%;object-fit:contain;padding:10px;box-sizing:border-box" onerror="this.src='${u.replace('/img_promo_grande/','/img_promo_chica/')}';this.onerror=function(){this.parentElement.style.display='none'}"></div>`).join('')}
           </div>
           <div style="font-size:10px;color:var(--text3);margin-top:8px">Clic en la imagen para verla en tamaño completo</div>
         </div>`;
@@ -3493,36 +3492,25 @@ window.buscarML = function(repId) {
   if (!panel) return;
 
   var codigos = (r.codigos_proveedores||[]).filter(function(c){return c.codigo;});
-  var titulo  = r.titulo_repuesto||r.codigo||'';
+  // Buscar con todos los códigos de proveedores: ZEN0502 INDIEL 22.3266
+  var query = codigos.length
+    ? codigos.map(function(c){ return ((c.proveedor||'')+c.codigo).trim(); }).join(' ')
+    : (r.titulo_repuesto||r.codigo||'');
+  if (!query) { panel.innerHTML='<div style="padding:12px;color:var(--text4);font-size:12px">Sin datos suficientes para buscar</div>'; return; }
 
-  // Armar búsquedas separadas: título + cada código de proveedor
-  var busquedas = [];
-  if (titulo) busquedas.push({ label: titulo, q: titulo });
-  codigos.forEach(function(c) {
-    var cod = ((c.proveedor||'') + c.codigo).trim();
-    if (cod) busquedas.push({ label: (c.proveedor ? c.proveedor+' '+c.codigo : c.codigo), q: cod });
-  });
-
-  if (!busquedas.length) {
-    panel.innerHTML = '<div style="padding:12px;color:var(--text4);font-size:12px">Sin datos para buscar</div>';
-    return;
-  }
-
-  var links = busquedas.map(function(b) {
-    var url = 'https://listado.mercadolibre.com.ar/repuestos-electricos/'+encodeURIComponent(b.q);
-    return '<a href="'+url+'" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-decoration:none;gap:10px">'
-      + '<span style="font-size:12px;color:var(--text2);font-family:monospace">'+b.label+'</span>'
-      + '<span style="font-size:11px;color:#ffe600;white-space:nowrap">Ver en ML →</span>'
-      + '</a>';
-  }).join('');
+  // ML API permite CORS solo desde ciertos origins — abrimos en nueva pestaña con resultados
+  var mlSearchUrl = 'https://listado.mercadolibre.com.ar/'+encodeURIComponent(query)+'#D[A:'+encodeURIComponent(query)+']';
 
   panel.innerHTML = [
     '<div style="padding:12px 14px">',
-    '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Buscar en Mercado Libre</div>',
-    '<div style="display:flex;flex-direction:column;gap:6px">',
-    links,
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:10px">Búsqueda: <b style="color:var(--text2)">'+query+'</b></div>',
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">',
+    '<a href="'+mlSearchUrl+'" target="_blank" style="flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;background:rgba(255,230,0,.12);border:1px solid rgba(255,230,0,.35);border-radius:8px;color:#ffe600;font-size:12px;font-weight:600;text-decoration:none">',
+    '🔍 Ver en Mercado Libre</a>',
+    '<a href="https://listado.mercadolibre.com.ar/repuestos-electricos/'+encodeURIComponent(query)+'" target="_blank" style="flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:var(--indigo);font-size:12px;font-weight:600;text-decoration:none">',
+    '⚡ Solo repuestos eléctricos</a>',
     '</div>',
-    '<div style="margin-top:10px;font-size:10px;color:var(--text4)">Cada botón abre una búsqueda en ML en nueva pestaña.</div>',
+    '<div style="margin-top:10px;font-size:11px;color:var(--text4)">Abre en nueva pestaña — revisá precios y volvé. La API de ML no permite consultas directas desde sitios externos.</div>',
     '</div>'
   ].join('');
 
