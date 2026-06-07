@@ -3354,7 +3354,7 @@ window.verRepuesto = function(id) {
         </div>
         <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
           <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Código interno</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--blue)">${r.codigo||'—'}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--blue)">${codigos.length ? (codigos[0].proveedor||'') + (codigos[0].codigo||'') : (r.codigo||'—')}</div>
         </div>
       </div>
 
@@ -3482,7 +3482,7 @@ window.buscarML = function(repId) {
   if (!panel) return;
 
   var codigos = (r.codigos_proveedores||[]).filter(function(c){return c.codigo;});
-  var query = codigos.length ? codigos[0].codigo : (r.titulo_repuesto||r.codigo||'');
+  var query = codigos.length ? ((codigos[0].proveedor||'') + codigos[0].codigo).trim() : (r.titulo_repuesto||r.codigo||'');
   if (!query) { panel.innerHTML='<div style="padding:12px;color:var(--text4);font-size:12px">Sin datos suficientes para buscar</div>'; return; }
 
   // ML API permite CORS solo desde ciertos origins — abrimos en nueva pestaña con resultados
