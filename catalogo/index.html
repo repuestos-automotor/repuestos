@@ -1660,13 +1660,9 @@ window.abrirDetalle = function(id) {
     matches.forEach(m => { if (m[1] && !todasImgs.includes(m[1])) todasImgs.push(m[1]); });
   }
 
-  // Función para obtener URL grande (para abrir al hacer click)
-  const urlGrande = u => u ? u.replace('/img_promo_chica/', '/img_promo_grande/').replace('/img_promo_promo/', '/img_promo_grande/') : u;
-
-  // Mostrar imagen principal (chica para mostrar, click abre grande)
+  // Mostrar imagen principal — click abre la misma imagen en nueva pestaña
   const mostrarImg = (url) => {
-    const grande = urlGrande(url);
-    imgWrap.innerHTML = `<img src="${url}" alt="${r.titulo_repuesto}" style="width:100%;height:100%;object-fit:contain;padding:8px" onclick="window.open('${grande}','_blank')" title="Click para ver en tamaño completo" onerror="this.style.opacity='.4'">`;
+    imgWrap.innerHTML = `<img src="${url}" alt="${r.titulo_repuesto}" style="width:100%;height:100%;object-fit:contain;padding:8px" onclick="window.open('${url}','_blank')" title="Click para ver en tamaño completo" onerror="this.style.opacity='.4'">`;
   };
 
   if (todasImgs.length > 0) {
