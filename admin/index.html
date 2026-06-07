@@ -3407,20 +3407,18 @@ window.verRepuesto = function(id) {
 
       <!-- IMÁGENES (después de fabricantes) -->
       ${(()=>{
-        // Usar solo imagen_url (existe seguro) + imágenes de notas
+        // Prioridad: r.imagenes[] (array de Firestore, URLs grandes) + imagen_url como fallback
         const todasImgs = [];
-        if (r.imagen_url) todasImgs.push(r.imagen_url);
-        // Agregar imágenes embebidas en notas
-        if (r.notas) {
-          const ms = [...(r.notas.matchAll(/src=["']([^"']*cloudinary[^"']+)["']/gi))];
-          ms.forEach(m=>{ if (m[1] && !todasImgs.includes(m[1])) todasImgs.push(m[1]); });
+        if (Array.isArray(r.imagenes) && r.imagenes.length) {
+          r.imagenes.forEach(u=>{ if(u && !todasImgs.includes(u)) todasImgs.push(u); });
+        } else if (r.imagen_url) {
+          todasImgs.push(urlGrande(r.imagen_url));
         }
         if (!todasImgs.length) return '';
-        const cols = Math.min(todasImgs.length, 3);
         return `<div style="margin-bottom:18px">
           <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Imágenes del producto</div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap">
-            ${todasImgs.map(u=>`<div style="width:200px;height:200px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);overflow:hidden;cursor:zoom-in;flex-shrink:0" onclick="window.open(urlGrande('${u}'),'_blank')" title="Clic para ver en tamaño completo"><img src="${u}" style="width:100%;height:100%;object-fit:contain;padding:10px;box-sizing:border-box" onerror="this.parentElement.style.display='none'"></div>`).join('')}
+          <div style="display:flex;gap:14px;flex-wrap:wrap">
+            ${todasImgs.map(u=>`<div style="width:320px;height:320px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);overflow:hidden;cursor:zoom-in;flex-shrink:0" onclick="window.open(urlGrande('${u}'),'_blank')" title="Clic para ver en tamaño completo"><img src="${u}" style="width:100%;height:100%;object-fit:contain;padding:12px;box-sizing:border-box" onerror="this.parentElement.style.display='none'"></div>`).join('')}
           </div>
           <div style="font-size:10px;color:var(--text3);margin-top:8px">Clic en la imagen para verla en tamaño completo</div>
         </div>`;
@@ -3504,9 +3502,11 @@ window.buscarML = function(repId) {
   var btn   = document.getElementById('btn-buscar-ml');
   if (!panel) return;
 
-  var codigos = (r.codigos_proveedores||[]).filter(function(c){return c.codigo;});
-  // Buscar con título + todos los códigos de proveedores: IMPULSOR DE ARRANQUE ZEN0502 INDIEL22.3266
-  var codigosStr = codigos.map(function(c){ return ((c.proveedor||'')+c.codigo).trim(); }).join(' ');
+  var codigos = (r.codigos_proveedores||[]).filter(function(c){
+    return c.codigo && (c.proveedor||'').toUpperCase() !== 'BOBINAR';
+  });
+  // Buscar con título + códigos (excepto BOBINAR), separados por coma
+  var codigosStr = codigos.map(function(c){ return ((c.proveedor||'')+c.codigo).trim(); }).join(', ');
   var titulo = (r.titulo_repuesto||'').trim();
   var query = titulo ? (codigosStr ? titulo + ' ' + codigosStr : titulo) : (codigosStr || (r.codigo||''));
   if (!query) { panel.innerHTML='<div style="padding:12px;color:var(--text4);font-size:12px">Sin datos suficientes para buscar</div>'; return; }
