@@ -214,8 +214,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .modal-body{padding:20px}
 .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
 /* Forzar texto claro en cajas de descripción/notas aunque el contenido tenga estilos inline */
-.desc-box, .desc-box *{color:#f1f5f9 !important;background:transparent !important;font-size:inherit !important}
-.notas-box, .notas-box *{color:#f1f5f9 !important;background:transparent !important;font-size:inherit !important}
+.desc-box{color:#f1f5f9}
+.notas-box{color:#f1f5f9}
 
 /* ── FORM ELEMENTS ───────────────────────────────────── */
 .form-group{margin-bottom:14px}
@@ -3370,6 +3370,15 @@ window.verRepuesto = function(id) {
         </div>
       </div>
 
+      <!-- MARCA DE REPUESTO (en stock) -->
+      ${(r.marcas_repuesto||[]).filter(Boolean).length ? `
+      <div style="margin-bottom:18px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Marca del repuesto en stock</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${(r.marcas_repuesto||[]).filter(Boolean).map(m=>`<span style="padding:6px 14px;border-radius:8px;font-size:14px;font-weight:700;background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.35);letter-spacing:.03em">${m}</span>`).join('')}
+        </div>
+      </div>` : ''}
+
       <!-- CÓDIGOS PROVEEDORES (arriba, lo más útil) -->
       ${codigos.length ? `
       <div style="margin-bottom:18px">
@@ -3438,9 +3447,14 @@ window.verRepuesto = function(id) {
         <div style="display:flex;flex-direction:column;gap:6px">
           ${marcasModelos.map(m=>`<div style="background:var(--bg3);border-radius:8px;padding:8px 12px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><span style="font-size:14px;font-weight:600;color:var(--text);min-width:130px">${m.marca}</span><span style="font-size:13px;color:var(--text2)">${m.modelos||'—'}</span></div>`).join('')}
         </div>
+        ${r.marcas_modelos_texto ? `<div style="margin-top:8px;padding:8px 12px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:12px;color:var(--blue)">📋 ${r.marcas_modelos_texto}</div>` : ''}
       </div>` : (marcas !== '—' ? `<div style="margin-bottom:16px"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Vehículos compatibles</div><div style="font-size:14px;color:var(--text2)">${marcas}</div></div>` : '')}
 
-      ${r.aplicacion ? `<div style="margin-bottom:16px"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Aplicación</div><div style="font-size:14px;color:var(--text2)">${r.aplicacion}</div></div>` : ''}
+      ${r.aplicacion ? `
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Aplicación</div>
+        <div class="desc-html" style="font-size:13px;line-height:1.7;background:var(--bg3);border-radius:8px;padding:12px 14px;border:1px solid var(--border)">${r.aplicacion}</div>
+      </div>` : ''}
 
       <!-- CATÁLOGOS -->
       ${catalogos.length ? `
@@ -3458,7 +3472,7 @@ window.verRepuesto = function(id) {
       ${r.descripcion ? `
       <div style="margin-bottom:16px">
         <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Descripción</div>
-        <div class="desc-box" style="font-size:16px;line-height:2;background:var(--bg3) !important;border-radius:8px;padding:16px 18px;border:1px solid var(--border);white-space:pre-wrap">${r.descripcion}</div>
+        <div class="desc-html" style="font-size:13px;line-height:1.7;background:var(--bg3);border-radius:8px;padding:14px 16px;border:1px solid var(--border)">${r.descripcion}</div>
       </div>` : ''}
 
       <!-- NOTAS INTERNAS -->
