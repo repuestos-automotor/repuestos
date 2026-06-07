@@ -3364,23 +3364,31 @@ window.verRepuesto = function(id) {
       </div>
 
       <!-- PRECIOS COMPLETOS -->
-      <div style="margin-bottom:18px">
-        <div class="det-sec-title">Precios</div>
-        <div class="price-boxes">
-          <div class="price-box"><div class="pb-label">Sin IVA</div><div class="pb-val muted">${fmt2(r.precio_venta)}</div></div>
-          <div class="price-box main"><div class="pb-label">Precio final c/IVA</div><div class="pb-val green">${fmt2(r.precio_venta_iva)}</div><div class="pb-sub">IVA 21% incluido</div></div>
-          <div class="price-box desc"><div class="pb-label">Con 10% descuento</div><div class="pb-val amber">${fmt2((r.precio_venta_iva||0)*0.9)}</div><div class="pb-sub">Ahorrás ${fmt2((r.precio_venta_iva||0)*0.1)}</div></div>
-          <div class="price-box"><div class="pb-label">Precio costo</div><div class="pb-val amber" style="font-size:14px">${fmt2(r.precio_costo)}</div></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px">
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Precio venta c/IVA</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--green)">${fmt2(r.precio_venta_iva)}</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)">
-            <div class="pb-label">Stock</div>
-            <div class="pb-val" style="font-size:16px;color:${(r.cant_artic||0)===0?'var(--red)':'var(--green)'}">${r.cant_artic||0} uds.</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)">
-            <div class="pb-label">Código interno</div>
-            <div class="pb-val" style="font-size:13px;color:var(--blue)">${r.codigo||'—'}</div>
-          </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Precio costo</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--amber)">${fmt2(r.precio_costo)}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Stock</div>
+          <div style="font-size:18px;font-weight:600;color:${(r.cant_artic||0)===0?'var(--red)':'var(--green)'}">${r.cant_artic||0} uds.</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Código interno</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--blue)">${codigos.length ? ((codigos[0].proveedor||'') + ' ' + (codigos[0].codigo||'')).trim() : (r.codigo||'\u2014')}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Sin IVA</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--text2)">${fmt2(r.precio_venta)}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:10px;padding:12px 14px;border:1px solid rgba(245,158,11,.3)">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Con 10% descuento</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;color:var(--amber)">${fmt2((r.precio_venta_iva||0)*0.9)}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">Ahorrás ${fmt2((r.precio_venta_iva||0)*0.1)}</div>
         </div>
       </div>
 
