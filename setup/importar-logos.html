@@ -3,309 +3,277 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Importar Logos Masivo</title>
+<title>Importar Logos de Marcas</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="../js/firebase-config.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Inter',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;padding:24px}
-  h1{font-size:20px;font-weight:700;margin-bottom:4px}
-  .sub{font-size:13px;color:#94a3b8;margin-bottom:28px}
-  .card{background:#1e2130;border:1px solid #2d3348;border-radius:12px;padding:20px;margin-bottom:20px}
-  .card h2{font-size:14px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
-  .drop-zone{border:2px dashed #3d4566;border-radius:10px;padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative}
-  .drop-zone:hover,.drop-zone.over{border-color:#6366f1;background:rgba(99,102,241,.05)}
-  .drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
-  .drop-zone .icon{font-size:28px;margin-bottom:8px}
-  .drop-zone p{font-size:13px;color:#64748b}
-  .drop-zone strong{color:#94a3b8}
-  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:14px}
-  .preview-item{background:#141624;border:1px solid #2d3348;border-radius:8px;padding:8px;text-align:center;position:relative}
-  .preview-item img{width:60px;height:46px;object-fit:contain;border-radius:4px;background:#0f1117}
-  .preview-item .fname{font-size:10px;color:#64748b;margin-top:5px;word-break:break-all;line-height:1.3}
-  .preview-item .match{font-size:10px;font-weight:600;margin-top:3px;padding:2px 6px;border-radius:4px;display:inline-block}
-  .match.ok{background:rgba(34,197,94,.15);color:#4ade80}
-  .match.warn{background:rgba(245,158,11,.15);color:#fbbf24}
-  .match.new{background:rgba(99,102,241,.15);color:#818cf8}
-  .status{font-size:12px;padding:3px 8px;border-radius:4px;margin-top:3px;display:inline-block}
-  .status.ok{background:rgba(34,197,94,.2);color:#4ade80}
-  .status.err{background:rgba(239,68,68,.2);color:#f87171}
-  .status.skip{background:rgba(100,116,139,.2);color:#94a3b8}
-  .btn{padding:10px 22px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
-  .btn-primary{background:#6366f1;color:#fff}
-  .btn-primary:hover{background:#4f46e5}
-  .btn-primary:disabled{background:#3d3f6e;color:#64748b;cursor:not-allowed}
-  .btn-secondary{background:#2d3348;color:#94a3b8;border:1px solid #3d4566}
-  .btn-secondary:hover{background:#3d4566}
-  .progress{background:#141624;border-radius:6px;height:8px;overflow:hidden;margin:12px 0}
-  .progress-bar{height:100%;background:#6366f1;border-radius:6px;transition:width .3s}
-  .log{background:#141624;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;max-height:180px;overflow-y:auto;color:#64748b;margin-top:12px;line-height:1.8}
-  .log .ok{color:#4ade80} .log .warn{color:#fbbf24} .log .err{color:#f87171} .log .info{color:#818cf8}
-  .tabs{display:flex;gap:6px;margin-bottom:20px}
-  .tab{padding:8px 16px;border-radius:8px;border:1px solid #2d3348;font-size:12px;font-weight:600;cursor:pointer;color:#64748b;background:#1e2130;transition:.15s}
-  .tab.active{background:#6366f1;color:#fff;border-color:#6366f1}
-  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
-  .sum-box{background:#141624;border-radius:8px;padding:10px;text-align:center}
-  .sum-box .val{font-size:22px;font-weight:700}
-  .sum-box .lbl{font-size:10px;color:#64748b;text-transform:uppercase;margin-top:2px}
-  .green{color:#4ade80} .yellow{color:#fbbf24} .red{color:#f87171}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;padding:28px 20px}
+h1{font-size:22px;font-weight:700;margin-bottom:6px;color:#fff}
+.sub{font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.7}
+.section{background:#1a1d2e;border:1px solid #2d3348;border-radius:14px;padding:24px;margin-bottom:24px}
+.section-title{font-size:14px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.section-desc{font-size:12px;color:#64748b;margin-bottom:18px}
+.pick-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:#1e2130;border:2px dashed #3d4566;border-radius:10px;color:#94a3b8;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.pick-btn:hover{border-color:#6366f1;color:#a5b4fc;background:rgba(99,102,241,.07)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:16px}
+.item{background:#141624;border:1px solid #2d3348;border-radius:9px;padding:10px 8px;text-align:center}
+.item img{width:70px;height:52px;object-fit:contain;border-radius:5px;background:#0f1117;display:block;margin:0 auto 6px}
+.item .name{font-size:10px;color:#64748b;word-break:break-all;line-height:1.4;margin-bottom:4px}
+.item .match{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;display:inline-block}
+.m-ok{background:rgba(34,197,94,.15);color:#4ade80}
+.m-warn{background:rgba(245,158,11,.15);color:#fbbf24}
+.m-new{background:rgba(99,102,241,.15);color:#818cf8}
+.m-done{background:rgba(34,197,94,.2);color:#4ade80}
+.m-err{background:rgba(239,68,68,.2);color:#f87171}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{padding:11px 24px;border-radius:9px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-primary{background:#6366f1;color:#fff}
+.btn-primary:hover:not(:disabled){background:#4f46e5}
+.btn-primary:disabled{background:#2d3348;color:#64748b;cursor:not-allowed}
+.btn-secondary{background:#1e2130;color:#94a3b8;border:1px solid #3d4566}
+.btn-secondary:hover{background:#2d3348}
+.progress{background:#0f1117;border-radius:6px;height:9px;overflow:hidden;border:1px solid #2d3348;margin-top:12px;display:none}
+.progress-bar{height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:6px;transition:width .3s}
+.log{background:#0f1117;border:1px solid #2d3348;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;max-height:180px;overflow-y:auto;color:#64748b;margin-top:14px;line-height:1.9;display:none}
+.log .ok{color:#4ade80} .log .err{color:#f87171} .log .info{color:#818cf8} .log .warn{color:#fbbf24}
+.counter{font-size:12px;color:#64748b;margin-top:8px}
+.alert{border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;margin-bottom:20px}
+.alert-blue{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#a5b4fc}
+code{color:#818cf8;font-family:monospace}
 </style>
 </head>
 <body>
-<h1>📦 Importar Logos Masivo</h1>
-<p class="sub">Subí todos los logos de golpe — el sistema los matchea automáticamente con las marcas de Firestore</p>
+<h1>🏷️ Importar Logos de Marcas</h1>
+<p class="sub">
+  Subí los logos a Cloudinary y se guardan automáticamente en cada marca/proveedor de Firestore.<br>
+  <strong>Marcas de Vehículos:</strong> seleccioná tu carpeta <code>img_marca_grande</code> &nbsp;|&nbsp;
+  <strong>Marcas de Repuestos:</strong> seleccioná tu carpeta <code>img_marca_rep_grande</code>
+</p>
 
-<div class="tabs">
-  <div class="tab active" onclick="setTab('veh')">🚗 Marcas Vehículo</div>
-  <div class="tab" onclick="setTab('rep')">🔧 Marcas Repuesto</div>
-  <div class="tab" onclick="setTab('prov')">🏭 Proveedores</div>
+<div class="alert alert-blue">
+  💡 El sistema matchea el logo con la marca por nombre de archivo. Si el match es <span style="color:#fbbf24">⚠️ Parcial</span>, igual podés importar — se guarda bien. Si no matchea nada, se omite o podés crearlo nuevo.
 </div>
 
-<!-- TAB VEH -->
-<div id="tab-veh">
-  <div class="card">
-    <h2>Logos de Marcas de Vehículo</h2>
-    <p style="font-size:12px;color:#64748b;margin-bottom:14px">Seleccioná todos los archivos de tu carpeta <code style="color:#818cf8">img_marca_grande</code>. El nombre del archivo debe contener el nombre de la marca (ej: <code style="color:#818cf8">ford.png</code>, <code style="color:#818cf8">Toyota-logo.jpg</code>).</p>
-    <div class="drop-zone" id="dz-veh" ondragover="ev.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="handleDrop(ev,'veh')">
-      <input type="file" multiple accept="image/*" id="file-veh" onchange="handleFiles(this.files,'veh')">
-      <div class="icon">📁</div>
-      <p><strong>Arrastrá los archivos acá</strong> o hacé clic para seleccionar</p>
-      <p>JPG, PNG, WEBP — podés seleccionar todos a la vez con Ctrl+A</p>
-    </div>
-    <div id="preview-veh" class="preview-grid"></div>
+<!-- SECCIÓN MARCAS VEHÍCULO -->
+<div class="section" id="sec-veh">
+  <div class="section-title">🚗 Marcas de Vehículos</div>
+  <div class="section-desc">Carpeta en tu PC: <code>img_marca_grande</code> → Cloudinary: <code>repuestos/img_marca_vehiculos/</code></div>
+  <label class="pick-btn">
+    📂 Seleccionar logos de marcas de vehículos
+    <input type="file" multiple accept="image/*" style="display:none" id="inp-veh" onchange="cargarArchivos('veh',this)">
+  </label>
+  <div class="counter" id="cnt-veh"></div>
+  <div class="grid" id="grid-veh"></div>
+  <div class="btns" id="btns-veh" style="display:none">
+    <button class="btn btn-primary" id="btn-veh" onclick="importar('veh')">⬆️ Importar todos</button>
+    <button class="btn btn-secondary" onclick="limpiarSec('veh')">🗑 Limpiar</button>
   </div>
-  <div id="actions-veh" style="display:none">
-    <div class="summary" id="summary-veh"></div>
-    <div class="progress" id="prog-wrap-veh" style="display:none"><div class="progress-bar" id="prog-bar-veh" style="width:0%"></div></div>
-    <div style="display:flex;gap:10px;margin-top:14px">
-      <button class="btn btn-primary" id="btn-import-veh" onclick="importarLogos('veh')">⬆️ Importar todos</button>
-      <button class="btn btn-secondary" onclick="limpiarTab('veh')">Limpiar</button>
-    </div>
-    <div class="log" id="log-veh"></div>
-  </div>
+  <div class="progress" id="prog-veh"><div class="progress-bar" id="pbar-veh" style="width:0%"></div></div>
+  <div class="log" id="log-veh"></div>
 </div>
 
-<!-- TAB REP -->
-<div id="tab-rep" style="display:none">
-  <div class="card">
-    <h2>Logos de Marcas de Repuesto</h2>
-    <p style="font-size:12px;color:#64748b;margin-bottom:14px">Seleccioná todos los archivos de tu carpeta <code style="color:#818cf8">img_marca_rep_grande</code>.</p>
-    <div class="drop-zone" id="dz-rep" ondragover="ev.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="handleDrop(ev,'rep')">
-      <input type="file" multiple accept="image/*" id="file-rep" onchange="handleFiles(this.files,'rep')">
-      <div class="icon">📁</div>
-      <p><strong>Arrastrá los archivos acá</strong> o hacé clic para seleccionar</p>
-      <p>JPG, PNG, WEBP</p>
-    </div>
-    <div id="preview-rep" class="preview-grid"></div>
+<!-- SECCIÓN MARCAS REPUESTO -->
+<div class="section" id="sec-rep">
+  <div class="section-title">🔧 Marcas de Repuestos</div>
+  <div class="section-desc">Carpeta en tu PC: <code>img_marca_rep_grande</code> → Cloudinary: <code>repuestos/img_marca_rep/</code></div>
+  <label class="pick-btn">
+    📂 Seleccionar logos de marcas de repuestos
+    <input type="file" multiple accept="image/*" style="display:none" id="inp-rep" onchange="cargarArchivos('rep',this)">
+  </label>
+  <div class="counter" id="cnt-rep"></div>
+  <div class="grid" id="grid-rep"></div>
+  <div class="btns" id="btns-rep" style="display:none">
+    <button class="btn btn-primary" id="btn-rep" onclick="importar('rep')">⬆️ Importar todos</button>
+    <button class="btn btn-secondary" onclick="limpiarSec('rep')">🗑 Limpiar</button>
   </div>
-  <div id="actions-rep" style="display:none">
-    <div class="summary" id="summary-rep"></div>
-    <div class="progress" id="prog-wrap-rep" style="display:none"><div class="progress-bar" id="prog-bar-rep" style="width:0%"></div></div>
-    <div style="display:flex;gap:10px;margin-top:14px">
-      <button class="btn btn-primary" id="btn-import-rep" onclick="importarLogos('rep')">⬆️ Importar todos</button>
-      <button class="btn btn-secondary" onclick="limpiarTab('rep')">Limpiar</button>
-    </div>
-    <div class="log" id="log-rep"></div>
-  </div>
-</div>
-
-<!-- TAB PROV -->
-<div id="tab-prov" style="display:none">
-  <div class="card">
-    <h2>Logos de Proveedores</h2>
-    <p style="font-size:12px;color:#64748b;margin-bottom:14px">El nombre del archivo debe contener el nombre o código del proveedor (ej: <code style="color:#818cf8">bosch.png</code>, <code style="color:#818cf8">ZEN-logo.jpg</code>).</p>
-    <div class="drop-zone" id="dz-prov" ondragover="ev.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="handleDrop(ev,'prov')">
-      <input type="file" multiple accept="image/*" id="file-prov" onchange="handleFiles(this.files,'prov')">
-      <div class="icon">📁</div>
-      <p><strong>Arrastrá los archivos acá</strong> o hacé clic para seleccionar</p>
-    </div>
-    <div id="preview-prov" class="preview-grid"></div>
-  </div>
-  <div id="actions-prov" style="display:none">
-    <div class="summary" id="summary-prov"></div>
-    <div class="progress" id="prog-wrap-prov" style="display:none"><div class="progress-bar" id="prog-bar-prov" style="width:0%"></div></div>
-    <div style="display:flex;gap:10px;margin-top:14px">
-      <button class="btn btn-primary" id="btn-import-prov" onclick="importarLogos('prov')">⬆️ Importar todos</button>
-      <button class="btn btn-secondary" onclick="limpiarTab('prov')">Limpiar</button>
-    </div>
-    <div class="log" id="log-prov"></div>
-  </div>
+  <div class="progress" id="prog-rep"><div class="progress-bar" id="pbar-rep" style="width:0%"></div></div>
+  <div class="log" id="log-rep"></div>
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────
-const CLOUDINARY_CLOUD = 'dljdwhnu7';
-const CLOUDINARY_PRESET = 'repuestos';
-const CARPETAS = { veh: 'repuestos/img_marca_vehiculos', rep: 'repuestos/img_marcas_rep', prov: 'repuestos/img_marca_vehiculos' };
-const COLECCIONES = { veh: 'marcas_vehiculo', rep: 'marcas_repuesto', prov: 'proveedores' };
+const CLOUD  = 'dljdwhnu7';
+const PRESET = 'repuestos';
 
-const db = firebase.firestore();
+const CONFIG = {
+  veh: { folder: 'repuestos/img_marca_vehiculos', col: 'marcas_vehiculo' },
+  rep: { folder: 'repuestos/img_marca_rep',       col: 'marcas_repuesto' }
+};
 
-// ── ESTADO ────────────────────────────────────────────────
-const state = { veh:{files:[],registros:[]}, rep:{files:[],registros:[]}, prov:{files:[],registros:[]} };
+let datos = { veh: [], rep: [] };
+let marcas = { veh: [], rep: [] };
+let cargando = { veh: false, rep: false };
 
-// ── TABS ─────────────────────────────────────────────────
-function setTab(t) {
-  ['veh','rep','prov'].forEach(x => {
-    document.getElementById('tab-'+x).style.display = x===t ? '' : 'none';
-  });
-  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['veh','rep','prov'][i]===t));
+// ── Cargar marcas de Firestore ──────────────────────────────
+async function loadMarcas(tipo) {
+  if (marcas[tipo].length) return marcas[tipo];
+  const col = CONFIG[tipo].col;
+  try {
+    const snap = await db.collection(col).get();
+    marcas[tipo] = snap.docs.map(d => ({ id: d.id, nombre: d.data().nombre || '' }));
+  } catch(e) {
+    console.error('Error cargando marcas', e);
+  }
+  return marcas[tipo];
 }
 
-// ── DRAG & DROP ──────────────────────────────────────────
-function handleDrop(ev, tipo) {
-  ev.preventDefault();
-  document.getElementById('dz-'+tipo).classList.remove('over');
-  handleFiles(ev.dataTransfer.files, tipo);
+// ── Extraer nombre para matching ────────────────────────────
+function extraerNombre(filename) {
+  let n = filename.replace(/\.[^.]+$/, ''); // sin extensión
+  n = n.replace(/^\d+[-_]/, '');            // quitar número inicial
+  n = n.replace(/^gr[-_]?/i, '');           // quitar prefijo gr-
+  n = n.replace(/[-_](logo|high|large|big|grande|245x|png|jpg|\d{2,4}x\d{2,4}).*$/i, '');
+  n = n.replace(/[-_]/g, ' ').trim().toLowerCase();
+  return n;
 }
 
-// ── NORMALIZAR nombre para matching ──────────────────────
-function normalizar(s) {
-  return (s||'').toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9]/g,' ')
-    .replace(/\s+/g,' ').trim();
-}
-
-function nombreSinExtension(fname) {
-  return fname.replace(/\.[^.]+$/, '');
-}
-
-// ── CARGAR REGISTROS DE FIRESTORE ─────────────────────────
-async function cargarRegistros(tipo) {
-  if (state[tipo].registros.length) return state[tipo].registros;
-  const snap = await db.collection(COLECCIONES[tipo]).get();
-  state[tipo].registros = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  return state[tipo].registros;
-}
-
-// ── MATCHEAR archivo con registro ────────────────────────
-function matchear(fname, registros) {
-  const base = normalizar(nombreSinExtension(fname));
+function matchMarca(filename, lista) {
+  const nombre = extraerNombre(filename);
   // Exacto
-  let m = registros.find(r => normalizar(r.nombre) === base || normalizar(r.codigo||'') === base);
-  if (m) return { reg: m, tipo: 'ok' };
-  // Contiene
-  m = registros.find(r => base.includes(normalizar(r.nombre)) || normalizar(r.nombre).includes(base));
-  if (m) return { reg: m, tipo: 'warn' };
-  // Por código
-  m = registros.find(r => r.codigo && (base.includes(normalizar(r.codigo)) || normalizar(r.codigo).includes(base)));
-  if (m) return { reg: m, tipo: 'warn' };
-  return { reg: null, tipo: 'new' };
+  let m = lista.find(x => x.nombre.toLowerCase() === nombre);
+  if (m) return { marca: m, tipo: 'ok' };
+  // Parcial: la marca contiene el nombre extraído o viceversa
+  m = lista.find(x => {
+    const mn = x.nombre.toLowerCase();
+    return mn.includes(nombre) || nombre.includes(mn);
+  });
+  if (m) return { marca: m, tipo: 'warn' };
+  // Por palabras
+  const palabras = nombre.split(/\s+/).filter(p => p.length > 2);
+  for (const p of palabras) {
+    m = lista.find(x => x.nombre.toLowerCase().includes(p));
+    if (m) return { marca: m, tipo: 'warn' };
+  }
+  return { marca: null, tipo: 'new' };
 }
 
-// ── PROCESAR ARCHIVOS ─────────────────────────────────────
-async function handleFiles(files, tipo) {
+// ── Cargar archivos seleccionados ───────────────────────────
+async function cargarArchivos(tipo, input) {
+  const files = Array.from(input.files).filter(f => f.type.startsWith('image/'));
   if (!files.length) return;
-  const registros = await cargarRegistros(tipo);
-  state[tipo].files = [...files];
 
-  const grid = document.getElementById('preview-'+tipo);
-  grid.innerHTML = '';
-  let countOk=0, countWarn=0, countNew=0;
+  const lista = await loadMarcas(tipo);
 
-  Array.from(files).forEach((file, i) => {
-    const { reg, tipo: matchTipo } = matchear(file.name, registros);
-    const url = URL.createObjectURL(file);
-    const label = reg ? reg.nombre : nombreSinExtension(file.name);
-    const matchLabel = { ok:'✅ Match exacto', warn:'⚠️ Match parcial', new:'🆕 Nueva entrada' }[matchTipo];
-    const div = document.createElement('div');
-    div.className = 'preview-item';
-    div.dataset.idx = i;
-    div.dataset.match = matchTipo;
-    div.dataset.regId = reg?.id || '';
-    div.dataset.regNombre = reg?.nombre || nombreSinExtension(file.name);
-    div.innerHTML = `
-      <img src="${url}" alt="${file.name}">
-      <div class="fname">${file.name}</div>
-      <span class="match ${matchTipo}">${matchLabel}</span>
-      <div style="font-size:10px;color:#94a3b8;margin-top:2px">${label}</div>`;
-    grid.appendChild(div);
-    if (matchTipo==='ok') countOk++;
-    else if (matchTipo==='warn') countWarn++;
-    else countNew++;
+  datos[tipo] = files.map(f => {
+    const { marca, tipo: mt } = matchMarca(f.name, lista);
+    return { file: f, marca, matchTipo: mt, estado: 'wait' };
   });
 
-  document.getElementById('actions-'+tipo).style.display = '';
-  document.getElementById('summary-'+tipo).innerHTML = `
-    <div class="sum-box"><div class="val green">${countOk}</div><div class="lbl">Match exacto</div></div>
-    <div class="sum-box"><div class="val yellow">${countWarn}</div><div class="lbl">Match parcial</div></div>
-    <div class="sum-box"><div class="val" style="color:#818cf8">${countNew}</div><div class="lbl">Sin match (se crea)</div></div>`;
+  renderGrid(tipo);
+  document.getElementById(`cnt-${tipo}`).textContent =
+    `${files.length} archivo${files.length > 1 ? 's' : ''} — ` +
+    `${datos[tipo].filter(x=>x.matchTipo==='ok').length} exactos, ` +
+    `${datos[tipo].filter(x=>x.matchTipo==='warn').length} parciales, ` +
+    `${datos[tipo].filter(x=>x.matchTipo==='new').length} sin match (se omiten)`;
+  document.getElementById(`btns-${tipo}`).style.display = 'flex';
 }
 
-// ── IMPORTAR ──────────────────────────────────────────────
-async function importarLogos(tipo) {
-  const files = state[tipo].files;
-  if (!files.length) return;
-  const btn = document.getElementById('btn-import-'+tipo);
-  btn.disabled = true; btn.textContent = 'Importando...';
+function renderGrid(tipo) {
+  const grid = document.getElementById(`grid-${tipo}`);
+  grid.innerHTML = '';
+  datos[tipo].forEach((item, i) => {
+    const url = URL.createObjectURL(item.file);
+    const labels = { ok:'✅ Match exacto', warn:'⚠️ Match parcial', new:'➖ Sin match', done:'✅ Importado', err:'❌ Error' };
+    const cls = { ok:'m-ok', warn:'m-warn', new:'m-new', done:'m-done', err:'m-err' };
+    const estado = item.estado === 'wait' ? item.matchTipo : item.estado;
+    grid.innerHTML += `
+      <div class="item" id="item-${tipo}-${i}">
+        <img src="${url}" loading="lazy">
+        <div class="name">${item.file.name}</div>
+        ${item.marca ? `<div style="font-size:10px;color:#a5b4fc;margin-bottom:3px">${item.marca.nombre}</div>` : ''}
+        <span class="match ${cls[estado]}" id="badge-${tipo}-${i}">${labels[estado]}</span>
+      </div>`;
+  });
+}
 
-  const progWrap = document.getElementById('prog-wrap-'+tipo);
-  const progBar  = document.getElementById('prog-bar-'+tipo);
-  const logEl    = document.getElementById('log-'+tipo);
-  progWrap.style.display = '';
-  logEl.innerHTML = '';
+function actualizarBadge(tipo, i, estado) {
+  const badge = document.getElementById(`badge-${tipo}-${i}`);
+  if (!badge) return;
+  const labels = { ok:'✅ Match exacto', warn:'⚠️ Match parcial', new:'➖ Sin match', done:'✅ Importado', uploading:'⬆️ Subiendo...', err:'❌ Error' };
+  const cls    = { ok:'m-ok', warn:'m-warn', new:'m-new', done:'m-done', uploading:'m-warn', err:'m-err' };
+  badge.className = `match ${cls[estado] || 'm-warn'}`;
+  badge.textContent = labels[estado] || estado;
+}
 
-  const items = document.querySelectorAll(`#preview-${tipo} .preview-item`);
-  let ok=0, err=0, skip=0;
+function logMsg(tipo, msg, cls) {
+  const el = document.getElementById(`log-${tipo}`);
+  el.style.display = 'block';
+  el.innerHTML += `<div class="${cls}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
 
-  for (let i=0; i<files.length; i++) {
-    const file = files[i];
-    const item = items[i];
-    const matchTipo = item.dataset.match;
-    const regId = item.dataset.regId;
-    const regNombre = item.dataset.regNombre;
+// ── Importar ─────────────────────────────────────────────────
+async function importar(tipo) {
+  if (cargando[tipo]) return;
+  cargando[tipo] = true;
+  document.getElementById(`btn-${tipo}`).disabled = true;
+  const prog = document.getElementById(`prog-${tipo}`);
+  const pbar = document.getElementById(`pbar-${tipo}`);
+  prog.style.display = 'block';
 
-    progBar.style.width = Math.round((i/files.length)*100)+'%';
+  const items = datos[tipo].filter(x => x.matchTipo === 'ok' || x.matchTipo === 'warn');
+  let ok = 0, err = 0;
+
+  for (let i = 0; i < datos[tipo].length; i++) {
+    const item = datos[tipo][i];
+    if (item.matchTipo === 'new') continue;
+
+    actualizarBadge(tipo, i, 'uploading');
+
+    const pct = Math.round((ok + err) / items.length * 100);
+    pbar.style.width = pct + '%';
 
     try {
       // 1. Subir a Cloudinary
+      const nombre = item.file.name.replace(/\.[^.]+$/, '');
+      const pid = `${CONFIG[tipo].folder}/${nombre}`;
       const fd = new FormData();
-      fd.append('file', file);
-      fd.append('upload_preset', CLOUDINARY_PRESET);
-      fd.append('folder', CARPETAS[tipo]);
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {method:'POST',body:fd});
+      fd.append('file', item.file);
+      fd.append('upload_preset', PRESET);
+      fd.append('public_id', pid);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, {
+        method: 'POST', body: fd
+      });
       const data = await res.json();
-      if (!data.secure_url) throw new Error(data.error?.message||'Sin URL');
 
-      const logoUrl = data.secure_url;
+      if (!data.secure_url) throw new Error(data.error?.message || 'Error Cloudinary');
 
-      // 2. Actualizar o crear en Firestore
-      if (regId) {
-        await db.collection(COLECCIONES[tipo]).doc(regId).update({ logo_url: logoUrl });
-        logEl.innerHTML += `<div class="ok">✅ ${regNombre} → logo actualizado</div>`;
-      } else if (matchTipo === 'new') {
-        await db.collection(COLECCIONES[tipo]).add({ nombre: regNombre, logo_url: logoUrl, creado_en: firebase.firestore.FieldValue.serverTimestamp() });
-        logEl.innerHTML += `<div class="info">🆕 ${regNombre} → creado nuevo</div>`;
-      }
+      // 2. Guardar logo_url en Firestore
+      await db.collection(CONFIG[tipo].col).doc(item.marca.id).update({
+        logo_url: data.secure_url
+      });
 
-      // Marcar en preview
-      item.innerHTML += `<span class="status ok">✅ OK</span>`;
+      item.estado = 'done';
+      actualizarBadge(tipo, i, 'done');
+      logMsg(tipo, `✅ ${item.marca.nombre} → ${data.secure_url}`, 'ok');
       ok++;
     } catch(e) {
-      logEl.innerHTML += `<div class="err">❌ ${file.name} → ${e.message}</div>`;
-      item.innerHTML += `<span class="status err">❌ Error</span>`;
+      item.estado = 'err';
+      actualizarBadge(tipo, i, 'err');
+      logMsg(tipo, `❌ ${item.file.name}: ${e.message}`, 'err');
       err++;
     }
-    logEl.scrollTop = logEl.scrollHeight;
-    await new Promise(r => setTimeout(r, 150)); // pequeña pausa
+
+    if ((ok + err) % 5 === 0) await new Promise(r => setTimeout(r, 200));
   }
 
-  progBar.style.width = '100%';
-  logEl.innerHTML += `<div class="info" style="margin-top:8px;font-size:12px">── Listo: ${ok} OK · ${err} errores · ${skip} saltados ──</div>`;
-  btn.textContent = `✅ Importación completa (${ok}/${files.length})`;
-  btn.style.background = '#16a34a';
+  pbar.style.width = '100%';
+  logMsg(tipo, `\n📊 Resultado: ${ok} importados, ${err} errores, ${datos[tipo].filter(x=>x.matchTipo==='new').length} sin match omitidos.`, 'info');
+  cargando[tipo] = false;
+  document.getElementById(`btn-${tipo}`).disabled = false;
 }
 
-// ── LIMPIAR TAB ───────────────────────────────────────────
-function limpiarTab(tipo) {
-  state[tipo].files = [];
-  document.getElementById('preview-'+tipo).innerHTML = '';
-  document.getElementById('actions-'+tipo).style.display = 'none';
-  document.getElementById('file-'+tipo).value = '';
-  const log = document.getElementById('log-'+tipo);
-  if (log) log.innerHTML = '';
+function limpiarSec(tipo) {
+  datos[tipo] = [];
+  document.getElementById(`grid-${tipo}`).innerHTML = '';
+  document.getElementById(`cnt-${tipo}`).textContent = '';
+  document.getElementById(`btns-${tipo}`).style.display = 'none';
+  document.getElementById(`log-${tipo}`).style.display = 'none';
+  document.getElementById(`prog-${tipo}`).style.display = 'none';
+  document.getElementById(`inp-${tipo}`).value = '';
+  cargando[tipo] = false;
 }
 </script>
 </body>
