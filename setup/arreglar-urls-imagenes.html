@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Arreglar URLs de Imágenes en Firestore</title>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="../js/firebase-config.js"></script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;padding:28px 20px}
@@ -95,7 +93,21 @@ code{color:#818cf8;font-family:monospace;font-size:12px}
   <button class="btn btn-secondary" onclick="window.location.href='../catalogo/index.html'">🛒 Ver Catálogo</button>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain: "repuestos-automotor.firebaseapp.com",
+  projectId: "repuestos-automotor",
+  storageBucket: "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId: "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
 const CLOUD_BASE = 'https://res.cloudinary.com/dljdwhnu7/image/upload/';
 
 let docsParaArreglar = [];
@@ -127,7 +139,7 @@ async function escanear() {
   document.getElementById('btn-scan').textContent = '⏳ Escaneando...';
 
   try {
-    const snap = await db.collection('repuestos').get();
+    const snap = await getDocs(collection(db, 'repuestos'));
     totalDocs = snap.docs.length;
     docsParaArreglar = [];
 
@@ -198,7 +210,7 @@ async function arreglar() {
       }
 
       if (Object.keys(update).length > 0) {
-        await db.collection('repuestos').doc(id).update(update);
+        await updateDoc(doc(db, 'repuestos', id), update);
         ok++;
         document.getElementById('fx-ok').textContent = ok;
         if (ok <= 20 || ok % 50 === 0) {
