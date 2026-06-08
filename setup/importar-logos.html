@@ -120,29 +120,31 @@ async function loadMarcas(tipo) {
 
 // ── Extraer nombre para matching ────────────────────────────
 function extraerNombre(filename) {
-  let n = filename.replace(/\.[^.]+$/, ''); // sin extensión
-  n = n.replace(/^\d+[-_]/, '');            // quitar número inicial
-  n = n.replace(/^gr[-_]?/i, '');           // quitar prefijo gr-
-  n = n.replace(/[-_](logo|high|large|big|grande|245x|png|jpg|\d{2,4}x\d{2,4}).*$/i, '');
-  n = n.replace(/[-_]/g, ' ').trim().toLowerCase();
+  let n = filename.replace(/\.[^.]+$/, '');
+  n = n.replace(/^\d+[-_]+/, '');
+  n = n.replace(/^gr[-_]?/i, '');
+  n = n.replace(/[-_]?(logo|high|large|big|grande|245x|\d{2,4}x\d{2,4})[-_]?/gi, ' ');
+  n = n.replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
   return n;
 }
 
 function matchMarca(filename, lista) {
   const nombre = extraerNombre(filename);
-  // Exacto
-  let m = lista.find(x => x.nombre.toLowerCase() === nombre);
+  const norm = s => s.toLowerCase().replace(/\s+/g,'').replace(/-/g,'');
+  // Exacto (normalizado sin espacios)
+  let m = lista.find(x => norm(x.nombre) === norm(nombre));
   if (m) return { marca: m, tipo: 'ok' };
-  // Parcial: la marca contiene el nombre extraído o viceversa
+  // Parcial: uno contiene al otro
   m = lista.find(x => {
-    const mn = x.nombre.toLowerCase();
-    return mn.includes(nombre) || nombre.includes(mn);
+    const mn = norm(x.nombre);
+    const nb = norm(nombre);
+    return mn.includes(nb) || nb.includes(mn);
   });
   if (m) return { marca: m, tipo: 'warn' };
-  // Por palabras
-  const palabras = nombre.split(/\s+/).filter(p => p.length > 2);
+  // Por palabras de 3+ chars
+  const palabras = nombre.split(/\s+/).filter(p => p.length >= 3);
   for (const p of palabras) {
-    m = lista.find(x => x.nombre.toLowerCase().includes(p));
+    m = lista.find(x => norm(x.nombre).includes(norm(p)) || norm(p).includes(norm(x.nombre)));
     if (m) return { marca: m, tipo: 'warn' };
   }
   return { marca: null, tipo: 'new' };
