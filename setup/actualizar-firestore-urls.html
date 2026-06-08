@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Actualizar URLs Firestore</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080b10;color:#e2e8f0;font-family:'Courier New',monospace;padding:24px;min-height:100vh}
+h1{color:#f59e0b;font-size:20px;margin-bottom:4px}
+.sub{color:#475569;font-size:12px;margin-bottom:20px}
+.panel{background:#0f172a;border:1px solid #1e293b;border-radius:10px;padding:16px;margin-bottom:12px}
+.panel h2{font-size:11px;color:#64748b;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{font-size:11px;color:#64748b;display:block;margin-bottom:3px}
+input{width:100%;background:#080b10;border:1px solid #1e293b;color:#e2e8f0;padding:7px 10px;border-radius:5px;font-size:12px;font-family:'Courier New',monospace;margin-bottom:8px}
+input:focus{outline:none;border-color:#f59e0b}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.stat{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:10px 6px;text-align:center}
+.stat-n{font-size:22px;font-weight:700;color:#f59e0b}
+.stat-l{font-size:9px;color:#475569;margin-top:2px}
+.stat.done .stat-n{color:#34d399}
+.btns{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+button{padding:9px 18px;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:'Courier New',monospace;font-weight:700}
+.btn-go{background:#f59e0b;color:#000}.btn-go:disabled{background:#292524;color:#57534e;cursor:not-allowed}
+.btn-prev{background:#1e40af;color:#fff}.btn-prev:disabled{background:#0f172a;color:#334155;cursor:not-allowed}
+.btn-sm{background:#1e293b;color:#94a3b8;border:1px solid #334155;padding:6px 12px;font-size:11px}
+.progress{height:3px;background:#1e293b;border-radius:2px;margin:8px 0;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,#f59e0b,#34d399);width:0%;transition:width .2s}
+#log{background:#040608;border:1px solid #1e293b;border-radius:8px;padding:12px;height:420px;overflow-y:auto;font-size:11px;line-height:1.8}
+.ok{color:#34d399}.err{color:#f87171}.warn{color:#fbbf24}.info{color:#60a5fa}.dim{color:#334155}
+</style>
+</head>
+<body>
+<h1>⚡ Actualizar URLs → Firestore</h1>
+<p class="sub">Actualiza imagen_url, imagenes[] y notas para apuntar a img_repuestos</p>
+
+<div class="panel">
+  <h2>Firebase</h2>
+  <div class="grid2">
+    <div><label>API Key</label><input id="fb-key" value="AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4"></div>
+    <div><label>Project ID</label><input id="fb-project" value="repuestos-automotor"></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat" id="st-total"><div class="stat-n" id="n-total">—</div><div class="stat-l">Total docs</div></div>
+  <div class="stat" id="st-ok"><div class="stat-n" id="n-ok" style="color:#34d399">0</div><div class="stat-l">Actualizados</div></div>
+  <div class="stat" id="st-skip"><div class="stat-n" id="n-skip" style="color:#60a5fa">0</div><div class="stat-l">Sin cambio</div></div>
+  <div class="stat" id="st-err"><div class="stat-n" id="n-err" style="color:#f87171">0</div><div class="stat-l">Errores</div></div>
+</div>
+
+<div class="progress"><div class="prog-bar" id="prog"></div></div>
+
+<div class="btns">
+  <button class="btn-prev" id="btn-prev" onclick="run(true)">🔍 Preview</button>
+  <button class="btn-go"   id="btn-go"   onclick="run(false)">⚡ Ejecutar</button>
+  <button class="btn-sm"   onclick="document.getElementById('log').innerHTML=''">🗑 Limpiar</button>
+</div>
+
+<div id="log"><span class="dim">// Listo. Hacé Preview primero para ver cuántos docs van a cambiar.</span></div>
+
+<script>
+function log(msg, cls='dim') {
+  const el = document.getElementById('log');
+  const d = document.createElement('div');
+  d.className = cls; d.textContent = msg;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+function setProg(p) { document.getElementById('prog').style.width = p + '%'; }
+function setN(id, val) { document.getElementById('n-' + id).textContent = val; }
+
+function toImgRepuestos(url) {
+  if (!url) return url;
+  return url
+    .replace(/\/repuestos\/img_promo_chica\//g,  '/repuestos/img_repuestos/')
+    .replace(/\/repuestos\/img_promo_grande\//g, '/repuestos/img_repuestos/')
+    .replace(/\/repuestos\/img_promo_promo\//g,  '/repuestos/img_repuestos/')
+    .replace(/\/repuestos\/img\//g,              '/repuestos/img_repuestos/')
+    .replace(/\/repuestos-automotor\//g,         '/repuestos/img_repuestos/')
+    .replace(/-ch-(\w)/g,   '-gr-$1')
+    .replace(/-prom-(\w)/g, '-gr-$1')
+    .replace(/_\.jpg$/i, '.jpg')
+    .replace(/_\.png$/i, '.png');
+}
+
+async function fbFetchAll(fbKey, project) {
+  let docs = [], token = null;
+  const base = `https://firestore.googleapis.com/v1/projects/${project}/databases/(default)/documents/repuestos`;
+  do {
+    let url = `${base}?key=${fbKey}&pageSize=300`;
+    if (token) url += `&pageToken=${token}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`Firestore ${r.status}: ${await r.text()}`);
+    const data = await r.json();
+    if (data.documents) docs = docs.concat(data.documents);
+    token = data.nextPageToken || null;
+  } while (token);
+  return docs;
+}
+
+async function fbPatch(fbKey, project, docName, fields) {
+  const masks = Object.keys(fields).map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`).join('&');
+  const r = await fetch(`https://firestore.googleapis.com/v1/${docName}?key=${fbKey}&${masks}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields })
+  });
+  if (!r.ok) throw new Error(`PATCH ${r.status}: ${await r.text()}`);
+}
+
+const URL_PATTERNS = [
+  [/https:\/\/res\.cloudinary\.com\/dljdwhnu7\/image\/upload\/repuestos\/img_promo_chica\//g,  'https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/img_repuestos/'],
+  [/https:\/\/res\.cloudinary\.com\/dljdwhnu7\/image\/upload\/repuestos\/img_promo_grande\//g, 'https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/img_repuestos/'],
+  [/https:\/\/res\.cloudinary\.com\/dljdwhnu7\/image\/upload\/repuestos\/img_promo_promo\//g,  'https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/img_repuestos/'],
+  [/https:\/\/res\.cloudinary\.com\/dljdwhnu7\/image\/upload\/repuestos\/img\//g,              'https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/img_repuestos/'],
+  [/https:\/\/res\.cloudinary\.com\/dljdwhnu7\/image\/upload\/repuestos-automotor\//g,         'https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/img_repuestos/'],
+  [/-ch-(\w)/g,   '-gr-$1'],
+  [/-prom-(\w)/g, '-gr-$1'],
+];
+
+window.run = async function(preview) {
+  const fbKey     = document.getElementById('fb-key').value.trim();
+  const fbProject = document.getElementById('fb-project').value.trim();
+
+  document.getElementById('btn-prev').disabled = true;
+  document.getElementById('btn-go').disabled   = true;
+  document.getElementById('log').innerHTML = '';
+  setN('ok', 0); setN('skip', 0); setN('err', 0);
+
+  log(`${preview ? '🔍 PREVIEW' : '⚡ EJECUTANDO'} — Cargando documentos...`, 'info');
+
+  try {
+    const docs = await fbFetchAll(fbKey, fbProject);
+    setN('total', docs.length);
+    log(`✅ ${docs.length} documentos cargados`, 'ok');
+
+    let ok = 0, skip = 0, err = 0;
+
+    for (let i = 0; i < docs.length; i++) {
+      const docItem = docs[i];
+      const f = docItem.fields || {};
+      const docId = docItem.name.split('/').pop();
+
+      const oldImgUrl = f.imagen_url?.stringValue || '';
+      const oldImgs   = (f.imagenes?.arrayValue?.values || []).map(v => v.stringValue || '');
+      const oldNotas  = f.notas?.stringValue || '';
+
+      const newImgUrl = toImgRepuestos(oldImgUrl);
+      const newImgs   = newImgUrl ? [newImgUrl] : [];
+      let newNotas = oldNotas;
+      URL_PATTERNS.forEach(([re, rep]) => { newNotas = newNotas.replace(re, rep); });
+
+      const cambiaUrl   = oldImgUrl !== newImgUrl;
+      const cambiaImgs  = JSON.stringify(oldImgs) !== JSON.stringify(newImgs);
+      const cambiaNotas = oldNotas !== newNotas;
+
+      if (!cambiaUrl && !cambiaImgs && !cambiaNotas) {
+        skip++;
+        setN('skip', skip);
+        continue;
+      }
+
+      if (preview) {
+        log(`📝 ${docId}`, 'info');
+        if (cambiaUrl)   log(`   imagen_url: ${oldImgUrl.split('/').slice(-2).join('/')} → ${newImgUrl.split('/').slice(-2).join('/')}`, 'warn');
+        if (cambiaImgs)  log(`   imagenes: [${oldImgs.length}] → [${newImgs.length}]`, 'warn');
+        if (cambiaNotas) log(`   notas: tiene URLs que se van a actualizar`, 'warn');
+        ok++;
+      } else {
+        try {
+          const fields = {};
+          if (cambiaUrl)   fields['imagen_url'] = { stringValue: newImgUrl };
+          if (cambiaImgs)  fields['imagenes']   = { arrayValue: { values: newImgs.map(u => ({ stringValue: u })) } };
+          if (cambiaNotas) fields['notas']       = { stringValue: newNotas };
+          await fbPatch(fbKey, fbProject, docItem.name, fields);
+          ok++;
+          if (ok % 50 === 0) log(`✅ Actualizados: ${ok}`, 'ok');
+          if (i % 8 === 7) await new Promise(r => setTimeout(r, 150));
+        } catch(e) {
+          err++;
+          log(`❌ ${docId}: ${e.message}`, 'err');
+        }
+      }
+
+      setN('ok', ok);
+      setN('err', err);
+      setProg(Math.round(((i + 1) / docs.length) * 100));
+    }
+
+    log('', '');
+    log('════════════════════════════════', 'info');
+    if (preview) {
+      log(`PREVIEW COMPLETO`, 'info');
+      log(`  Docs a actualizar: ${ok}`, 'warn');
+      log(`  Docs sin cambio:   ${skip}`, 'dim');
+      log(`  ✔ Si todo OK → apretá "Ejecutar"`, 'ok');
+    } else {
+      log(`EJECUCIÓN COMPLETA ✅`, 'ok');
+      log(`  Actualizados: ${ok}`, 'ok');
+      log(`  Sin cambio:   ${skip}`, 'dim');
+      log(`  Errores:      ${err}`, err > 0 ? 'err' : 'dim');
+    }
+    setProg(100);
+
+  } catch(e) {
+    log(`❌ Error: ${e.message}`, 'err');
+    console.error(e);
+  }
+
+  document.getElementById('btn-prev').disabled = false;
+  document.getElementById('btn-go').disabled   = false;
+};
+</script>
+</body>
+</html>
