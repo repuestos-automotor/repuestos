@@ -3456,14 +3456,15 @@ window.addEventListener('message', async (e) => {
   }
 });
 
-// ── HELPER: convierte URL img_promo_chica → img_promo_grande ──
+// ── HELPER: URL de imagen (ya migradas a img_repuestos, devolver tal cual) ──
 window.urlGrande = function(url) {
   if (!url) return url;
-  // Reemplaza carpeta chica por grande y quita el guión bajo del nombre
-  // Ej: .../img_promo_chica/338-ch-0502_.jpg → .../img_promo_grande/338-gr-0502.jpg
+  // Las URLs ya apuntan a img_repuestos después de la migración
+  // Solo corregir si por algún motivo quedó alguna URL vieja
   return url
-    .replace('/img_promo_chica/', '/img_promo_grande/')
-    .replace(/-ch-/g, '-gr-')
+    .replace('/img_promo_chica/', '/img_repuestos/')
+    .replace('/img_promo_grande/', '/img_repuestos/')
+    .replace('/img_promo_promo/', '/img_repuestos/')
     .replace(/_\.jpg$/, '.jpg')
     .replace(/_\.png$/, '.png');
 };
@@ -3775,7 +3776,7 @@ function renderEtiqGrid(items) {
   if (!items.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px;padding:20px">Sin resultados.</p>'; return; }
   grid.innerHTML = items.map(r=>`
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;gap:12px;align-items:flex-start">
-      ${r.imagenes?.[0]?`<img src="${r.imagen_url||r.imagenes[0]}" style="width:60px;height:60px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:var(--bg4);flex-shrink:0" onerror="this.src='${r.imagenes[0]}';this.onerror=null">`:`<div style="width:60px;height:60px;background:var(--bg4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🏷️</div>`}
+      ${(r.imagenes?.[0]||r.imagen_url)?`<img src="${r.imagenes?.[0]||r.imagen_url}" style="width:60px;height:60px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:var(--bg4);flex-shrink:0" onerror="this.style.display='none'">`:`<div style="width:60px;height:60px;background:var(--bg4);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🏷️</div>`}
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">${r.titulo_repuesto||'—'}</div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:5px">${r.categoria||''} ${r.modelo_repuesto?'· '+r.modelo_repuesto:''}</div>
