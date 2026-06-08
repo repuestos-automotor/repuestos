@@ -822,24 +822,24 @@ window.calcularPrecios = () => {
 
 // ── RECOLECTAR DATOS ──────────────────────────────────
 function recolectarDatos() {
-  const tiposVeh = [...document.querySelectorAll('#tipo-vehiculo-wrap .mc-opt.selected')]
-    .map(el => el.querySelector('input').value);
-  const fabricantes = [...document.querySelectorAll('[data-field="fabricante"]')]
-    .map(el => el.value).filter(v => v);
-  const marcasModelos = [...document.querySelectorAll('.marca-modelo-row')].map(row => ({
-    marca:   row.querySelector('[data-field="marca-veh"]')?.value || '',
-    modelos: row.querySelector('[data-field="modelos-veh"]')?.value || ''
+  const tiposVeh = Array.from(document.querySelectorAll('#tipo-vehiculo-wrap .mc-opt.selected'))
+    .map(el => String(el.querySelector('input').value));
+  const fabricantes = Array.from(document.querySelectorAll('[data-field="fabricante"]'))
+    .map(el => String(el.value)).filter(v => v);
+  const marcasModelos = Array.from(document.querySelectorAll('.marca-modelo-row')).map(row => ({
+    marca:   String(row.querySelector('[data-field="marca-veh"]')?.value || ''),
+    modelos: String(row.querySelector('[data-field="modelos-veh"]')?.value || '')
   })).filter(m => m.marca);
-  const codigos = [...document.querySelectorAll('#codigos-wrap .codigo-row')].map(row => {
+  const codigos = Array.from(document.querySelectorAll('#codigos-wrap .codigo-row')).map(row => {
     const sel = row.querySelector('select'); const inp = row.querySelector('input');
-    return sel?.value && inp?.value ? {proveedor: sel.value, codigo: inp.value} : null;
+    return sel?.value && inp?.value ? {proveedor: String(sel.value), codigo: String(inp.value)} : null;
   }).filter(Boolean);
-  const catalogos = [...document.querySelectorAll('#catalogos-wrap .catalogo-row')].map(row => {
+  const catalogos = Array.from(document.querySelectorAll('#catalogos-wrap .catalogo-row')).map(row => {
     const ins = row.querySelectorAll('input');
-    return ins[0]?.value && ins[1]?.value ? {nombre: ins[0].value, pagina: ins[1].value} : null;
+    return ins[0]?.value && ins[1]?.value ? {nombre: String(ins[0].value), pagina: String(ins[1].value)} : null;
   }).filter(Boolean);
-  const imagenes = [...document.querySelectorAll('#img-grid .img-slot.filled')]
-    .map(slot => slot.dataset.url).filter(Boolean);
+  const imagenes = Array.from(document.querySelectorAll('#img-grid .img-slot.filled'))
+    .map(slot => String(slot.dataset.url)).filter(Boolean);
 
   calcularPrecios();
   return {
@@ -968,7 +968,15 @@ window.cargarDatosEdicion = function(r) {
   set('f-material',        r.material || '');
   set('f-codigo',          r.codigo || '');
   set('f-lado',            r.lado || '');
-  set('f-fecha-compra',    r.fecha_compra || '');
+  // fecha_compra puede ser Timestamp de Firestore, Date, o string "YYYY-MM-DD"
+  const fechaComp = r.fecha_compra
+    ? (typeof r.fecha_compra.toDate === 'function'
+        ? r.fecha_compra.toDate().toISOString().split('T')[0]
+        : r.fecha_compra instanceof Date
+          ? r.fecha_compra.toISOString().split('T')[0]
+          : String(r.fecha_compra))
+    : '';
+  set('f-fecha-compra', fechaComp);
   set('f-aplicacion',      r.aplicacion || '');
   set('f-importante',      r.importante || '');
   setHTML('f-descripcion', r.descripcion || '');
