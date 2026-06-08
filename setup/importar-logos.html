@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Importar Logos de Marcas</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;padding:28px 20px}
+h1{font-size:22px;font-weight:700;margin-bottom:6px;color:#fff}
+.sub{font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.7}
+.section{background:#1a1d2e;border:1px solid #2d3348;border-radius:14px;padding:24px;margin-bottom:24px}
+.section-title{font-size:14px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.section-desc{font-size:12px;color:#64748b;margin-bottom:18px}
+.pick-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:#1e2130;border:2px dashed #3d4566;border-radius:10px;color:#94a3b8;font-size:14px;font-weight:600;cursor:pointer;transition:.2s}
+.pick-btn:hover{border-color:#6366f1;color:#a5b4fc;background:rgba(99,102,241,.07)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:16px}
+.item{background:#141624;border:1px solid #2d3348;border-radius:9px;padding:10px 8px;text-align:center}
+.item img{width:70px;height:52px;object-fit:contain;border-radius:5px;background:#0f1117;display:block;margin:0 auto 6px}
+.item .name{font-size:10px;color:#64748b;word-break:break-all;line-height:1.4;margin-bottom:4px}
+.item .match{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;display:inline-block}
+.m-ok{background:rgba(34,197,94,.15);color:#4ade80}
+.m-warn{background:rgba(245,158,11,.15);color:#fbbf24}
+.m-new{background:rgba(99,102,241,.15);color:#818cf8}
+.m-done{background:rgba(34,197,94,.2);color:#4ade80}
+.m-err{background:rgba(239,68,68,.2);color:#f87171}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{padding:11px 24px;border-radius:9px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-primary{background:#6366f1;color:#fff}
+.btn-primary:hover:not(:disabled){background:#4f46e5}
+.btn-primary:disabled{background:#2d3348;color:#64748b;cursor:not-allowed}
+.btn-secondary{background:#1e2130;color:#94a3b8;border:1px solid #3d4566}
+.btn-secondary:hover{background:#2d3348}
+.progress{background:#0f1117;border-radius:6px;height:9px;overflow:hidden;border:1px solid #2d3348;margin-top:12px;display:none}
+.progress-bar{height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:6px;transition:width .3s}
+.log{background:#0f1117;border:1px solid #2d3348;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;max-height:180px;overflow-y:auto;color:#64748b;margin-top:14px;line-height:1.9;display:none}
+.log .ok{color:#4ade80} .log .err{color:#f87171} .log .info{color:#818cf8} .log .warn{color:#fbbf24}
+.counter{font-size:12px;color:#64748b;margin-top:8px}
+.alert{border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;margin-bottom:20px}
+.alert-blue{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#a5b4fc}
+code{color:#818cf8;font-family:monospace}
+</style>
+</head>
+<body>
+<h1>🏷️ Importar Logos de Marcas</h1>
+<p class="sub">
+  Subí los logos a Cloudinary y se guardan automáticamente en cada marca/proveedor de Firestore.<br>
+  <strong>Marcas de Vehículos:</strong> seleccioná tu carpeta <code>img_marca_grande</code> &nbsp;|&nbsp;
+  <strong>Marcas de Repuestos:</strong> seleccioná tu carpeta <code>img_marca_rep_grande</code>
+</p>
+
+<div class="alert alert-blue">
+  💡 El sistema matchea el logo con la marca por nombre de archivo. Si el match es <span style="color:#fbbf24">⚠️ Parcial</span>, igual podés importar — se guarda bien. Si no matchea nada, se omite o podés crearlo nuevo.
+</div>
+
+<!-- SECCIÓN MARCAS VEHÍCULO -->
+<div class="section" id="sec-veh">
+  <div class="section-title">🚗 Marcas de Vehículos</div>
+  <div class="section-desc">Carpeta en tu PC: <code>img_marca_grande</code> → Cloudinary: <code>repuestos/img_marca_vehiculos/</code></div>
+  <label class="pick-btn">
+    📂 Seleccionar logos de marcas de vehículos
+    <input type="file" multiple accept="image/*" style="display:none" id="inp-veh" onchange="cargarArchivos('veh',this)">
+  </label>
+  <div class="counter" id="cnt-veh"></div>
+  <div class="grid" id="grid-veh"></div>
+  <div class="btns" id="btns-veh" style="display:none">
+    <button class="btn btn-primary" id="btn-veh" onclick="importar('veh')">⬆️ Importar todos</button>
+    <button class="btn btn-secondary" onclick="limpiarSec('veh')">🗑 Limpiar</button>
+  </div>
+  <div class="progress" id="prog-veh"><div class="progress-bar" id="pbar-veh" style="width:0%"></div></div>
+  <div class="log" id="log-veh"></div>
+</div>
+
+<!-- SECCIÓN MARCAS REPUESTO -->
+<div class="section" id="sec-rep">
+  <div class="section-title">🔧 Marcas de Repuestos</div>
+  <div class="section-desc">Carpeta en tu PC: <code>img_marca_rep_grande</code> → Cloudinary: <code>repuestos/img_marca_rep/</code></div>
+  <label class="pick-btn">
+    📂 Seleccionar logos de marcas de repuestos
+    <input type="file" multiple accept="image/*" style="display:none" id="inp-rep" onchange="cargarArchivos('rep',this)">
+  </label>
+  <div class="counter" id="cnt-rep"></div>
+  <div class="grid" id="grid-rep"></div>
+  <div class="btns" id="btns-rep" style="display:none">
+    <button class="btn btn-primary" id="btn-rep" onclick="importar('rep')">⬆️ Importar todos</button>
+    <button class="btn btn-secondary" onclick="limpiarSec('rep')">🗑 Limpiar</button>
+  </div>
+  <div class="progress" id="prog-rep"><div class="progress-bar" id="pbar-rep" style="width:0%"></div></div>
+  <div class="log" id="log-rep"></div>
+</div>
+
+<script>
+const CLOUD  = 'dljdwhnu7';
+const PRESET = 'repuestos';
+
+const CONFIG = {
+  veh: { folder: 'repuestos/img_marca_vehiculos', col: 'marcas_vehiculo' },
+  rep: { folder: 'repuestos/img_marca_rep',       col: 'marcas_repuesto' }
+};
+
+let datos = { veh: [], rep: [] };
+let marcas = { veh: [], rep: [] };
+let cargando = { veh: false, rep: false };
+
+// ── Cargar marcas de Firestore ──────────────────────────────
+async function loadMarcas(tipo) {
+  if (marcas[tipo].length) return marcas[tipo];
+  const col = CONFIG[tipo].col;
+  try {
+    const snap = await db.collection(col).get();
+    marcas[tipo] = snap.docs.map(d => ({ id: d.id, nombre: d.data().nombre || '' }));
+  } catch(e) {
+    console.error('Error cargando marcas', e);
+  }
+  return marcas[tipo];
+}
+
+// ── Extraer nombre para matching ────────────────────────────
+function extraerNombre(filename) {
+  let n = filename.replace(/\.[^.]+$/, ''); // sin extensión
+  n = n.replace(/^\d+[-_]/, '');            // quitar número inicial
+  n = n.replace(/^gr[-_]?/i, '');           // quitar prefijo gr-
+  n = n.replace(/[-_](logo|high|large|big|grande|245x|png|jpg|\d{2,4}x\d{2,4}).*$/i, '');
+  n = n.replace(/[-_]/g, ' ').trim().toLowerCase();
+  return n;
+}
+
+function matchMarca(filename, lista) {
+  const nombre = extraerNombre(filename);
+  // Exacto
+  let m = lista.find(x => x.nombre.toLowerCase() === nombre);
+  if (m) return { marca: m, tipo: 'ok' };
+  // Parcial: la marca contiene el nombre extraído o viceversa
+  m = lista.find(x => {
+    const mn = x.nombre.toLowerCase();
+    return mn.includes(nombre) || nombre.includes(mn);
+  });
+  if (m) return { marca: m, tipo: 'warn' };
+  // Por palabras
+  const palabras = nombre.split(/\s+/).filter(p => p.length > 2);
+  for (const p of palabras) {
+    m = lista.find(x => x.nombre.toLowerCase().includes(p));
+    if (m) return { marca: m, tipo: 'warn' };
+  }
+  return { marca: null, tipo: 'new' };
+}
+
+// ── Cargar archivos seleccionados ───────────────────────────
+async function cargarArchivos(tipo, input) {
+  const files = Array.from(input.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+
+  const lista = await loadMarcas(tipo);
+
+  datos[tipo] = files.map(f => {
+    const { marca, tipo: mt } = matchMarca(f.name, lista);
+    return { file: f, marca, matchTipo: mt, estado: 'wait' };
+  });
+
+  renderGrid(tipo);
+  document.getElementById(`cnt-${tipo}`).textContent =
+    `${files.length} archivo${files.length > 1 ? 's' : ''} — ` +
+    `${datos[tipo].filter(x=>x.matchTipo==='ok').length} exactos, ` +
+    `${datos[tipo].filter(x=>x.matchTipo==='warn').length} parciales, ` +
+    `${datos[tipo].filter(x=>x.matchTipo==='new').length} sin match (se omiten)`;
+  document.getElementById(`btns-${tipo}`).style.display = 'flex';
+}
+
+function renderGrid(tipo) {
+  const grid = document.getElementById(`grid-${tipo}`);
+  grid.innerHTML = '';
+  datos[tipo].forEach((item, i) => {
+    const url = URL.createObjectURL(item.file);
+    const labels = { ok:'✅ Match exacto', warn:'⚠️ Match parcial', new:'➖ Sin match', done:'✅ Importado', err:'❌ Error' };
+    const cls = { ok:'m-ok', warn:'m-warn', new:'m-new', done:'m-done', err:'m-err' };
+    const estado = item.estado === 'wait' ? item.matchTipo : item.estado;
+    grid.innerHTML += `
+      <div class="item" id="item-${tipo}-${i}">
+        <img src="${url}" loading="lazy">
+        <div class="name">${item.file.name}</div>
+        ${item.marca ? `<div style="font-size:10px;color:#a5b4fc;margin-bottom:3px">${item.marca.nombre}</div>` : ''}
+        <span class="match ${cls[estado]}" id="badge-${tipo}-${i}">${labels[estado]}</span>
+      </div>`;
+  });
+}
+
+function actualizarBadge(tipo, i, estado) {
+  const badge = document.getElementById(`badge-${tipo}-${i}`);
+  if (!badge) return;
+  const labels = { ok:'✅ Match exacto', warn:'⚠️ Match parcial', new:'➖ Sin match', done:'✅ Importado', uploading:'⬆️ Subiendo...', err:'❌ Error' };
+  const cls    = { ok:'m-ok', warn:'m-warn', new:'m-new', done:'m-done', uploading:'m-warn', err:'m-err' };
+  badge.className = `match ${cls[estado] || 'm-warn'}`;
+  badge.textContent = labels[estado] || estado;
+}
+
+function logMsg(tipo, msg, cls) {
+  const el = document.getElementById(`log-${tipo}`);
+  el.style.display = 'block';
+  el.innerHTML += `<div class="${cls}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── Importar ─────────────────────────────────────────────────
+async function importar(tipo) {
+  if (cargando[tipo]) return;
+  cargando[tipo] = true;
+  document.getElementById(`btn-${tipo}`).disabled = true;
+  const prog = document.getElementById(`prog-${tipo}`);
+  const pbar = document.getElementById(`pbar-${tipo}`);
+  prog.style.display = 'block';
+
+  const items = datos[tipo].filter(x => x.matchTipo === 'ok' || x.matchTipo === 'warn');
+  let ok = 0, err = 0;
+
+  for (let i = 0; i < datos[tipo].length; i++) {
+    const item = datos[tipo][i];
+    if (item.matchTipo === 'new') continue;
+
+    actualizarBadge(tipo, i, 'uploading');
+
+    const pct = Math.round((ok + err) / items.length * 100);
+    pbar.style.width = pct + '%';
+
+    try {
+      // 1. Subir a Cloudinary
+      const nombre = item.file.name.replace(/\.[^.]+$/, '');
+      const pid = `${CONFIG[tipo].folder}/${nombre}`;
+      const fd = new FormData();
+      fd.append('file', item.file);
+      fd.append('upload_preset', PRESET);
+      fd.append('public_id', pid);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, {
+        method: 'POST', body: fd
+      });
+      const data = await res.json();
+
+      if (!data.secure_url) throw new Error(data.error?.message || 'Error Cloudinary');
+
+      // 2. Guardar logo_url en Firestore
+      await db.collection(CONFIG[tipo].col).doc(item.marca.id).update({
+        logo_url: data.secure_url
+      });
+
+      item.estado = 'done';
+      actualizarBadge(tipo, i, 'done');
+      logMsg(tipo, `✅ ${item.marca.nombre} → ${data.secure_url}`, 'ok');
+      ok++;
+    } catch(e) {
+      item.estado = 'err';
+      actualizarBadge(tipo, i, 'err');
+      logMsg(tipo, `❌ ${item.file.name}: ${e.message}`, 'err');
+      err++;
+    }
+
+    if ((ok + err) % 5 === 0) await new Promise(r => setTimeout(r, 200));
+  }
+
+  pbar.style.width = '100%';
+  logMsg(tipo, `\n📊 Resultado: ${ok} importados, ${err} errores, ${datos[tipo].filter(x=>x.matchTipo==='new').length} sin match omitidos.`, 'info');
+  cargando[tipo] = false;
+  document.getElementById(`btn-${tipo}`).disabled = false;
+}
+
+function limpiarSec(tipo) {
+  datos[tipo] = [];
+  document.getElementById(`grid-${tipo}`).innerHTML = '';
+  document.getElementById(`cnt-${tipo}`).textContent = '';
+  document.getElementById(`btns-${tipo}`).style.display = 'none';
+  document.getElementById(`log-${tipo}`).style.display = 'none';
+  document.getElementById(`prog-${tipo}`).style.display = 'none';
+  document.getElementById(`inp-${tipo}`).value = '';
+  cargando[tipo] = false;
+}
+</script>
+</body>
+</html>
