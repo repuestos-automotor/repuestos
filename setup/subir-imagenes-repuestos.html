@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Subir Imágenes de Repuestos a Cloudinary</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh;padding:28px 20px}
+h1{font-size:22px;font-weight:700;margin-bottom:6px;color:#fff}
+.sub{font-size:13px;color:#64748b;margin-bottom:28px;line-height:1.6}
+.card{background:#1a1d2e;border:1px solid #2d3348;border-radius:14px;padding:24px;margin-bottom:20px}
+.card h2{font-size:13px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px}
+
+/* Zona de selección */
+.pick-area{border:2px dashed #3d4566;border-radius:10px;padding:32px 20px;text-align:center;cursor:pointer;transition:.2s;background:#141624}
+.pick-area:hover{border-color:#6366f1;background:rgba(99,102,241,.06)}
+.pick-area .icon{font-size:36px;margin-bottom:10px}
+.pick-area p{font-size:14px;color:#94a3b8}
+.pick-area small{font-size:12px;color:#64748b;margin-top:4px;display:block}
+#file-input{display:none}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+.stat{background:#0f1117;border-radius:10px;padding:14px;text-align:center;border:1px solid #2d3348}
+.stat .val{font-size:26px;font-weight:800;color:#6366f1}
+.stat .lbl{font-size:11px;color:#64748b;margin-top:2px}
+.stat.green .val{color:#4ade80}
+.stat.red .val{color:#f87171}
+.stat.yellow .val{color:#fbbf24}
+
+/* Tabla de archivos */
+.file-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:16px}
+.file-table th{text-align:left;padding:8px 10px;color:#64748b;border-bottom:1px solid #2d3348;font-weight:600;font-size:11px;text-transform:uppercase}
+.file-table td{padding:7px 10px;border-bottom:1px solid #1e2130;vertical-align:middle}
+.file-table tr:hover td{background:rgba(99,102,241,.04)}
+.thumb{width:42px;height:34px;object-fit:contain;border-radius:4px;background:#0f1117;border:1px solid #2d3348}
+.fname{color:#e2e8f0;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pub-id{color:#818cf8;font-family:monospace;font-size:11px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600}
+.badge-wait{background:rgba(100,116,139,.2);color:#94a3b8}
+.badge-ok{background:rgba(34,197,94,.15);color:#4ade80}
+.badge-err{background:rgba(239,68,68,.15);color:#f87171}
+.badge-skip{background:rgba(245,158,11,.15);color:#fbbf24}
+.badge-dup{background:rgba(99,102,241,.15);color:#818cf8}
+
+/* Barra de progreso */
+.progress-wrap{margin-top:16px;display:none}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:6px}
+.progress{background:#0f1117;border-radius:6px;height:10px;overflow:hidden;border:1px solid #2d3348}
+.progress-bar{height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:6px;transition:width .3s}
+
+/* Log */
+.log{background:#0f1117;border:1px solid #2d3348;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;max-height:200px;overflow-y:auto;color:#64748b;margin-top:14px;line-height:1.9;display:none}
+.log .ok{color:#4ade80}
+.log .err{color:#f87171}
+.log .info{color:#818cf8}
+.log .warn{color:#fbbf24}
+
+/* Botones */
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.btn{padding:11px 24px;border-radius:9px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+.btn-primary{background:#6366f1;color:#fff}
+.btn-primary:hover:not(:disabled){background:#4f46e5}
+.btn-primary:disabled{background:#2d3348;color:#64748b;cursor:not-allowed}
+.btn-secondary{background:#1e2130;color:#94a3b8;border:1px solid #3d4566}
+.btn-secondary:hover{background:#2d3348}
+.btn-danger{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+
+/* Alerta info */
+.alert{border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;margin-bottom:20px}
+.alert-blue{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#a5b4fc}
+.alert-green{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac}
+.alert-yellow{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:#fde68a}
+
+.hidden{display:none}
+.scroll-table{max-height:380px;overflow-y:auto;border-radius:8px;border:1px solid #2d3348;margin-top:12px}
+</style>
+</head>
+<body>
+
+<h1>📤 Subir Imágenes de Repuestos a Cloudinary</h1>
+<p class="sub">
+  Seleccioná todas las fotos de repuestos de tu carpeta local.<br>
+  Se suben automáticamente a Cloudinary en la carpeta <code style="color:#818cf8">repuestos/img_repuestos/</code><br>
+  Las URLs quedarán en el formato correcto para que se vean en el catálogo y en el admin.
+</p>
+
+<div class="alert alert-blue">
+  📁 <strong>¿De qué carpeta?</strong> Las imágenes de los repuestos estaban en tu XAMPP en 
+  <code>img_repuestos/</code> — son las que tienen nombres como <code>771-gr-0238.jpg</code>, 
+  <code>998-ch-PEUGEOT 504_82.jpg</code>, etc.
+</div>
+
+<!-- PASO 1: Seleccionar archivos -->
+<div class="card">
+  <h2>📂 Paso 1 — Seleccioná las imágenes</h2>
+  <div class="pick-area" id="pick-area" onclick="document.getElementById('file-input').click()">
+    <div class="icon">🖼️</div>
+    <p><strong>Hacé clic acá</strong> para seleccionar imágenes</p>
+    <small>Podés seleccionar todas a la vez con Ctrl+A en el diálogo</small>
+  </div>
+  <input type="file" id="file-input" multiple accept="image/*">
+
+  <div id="stats-wrap" class="stats hidden">
+    <div class="stat"><div class="val" id="st-total">0</div><div class="lbl">Archivos</div></div>
+    <div class="stat green"><div class="val" id="st-ok">0</div><div class="lbl">Subidos ✓</div></div>
+    <div class="stat red"><div class="val" id="st-err">0</div><div class="lbl">Errores</div></div>
+    <div class="stat yellow"><div class="val" id="st-skip">0</div><div class="lbl">Ya existían</div></div>
+  </div>
+</div>
+
+<!-- PASO 2: Revisar y subir -->
+<div class="card" id="step2-card" style="display:none">
+  <h2>☁️ Paso 2 — Subir a Cloudinary</h2>
+
+  <div class="btns">
+    <button class="btn btn-primary" id="btn-upload" onclick="iniciarSubida()">
+      ⬆️ Subir todas las imágenes
+    </button>
+    <button class="btn btn-secondary" onclick="limpiar()">🗑 Limpiar selección</button>
+    <span id="counter-label" style="font-size:13px;color:#64748b;align-self:center"></span>
+  </div>
+
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">Subiendo...</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+  </div>
+
+  <div class="scroll-table">
+    <table class="file-table">
+      <thead>
+        <tr>
+          <th>Vista previa</th>
+          <th>Archivo</th>
+          <th>Public ID en Cloudinary</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="file-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="log" id="log"></div>
+</div>
+
+<!-- PASO 3: Resultado -->
+<div class="card" id="step3-card" style="display:none">
+  <h2>✅ Resultado final</h2>
+  <div class="alert alert-green" id="result-msg"></div>
+  <div class="alert alert-yellow" id="result-warn" style="display:none"></div>
+  <div class="btns">
+    <button class="btn btn-secondary" onclick="limpiar()">📂 Subir más imágenes</button>
+    <button class="btn btn-primary" onclick="window.location.href='../admin/index.html'">
+      🔙 Ir al Admin
+    </button>
+  </div>
+</div>
+
+<script>
+const CLOUD_NAME = 'dljdwhnu7';
+const UPLOAD_PRESET = 'repuestos';
+const FOLDER = 'repuestos/img_repuestos';
+
+let archivos = [];
+let subiendo = false;
+let contOk = 0, contErr = 0, contSkip = 0;
+
+// ── Selección de archivos ─────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', function(e) {
+  const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  
+  archivos = files.map(f => ({ file: f, estado: 'wait', url: null, err: null }));
+  renderTabla();
+  document.getElementById('step2-card').style.display = 'block';
+  document.getElementById('stats-wrap').classList.remove('hidden');
+  document.getElementById('st-total').textContent = archivos.length;
+  document.getElementById('counter-label').textContent = `${archivos.length} archivo${archivos.length !== 1 ? 's' : ''} seleccionado${archivos.length !== 1 ? 's' : ''}`;
+  document.getElementById('step3-card').style.display = 'none';
+  document.getElementById('log').style.display = 'none';
+  document.getElementById('progress-wrap').style.display = 'none';
+  contOk = 0; contErr = 0; contSkip = 0;
+  actualizarStats();
+});
+
+function publicId(file) {
+  // El nombre del archivo se usa tal cual como public_id dentro del folder
+  const nombre = file.name.replace(/\.[^.]+$/, ''); // sin extensión
+  return `${FOLDER}/${nombre}`;
+}
+
+function renderTabla() {
+  const tbody = document.getElementById('file-tbody');
+  tbody.innerHTML = '';
+  archivos.forEach((item, i) => {
+    const pid = publicId(item.file);
+    const url = URL.createObjectURL(item.file);
+    const badgeClass = {
+      wait: 'badge-wait',
+      ok: 'badge-ok',
+      err: 'badge-err',
+      skip: 'badge-skip',
+      dup: 'badge-dup'
+    }[item.estado] || 'badge-wait';
+    const badgeText = {
+      wait: '⏳ Pendiente',
+      ok: '✅ Subido',
+      err: '❌ Error',
+      skip: '⚠️ Ya existía',
+      dup: '🔁 Duplicado'
+    }[item.estado] || '⏳ Pendiente';
+
+    const tr = document.createElement('tr');
+    tr.id = `row-${i}`;
+    tr.innerHTML = `
+      <td><img class="thumb" src="${url}" loading="lazy"></td>
+      <td class="fname" title="${item.file.name}">${item.file.name}</td>
+      <td class="pub-id" title="${pid}">${pid}</td>
+      <td><span class="badge ${badgeClass}" id="badge-${i}">${badgeText}</span>${item.err ? `<br><small style="color:#f87171;font-size:10px">${item.err}</small>` : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function actualizarFila(i) {
+  const item = archivos[i];
+  const badge = document.getElementById(`badge-${i}`);
+  if (!badge) return;
+  const badgeClass = { ok:'badge-ok', err:'badge-err', skip:'badge-skip', dup:'badge-dup', uploading:'badge-wait' }[item.estado] || 'badge-wait';
+  const badgeText = { ok:'✅ Subido', err:'❌ Error', skip:'⚠️ Ya existía', dup:'🔁 Duplicado', uploading:'⬆️ Subiendo...' }[item.estado] || '⏳ Pendiente';
+  badge.className = `badge ${badgeClass}`;
+  badge.textContent = badgeText;
+}
+
+function actualizarStats() {
+  document.getElementById('st-ok').textContent = contOk;
+  document.getElementById('st-err').textContent = contErr;
+  document.getElementById('st-skip').textContent = contSkip;
+}
+
+function log(msg, tipo = 'info') {
+  const logEl = document.getElementById('log');
+  logEl.style.display = 'block';
+  logEl.innerHTML += `<div class="${tipo}">${msg}</div>`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+// ── Subida ────────────────────────────────────────────────────
+async function iniciarSubida() {
+  if (subiendo || !archivos.length) return;
+  subiendo = true;
+  document.getElementById('btn-upload').disabled = true;
+  document.getElementById('progress-wrap').style.display = 'block';
+  contOk = 0; contErr = 0; contSkip = 0;
+
+  for (let i = 0; i < archivos.length; i++) {
+    const item = archivos[i];
+    item.estado = 'uploading';
+    actualizarFila(i);
+
+    const pct = Math.round((i / archivos.length) * 100);
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-text').textContent = `Subiendo ${i+1}/${archivos.length}: ${item.file.name}`;
+
+    try {
+      const pid = publicId(item.file);
+      const fd = new FormData();
+      fd.append('file', item.file);
+      fd.append('upload_preset', UPLOAD_PRESET);
+      fd.append('public_id', pid);
+
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: fd
+      });
+      const data = await res.json();
+
+      if (data.secure_url) {
+        item.estado = 'ok';
+        item.url = data.secure_url;
+        contOk++;
+        log(`✅ ${item.file.name} → ${data.secure_url}`, 'ok');
+      } else if (data.error) {
+        item.estado = 'err';
+        item.err = data.error.message || 'Error desconocido';
+        contErr++;
+        log(`❌ ${item.file.name}: ${item.err}`, 'err');
+      }
+    } catch (e) {
+      item.estado = 'err';
+      item.err = e.message;
+      contErr++;
+      log(`❌ ${item.file.name}: ${e.message}`, 'err');
+    }
+
+    actualizarFila(i);
+    actualizarStats();
+    
+    // Pequeña pausa para no sobrecargar
+    if (i % 5 === 4) await new Promise(r => setTimeout(r, 300));
+  }
+
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('progress-pct').textContent = '100%';
+  document.getElementById('progress-text').textContent = '¡Listo!';
+
+  subiendo = false;
+  mostrarResultado();
+}
+
+function mostrarResultado() {
+  document.getElementById('step3-card').style.display = 'block';
+  const total = archivos.length;
+  const msg = document.getElementById('result-msg');
+  const warn = document.getElementById('result-warn');
+  
+  msg.innerHTML = `
+    ✅ <strong>Proceso completado.</strong><br>
+    ${contOk} imágenes subidas correctamente.<br>
+    ${contSkip > 0 ? `⚠️ ${contSkip} ya existían en Cloudinary (no se reemplazaron).<br>` : ''}
+    ${contErr > 0 ? `❌ ${contErr} fallaron — revisá el log arriba.<br>` : ''}
+    <br>
+    Las URLs quedan en el formato: <code style="color:#818cf8">https://res.cloudinary.com/${CLOUD_NAME}/image/upload/repuestos/img_repuestos/[nombre].jpg</code><br>
+    Estas URLs coinciden con lo que tiene guardado Firestore en el campo <strong>imagen_url</strong>.
+  `;
+  
+  if (contErr > 0) {
+    warn.style.display = 'block';
+    warn.innerHTML = `⚠️ Hubo ${contErr} error${contErr > 1 ? 'es' : ''}. Revisá el log de arriba para ver qué archivos fallaron y volvé a intentar solo esos.`;
+  }
+
+  document.getElementById('step3-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+function limpiar() {
+  archivos = [];
+  document.getElementById('file-input').value = '';
+  document.getElementById('file-tbody').innerHTML = '';
+  document.getElementById('step2-card').style.display = 'none';
+  document.getElementById('step3-card').style.display = 'none';
+  document.getElementById('stats-wrap').classList.add('hidden');
+  document.getElementById('log').style.display = 'none';
+  document.getElementById('progress-wrap').style.display = 'none';
+  document.getElementById('btn-upload').disabled = false;
+  subiendo = false;
+  contOk = 0; contErr = 0; contSkip = 0;
+}
+</script>
+</body>
+</html>
