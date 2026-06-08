@@ -968,15 +968,7 @@ window.cargarDatosEdicion = function(r) {
   set('f-material',        r.material || '');
   set('f-codigo',          r.codigo || '');
   set('f-lado',            r.lado || '');
-  // fecha_compra puede ser Timestamp de Firestore, Date, o string "YYYY-MM-DD"
-  const fechaComp = r.fecha_compra
-    ? (typeof r.fecha_compra.toDate === 'function'
-        ? r.fecha_compra.toDate().toISOString().split('T')[0]
-        : r.fecha_compra instanceof Date
-          ? r.fecha_compra.toISOString().split('T')[0]
-          : String(r.fecha_compra))
-    : '';
-  set('f-fecha-compra', fechaComp);
+  set('f-fecha-compra',    r.fecha_compra || '');
   set('f-aplicacion',      r.aplicacion || '');
   set('f-importante',      r.importante || '');
   setHTML('f-descripcion', r.descripcion || '');

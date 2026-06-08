@@ -3433,41 +3433,18 @@ window.setupIframe = function(iframe) {
   } catch(e) {}
 };
 
-function sanitizarDatos(obj) {
-  // Convierte cualquier valor no serializable por Firestore:
-  // - Firestore Timestamp → string ISO
-  // - Date → string ISO
-  // - undefined → elimina el campo
-  // - Recursivo en arrays y objetos anidados
-  if (obj === null || obj === undefined) return null;
-  if (typeof obj !== 'object') return obj;
-  // Firestore Timestamp tiene método toDate()
-  if (typeof obj.toDate === 'function') return obj.toDate().toISOString().split('T')[0];
-  if (obj instanceof Date) return obj.toISOString().split('T')[0];
-  if (Array.isArray(obj)) return obj.map(sanitizarDatos).filter(v => v !== null && v !== undefined);
-  // Plain object
-  const clean = {};
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === undefined) continue;
-    clean[k] = sanitizarDatos(v);
-  }
-  return clean;
-}
-
 async function saveRepuesto(datos) {
-  // Sanitizar primero: elimina Timestamps, Dates y valores no serializables
-  const datosSanitizados = sanitizarDatos(datos);
-  datosSanitizados.actualizado_en = serverTimestamp();
+  datos.actualizado_en = serverTimestamp();
   if (window._editingId) {
     const id = window._editingId;
     window._editingId = null;
     // updateDoc con merge implícito — solo actualiza los campos enviados, preserva el resto
-    await updateDoc(doc(db,'repuestos', id), datosSanitizados);
+    await updateDoc(doc(db,'repuestos', id), datos);
     toast('✅ Repuesto actualizado','success');
   } else {
-    datosSanitizados.creado_en = serverTimestamp();
-    datosSanitizados.vistas    = 0;
-    await addDoc(collection(db,'repuestos'), datosSanitizados);
+    datos.creado_en = serverTimestamp();
+    datos.vistas    = 0;
+    await addDoc(collection(db,'repuestos'), datos);
     toast('✅ Repuesto guardado','success');
   }
   window._repsAll = null;
