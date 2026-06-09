@@ -1805,7 +1805,7 @@ window.abrirDetalle = function(id) {
       ${(r.marcas_vehiculo||['Universal']).map(m=>{
         const logo = logosMarcasVeh[m];
         return logo
-          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px"><img src="${logo}" style="height:38px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
+          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px"><img src="${logo}" style="height:88px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
           : `<span class="compat-tag">${m}</span>`;
       }).join('')}
       ${r.marcas_modelos_texto ? `<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue)">📋 ${r.marcas_modelos_texto}</span>` : ''}
@@ -1816,7 +1816,7 @@ window.abrirDetalle = function(id) {
       ${(r.marcas_repuesto||[]).map(m=>{
         const logo = logosMarcasRep[m];
         return logo
-          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:38px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
+          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:88px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
           : `<span class="compat-tag" style="border-color:rgba(99,102,241,.3);color:var(--indigo)">${m}</span>`;
       }).join('')}
     </div>
