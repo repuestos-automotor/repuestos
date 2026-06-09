@@ -556,17 +556,18 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
   .df-val{font-size:16px!important}
   .desc-html{font-size:15px!important;line-height:1.7!important}
   .nota-html{font-size:15px!important;line-height:1.7!important}
-  .compat-tag{font-size:14px!important;padding:6px 12px!important}
+  .compat-tag{font-size:15px!important;padding:8px 14px!important}
   .codigo-table td{font-size:15px!important;padding:8px 10px!important}
   .pb-label{font-size:13px!important}
   .pb-val{font-size:20px!important}
   .mis-cons-panel-el *{font-size:15px}
   .mis-cons-panel-el .panel-title{font-size:18px!important}
-  .card-name{font-size:15px!important}
-  .card-brand{font-size:13px!important}
-  .card-compat{font-size:12.5px!important}
-  .card-price{font-size:16px!important}
-  .compat-tags img{height:34px!important}
+  .card-name{font-size:16px!important;line-height:1.5!important;margin-bottom:6px!important}
+  .card-brand{font-size:16px!important;margin-bottom:7px!important;line-height:1.6!important;white-space:normal!important}
+  .card-compat{font-size:15px!important;margin-bottom:10px!important;line-height:1.6!important;white-space:normal!important}
+  .card-price{font-size:18px!important;margin-top:4px!important}
+  .card-body [style*="monospace"]{font-size:16px!important;margin-bottom:6px!important;line-height:1.6!important}
+  .compat-tags img{height:42px!important}
 }
 
 
@@ -1850,29 +1851,32 @@ window.abrirDetalle = function(id) {
     ${r.aplicacion  ? `<div class="detail-section-title">Aplicación</div><div style="font-size:14px;color:var(--text2);margin-bottom:14px">${r.aplicacion}</div>` : ''}
 
     <div class="detail-section-title">Vehículos compatibles</div>
-    <div class="compat-tags" style="margin-bottom:6px">
+    <div class="compat-tags" style="margin-bottom:8px">
       ${(r.marcas_vehiculo||['Universal']).map(m=>{
         const logo = logosMarcasVeh[m];
         return logo
-          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px"><img src="${logo}" style="height:28px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
-          : `<span class="compat-tag">${m}</span>`;
+          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:var(--blue2);color:var(--blue)"><img src="${logo}" style="height:36px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
+          : `<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue)">${m}</span>`;
       }).join('')}
     </div>
-    ${(r.marcas_modelos||[]).filter(mm=>mm.marca&&mm.modelos).length ? `
-    <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:5px">
-      ${(r.marcas_modelos).filter(mm=>mm.marca&&mm.modelos).map(mm=>`
-        <div style="display:flex;align-items:baseline;gap:8px;padding:5px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">
-          <span style="font-size:13px;font-weight:600;color:var(--text2);white-space:nowrap">${mm.marca}:</span>
-          <span style="font-size:13px;color:var(--text3)">${mm.modelos}</span>
-        </div>`).join('')}
-    </div>` : (r.marcas_modelos_texto ? `<div style="margin-bottom:14px;font-size:13px;color:var(--text3);padding:5px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">${r.marcas_modelos_texto}</div>` : '<div style="margin-bottom:14px"></div>')}
+    ${(r.marcas_modelos||[]).filter(mm=>mm.marca&&mm.modelos).length
+      ? `<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+          ${(r.marcas_modelos).filter(mm=>mm.marca&&mm.modelos).map(mm=>`
+            <span class="compat-tag" style="border-color:var(--blue2);color:var(--blue);display:inline-flex;align-items:center;gap:8px;width:100%;box-sizing:border-box">
+              <strong style="white-space:nowrap">${mm.marca}:</strong>
+              <span style="color:var(--text2)">${mm.modelos}</span>
+            </span>`).join('')}
+         </div>`
+      : (r.marcas_modelos_texto
+          ? `<div style="margin-bottom:14px"><span class="compat-tag" style="border-color:var(--blue2);color:var(--blue);width:100%;box-sizing:border-box;display:block">📋 ${r.marcas_modelos_texto}</span></div>`
+          : '<div style="margin-bottom:14px"></div>')}
 
     <div class="detail-section-title">Marcas del repuesto</div>
     <div class="compat-tags" style="margin-bottom:14px">
       ${(r.marcas_repuesto||[]).map(m=>{
         const logo = logosMarcasRep[m];
         return logo
-          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:28px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
+          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:36px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
           : `<span class="compat-tag" style="border-color:rgba(99,102,241,.3);color:var(--indigo)">${m}</span>`;
       }).join('')}
     </div>
@@ -2298,9 +2302,9 @@ window.cerrarSesion = async function() {
   .nota-html{font-size:16px !important;line-height:1.7 !important}
 
   /* ── CHIPS VEHÍCULOS / MARCAS ── */
-  .compat-tag{font-size:15px !important;padding:8px 14px !important;display:inline-flex !important;align-items:center !important;gap:8px !important}
+  .compat-tag{font-size:16px !important;padding:10px 16px !important;display:inline-flex !important;align-items:center !important;gap:10px !important}
   .compat-tags{display:flex !important;flex-wrap:wrap !important;gap:10px !important}
-  .compat-tags img{height:36px !important;width:auto !important}
+  .compat-tags img{height:44px !important;width:auto !important}
 
   /* ── PRECIOS ── */
   .pb-label{font-size:14px !important}
