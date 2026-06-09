@@ -3485,12 +3485,13 @@ window.setupIframe = function(iframe) {
   } catch(e) {}
 };
 
-async function saveRepuesto(datos) {
+async function saveRepuesto(datosRaw) {
+  // Serializar para asegurar plain objects (el objeto viene de un iframe con distinto window)
+  const datos = JSON.parse(JSON.stringify(datosRaw));
   datos.actualizado_en = serverTimestamp();
   if (window._editingId) {
     const id = window._editingId;
     window._editingId = null;
-    // updateDoc con merge implícito — solo actualiza los campos enviados, preserva el resto
     await updateDoc(doc(db,'repuestos', id), datos);
     toast('✅ Repuesto actualizado','success');
   } else {
