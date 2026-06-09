@@ -1486,6 +1486,18 @@ window.limpiarCarrito = function() {
   carrito = {};
   ids.forEach(id => actualizarCardCart(id));
   renderCarrito();
+  // Resetear método de pago a Efectivo
+  _metodoPagoSel = 'Efectivo';
+  document.querySelectorAll('.cs-metodo-btn').forEach(b => b.classList.remove('active'));
+  const ef = document.getElementById('csm-efectivo');
+  if (ef) ef.classList.add('active');
+  // Resetear monto ingresado
+  const mi = document.getElementById('cart-monto-input');
+  if (mi) mi.value = '';
+  const difEl = document.getElementById('cart-diferencia-txt');
+  if (difEl) difEl.style.display = 'none';
+  const vs = document.getElementById('cart-vuelto-section');
+  if (vs) vs.style.display = 'none';
   toast('Carrito limpiado');
 };
 
@@ -1838,15 +1850,22 @@ window.abrirDetalle = function(id) {
     ${r.aplicacion  ? `<div class="detail-section-title">Aplicación</div><div style="font-size:14px;color:var(--text2);margin-bottom:14px">${r.aplicacion}</div>` : ''}
 
     <div class="detail-section-title">Vehículos compatibles</div>
-    <div class="compat-tags" style="margin-bottom:14px">
+    <div class="compat-tags" style="margin-bottom:6px">
       ${(r.marcas_vehiculo||['Universal']).map(m=>{
         const logo = logosMarcasVeh[m];
         return logo
           ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px"><img src="${logo}" style="height:28px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
           : `<span class="compat-tag">${m}</span>`;
       }).join('')}
-      ${r.marcas_modelos_texto ? `<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue)">📋 ${r.marcas_modelos_texto}</span>` : ''}
     </div>
+    ${(r.marcas_modelos||[]).filter(mm=>mm.marca&&mm.modelos).length ? `
+    <div style="margin-bottom:14px;display:flex;flex-direction:column;gap:5px">
+      ${(r.marcas_modelos).filter(mm=>mm.marca&&mm.modelos).map(mm=>`
+        <div style="display:flex;align-items:baseline;gap:8px;padding:5px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">
+          <span style="font-size:13px;font-weight:600;color:var(--text2);white-space:nowrap">${mm.marca}:</span>
+          <span style="font-size:13px;color:var(--text3)">${mm.modelos}</span>
+        </div>`).join('')}
+    </div>` : (r.marcas_modelos_texto ? `<div style="margin-bottom:14px;font-size:13px;color:var(--text3);padding:5px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">${r.marcas_modelos_texto}</div>` : '<div style="margin-bottom:14px"></div>')}
 
     <div class="detail-section-title">Marcas del repuesto</div>
     <div class="compat-tags" style="margin-bottom:14px">
