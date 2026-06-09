@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel Admin — Repuestos Electromecánicos</title>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg">
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -369,8 +371,8 @@ tbody tr:last-child td{border-bottom:none}
 ══════════════════════════════════════════════════════ -->
 <nav class="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <div class="logo-icon" style="background:none;padding:0;overflow:hidden">
+      <img src="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg" alt="Logo" style="width:30px;height:30px;object-fit:cover;border-radius:6px">
     </div>
     <div class="logo-text">REPUESTOS<small>ELECTROMECANICOS</small></div>
   </div>
@@ -3527,7 +3529,9 @@ window.guardarRepuesto=async function(e, repId=''){
     toast(repId ? 'Repuesto actualizado correctamente' : 'Repuesto guardado correctamente','success');
     showPage('repuestos');
   } catch(err){
+    console.error('Error guardarRepuesto:', err);
     toast('Error al guardar: '+err.message,'error');
+    btn.disabled=false; btn.textContent='Guardar repuesto';
     btn.disabled=false; btn.textContent='Guardar repuesto';
   }
 };
