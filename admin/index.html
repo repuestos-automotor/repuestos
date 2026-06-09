@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg">
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg">
 <title>Panel Admin — Repuestos Electromecánicos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -697,16 +699,13 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- ─── NUEVO REPUESTO ────────────────────────────── -->
+    <!-- ─── NUEVO / EDITAR REPUESTO ────────────────────────────── -->
     <div class="page" id="page-nuevo-repuesto">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600" id="form-rep-title">Nuevo repuesto</div>
         <button class="btn btn-ghost" onclick="showPage('repuestos')">← Volver a la lista</button>
       </div>
-      <iframe id="iframe-repuesto" src="form-repuesto.html"
-        style="width:100%;height:calc(100vh - 120px);border:none;background:var(--bg)"
-        onload="setupIframe(this)">
-      </iframe>
+      <div id="form-rep-container"></div>
     </div>
 
     <!-- ─── STOCK ──────────────────────────────────────── -->
@@ -1696,43 +1695,8 @@ function renderAdminGrid(reps) {
 
 window.editarRepuesto = async function(id) {
   if (!id) return;
-  // 1. Buscar datos en Firestore PRIMERO (antes de navegar)
-  let datos;
-  try {
-    const snap = await getDoc(doc(db, 'repuestos', id));
-    if (!snap.exists()) { toast('Repuesto no encontrado','error'); return; }
-    datos = { id, ...snap.data() };
-  } catch(e) {
-    console.error('Error cargando repuesto:', e);
-    toast('Error al cargar el repuesto','error');
-    return;
-  }
-  // 2. Guardar ID para que saveRepuesto sepa que es edición
-  window._editingId = id;
-  // 3. Guardar datos para que setupIframe los inyecte si el iframe recarga
-  window._pendingEditData = datos;
-  // 4. Navegar al formulario
+  window._editingRepId = id;
   showPage('nuevo-repuesto');
-  // 5. Inyectar en el iframe — con reintentos cada 150ms hasta 3 seg
-  const iframe = document.getElementById('iframe-repuesto');
-  let intentos = 0;
-  const inyectar = setInterval(() => {
-    intentos++;
-    try {
-      if (iframe.contentWindow && iframe.contentWindow.cargarDatosEdicion) {
-        iframe.contentWindow.cargarDatosEdicion(datos);
-        window._pendingEditData = null;
-        clearInterval(inyectar);
-      } else if (intentos > 20) {
-        // Último recurso: postMessage
-        iframe.contentWindow?.postMessage({ type: 'cargar-edicion', datos }, '*');
-        window._pendingEditData = null;
-        clearInterval(inyectar);
-      }
-    } catch(e) {
-      if (intentos > 20) clearInterval(inyectar);
-    }
-  }, 150);
 };
 
 // ── APLICAR AUMENTOS ──────────────────────────────────
@@ -3390,9 +3354,30 @@ window.initFormRepuesto = async function(repId) {
     <div class="panel" style="margin-bottom:14px">
       <div class="panel-header"><div class="panel-title">Imagen y publicación</div></div>
       <div style="padding:16px">
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">URL de imagen</label><input type="url" class="form-input" id="fp-imagen" placeholder="https://..."></div>
-          <div class="form-group"><label class="form-label">¿Publicar en el catálogo?</label>
+        <div class="form-row" style="align-items:flex-start">
+          <div class="form-group" style="flex:2">
+            <label class="form-label">Imagen del repuesto</label>
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <input type="url" class="form-input" id="fp-imagen" placeholder="URL de Cloudinary (se completa al subir)" oninput="fpPreviewImagen()" style="flex:1">
+              <label style="cursor:pointer;padding:0 14px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Subir imagen
+                <input type="file" id="fp-imagen-file" accept="image/*" style="display:none" onchange="fpSubirImagen(this)">
+              </label>
+            </div>
+            <div id="fp-upload-progress" style="display:none;margin-bottom:8px">
+              <div style="background:var(--border);border-radius:4px;height:5px;overflow:hidden">
+                <div id="fp-upload-bar" style="height:100%;background:var(--blue2);border-radius:4px;width:0%;transition:width .15s"></div>
+              </div>
+              <div id="fp-upload-status" style="font-size:11px;color:var(--text3);margin-top:4px">Subiendo...</div>
+            </div>
+            <div id="fp-imagen-preview" style="display:none">
+              <img id="fp-imagen-preview-img" src="" alt="preview" style="max-height:100px;max-width:160px;object-fit:contain;border-radius:8px;border:1px solid var(--border);background:var(--bg3);padding:4px">
+              <button type="button" onclick="document.getElementById('fp-imagen').value='';document.getElementById('fp-imagen-preview').style.display='none'" style="margin-left:8px;background:none;border:none;color:var(--red);cursor:pointer;font-size:18px;vertical-align:middle">×</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">¿Publicar en el catálogo?</label>
             <select class="form-select" id="fp-publicar">
               <option value="1">Sí, publicar</option>
               <option value="0">No, guardar sin publicar</option>
@@ -3405,7 +3390,7 @@ window.initFormRepuesto = async function(repId) {
     <!-- ── BOTONES ── -->
     <div style="display:flex;gap:10px;justify-content:flex-end;padding-bottom:20px">
       <button type="button" class="btn btn-ghost" onclick="showPage('repuestos')">Cancelar</button>
-      <button type="submit" class="btn btn-primary">Guardar repuesto</button>
+      <button type="submit" class="btn btn-primary" id="fp-btn-guardar">💾 Guardar repuesto</button>
     </div>
   </form>`;
 
@@ -3445,6 +3430,7 @@ window.initFormRepuesto = async function(repId) {
         set('fp-pct-gan','40'); set('fp-pago', r.forma_pago);
         set('fp-entrega', r.forma_entrega); set('fp-imagen', r.imagen_url);
         set('fp-publicar', r.alta ? '1' : '0');
+        fpPreviewImagen();
         (r.codigos_proveedores||[]).forEach(c=>{
           agregarCodigoProveedor();
           const el=document.getElementById('cod-prov-'+_codigosCount);
@@ -3466,6 +3452,55 @@ window.agregarCodigoProveedor=function(){
   div.className='form-row'; div.id='cod-row-'+_codigosCount; div.style.marginBottom='8px';
   div.innerHTML='<div class="form-group" style="margin:0"><label class="form-label">Proveedor</label><input type="text" class="form-input" id="cod-prov-'+_codigosCount+'" placeholder="Ej: BOSCH, AJ..."></div><div class="form-group" style="margin:0"><label class="form-label">Código</label><div style="display:flex;gap:6px"><input type="text" class="form-input" id="cod-val-'+_codigosCount+'" placeholder="Ej: F000AL0304" style="flex:1"><button type="button" class="btn btn-ghost" style="padding:0 10px;font-size:18px" onclick="document.getElementById(\'cod-row-'+_codigosCount+'\').remove()">×</button></div></div>';
   document.getElementById('codigos-prov-list').appendChild(div);
+};
+
+// ── IMAGEN EN FORMULARIO INLINE ───────────────────────
+window.fpPreviewImagen = function() {
+  const url = (document.getElementById('fp-imagen')?.value||'').trim();
+  const wrap = document.getElementById('fp-imagen-preview');
+  const img  = document.getElementById('fp-imagen-preview-img');
+  if (url && wrap && img) { img.src=url; wrap.style.display=''; }
+  else if (wrap) wrap.style.display='none';
+};
+
+window.fpSubirImagen = async function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const progWrap = document.getElementById('fp-upload-progress');
+  const bar      = document.getElementById('fp-upload-bar');
+  const status   = document.getElementById('fp-upload-status');
+  if (progWrap) progWrap.style.display='';
+  if (bar) bar.style.width='0%';
+  if (status) status.textContent='Subiendo imagen...';
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset','repuestos');
+    fd.append('folder','img_repuestos');
+    const url = await new Promise((res, rej) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST','https://api.cloudinary.com/v1_1/dljdwhnu7/image/upload');
+      xhr.upload.onprogress = ev => { if(ev.lengthComputable && bar) bar.style.width=Math.round(ev.loaded/ev.total*100)+'%'; };
+      xhr.onload = () => {
+        const data = JSON.parse(xhr.responseText);
+        if (data.secure_url) res(data.secure_url);
+        else rej(new Error(data.error?.message||'Error Cloudinary'));
+      };
+      xhr.onerror = () => rej(new Error('Error de red'));
+      xhr.send(fd);
+    });
+    const imgInput = document.getElementById('fp-imagen');
+    if (imgInput) imgInput.value = url;
+    fpPreviewImagen();
+    if (bar) bar.style.width='100%';
+    if (status) status.textContent='✅ Imagen subida correctamente';
+    setTimeout(()=>{ if(progWrap) progWrap.style.display='none'; }, 2500);
+    toast('Imagen subida a Cloudinary ✅','success');
+  } catch(err) {
+    if (status) status.textContent='❌ Error: '+err.message;
+    if (bar) bar.style.background='var(--red)';
+    toast('Error al subir: '+err.message,'error');
+  }
 };
 
 // ── GUARDAR REPUESTO ──────────────────────────────────
@@ -3500,10 +3535,12 @@ window.guardarRepuesto=async function(e, repId=''){
       tipo_vehiculo:document.getElementById('fp-tipo-veh').value,
       marcas_vehiculo:marcasVeh,marca_vehiculo_1:marcasVeh[0]||'',
       marcas_repuesto:marcasRep,
+      fabricante_repuesto:marcasRep[0]||'',
       modelo_vehiculo:(document.getElementById('fp-modelo-veh').value||'').trim(),
       fabricante:(document.getElementById('fp-fabricante').value||'').trim(),
       tipo_repuesto:document.getElementById('fp-tipo').value,
-      condicion:document.getElementById('fp-condicion').value,
+      tipo:document.getElementById('fp-tipo').value==='original'?'ORIGINAL':'ALTERNATIVO',
+      condicion:(document.getElementById('fp-condicion').value||'nuevo').toUpperCase(),
       material:(document.getElementById('fp-material').value||'').trim(),
       lado:document.getElementById('fp-lado').value,
       estanteria:document.getElementById('fp-estanteria').value,
@@ -3513,6 +3550,7 @@ window.guardarRepuesto=async function(e, repId=''){
       forma_pago:document.getElementById('fp-pago').value,
       forma_entrega:document.getElementById('fp-entrega').value,
       imagen_url:(document.getElementById('fp-imagen').value||'').trim(),
+      imagenes:(document.getElementById('fp-imagen').value||'').trim()?[(document.getElementById('fp-imagen').value||'').trim()]:[],
       fecha_compra:document.getElementById('fp-fecha-compra').value,
       alta:document.getElementById('fp-publicar').value==='1',
       codigos_proveedores:codigos,
@@ -3533,46 +3571,8 @@ window.guardarRepuesto=async function(e, repId=''){
 };
 
 
-// ── IFRAME FORMULARIO ─────────────────────────────────
-window.setupIframe = function(iframe) {
-  try {
-    iframe.contentWindow._db = db;
-    iframe.contentWindow._saveRepuesto = saveRepuesto;
-    iframe.contentWindow.toast = toast;
-    // Si hay un repuesto pendiente de cargar para edición, enviarlo
-    if (window._pendingEditData) {
-      setTimeout(() => {
-        try { iframe.contentWindow.cargarDatosEdicion(window._pendingEditData); }
-        catch(e) { iframe.contentWindow.postMessage({ type: 'cargar-edicion', datos: window._pendingEditData }, '*'); }
-        window._pendingEditData = null;
-      }, 200);
-    }
-  } catch(e) {}
-};
-
-async function saveRepuesto(datosRaw) {
-  // Serializar para asegurar plain objects (el objeto viene de un iframe con distinto window)
-  const datos = JSON.parse(JSON.stringify(datosRaw));
-  datos.actualizado_en = serverTimestamp();
-  if (window._editingId) {
-    const id = window._editingId;
-    await updateDoc(doc(db,'repuestos', id), datos);
-    window._editingId = null; // limpiar DESPUÉS de que el update fue exitoso
-    toast('✅ Repuesto actualizado','success');
-  } else {
-    datos.creado_en = serverTimestamp();
-    datos.vistas    = 0;
-    await addDoc(collection(db,'repuestos'), datos);
-    toast('✅ Repuesto guardado','success');
-  }
-  window._repsAll = null;
-}
-
-window.addEventListener('message', async (e) => {
-  if (e.data?.type === 'save-repuesto') {
-    await saveRepuesto(e.data.data);
-  }
-});
+// setupIframe — ya no se usa (formulario inline reemplazó al iframe)
+window.setupIframe = function() {};
 
 // ── HELPER: URL de imagen (ya migradas a img_repuestos, devolver tal cual) ──
 window.urlGrande = function(url) {
