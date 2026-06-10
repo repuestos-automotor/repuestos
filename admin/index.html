@@ -1377,8 +1377,44 @@ onAuthStateChanged(auth, async (user) => {
   const d = snap.data();
   document.getElementById('admin-name').textContent = d.nombre_completo || 'Admin';
   document.getElementById('admin-av').textContent   = (d.nombre_completo||'AD').substring(0,2).toUpperCase();
+  // Cargar logos de marcas al inicio para que estén disponibles en modal y form
+  precargarLogosMarcas();
   initDashboard();
 });
+
+// ── PRECARGA DE LOGOS (se ejecuta una sola vez al arrancar) ──────────
+window._logosMarcasVeh = {};
+window._logosMarcasRep = {};
+window._nombresMarcasVeh = [];
+window._nombresMarcasRep = [];
+async function precargarLogosMarcas() {
+  try {
+    const [mvSnap, mrSnap] = await Promise.all([
+      getDocs(collection(db, 'marcas_vehiculo')),
+      getDocs(collection(db, 'marcas_repuesto')),
+    ]);
+    window._logosMarcasVeh = {};
+    window._logosMarcasRep = {};
+    window._nombresMarcasVeh = [];
+    window._nombresMarcasRep = [];
+    mvSnap.docs.forEach(d => {
+      const x = d.data();
+      if (x.nombre) {
+        window._logosMarcasVeh[x.nombre] = x.logo_url || '';
+        window._nombresMarcasVeh.push(x.nombre);
+      }
+    });
+    mrSnap.docs.forEach(d => {
+      const x = d.data();
+      if (x.nombre) {
+        window._logosMarcasRep[x.nombre] = x.logo_url || '';
+        window._nombresMarcasRep.push(x.nombre);
+      }
+    });
+    window._nombresMarcasVeh.sort((a,b) => a.localeCompare(b));
+    window._nombresMarcasRep.sort((a,b) => a.localeCompare(b));
+  } catch(e) { console.warn('Error precargando logos:', e); }
+}
 
 // ── LOGOUT ────────────────────────────────────────────
 window.doLogout = () => signOut(auth).then(() => window.location.href = '../index.html');
@@ -1947,6 +1983,7 @@ async function abrirModalMarcaConLogo(coleccion, id, nombre, logoUrl, onGuardado
     }
     overlay.remove();
     onGuardado();
+    precargarLogosMarcas(); // refrescar mapas globales para form y modal
     toast(id ? 'Marca actualizada' : 'Marca creada', 'success');
   };
 }
@@ -3313,21 +3350,25 @@ window.initFormRepuesto = async function(repId) {
           <div class="form-group"><label class="form-label">Modelo de vehículo</label><input type="text" class="form-input" id="fp-modelo-veh" placeholder="Ej: Gol, Corsa, Hilux..."></div>
         </div>
         <div class="form-group"><label class="form-label">Marcas de vehículo compatibles</label>
-          <div class="form-row">
-            <input type="text" class="form-input" id="fp-mv1" placeholder="Marca 1" list="dl-marcas-veh" autocomplete="off">
-            <input type="text" class="form-input" id="fp-mv2" placeholder="Marca 2" list="dl-marcas-veh" autocomplete="off">
-            <input type="text" class="form-input" id="fp-mv3" placeholder="Marca 3" list="dl-marcas-veh" autocomplete="off">
-            <input type="text" class="form-input" id="fp-mv4" placeholder="Marca 4" list="dl-marcas-veh" autocomplete="off">
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <select class="form-select" id="fp-mv-sel" style="flex:1">
+              <option value="">Seleccioná marca de vehículo</option>
+            </select>
+            <button type="button" class="btn btn-ghost" style="white-space:nowrap;flex-shrink:0" onclick="fpAgregarMarcaVeh()">+ Agregar</button>
           </div>
+          <div id="fp-mv-chips" style="display:flex;flex-wrap:wrap;gap:6px;min-height:12px"></div>
+          <input type="hidden" id="fp-mv-data" value="[]">
           <datalist id="dl-marcas-veh"></datalist>
         </div>
-        <div class="form-group"><label class="form-label">Marcas del repuesto (fabricantes)</label>
-          <div class="form-row">
-            <input type="text" class="form-input" id="fp-mr1" placeholder="Ej: Bosch" list="dl-marcas-rep" autocomplete="off">
-            <input type="text" class="form-input" id="fp-mr2" placeholder="Ej: NGK" list="dl-marcas-rep" autocomplete="off">
-            <input type="text" class="form-input" id="fp-mr3" placeholder="Ej: Indiel" list="dl-marcas-rep" autocomplete="off">
-            <input type="text" class="form-input" id="fp-mr4" placeholder="Marca 4" list="dl-marcas-rep" autocomplete="off">
+        <div class="form-group"><label class="form-label">FABRICANTES / MARCAS DEL REPUESTO <span style="font-size:11px;color:var(--text3);font-weight:400">— Podés agregar varios</span></label>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <select class="form-select" id="fp-mr-sel" style="flex:1">
+              <option value="">Seleccioná marca de repuesto</option>
+            </select>
+            <button type="button" class="btn btn-ghost" style="white-space:nowrap;flex-shrink:0" onclick="fpAgregarMarcaRep()">+ Agregar otro</button>
           </div>
+          <div id="fp-mr-chips" style="display:flex;flex-wrap:wrap;gap:6px;min-height:12px"></div>
+          <input type="hidden" id="fp-mr-data" value="[]">
           <datalist id="dl-marcas-rep"></datalist>
         </div>
       </div>
@@ -3451,7 +3492,17 @@ window.initFormRepuesto = async function(repId) {
     window._logosMarcasRep = window._logosMarcasRep || {};
     mvSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre) window._logosMarcasVeh[x.nombre]=x.logo_url||''; });
     mrSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre) window._logosMarcasRep[x.nombre]=x.logo_url||''; });
+    // Poblar selects de chips
+    fpPoblarSelectsMarcas();
   } catch(e) { console.warn('Error cargando marcas/categorías:', e); }
+
+  // Resetear chips si es nuevo repuesto
+  if (!repId) {
+    const mvEl = document.getElementById('fp-mv-data');
+    const mrEl = document.getElementById('fp-mr-data');
+    if (mvEl) { mvEl.value = '[]'; fpRenderChips('veh'); }
+    if (mrEl) { mrEl.value = '[]'; fpRenderChips('rep'); }
+  }
 
   // Si es edición, cargar datos del repuesto
   if (repId) {
@@ -3468,8 +3519,15 @@ window.initFormRepuesto = async function(repId) {
         set('fp-desc', r.descripcion); set('fp-aplicacion', r.aplicacion);
         set('fp-notas', r.notas); set('fp-importante', r.importante);
         set('fp-tipo-veh', r.tipo_vehiculo); set('fp-modelo-veh', r.modelo_vehiculo);
-        (r.marcas_vehiculo||[]).forEach((m,i)=>set('fp-mv'+(i+1),m));
-        (r.marcas_repuesto||[]).forEach((m,i)=>set('fp-mr'+(i+1),m));
+        // Cargar marcas vehículo en chips
+        const mvData = (r.marcas_vehiculo||[]).filter(Boolean);
+        document.getElementById('fp-mv-data').value = JSON.stringify(mvData);
+        fpPoblarSelectsMarcas();
+        fpRenderChips('veh');
+        // Cargar marcas repuesto en chips
+        const mrData = (r.marcas_repuesto||[]).filter(Boolean);
+        document.getElementById('fp-mr-data').value = JSON.stringify(mrData);
+        fpRenderChips('rep');
         set('fp-estanteria', r.estanteria); set('fp-estante', r.estante);
         set('fp-stock', r.cant_artic); set('fp-costo', r.precio_costo);
         set('fp-pct-gan','40'); set('fp-pago', r.forma_pago);
@@ -3498,6 +3556,62 @@ window.agregarCodigoProveedor=function(){
   document.getElementById('codigos-prov-list').appendChild(div);
 };
 
+// ── CHIPS DE MARCAS EN EL FORM ────────────────────────
+function fpRenderChips(tipo) {
+  const key  = tipo === 'veh' ? 'fp-mv' : 'fp-mr';
+  const logos = tipo === 'veh' ? window._logosMarcasVeh : window._logosMarcasRep;
+  const data  = JSON.parse(document.getElementById(key+'-data').value || '[]');
+  const wrap  = document.getElementById(key+'-chips');
+  if (!wrap) return;
+  wrap.innerHTML = data.map((m,i) => {
+    const logo = (logos||{})[m];
+    const img  = logo ? `<img src="${logo}" style="height:18px;width:auto;object-fit:contain;border-radius:2px;vertical-align:middle;margin-right:4px" onerror="this.style.display='none'">` : '';
+    return `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);font-size:12px;color:var(--text)">${img}${m}<button type="button" onclick="fpQuitarMarca('${tipo}',${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 4px">×</button></span>`;
+  }).join('');
+}
+window.fpAgregarMarcaVeh = function() {
+  const sel = document.getElementById('fp-mv-sel');
+  const val = sel?.value?.trim();
+  if (!val) return;
+  const data = JSON.parse(document.getElementById('fp-mv-data').value || '[]');
+  if (!data.includes(val)) { data.push(val); document.getElementById('fp-mv-data').value = JSON.stringify(data); }
+  sel.value = '';
+  fpRenderChips('veh');
+};
+window.fpAgregarMarcaRep = function() {
+  const sel = document.getElementById('fp-mr-sel');
+  const val = sel?.value?.trim();
+  if (!val) return;
+  const data = JSON.parse(document.getElementById('fp-mr-data').value || '[]');
+  if (!data.includes(val)) { data.push(val); document.getElementById('fp-mr-data').value = JSON.stringify(data); }
+  sel.value = '';
+  fpRenderChips('rep');
+};
+window.fpQuitarMarca = function(tipo, idx) {
+  const key  = tipo === 'veh' ? 'fp-mv-data' : 'fp-mr-data';
+  const data = JSON.parse(document.getElementById(key).value || '[]');
+  data.splice(idx, 1);
+  document.getElementById(key).value = JSON.stringify(data);
+  fpRenderChips(tipo);
+};
+async function fpPoblarSelectsMarcas() {
+  // Si todavía no cargaron las marcas, esperamos hasta 3 segundos
+  if (!window._nombresMarcasVeh?.length || !window._nombresMarcasRep?.length) {
+    await precargarLogosMarcas();
+  }
+  const selMV = document.getElementById('fp-mv-sel');
+  const selMR = document.getElementById('fp-mr-sel');
+  // Repoblar siempre para tener la lista actualizada
+  if (selMV) {
+    selMV.innerHTML = '<option value="">Seleccioná marca de vehículo</option>';
+    (window._nombresMarcasVeh||[]).forEach(n => { const o=document.createElement('option'); o.value=n; o.textContent=n; selMV.appendChild(o); });
+  }
+  if (selMR) {
+    selMR.innerHTML = '<option value="">Seleccioná marca de repuesto</option>';
+    (window._nombresMarcasRep||[]).forEach(n => { const o=document.createElement('option'); o.value=n; o.textContent=n; selMR.appendChild(o); });
+  }
+}
+
 // ── GUARDAR REPUESTO ──────────────────────────────────
 window.guardarRepuesto=async function(e, repId=''){
   e.preventDefault();
@@ -3516,8 +3630,8 @@ window.guardarRepuesto=async function(e, repId=''){
     const conIva=parseFloat(document.getElementById('fp-con-iva').dataset.val)||0;
     const catEl=document.getElementById('fp-cat');
     const catId=catEl.value; const catNom=catEl.selectedOptions[0]?catEl.selectedOptions[0].text:'';
-    const marcasVeh=[1,2,3,4].map(n=>(document.getElementById('fp-mv'+n)||{}).value||'').filter(Boolean);
-    const marcasRep=[1,2,3,4].map(n=>(document.getElementById('fp-mr'+n)||{}).value||'').filter(Boolean);
+    const marcasVeh = JSON.parse(document.getElementById('fp-mv-data')?.value || '[]').filter(Boolean);
+    const marcasRep = JSON.parse(document.getElementById('fp-mr-data')?.value || '[]').filter(Boolean);
     const data={
       titulo_repuesto:(document.getElementById('fp-nombre').value||'').trim(),
       categoria_id:catId,categoria:catNom,
