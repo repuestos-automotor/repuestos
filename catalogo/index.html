@@ -14,14 +14,14 @@
 <meta property="og:site_name"   content="Repuestos Electromecánicos Automotor">
 <meta property="og:title"       content="Repuestos Electromecánicos Automotor">
 <meta property="og:description" content="49 años de experiencia en reparación y venta de repuestos. Todas las marcas, nacionales e importados.">
-<meta property="og:image"       content="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg">
+<meta property="og:image"       content="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg?v=49">
 <meta property="og:image:width" content="1092">
 <meta property="og:image:height" content="1092">
 <meta property="og:url"         content="https://repuestos-automotor.github.io/repuestos/catalogo/">
 <meta name="twitter:card"       content="summary_large_image">
 <meta name="twitter:title"      content="Repuestos Electromecánicos Automotor">
 <meta name="twitter:description" content="49 años de experiencia en reparación y venta de repuestos.">
-<meta name="twitter:image"      content="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg">
+<meta name="twitter:image"      content="https://res.cloudinary.com/dljdwhnu7/image/upload/repuestos/logo/logo_repuestos.jpg?v=49">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -1891,12 +1891,12 @@ window.abrirDetalle = function(id) {
 
     <div class="detail-section-title">Marcas del repuesto</div>
     <div class="compat-tags" style="margin-bottom:14px">
-      ${(r.marcas_repuesto||[]).map(m=>{
+      ${((r.marcas_repuesto||[]).length ? r.marcas_repuesto : (r.fabricante_repuesto ? [r.fabricante_repuesto] : [])).filter(Boolean).map(m=>{
         const logo = logosMarcasRep[m];
         return logo
           ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:36px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
           : `<span class="compat-tag" style="border-color:rgba(99,102,241,.3);color:var(--indigo)">${m}</span>`;
-      }).join('')}
+      }).join('') || '<span style="font-size:13px;color:var(--text3)">—</span>'}
     </div>
 
     <div class="detail-section-title">Precios</div>
