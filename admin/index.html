@@ -359,9 +359,16 @@ tbody tr:last-child td{border-bottom:none}
 .pb-val.amber{color:var(--amber)}
 .pb-sub{font-size:10px;color:var(--text3);margin-top:2px}
 .nota-html table,.desc-html table{width:100%;border-collapse:collapse;margin:6px 0;font-size:11px}
-.nota-html td,.nota-html th,.desc-html td,.desc-html th{border:1px solid var(--border);padding:4px 8px;color:var(--text2)}
-.nota-html th,.desc-html th{background:var(--bg3);color:var(--text3);font-weight:600;font-size:10px}
-.nota-html tr:nth-child(even) td,.desc-html tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.nota-html td,.nota-html th,.desc-html td,.desc-html th{border:1px solid var(--border)!important;padding:4px 8px;color:var(--text2)!important;background-color:transparent!important}
+.nota-html th,.desc-html th{background:var(--bg3)!important;color:var(--text3)!important;font-weight:600;font-size:10px}
+.nota-html tr:nth-child(even) td,.desc-html tr:nth-child(even) td{background:rgba(255,255,255,.02)!important}
+/* Forzar tema oscuro en cualquier HTML pegado de externos */
+.nota-html *,.desc-html *{color:var(--text2)!important;background-color:transparent!important;border-color:var(--border)!important;font-family:inherit!important}
+.nota-html table,.desc-html table{background:transparent!important}
+.nota-html th,.desc-html th{background:var(--bg3)!important;color:var(--text3)!important}
+.nota-html b,.nota-html strong,.desc-html b,.desc-html strong{color:var(--text)!important;font-weight:600}
+.nota-html a,.desc-html a{color:var(--blue)!important}
+.nota-html tr:nth-child(even) td,.desc-html tr:nth-child(even) td{background:rgba(255,255,255,.03)!important}
 </style>
 </head>
 <body>
