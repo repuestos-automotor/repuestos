@@ -286,6 +286,10 @@ tbody tr:last-child td{border-bottom:none}
 .empty-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px}
 .empty-sub{font-size:11px;color:var(--text3)}
 
+.th-sort:hover{background:var(--bg4)!important;color:var(--blue)!important}
+.th-sort-active{color:var(--blue)!important}
+.sort-arrow{font-size:9px;margin-left:2px;opacity:.8}
+
 /* ── SCROLLBAR ───────────────────────────────────────── */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:rgba(0,0,0,.15);border-radius:6px}
@@ -688,12 +692,20 @@ tbody tr:last-child td{border-bottom:none}
       <div class="panel" id="vista-tabla-wrap">
         <div class="table-wrap">
           <table>
-            <thead><tr>
-              <th>Repuesto</th><th>Código</th><th>Categoría</th><th>Vehículo</th>
-              <th>Stock</th><th>Precio venta c/IVA</th><th>Estado</th><th>Acciones</th>
+            <thead><tr id="rep-thead">
+              <th class="th-sort" data-col="id" onclick="sortRepuestos('id')" title="Ordenar por ID" style="cursor:pointer;user-select:none">ID <span class="sort-arrow" id="sort-id"></span></th>
+              <th class="th-sort" data-col="titulo_repuesto" onclick="sortRepuestos('titulo_repuesto')" style="cursor:pointer;user-select:none">Repuesto <span class="sort-arrow" id="sort-titulo_repuesto"></span></th>
+              <th class="th-sort" data-col="codigo" onclick="sortRepuestos('codigo')" style="cursor:pointer;user-select:none">Código <span class="sort-arrow" id="sort-codigo"></span></th>
+              <th class="th-sort" data-col="categoria" onclick="sortRepuestos('categoria')" style="cursor:pointer;user-select:none">Categoría <span class="sort-arrow" id="sort-categoria"></span></th>
+              <th class="th-sort" data-col="vehiculo" onclick="sortRepuestos('vehiculo')" style="cursor:pointer;user-select:none">Vehículo <span class="sort-arrow" id="sort-vehiculo"></span></th>
+              <th class="th-sort" data-col="cant_artic" onclick="sortRepuestos('cant_artic')" style="cursor:pointer;user-select:none">Stock <span class="sort-arrow" id="sort-cant_artic"></span></th>
+              <th class="th-sort" data-col="precio_venta_iva" onclick="sortRepuestos('precio_venta_iva')" style="cursor:pointer;user-select:none">Precio venta c/IVA <span class="sort-arrow" id="sort-precio_venta_iva"></span></th>
+              <th class="th-sort" data-col="alta" onclick="sortRepuestos('alta')" style="cursor:pointer;user-select:none">Estado <span class="sort-arrow" id="sort-alta"></span></th>
+              <th class="th-sort th-sort-active" data-col="_ts" onclick="sortRepuestos('_ts')" style="cursor:pointer;user-select:none">Último cargado <span class="sort-arrow" id="sort-_ts">▼</span></th>
+              <th>Acciones</th>
             </tr></thead>
             <tbody id="tabla-repuestos">
-              <tr><td colspan="8"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>
+              <tr><td colspan="10"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -1648,24 +1660,113 @@ window.cambiarEstadoUser = async function(uid, estado, event) {
   } catch(e) { toast('Error al actualizar usuario','error'); }
 };
 
+// ── SORT STATE ─────────────────────────────────────────
+window._sortCol = '_ts';
+window._sortDir = 'desc'; // newest first by default
+
+window.sortRepuestos = function(col) {
+  if (window._sortCol === col) {
+    window._sortDir = window._sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    window._sortCol = col;
+    window._sortDir = col === '_ts' || col === 'precio_venta_iva' || col === 'cant_artic' ? 'desc' : 'asc';
+  }
+  // Update arrow indicators
+  document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
+  document.querySelectorAll('.th-sort').forEach(el => el.classList.remove('th-sort-active'));
+  const arrowEl = document.getElementById('sort-' + col);
+  if (arrowEl) arrowEl.textContent = window._sortDir === 'asc' ? '▲' : '▼';
+  const thEl = document.querySelector('[data-col="' + col + '"]');
+  if (thEl) thEl.classList.add('th-sort-active');
+  filterRepuestos();
+};
+
+function sortedReps(reps) {
+  const col = window._sortCol || '_ts';
+  const dir = window._sortDir || 'desc';
+  return [...reps].sort((a, b) => {
+    let va, vb;
+    if (col === '_ts') {
+      va = a._ts || 0; vb = b._ts || 0;
+    } else if (col === 'vehiculo') {
+      va = (a.marcas_vehiculo?.[0] || a.marcas_modelos?.[0]?.marca || a.marca_vehiculo_1 || 'Universal').toLowerCase();
+      vb = (b.marcas_vehiculo?.[0] || b.marcas_modelos?.[0]?.marca || b.marca_vehiculo_1 || 'Universal').toLowerCase();
+    } else if (col === 'codigo') {
+      va = (a.codigo || a.codigos_proveedores?.[0]?.codigo || '').toLowerCase();
+      vb = (b.codigo || b.codigos_proveedores?.[0]?.codigo || '').toLowerCase();
+    } else if (col === 'cant_artic' || col === 'precio_venta_iva') {
+      va = Number(a[col]) || 0; vb = Number(b[col]) || 0;
+    } else if (col === 'alta') {
+      va = a.alta ? 1 : 0; vb = b.alta ? 1 : 0;
+    } else {
+      va = (a[col] || '').toString().toLowerCase();
+      vb = (b[col] || '').toString().toLowerCase();
+    }
+    if (va < vb) return dir === 'asc' ? -1 : 1;
+    if (va > vb) return dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
 // ── REPUESTOS ─────────────────────────────────────────
 window.loadRepuestos = async function() {
   const tbody = document.getElementById('tabla-repuestos');
-  tbody.innerHTML = '<tr><td colspan="8"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
+  tbody.innerHTML = '<tr><td colspan="10"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>';
   const snap = await getDocs(collection(db,'repuestos'));
-  window._repsAll = snap.docs.map(d=>({id:d.id,...d.data()}));
-  renderRepuestos(window._repsAll);
+  window._repsAll = snap.docs.map(d=>{
+    const data = d.data();
+    // Capture Firestore server timestamp or fallback fields
+    let ts = 0;
+    if (data.creado_en?.toMillis) ts = data.creado_en.toMillis();
+    else if (data.createdAt?.toMillis) ts = data.createdAt.toMillis();
+    else if (data.fecha_carga?.toMillis) ts = data.fecha_carga.toMillis();
+    else if (data.timestamp?.toMillis) ts = data.timestamp.toMillis();
+    else if (data.fecha?.toMillis) ts = data.fecha.toMillis();
+    else if (data.updatedAt?.toMillis) ts = data.updatedAt.toMillis();
+    // Fallback: decode Firestore auto-ID (first 8 chars = unix seconds in base58)
+    if (!ts) {
+      try {
+        const base58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        const idPart = d.id.substring(0,8);
+        let n=0n; for(const c of idPart){ n=n*58n+BigInt(base58.indexOf(c)); }
+        ts = Number(n)*1000;
+      } catch(e){}
+    }
+    return {id:d.id, _ts:ts, ...data};
+  });
+  // Default sort: newest first
+  window._sortCol = '_ts';
+  window._sortDir = 'desc';
+  renderRepuestos(sortedReps(window._repsAll));
 };
 
 function renderRepuestos(reps) {
   const tbody = document.getElementById('tabla-repuestos');
   const cnt   = document.getElementById('rep-count');
   cnt.textContent = `${reps.length} repuesto${reps.length!==1?'s':''} encontrado${reps.length!==1?'s':''}`;
-  if (reps.length===0){ tbody.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Sin repuestos</div></div></td></tr>'; return; }
+  if (reps.length===0){ tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Sin repuestos</div></div></td></tr>'; return; }
   const sem = (s)=>s===0?'sem-r':s===1?'sem-a':'sem-g';
+  const fmtDate = (ts) => {
+    if (!ts) return '<span style="color:var(--text4);font-size:10px">—</span>';
+    const d = new Date(ts);
+    const now = new Date();
+    const diff = now - d;
+    const mins = Math.floor(diff/60000);
+    const hrs = Math.floor(diff/3600000);
+    const days = Math.floor(diff/86400000);
+    let rel = '';
+    if (mins < 1) rel = 'Ahora';
+    else if (mins < 60) rel = `hace ${mins}m`;
+    else if (hrs < 24) rel = `hace ${hrs}h`;
+    else if (days < 7) rel = `hace ${days}d`;
+    else rel = d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    const full = d.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<span style="font-size:11px;color:var(--text2)" title="${full}">${rel}</span>`;
+  };
   tbody.innerHTML = reps.map(r=>{
     const stock = r.cant_artic||0;
     return `<tr>
+      <td class="td-code" style="font-size:10px;color:var(--blue);font-family:'JetBrains Mono',monospace;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.id}">${r.id}</td>
       <td class="td-name" title="${r.titulo_repuesto||''}">${r.titulo_repuesto||'—'}</td>
       <td class="td-code">${r.codigo||(r.codigos_proveedores?.[0]?.codigo)||'—'}</td>
       <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.categoria||'—'}</td>
@@ -1673,6 +1774,7 @@ function renderRepuestos(reps) {
       <td><div style="display:flex;align-items:center;gap:5px"><div class="sem ${sem(stock)}"></div><span style="font-size:11.5px;font-family:'JetBrains Mono',monospace">${stock}</span></div></td>
       <td class="td-price">${fmt(r.precio_venta_iva)}</td>
       <td><span class="badge ${r.alta?'badge-act':'badge-blk'}">${r.alta?'Publicado':'Oculto'}</span></td>
+      <td>${fmtDate(r._ts)}</td>
       <td><div class="td-actions">
         <button class="action-btn view" title="Ver detalle" onclick="verRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
         <button class="action-btn edit" title="Editar" onclick="editarRepuesto('${r.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
@@ -1689,6 +1791,7 @@ window.filterRepuestos = function() {
   let res = window._repsAll;
   if (q)   res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)||(r.id||'').toLowerCase().includes(q)||(r.codigos_proveedores||[]).some(c=>(c.codigo||'').toLowerCase().includes(q)));
   if (cat) res = res.filter(r=>r.categoria_id===cat);
+  res = sortedReps(res);
   renderRepuestos(res);
   renderAdminGrid(res);
 };
