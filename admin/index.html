@@ -3197,6 +3197,18 @@ window.loadAumentos = async function() {
   if(mrSel&&mrSel.options.length<=1) mrSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mrSel.appendChild(o);});
   const mvSel=document.getElementById('aum-marca-veh-sel');
   if(mvSel&&mvSel.options.length<=1) mvSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mvSel.appendChild(o);});
+
+  // Guardar mapas de logos globales para el modal y el form
+  window._logosMarcasVeh = {};
+  window._logosMarcasRep = {};
+  mvSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre) window._logosMarcasVeh[x.nombre]=x.logo_url||''; });
+  mrSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre) window._logosMarcasRep[x.nombre]=x.logo_url||''; });
+
+  // Llenar datalists del form
+  const dlMV = document.getElementById('dl-marcas-veh');
+  const dlMR = document.getElementById('dl-marcas-rep');
+  if(dlMV) { dlMV.innerHTML=''; mvSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.data().nombre;dlMV.appendChild(o);}); }
+  if(dlMR) { dlMR.innerHTML=''; mrSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.data().nombre;dlMR.appendChild(o);}); }
 };
 
 // ── CÁLCULO DE PRECIOS ────────────────────────────────
@@ -3302,19 +3314,21 @@ window.initFormRepuesto = async function(repId) {
         </div>
         <div class="form-group"><label class="form-label">Marcas de vehículo compatibles</label>
           <div class="form-row">
-            <input type="text" class="form-input" id="fp-mv1" placeholder="Marca 1">
-            <input type="text" class="form-input" id="fp-mv2" placeholder="Marca 2">
-            <input type="text" class="form-input" id="fp-mv3" placeholder="Marca 3">
-            <input type="text" class="form-input" id="fp-mv4" placeholder="Marca 4">
+            <input type="text" class="form-input" id="fp-mv1" placeholder="Marca 1" list="dl-marcas-veh" autocomplete="off">
+            <input type="text" class="form-input" id="fp-mv2" placeholder="Marca 2" list="dl-marcas-veh" autocomplete="off">
+            <input type="text" class="form-input" id="fp-mv3" placeholder="Marca 3" list="dl-marcas-veh" autocomplete="off">
+            <input type="text" class="form-input" id="fp-mv4" placeholder="Marca 4" list="dl-marcas-veh" autocomplete="off">
           </div>
+          <datalist id="dl-marcas-veh"></datalist>
         </div>
         <div class="form-group"><label class="form-label">Marcas del repuesto (fabricantes)</label>
           <div class="form-row">
-            <input type="text" class="form-input" id="fp-mr1" placeholder="Ej: Bosch">
-            <input type="text" class="form-input" id="fp-mr2" placeholder="Ej: NGK">
-            <input type="text" class="form-input" id="fp-mr3" placeholder="Ej: Indiel">
-            <input type="text" class="form-input" id="fp-mr4" placeholder="Marca 4">
+            <input type="text" class="form-input" id="fp-mr1" placeholder="Ej: Bosch" list="dl-marcas-rep" autocomplete="off">
+            <input type="text" class="form-input" id="fp-mr2" placeholder="Ej: NGK" list="dl-marcas-rep" autocomplete="off">
+            <input type="text" class="form-input" id="fp-mr3" placeholder="Ej: Indiel" list="dl-marcas-rep" autocomplete="off">
+            <input type="text" class="form-input" id="fp-mr4" placeholder="Marca 4" list="dl-marcas-rep" autocomplete="off">
           </div>
+          <datalist id="dl-marcas-rep"></datalist>
         </div>
       </div>
     </div>
@@ -3413,17 +3427,31 @@ window.initFormRepuesto = async function(repId) {
 
   // Cargar categorías en el select
   try {
-    const snap = await getDocs(collection(db, 'categorias'));
+    const [catSnap, mrSnap, mvSnap] = await Promise.all([
+      getDocs(collection(db, 'categorias')),
+      getDocs(collection(db, 'marcas_repuesto')),
+      getDocs(collection(db, 'marcas_vehiculo')),
+    ]);
     const catSel = document.getElementById('fp-cat');
     if (catSel) {
       catSel.innerHTML = '<option value="">Seleccioná categoría</option>';
-      snap.forEach(d => {
+      catSnap.forEach(d => {
         const o = document.createElement('option');
         o.value = d.id; o.textContent = d.data().nombre || d.id;
         catSel.appendChild(o);
       });
     }
-  } catch(e) { console.warn('Error cargando categorías:', e); }
+    // Llenar datalists de marcas
+    const dlMV = document.getElementById('dl-marcas-veh');
+    const dlMR = document.getElementById('dl-marcas-rep');
+    if (dlMV) { dlMV.innerHTML=''; mvSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.data().nombre;dlMV.appendChild(o);}); }
+    if (dlMR) { dlMR.innerHTML=''; mrSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.data().nombre;dlMR.appendChild(o);}); }
+    // Actualizar mapas de logos globales
+    window._logosMarcasVeh = window._logosMarcasVeh || {};
+    window._logosMarcasRep = window._logosMarcasRep || {};
+    mvSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre) window._logosMarcasVeh[x.nombre]=x.logo_url||''; });
+    mrSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre) window._logosMarcasRep[x.nombre]=x.logo_url||''; });
+  } catch(e) { console.warn('Error cargando marcas/categorías:', e); }
 
   // Si es edición, cargar datos del repuesto
   if (repId) {
@@ -3662,7 +3690,12 @@ window.verRepuesto = function(id) {
       <div style="margin-bottom:18px">
         <div class="det-sec-title">Marca del repuesto en stock</div>
         <div class="compat-tags">
-          ${(r.marcas_repuesto||[]).filter(Boolean).map(m=>`<span class="compat-tag" style="border-color:rgba(245,158,11,.35);color:var(--amber);font-weight:700">${m}</span>`).join('')}
+          ${(r.marcas_repuesto||[]).filter(Boolean).map(m=>{
+            const logo = (window._logosMarcasRep||{})[m];
+            return logo
+              ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-color:rgba(245,158,11,.35);color:var(--amber)"><img src="${logo}" style="height:22px;width:auto;object-fit:contain;border-radius:3px">${m}</span>`
+              : `<span class="compat-tag" style="border-color:rgba(245,158,11,.35);color:var(--amber);font-weight:700">${m}</span>`;
+          }).join('')}
         </div>
       </div>` : ''}
 
@@ -3734,7 +3767,12 @@ window.verRepuesto = function(id) {
       <div style="margin-bottom:16px">
         <div class="det-sec-title">Vehículos compatibles</div>
         <div class="compat-tags">
-          ${(r.marcas_vehiculo||['Universal']).map(m=>`<span class="compat-tag">${m}</span>`).join('')}
+          ${(r.marcas_vehiculo||['Universal']).map(m=>{
+            const logo = (window._logosMarcasVeh||{})[m];
+            return logo
+              ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px"><img src="${logo}" style="height:22px;width:auto;object-fit:contain;border-radius:3px">${m}</span>`
+              : `<span class="compat-tag">${m}</span>`;
+          }).join('')}
           ${r.marcas_modelos_texto ? `<span class="compat-tag" style="border-color:rgba(59,130,246,.35);color:var(--blue)">📋 ${r.marcas_modelos_texto}</span>` : ''}
         </div>
         ${marcasModelos.length ? `
