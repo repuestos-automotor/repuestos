@@ -2311,7 +2311,10 @@ function renderAdminGrid(reps) {
       <!-- CONTENIDO -->
       <div style="padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:5px">
         <!-- Código -->
-        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.04em">${primerCod ? primerCod.proveedor+' '+primerCod.codigo : (r.codigo||r.id||'')}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.04em;display:flex;align-items:center;gap:6px">
+          ${r.id_mysql ? `<span style="background:rgba(99,102,241,.12);color:#818cf8;padding:1px 6px;border-radius:4px;font-size:10px">#${r.id_mysql}</span>` : ''}
+          ${primerCod ? primerCod.proveedor+' '+primerCod.codigo : (r.codigo||r.id||'')}
+        </div>
         <!-- Título -->
         <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--text1);line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${r.titulo_repuesto||'Sin nombre'}</div>
         <!-- Categoría -->
@@ -4351,8 +4354,9 @@ window.addEventListener('message', async (e) => {
 // ── HELPER: URL de imagen (ya migradas a img_repuestos, devolver tal cual) ──
 window.urlGrande = function(url) {
   if (!url) return url;
-  // Las URLs ya apuntan a img_repuestos después de la migración
-  // Solo corregir si por algún motivo quedó alguna URL vieja
+  // No tocar URLs de notas_img (imágenes migradas desde notas MySQL)
+  if (url.includes('/notas_img/')) return url;
+  // Corregir URLs viejas de img_promo
   return url
     .replace('/img_promo_chica/', '/img_repuestos/')
     .replace('/img_promo_grande/', '/img_repuestos/')
@@ -4385,7 +4389,7 @@ window.verRepuesto = function(id) {
           ? `<img src="${r.imagen_url}" style="width:240px;height:240px;object-fit:contain;border-radius:10px;border:1px solid var(--border);flex-shrink:0;cursor:zoom-in;background:var(--bg3)" onclick="window.open(urlGrande('${r.imagen_url}'),'_blank')" title="Ver imagen grande">`
           : `<div style="width:240px;height:240px;background:var(--bg3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:48px;flex-shrink:0">⚡</div>`}
         <div style="flex:1;min-width:200px">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--text);line-height:1.2">${r.titulo_repuesto||'—'}</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--text);line-height:1.2">${r.titulo_repuesto||'—'}${r.id_mysql ? `<span style="font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:400;color:#818cf8;background:rgba(99,102,241,.12);padding:2px 8px;border-radius:6px;margin-left:8px;vertical-align:middle">#${r.id_mysql}</span>` : ''}</div>
           <div style="font-size:13px;color:var(--blue);margin-top:4px">${r.categoria||'—'}</div>
           ${r.arranque ? `<div style="font-size:12px;color:var(--text2);margin-top:2px">Arranque: ${r.arranque}</div>` : ''}
           ${r.alternador ? `<div style="font-size:12px;color:var(--text2);margin-top:2px">Alternador: ${r.alternador}</div>` : ''}
