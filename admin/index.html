@@ -1051,7 +1051,7 @@ tbody tr:hover td:last-child{background:var(--bg3)}
           <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">Categorías</h2>
           <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0">Total: <span id="cat-count">—</span></p>
         </div>
-        <button class="btn btn-primary" onclick="abrirModalCategoria()">+ Nueva categoría</button>
+        <button class="btn btn-primary" onclick="abrirModalCategoria('','','')">+ Nueva categoría</button>
       </div>
       <div style="margin-bottom:14px"><input type="text" class="form-input" id="cat-search" placeholder="🔍 Buscar categoría..." oninput="filtrarCategorias()" style="max-width:360px"></div>
       <div id="cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px"></div>
@@ -2057,31 +2057,33 @@ window.loadCategorias = async function() {
   const grid = document.getElementById('cat-grid');
   grid.innerHTML = '<div class="loading-wrap"><div class="spinner"></div></div>';
   const snap = await getDocs(collection(db,'categorias'));
-  _cats = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre));
+  _cats = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.nombre?.localeCompare(b.nombre,'es'));
   document.getElementById('cat-count').textContent = _cats.length;
   renderCats(_cats);
 };
 function renderCats(arr) {
   const grid = document.getElementById('cat-grid');
   if (!arr.length) { grid.innerHTML='<p style="color:var(--text-muted);font-size:13px">No hay categorías.</p>'; return; }
-  grid.innerHTML = arr.map(c=>cardItem(c.nombre,'',`editarCategoria('${c.id}')`,`eliminarCategoria('${c.id}')`)).join('');
+  grid.innerHTML = arr.map(c=>`
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:10px">
+      ${c.logo_url
+        ? `<img src="${c.logo_url}" style="width:44px;height:34px;object-fit:contain;border-radius:4px;background:var(--bg4);flex-shrink:0">`
+        : `<div style="width:44px;height:34px;border-radius:4px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏷️</div>`}
+      <span style="flex:1;font-size:13px;color:var(--text1);font-weight:500">${c.nombre}</span>
+      <button onclick="editarCategoria('${c.id}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;padding:4px 8px">✏️</button>
+      <button onclick="eliminarCategoria('${c.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:4px 8px">🗑</button>
+    </div>`).join('');
 }
 window.filtrarCategorias = function() {
   const q = document.getElementById('cat-search').value.toLowerCase();
   renderCats(q ? _cats.filter(c=>c.nombre?.toLowerCase().includes(q)) : _cats);
 };
-window.abrirModalCategoria = function(id='',nombre='') {
-  const n = prompt(id ? 'Editar nombre de categoría:' : 'Nombre de la nueva categoría:', nombre);
-  if (!n?.trim()) return;
-  if (id) {
-    updateDoc(doc(db,'categorias',id),{nombre:n.trim()}).then(()=>{ toast('Categoría actualizada','success'); loadCategorias(); });
-  } else {
-    addDoc(collection(db,'categorias'),{nombre:n.trim(),creado_en:serverTimestamp()}).then(()=>{ toast('Categoría creada','success'); loadCategorias(); });
-  }
+window.abrirModalCategoria = function(id='',nombre='',logoUrl='') {
+  abrirModalMarcaConLogo('categorias', id, nombre, logoUrl, loadCategorias);
 };
 window.editarCategoria = function(id) {
   const cat = _cats.find(c=>c.id===id);
-  if (cat) abrirModalCategoria(id, cat.nombre);
+  if (cat) abrirModalCategoria(id, cat.nombre, cat.logo_url||'');
 };
 window.eliminarCategoria = async function(id) {
   if (!confirm('¿Eliminar esta categoría?')) return;
@@ -2102,7 +2104,7 @@ async function abrirModalMarcaConLogo(coleccion, id, nombre, logoUrl, onGuardado
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center';
   overlay.innerHTML = `
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:360px;max-width:95vw">
-      <div style="font-size:15px;font-weight:700;color:var(--text1);margin-bottom:16px">${id ? 'Editar' : 'Nueva'} marca</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text1);margin-bottom:16px">${id ? 'Editar' : 'Nueva'} ${coleccion==='categorias'?'categoría':'marca'}</div>
       <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Nombre</label>
       <input id="mlm-nombre" value="${nombre||''}" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text1);padding:8px 10px;border-radius:6px;font-size:14px;margin-bottom:12px">
       <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Logo</label>
@@ -2129,7 +2131,10 @@ async function abrirModalMarcaConLogo(coleccion, id, nombre, logoUrl, onGuardado
     const prog = document.getElementById('mlm-prog');
     prog.textContent = 'Subiendo...';
     try {
-      const carpeta = coleccion === 'marcas_vehiculo' ? 'repuestos/img_marca_vehiculos' : 'repuestos/img_marcas_rep';
+      const carpeta = coleccion === 'marcas_vehiculo' ? 'repuestos/img_marca_vehiculos'
+                    : coleccion === 'marcas_repuesto'  ? 'repuestos/img_marcas_rep'
+                    : coleccion === 'categorias'        ? 'repuestos/img_categoria'
+                    : 'repuestos/varios';
       const fd = new FormData();
       fd.append('file', file);
       fd.append('upload_preset', 'repuestos');
@@ -3640,33 +3645,47 @@ window.initFormRepuesto = async function(repId) {
     </div>
   </form>`;
 
-  // Cargar categorías en el select
+  // Cargar categorías, marcas y proveedores frescos desde Firestore
   try {
-    const [catSnap, mrSnap, mvSnap] = await Promise.all([
+    const [catSnap, mrSnap, mvSnap, provSnap] = await Promise.all([
       getDocs(collection(db, 'categorias')),
       getDocs(collection(db, 'marcas_repuesto')),
       getDocs(collection(db, 'marcas_vehiculo')),
+      getDocs(collection(db, 'proveedores')),
     ]);
     const catSel = document.getElementById('fp-cat');
     if (catSel) {
       catSel.innerHTML = '<option value="">Seleccioná categoría</option>';
-      catSnap.forEach(d => {
-        const o = document.createElement('option');
-        o.value = d.id; o.textContent = d.data().nombre || d.id;
-        catSel.appendChild(o);
-      });
+      catSnap.docs
+        .map(d => d.data().nombre).filter(Boolean)
+        .sort((a,b) => a.localeCompare(b,'es'))
+        .forEach(nombre => {
+          const o = document.createElement('option');
+          o.value = nombre; o.textContent = nombre;
+          catSel.appendChild(o);
+        });
     }
-    // Llenar datalists de marcas
+    // Actualizar mapas globales de logos y nombres (siempre frescos)
+    window._logosMarcasVeh = {}; window._logosMarcasRep = {};
+    window._nombresMarcasVeh = []; window._nombresMarcasRep = [];
+    mvSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre){ window._logosMarcasVeh[x.nombre]=x.logo_url||''; window._nombresMarcasVeh.push(x.nombre); }});
+    mrSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre){ window._logosMarcasRep[x.nombre]=x.logo_url||''; window._nombresMarcasRep.push(x.nombre); }});
+    window._nombresMarcasVeh.sort((a,b)=>a.localeCompare(b,'es'));
+    window._nombresMarcasRep.sort((a,b)=>a.localeCompare(b,'es'));
+    // Actualizar proveedores en los selects de códigos ya en el DOM
+    const proveedores = provSnap.docs.map(d=>d.data().nombre||d.id).filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
+    window._proveedoresList = proveedores;
+    document.querySelectorAll('[id^="cod-prov-"]').forEach(sel => {
+      const val = sel.value;
+      sel.innerHTML = '<option value="">Proveedor</option>' + proveedores.map(p=>`<option value="${p}">${p}</option>`).join('');
+      if (val) sel.value = val;
+    });
+    // Llenar datalists
     const dlMV = document.getElementById('dl-marcas-veh');
     const dlMR = document.getElementById('dl-marcas-rep');
-    if (dlMV) { dlMV.innerHTML=''; mvSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.data().nombre;dlMV.appendChild(o);}); }
-    if (dlMR) { dlMR.innerHTML=''; mrSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.data().nombre;dlMR.appendChild(o);}); }
-    // Actualizar mapas de logos globales
-    window._logosMarcasVeh = window._logosMarcasVeh || {};
-    window._logosMarcasRep = window._logosMarcasRep || {};
-    mvSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre) window._logosMarcasVeh[x.nombre]=x.logo_url||''; });
-    mrSnap.docs.forEach(d=>{ const x=d.data(); if(x.nombre) window._logosMarcasRep[x.nombre]=x.logo_url||''; });
-    // Poblar selects de chips
+    if (dlMV) { dlMV.innerHTML=''; window._nombresMarcasVeh.forEach(n=>{const o=document.createElement('option');o.value=n;dlMV.appendChild(o);}); }
+    if (dlMR) { dlMR.innerHTML=''; window._nombresMarcasRep.forEach(n=>{const o=document.createElement('option');o.value=n;dlMR.appendChild(o);}); }
+    // Poblar selects de chips (ya con datos frescos cargados arriba)
     fpPoblarSelectsMarcas();
   } catch(e) { console.warn('Error cargando marcas/categorías:', e); }
 
@@ -3769,10 +3788,8 @@ window.fpQuitarMarca = function(tipo, idx) {
   fpRenderChips(tipo);
 };
 async function fpPoblarSelectsMarcas() {
-  // Si todavía no cargaron las marcas, esperamos hasta 3 segundos
-  if (!window._nombresMarcasVeh?.length || !window._nombresMarcasRep?.length) {
-    await precargarLogosMarcas();
-  }
+  // Siempre recarga desde Firestore para tener datos frescos (nueva marca = aparece al instante)
+  await precargarLogosMarcas();
   const selMV = document.getElementById('fp-mv-sel');
   const selMR = document.getElementById('fp-mr-sel');
   // Repoblar siempre para tener la lista actualizada
