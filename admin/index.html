@@ -2159,7 +2159,24 @@ window.loadRepuestos = async function() {
     });
   }
 
+  // Fix encoding de caracteres latinos mal importados desde MySQL
+  function fixEnc(s) {
+    if (!s || typeof s !== 'string') return s;
+    return s
+      .replace(/Ã¡/g,'á').replace(/Ã©/g,'é').replace(/Ã­/g,'í').replace(/Ã³/g,'ó').replace(/Ãº/g,'ú')
+      .replace(/Ã\x81/g,'Á').replace(/Ã\x89/g,'É').replace(/Ã\x8d/g,'Í').replace(/Ã\x93/g,'Ó').replace(/Ã\x9a/g,'Ú')
+      .replace(/Ã±/g,'ñ').replace(/Ã\x91/g,'Ñ')
+      .replace(/Ãƒâ€˜/g,'Ó').replace(/Ã‚/g,'').replace(/Ãƒ/g,'Ã')
+      .replace(/â€"/g,'–').replace(/â€"/g,'—').replace(/â€œ/g,'"').replace(/â€/g,'"')
+      .replace(/Â°/g,'°').replace(/Â¿/g,'¿').replace(/Â¡/g,'¡');
+  }
+
   window._repsAll = repsRaw.map((r, idx) => {
+    // Fix encoding en campos de texto
+    if (r.titulo_repuesto) r.titulo_repuesto = fixEnc(r.titulo_repuesto);
+    if (r.fabricante)      r.fabricante      = fixEnc(r.fabricante);
+    if (r.categoria)       r.categoria       = fixEnc(r.categoria);
+    if (r.descripcion)     r.descripcion     = fixEnc(r.descripcion);
     // Capture Firestore server timestamp or fallback fields
     let ts = 0;
     if (r.creado_en?.toMillis) ts = r.creado_en.toMillis();
@@ -2234,7 +2251,7 @@ window.filterRepuestos = function() {
   const q   = document.getElementById('rep-search').value.toLowerCase();
   const cat = document.getElementById('rep-cat-filter').value;
   let res = window._repsAll;
-  if (q)   res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)||(r.id||'').toLowerCase().includes(q)||(r.codigos_proveedores||[]).some(c=>(c.codigo||'').toLowerCase().includes(q)));
+  if (q)   res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)||(r.id||'').toLowerCase().includes(q)||String(r.id_mysql||'').includes(q)||(r.codigos_proveedores||[]).some(c=>(c.codigo||'').toLowerCase().includes(q)));
   if (cat) res = res.filter(r=>r.categoria===cat || r.categoria_id===cat);
   res = sortedReps(res);
   renderRepuestos(res);
