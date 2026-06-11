@@ -246,13 +246,16 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .btn-ghost:hover{border-color:var(--border2);color:var(--text)}
 
 /* ── TABLA REPUESTOS ─────────────────────────────────── */
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
+.table-wrap{overflow-x:auto;position:relative}
+table{width:100%;border-collapse:collapse;min-width:900px}
 thead th{padding:8px 12px;font-size:10.5px;font-weight:500;color:var(--text3);text-align:left;border-bottom:1px solid var(--border);background:var(--bg3);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
 tbody td{padding:9px 12px;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:middle}
 tbody tr:hover td{background:var(--bg3);color:var(--text)}
 tbody tr:last-child td{border-bottom:none}
-.td-name{font-weight:500;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Columna Acciones siempre visible a la derecha */
+thead th:last-child, tbody td:last-child{position:sticky;right:0;background:var(--bg2);z-index:2;border-left:1px solid var(--border)}
+tbody tr:hover td:last-child{background:var(--bg3)}
+.td-name{font-weight:500;color:var(--text);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .td-code{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue)}
 .td-price{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--green)}
 .td-actions{display:flex;gap:4px}
@@ -1719,43 +1722,47 @@ window.loadRepuestos = async function() {
     getDocs(collection(db,'categorias'))
   ]);
 
-  // Construir mapa id→nombre y poblar el select
-  window._catsMap = {};
-  catsSnap.docs.forEach(d => { window._catsMap[d.id] = d.data().nombre || d.id; });
+  // ── Repuestos ─────────────────────────────────────────
+  const repsRaw = snap.docs.map(d => ({id:d.id, ...d.data()}));
+
+  // ── Categorías desde Firestore (fuente de verdad) ────
+  const cats = catsSnap.docs
+    .map(d => d.data().nombre)
+    .filter(Boolean)
+    .sort((a,b) => a.localeCompare(b, 'es'));
+
   const sel = document.getElementById('rep-cat-filter');
   if (sel) {
     const catActual = sel.value;
     sel.innerHTML = '<option value="">Todas las categorías</option>';
-    Object.entries(window._catsMap)
-      .sort((a,b) => a[1].localeCompare(b[1], 'es'))
-      .forEach(([id, nombre]) => {
-        const op = document.createElement('option');
-        op.value = id; op.textContent = nombre;
-        if (id === catActual) op.selected = true;
-        sel.appendChild(op);
-      });
+    cats.forEach(nombre => {
+      const op = document.createElement('option');
+      op.value = nombre;
+      op.textContent = nombre;
+      if (nombre === catActual) op.selected = true;
+      sel.appendChild(op);
+    });
   }
 
-  window._repsAll = snap.docs.map(d=>{
-    const data = d.data();
+  window._repsAll = repsRaw.map((r, idx) => {
     // Capture Firestore server timestamp or fallback fields
     let ts = 0;
-    if (data.creado_en?.toMillis) ts = data.creado_en.toMillis();
-    else if (data.createdAt?.toMillis) ts = data.createdAt.toMillis();
-    else if (data.fecha_carga?.toMillis) ts = data.fecha_carga.toMillis();
-    else if (data.timestamp?.toMillis) ts = data.timestamp.toMillis();
-    else if (data.fecha?.toMillis) ts = data.fecha.toMillis();
-    else if (data.updatedAt?.toMillis) ts = data.updatedAt.toMillis();
+    if (r.creado_en?.toMillis) ts = r.creado_en.toMillis();
+    else if (r.createdAt?.toMillis) ts = r.createdAt.toMillis();
+    else if (r.fecha_carga?.toMillis) ts = r.fecha_carga.toMillis();
+    else if (r.timestamp?.toMillis) ts = r.timestamp.toMillis();
+    else if (r.fecha?.toMillis) ts = r.fecha.toMillis();
+    else if (r.updatedAt?.toMillis) ts = r.updatedAt.toMillis();
     // Fallback: decode Firestore auto-ID (first 8 chars = unix seconds in base58)
     if (!ts) {
       try {
         const base58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-        const idPart = d.id.substring(0,8);
+        const idPart = r.id.substring(0,8);
         let n=0n; for(const c of idPart){ n=n*58n+BigInt(base58.indexOf(c)); }
         ts = Number(n)*1000;
       } catch(e){}
     }
-    return {id:d.id, _ts:ts, ...data};
+    return {...r, _ts:ts, _num: idx+1};
   });
   // Default sort: newest first
   window._sortCol = '_ts';
@@ -1786,10 +1793,10 @@ function renderRepuestos(reps) {
     const full = d.toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     return `<span style="font-size:11px;color:var(--text2)" title="${full}">${rel}</span>`;
   };
-  tbody.innerHTML = reps.map(r=>{
+  tbody.innerHTML = reps.map((r, idx)=>{
     const stock = r.cant_artic||0;
     return `<tr>
-      <td class="td-code" style="font-size:10px;color:var(--blue);font-family:'JetBrains Mono',monospace;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.id}">${r.id}</td>
+      <td class="td-code" style="font-size:11px;color:var(--blue);font-family:'JetBrains Mono',monospace;text-align:center;min-width:40px" title="${r.id}">#${idx+1}</td>
       <td class="td-name" title="${r.titulo_repuesto||''}">${r.titulo_repuesto||'—'}</td>
       <td class="td-code">${r.codigo||(r.codigos_proveedores?.[0]?.codigo)||'—'}</td>
       <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.categoria||(window._catsMap&&window._catsMap[r.categoria_id])||''}">${r.categoria||(window._catsMap&&window._catsMap[r.categoria_id])||'—'}</td>
@@ -1813,7 +1820,7 @@ window.filterRepuestos = function() {
   const cat = document.getElementById('rep-cat-filter').value;
   let res = window._repsAll;
   if (q)   res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)||(r.id||'').toLowerCase().includes(q)||(r.codigos_proveedores||[]).some(c=>(c.codigo||'').toLowerCase().includes(q)));
-  if (cat) res = res.filter(r=>r.categoria_id===cat);
+  if (cat) res = res.filter(r=>r.categoria===cat || r.categoria_id===cat);
   res = sortedReps(res);
   renderRepuestos(res);
   renderAdminGrid(res);
@@ -1830,7 +1837,7 @@ window.toggleVistaAdmin = function() {
     const cat = document.getElementById('rep-cat-filter').value;
     let res = window._repsAll;
     if (q) res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q));
-    if (cat) res = res.filter(r=>r.categoria_id===cat);
+    if (cat) res = res.filter(r=>r.categoria===cat || r.categoria_id===cat);
     renderAdminGrid(res);
   }
 };
