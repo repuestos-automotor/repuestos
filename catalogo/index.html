@@ -1799,6 +1799,8 @@ function sanitizarNotas(html) {
 
 window.urlGrande = function(url) {
   if (!url) return url;
+  // No tocar URLs de notas_img (imágenes migradas desde notas MySQL)
+  if (url.includes('/notas_img/')) return url;
   return url.replace('/img_promo_chica/', '/img_promo_grande/').replace(/-ch-/g, '-gr-').replace(/_\.jpg$/, '.jpg').replace(/_\.png$/, '.png');
 };
 
