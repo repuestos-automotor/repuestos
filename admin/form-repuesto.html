@@ -627,6 +627,37 @@ async function cargarSelectsDesdeFirebase() {
         if (val) sel.value = val;
       });
     }
+
+    // ── Marcas de vehículo desde Firestore ───────────────
+    const mvSnap = await getDocs(collection(window._db, 'marcas_vehiculo'));
+    if (mvSnap.docs.length > 0) {
+      const marcasVeh = mvSnap.docs.map(d=>d.data().nombre||d.id).filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
+      // Actualizar la lista global para que addMarcaModelo use datos frescos
+      MARCAS_VEH_LIST.length = 0;
+      marcasVeh.forEach(m => MARCAS_VEH_LIST.push(m));
+      // Actualizar selects ya renderizados en el DOM
+      document.querySelectorAll('[data-field="marca-veh"]').forEach(sel => {
+        const val = sel.value;
+        sel.innerHTML = '<option value="">Seleccione marca de vehículo</option>' + marcasVeh.map(m=>`<option value="${m}">${m}</option>`).join('');
+        if (val) sel.value = val;
+      });
+    }
+
+    // ── Proveedores desde Firestore ───────────────────────
+    const provSnap = await getDocs(collection(window._db, 'proveedores'));
+    if (provSnap.docs.length > 0) {
+      const proveedores = provSnap.docs.map(d=>d.data().nombre||d.id).filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
+      // Actualizar la lista global para que addCodigoProveedor use datos frescos
+      PROVEEDORES_LIST.length = 0;
+      proveedores.forEach(p => PROVEEDORES_LIST.push(p));
+      // Actualizar selects ya renderizados en el DOM
+      document.querySelectorAll('.codigo-row select').forEach(sel => {
+        const val = sel.value;
+        sel.innerHTML = '<option value="">Seleccione proveedor</option>' + proveedores.map(p=>`<option value="${p}">${p}</option>`).join('');
+        if (val) sel.value = val;
+      });
+    }
+
   } catch(e) {
     console.warn('Error cargando selects desde Firebase, usando fallback:', e);
     cargarFallbackEstatico();
