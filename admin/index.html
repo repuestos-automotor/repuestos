@@ -1691,6 +1691,8 @@ function sortedReps(reps) {
     let va, vb;
     if (col === '_ts') {
       va = a._ts || 0; vb = b._ts || 0;
+    } else if (col === 'id') {
+      va = parseInt(a.id_mysql) || 0; vb = parseInt(b.id_mysql) || 0;
     } else if (col === 'vehiculo') {
       va = (a.marcas_vehiculo?.[0] || a.marcas_modelos?.[0]?.marca || a.marca_vehiculo_1 || 'Universal').toLowerCase();
       vb = (b.marcas_vehiculo?.[0] || b.marcas_modelos?.[0]?.marca || b.marca_vehiculo_1 || 'Universal').toLowerCase();
@@ -1796,7 +1798,7 @@ function renderRepuestos(reps) {
   tbody.innerHTML = reps.map((r, idx)=>{
     const stock = r.cant_artic||0;
     return `<tr>
-      <td class="td-code" style="font-size:11px;color:var(--blue);font-family:'JetBrains Mono',monospace;text-align:center;min-width:40px" title="${r.id}">#${idx+1}</td>
+      <td class="td-code" style="font-size:11px;color:var(--blue);font-family:'JetBrains Mono',monospace;text-align:center;min-width:48px" title="Firestore: ${r.id}">${r.id_mysql ? '#'+r.id_mysql : '<span style="color:var(--text4);font-size:10px">—</span>'}</td>
       <td class="td-name" title="${r.titulo_repuesto||''}">${r.titulo_repuesto||'—'}</td>
       <td class="td-code">${r.codigo||(r.codigos_proveedores?.[0]?.codigo)||'—'}</td>
       <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.categoria||(window._catsMap&&window._catsMap[r.categoria_id])||''}">${r.categoria||(window._catsMap&&window._catsMap[r.categoria_id])||'—'}</td>
