@@ -428,6 +428,8 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 .nota-html a,.desc-html a{color:var(--blue)!important}
 .nota-html tr:nth-child(even) td,.desc-html tr:nth-child(even) td{background:rgba(255,255,255,.03)!important}
 
+@keyframes slideInRight{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
 /* ══ POS RESPONSIVE ════════════════════════════════════ */
 
 /* Desktop grande (>1400px): cards más grandes, fuentes generosas */
@@ -1756,6 +1758,74 @@ tbody tr:hover td:last-child{background:var(--bg3)}
         <div class="modal-footer">
           <button class="btn btn-ghost" onclick="cerrarModalPosUsuario()">Cancelar</button>
           <button class="btn btn-primary" onclick="posCrearUsuario()">✅ Crear usuario</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL DETALLE PRODUCTO POS -->
+    <div class="modal-overlay" id="modal-pos-detalle" style="align-items:flex-start;padding:0;justify-content:flex-end">
+      <div style="width:440px;max-width:100vw;height:100vh;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;animation:slideInRight .2s ease">
+        <!-- Header -->
+        <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em" id="pos-det-cats">—</div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--text);line-height:1.2" id="pos-det-titulo">—</div>
+          </div>
+          <button onclick="cerrarModalPosDetalle()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--text2);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
+        </div>
+        <!-- Scrollable body -->
+        <div style="flex:1;overflow-y:auto;padding:16px 18px">
+          <!-- Galería -->
+          <div style="margin-bottom:14px">
+            <div style="height:260px;background:var(--bg3);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:8px;border:1px solid var(--border)">
+              <img id="pos-det-img-main" src="" style="width:100%;height:100%;object-fit:contain;padding:12px" onerror="this.style.opacity='.2'">
+            </div>
+            <div id="pos-det-thumbs" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+          </div>
+          <!-- Códigos por proveedor -->
+          <div id="pos-det-codigos-wrap" style="display:none;margin-bottom:14px">
+            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Códigos por proveedor</div>
+            <table id="pos-det-codigos" style="width:100%;border-collapse:collapse;font-size:12px"></table>
+          </div>
+          <!-- Fabricante / Condición -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px" id="pos-det-fab-wrap">
+            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Fabricante</div>
+              <div style="font-size:13px;font-weight:600;color:var(--text)" id="pos-det-fab">—</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Condición</div>
+              <div style="font-size:13px;font-weight:600;color:var(--green)" id="pos-det-cond">—</div>
+            </div>
+          </div>
+          <!-- Marcas compatibles -->
+          <div id="pos-det-marcas-wrap" style="display:none;margin-bottom:14px">
+            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Vehículos compatibles</div>
+            <div id="pos-det-marcas" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+          </div>
+          <!-- Descripción -->
+          <div id="pos-det-desc-wrap" style="display:none;margin-bottom:14px">
+            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Descripción</div>
+            <div id="pos-det-desc" class="desc-html" style="font-size:12px;color:var(--text2);line-height:1.6"></div>
+          </div>
+          <!-- Notas internas -->
+          <div id="pos-det-notas-wrap" style="display:none;margin-bottom:14px">
+            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">Notas internas</div>
+            <div id="pos-det-notas" class="nota-html" style="font-size:12px;color:var(--text2);line-height:1.6;font-style:italic"></div>
+          </div>
+        </div>
+        <!-- Footer fijo con precio + botón -->
+        <div style="flex-shrink:0;border-top:1px solid var(--border);padding:14px 18px;background:var(--bg2)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
+            <div>
+              <div style="font-size:11px;color:var(--text3);margin-bottom:2px">Sin IVA: <span id="pos-det-psin">—</span></div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--green)" id="pos-det-piva">—</div>
+            </div>
+            <div id="pos-det-stock-badge" style="font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px">—</div>
+          </div>
+          <button id="pos-det-agregar-btn" style="width:100%;padding:12px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.04em;background:var(--blue);color:#fff" onclick="posAgregarDesdeDetalle()">
+            + Agregar al carrito
+          </button>
         </div>
       </div>
     </div>
@@ -4909,14 +4979,14 @@ function posRenderResultados(reps) {
     const marcas   = Array.isArray(r.marca_vehiculo)?r.marca_vehiculo.join(', '):(r.marca_vehiculo||'');
     const cats     = [r.categoria, r.subcategoria].filter(Boolean).join(' | ');
     return `<div class="pos-card${enCart?' en-carrito':''}" id="poscard-${r.id}">
-      <img class="pos-card-img" src="${imgUrl}" loading="lazy" onerror="this.src='${noImg}'">
+      <img class="pos-card-img" src="${imgUrl}" loading="lazy" onerror="this.src='${noImg}'" style="cursor:zoom-in" onclick="posVerDetalle('${r.id}')" title="Ver detalles">
       <div class="pos-card-badges">
         ${badgeTipo?`<span class="pos-card-badge ${badgeTipo}">${tipoRep}</span>`:''}
         ${badgeCond?`<span class="pos-card-badge ${badgeCond}">${condRep}</span>`:''}
         <span class="pos-card-stock ${stockCls}" style="margin:0">${stockTxt}</span>
       </div>
       ${codigo?`<div class="pos-card-codigo">${prov}${codigo}</div>`:''}
-      <div class="pos-card-nombre">${r.titulo_repuesto||'Sin nombre'}</div>
+      <div class="pos-card-nombre" style="cursor:pointer" onclick="posVerDetalle('${r.id}')">${r.titulo_repuesto||'Sin nombre'}</div>
       ${cats?`<div class="pos-card-cats">${cats}</div>`:''}
       ${marcas?`<div class="pos-card-marca">🚗 ${marcas}</div>`:''}
       <div class="pos-card-precios">
@@ -5366,6 +5436,131 @@ window.posImprimirTicket = function() {
     <body>${ticketHTML}</body>
     <script>window.onload=function(){setTimeout(()=>window.print(),300);};<\/script></html>`);
   w.document.close();
+};
+
+// ── DETALLE PRODUCTO POS ──────────────────────────────
+let _posDetalleId = null;
+
+window.posVerDetalle = function(id) {
+  const r = _posReps.find(x=>x.id===id);
+  if (!r) return;
+  _posDetalleId = id;
+  const fmt = n => n ? '$ '+Math.round(n).toLocaleString('es-AR') : '—';
+  const noImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"%3E%3Crect fill="%230f1117" width="80" height="80"/%3E%3Ctext x="40" y="48" text-anchor="middle" font-size="28" fill="%234b5563"%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E';
+
+  // Título y categoría
+  document.getElementById('pos-det-titulo').textContent = r.titulo_repuesto||'Sin nombre';
+  const cats = [r.categoria, r.subcategoria].filter(Boolean).join(' | ');
+  document.getElementById('pos-det-cats').textContent = cats||'—';
+
+  // Galería
+  const imgs = (Array.isArray(r.imagenes)&&r.imagenes.length) ? r.imagenes : (r.imagen_url?[r.imagen_url]:[]);
+  const mainImg = document.getElementById('pos-det-img-main');
+  mainImg.src = imgs[0]||noImg;
+  const thumbs = document.getElementById('pos-det-thumbs');
+  if (imgs.length>1) {
+    thumbs.innerHTML = imgs.map((url,i)=>`
+      <div onclick="document.getElementById('pos-det-img-main').src='${url}';document.querySelectorAll('.pos-det-thumb').forEach(t=>t.style.borderColor='var(--border)');this.style.borderColor='var(--blue)'"
+        class="pos-det-thumb" style="width:54px;height:54px;border:2px solid ${i===0?'var(--blue)':'var(--border)'};border-radius:8px;overflow:hidden;cursor:pointer;flex-shrink:0;background:var(--bg3)">
+        <img src="${url}" style="width:100%;height:100%;object-fit:contain;padding:3px" onerror="this.style.opacity='.2'">
+      </div>`).join('');
+  } else { thumbs.innerHTML=''; }
+
+  // Códigos por proveedor
+  const codigos = (r.codigos_proveedores||[]).filter(c=>c.proveedor&&c.codigo);
+  const codWrap = document.getElementById('pos-det-codigos-wrap');
+  if (codigos.length) {
+    codWrap.style.display='block';
+    document.getElementById('pos-det-codigos').innerHTML = codigos.map(c=>`
+      <tr>
+        <td style="padding:5px 0;color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.04em;width:40%">${c.proveedor}</td>
+        <td style="padding:5px 0;color:var(--blue);font-family:'JetBrains Mono',monospace;font-weight:600">${c.codigo}</td>
+      </tr>`).join('');
+  } else { codWrap.style.display='none'; }
+
+  // Fabricante / condición
+  const fabs = (r.fabricantes||[]).filter(Boolean);
+  document.getElementById('pos-det-fab').textContent = fabs.length ? fabs.join(', ') : (r.fabricante||'—');
+  document.getElementById('pos-det-cond').textContent = r.condicion||'—';
+
+  // Marcas / modelos compatibles
+  const marcas = Array.isArray(r.marcas_vehiculo) ? r.marcas_vehiculo : (r.marca_vehiculo?[r.marca_vehiculo]:[]);
+  const marcasWrap = document.getElementById('pos-det-marcas-wrap');
+  if (marcas.length) {
+    marcasWrap.style.display='block';
+    document.getElementById('pos-det-marcas').innerHTML = marcas.map(m=>
+      `<span style="font-size:11px;padding:3px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2)">${m}</span>`
+    ).join('');
+  } else { marcasWrap.style.display='none'; }
+
+  // Descripción
+  const descWrap = document.getElementById('pos-det-desc-wrap');
+  if (r.descripcion) {
+    descWrap.style.display='block';
+    document.getElementById('pos-det-desc').innerHTML = r.descripcion;
+  } else { descWrap.style.display='none'; }
+
+  // Notas internas
+  const notasWrap = document.getElementById('pos-det-notas-wrap');
+  if (r.notas_internas||r.notas) {
+    notasWrap.style.display='block';
+    document.getElementById('pos-det-notas').innerHTML = r.notas_internas||r.notas||'';
+  } else { notasWrap.style.display='none'; }
+
+  // Precio
+  document.getElementById('pos-det-psin').textContent = fmt(r.precio_venta);
+  document.getElementById('pos-det-piva').textContent = fmt(r.precio_venta_iva);
+
+  // Stock badge
+  const stock = r.cant_artic||0;
+  const badge = document.getElementById('pos-det-stock-badge');
+  if (stock===0) { badge.textContent='Sin stock'; badge.style.background='var(--red-dim)'; badge.style.color='var(--red)'; }
+  else if (stock===1) { badge.textContent='⚠️ Queda 1'; badge.style.background='var(--orange-dim,rgba(249,115,22,.15))'; badge.style.color='var(--orange,#f97316)'; }
+  else { badge.textContent=`✅ Stock: ${stock}`; badge.style.background='var(--green-dim)'; badge.style.color='var(--green)'; }
+
+  // Botón agregar
+  const enCart = _posCarrito.find(c=>c.repuesto.id===id);
+  const btn = document.getElementById('pos-det-agregar-btn');
+  if (enCart) {
+    btn.textContent = `✅ En carrito (${enCart.cantidad}) — agregar 1 más`;
+    btn.style.background = 'var(--green-dim)';
+    btn.style.color = 'var(--green)';
+    btn.style.border = '1px solid rgba(34,197,94,.4)';
+  } else {
+    btn.textContent = '+ Agregar al carrito';
+    btn.style.background = 'var(--blue)';
+    btn.style.color = '#fff';
+    btn.style.border = 'none';
+  }
+
+  // Mostrar modal
+  const overlay = document.getElementById('modal-pos-detalle');
+  overlay.style.display='flex';
+};
+
+window.cerrarModalPosDetalle = function() {
+  document.getElementById('modal-pos-detalle').style.display='none';
+  _posDetalleId = null;
+};
+
+// Cerrar al click en el overlay (fuera del panel)
+document.getElementById('modal-pos-detalle')?.addEventListener('click', function(e){
+  if (e.target===this) cerrarModalPosDetalle();
+});
+
+window.posAgregarDesdeDetalle = function() {
+  if (!_posDetalleId) return;
+  posAgregarAlCarrito(_posDetalleId);
+  // Actualizar botón
+  const r = _posReps.find(x=>x.id===_posDetalleId);
+  const enCart = _posCarrito.find(c=>c.repuesto.id===_posDetalleId);
+  const btn = document.getElementById('pos-det-agregar-btn');
+  if (btn && enCart) {
+    btn.textContent = `✅ En carrito (${enCart.cantidad}) — agregar 1 más`;
+    btn.style.background='var(--green-dim)';
+    btn.style.color='var(--green)';
+    btn.style.border='1px solid rgba(34,197,94,.4)';
+  }
 };
 
 // ── HISTORIAL ─────────────────────────────────────────
