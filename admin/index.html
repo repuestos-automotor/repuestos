@@ -16,7 +16,7 @@
   --blue:#3b82f6;--blue2:#2563eb;--blue-dim:#1e3a5f;--blue-glow:rgba(59,130,246,.15);
   --green:#22c55e;--green-dim:rgba(34,197,94,.15);
   --red:#ef4444;--red-dim:rgba(239,68,68,.15);
-  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.15);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.15);--orange:#f97316;--orange-dim:rgba(249,115,22,.15);
   --indigo:#6366f1;--indigo-dim:rgba(99,102,241,.15);
   --sidebar:200px;
 }
@@ -302,11 +302,11 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 .pos-entrega-btn:hover{border-color:var(--green);color:var(--green)}
 .pos-entrega-btn.active{background:var(--green-dim);border-color:rgba(34,197,94,.4);color:var(--green);font-weight:600}
 .pos-monto-btn{padding:6px 9px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;font-family:'JetBrains Mono',monospace;font-weight:500}
-.pos-monto-btn:hover{border-color:var(--amber);color:var(--amber);background:var(--amber-dim)}
-.pos-monto-btn.active{background:var(--amber-dim);border-color:var(--amber);color:var(--amber)}
+.pos-monto-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-dim)}
+.pos-monto-btn.active{background:var(--orange-dim);border-color:var(--orange);color:var(--orange)}
 .pos-desc-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
-.pos-desc-btn:hover{border-color:var(--amber);color:var(--amber)}
-.pos-desc-btn.active{background:rgba(245,158,11,.15);border-color:var(--amber);color:var(--amber);font-weight:600}
+.pos-desc-btn:hover{border-color:var(--orange);color:var(--orange)}
+.pos-desc-btn.active{background:var(--orange-dim);border-color:var(--orange);color:var(--orange);font-weight:600}
 /* Cards catálogo-style: imagen grande, toda la info */
 .pos-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:default;transition:border-color .2s;position:relative}
 .pos-card:hover{border-color:var(--blue2)}
@@ -1509,7 +1509,7 @@ tbody tr:hover td:last-child{background:var(--bg3)}
         </div>
 
         <!-- ── PANEL DERECHO: CARRITO ── -->
-        <div style="position:sticky;top:0" class="pos-cart-panel">
+        <div style="position:sticky;top:0;max-height:calc(100vh - 130px);overflow-y:auto" class="pos-cart-panel">
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
 
             <!-- Handle drag / toggle móvil -->
@@ -1546,9 +1546,9 @@ tbody tr:hover td:last-child{background:var(--bg3)}
                 <span id="pos-subtotal-siniva" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3)">$ 0</span>
               </div>
               <!-- Fila descuento -->
-              <div id="pos-fila-desc" style="display:none;justify-content:space-between;align-items:center;margin-bottom:4px;padding:5px 8px;background:rgba(245,158,11,.08);border-radius:6px;border:1px solid rgba(245,158,11,.25)">
-                <span style="font-size:11px;color:var(--amber)" id="pos-desc-label">Con 10% desc.</span>
-                <span id="pos-subtotal-desc" style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--amber)">$ 0</span>
+              <div id="pos-fila-desc" style="display:none;justify-content:space-between;align-items:center;margin-bottom:4px;padding:5px 8px;background:rgba(249,115,22,.08);border-radius:6px;border:1px solid rgba(249,115,22,.25)">
+                <span style="font-size:11px;color:var(--orange)" id="pos-desc-label">Con 10% desc.</span>
+                <span id="pos-subtotal-desc" style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--orange)">$ 0</span>
               </div>
               <!-- TOTAL grande -->
               <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
@@ -1608,18 +1608,20 @@ tbody tr:hover td:last-child{background:var(--bg3)}
                   <button onclick="posSetMontoExacto()" style="background:var(--green-dim);border:1px solid rgba(34,197,94,.3);color:var(--green);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:11px;white-space:nowrap">= Exacto</button>
                 </div>
                 <!-- VUELTO GRANDE -->
-                <div id="pos-vuelto-wrap" style="display:none;border-radius:12px;border:2px solid var(--amber);overflow:hidden">
-                  <div style="background:rgba(245,158,11,.08);padding:10px 14px">
+                <div id="pos-vuelto-wrap" style="display:none;border-radius:12px;border:2px solid var(--orange);overflow:hidden">
+                  <div style="background:rgba(249,115,22,.08);padding:10px 14px">
                     <div style="display:flex;justify-content:space-between;align-items:flex-end">
                       <div>
                         <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Recibido</div>
                         <div id="pos-recibido-display" style="font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text2)">$ 0</div>
                       </div>
                       <div style="text-align:right">
-                        <div style="font-size:10px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px" id="pos-vuelto-label">Vuelto a dar</div>
-                        <div id="pos-vuelto" style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--amber);line-height:1">$ 0</div>
+                        <div style="font-size:10px;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px" id="pos-vuelto-label">Vuelto a dar</div>
+                        <div id="pos-vuelto" style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--orange);line-height:1">$ 0</div>
                       </div>
                     </div>
+                    <!-- Billetes del vuelto -->
+                    <div id="pos-vuelto-billetes" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px"></div>
                   </div>
                 </div>
               </div>
@@ -5175,16 +5177,39 @@ window.posCalcVuelto = function() {
   const el    = document.getElementById('pos-vuelto');
   const label = document.getElementById('pos-vuelto-label');
   el.textContent = '$ '+Math.abs(vuelto).toLocaleString('es-AR');
+  const billetesEl = document.getElementById('pos-vuelto-billetes');
   if (vuelto<0) {
     el.style.color='var(--red)';
     wrap.style.borderColor='var(--red)';
     if(label) label.textContent='Falta abonar';
+    if(billetesEl) billetesEl.innerHTML='';
   } else {
-    el.style.color='var(--amber)';
-    wrap.style.borderColor='var(--amber)';
+    el.style.color='var(--orange,#f97316)';
+    wrap.style.borderColor='var(--orange,#f97316)';
     if(label) label.textContent='Vuelto a dar';
+    if(billetesEl) billetesEl.innerHTML = posRenderBilletes(Math.round(vuelto));
   }
 };
+
+// Devuelve HTML con billetes/monedas para representar el vuelto
+function posRenderBilletes(monto) {
+  const denominaciones = [10000,5000,2000,1000,500,200,100,50,10];
+  let resto = monto;
+  let html = '';
+  for (const d of denominaciones) {
+    const cant = Math.floor(resto / d);
+    if (cant > 0) {
+      const esBillete = d >= 100;
+      html += `<div style="display:inline-flex;align-items:center;gap:3px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.35);border-radius:7px;padding:4px 8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:#f97316;font-weight:600">
+        <span style="font-size:10px;opacity:.7">${esBillete?'💵':'🪙'}</span>
+        <span>$${d>=1000?(d/1000)+'k':d}</span>
+        <span style="background:rgba(249,115,22,.2);border-radius:4px;padding:1px 5px;font-size:11px">×${cant}</span>
+      </div>`;
+      resto -= cant * d;
+    }
+  }
+  return html || '';
+}
 
 // ── CONFIRMAR VENTA ────────────────────────────────────
 window.posConfirmarVenta = async function() {
@@ -5266,48 +5291,59 @@ window.posConfirmarVenta = async function() {
 };
 
 // ── TICKET ────────────────────────────────────────────
+function posGenerarHTMLTicket(num, fecha, v) {
+  const filasHTML = v.items.map(it=>`
+    <tr>
+      <td style="padding:6px 0;border-bottom:1px dashed #ddd;font-size:13px">${it.nombre}${it.cantidad>1?'':''}</td>
+      <td style="padding:6px 8px;border-bottom:1px dashed #ddd;text-align:center;font-size:13px;color:#555">x${it.cantidad}</td>
+      <td style="padding:6px 0;border-bottom:1px dashed #ddd;text-align:right;font-size:13px;font-weight:600">$${it.subtotal_iva.toLocaleString('es-AR')}</td>
+    </tr>`).join('');
+  const vueltoRow = (v.vuelto!==null&&v.vuelto>0)
+    ? `<tr><td style="font-size:12px;color:#22a35a;padding:3px 0">Vuelto:</td><td colspan="2" style="text-align:right;font-size:12px;color:#22a35a;font-weight:600">$${v.vuelto.toLocaleString('es-AR')}</td></tr>` : '';
+  const descRow = (v.descuento_pct>0)
+    ? `<tr><td style="font-size:12px;color:#f97316;padding:3px 0">Descuento ${v.descuento_pct}%:</td><td colspan="2" style="text-align:right;font-size:12px;color:#f97316">-$${Math.round((v.total_iva_bruto-v.total_final)).toLocaleString('es-AR')}</td></tr>` : '';
+  return `
+    <div style="font-family:'Courier New',monospace;max-width:380px;margin:0 auto;padding:24px 20px;border:2px dashed #aaa;border-radius:4px;background:#fff;color:#111">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-family:Arial,sans-serif;font-size:18px;font-weight:900;letter-spacing:2px;text-transform:uppercase">REPUESTOS ELECTROMECÁNICOS</div>
+        <div style="font-size:11px;color:#555;margin-top:2px">Electromecánica Automotor</div>
+        <div style="border:1px solid #111;border-radius:3px;display:inline-block;padding:3px 16px;margin:10px 0;font-size:13px;font-weight:700;letter-spacing:1px">□ TICKET DE VENTA</div>
+        <div style="font-size:10px;color:#666;font-style:italic">NO VÁLIDO COMO FACTURA</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px">
+        <tr><td style="padding:2px 0;color:#444">Ticket N°:</td><td style="text-align:right;font-weight:700">${num}</td></tr>
+        <tr><td style="padding:2px 0;color:#444">Fecha:</td><td style="text-align:right">${fecha}</td></tr>
+        ${v.cliente_nombre?`<tr><td style="padding:2px 0;color:#444">Cliente:</td><td style="text-align:right">${v.cliente_nombre}${v.cliente_tel?' · '+v.cliente_tel:''}</td></tr>`:''}
+        ${v.cliente_empresa?`<tr><td style="padding:2px 0;color:#444">Empresa:</td><td style="text-align:right">${v.cliente_empresa}</td></tr>`:''}
+      </table>
+      <div style="border-top:2px solid #111;border-bottom:2px solid #111;padding:2px 0;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 0">□ PRODUCTOS</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
+        <tbody>${filasHTML}</tbody>
+      </table>
+      <div style="border-top:2px solid #111;padding-top:8px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <tr><td style="padding:2px 0;color:#444">Sin IVA:</td><td style="text-align:right">$${v.total_sin_iva.toLocaleString('es-AR')}</td></tr>
+          ${descRow}
+          ${v.monto_recibido?`<tr><td style="padding:2px 0;color:#444">Recibido:</td><td style="text-align:right">$${v.monto_recibido.toLocaleString('es-AR')}</td></tr>`:''}
+          ${vueltoRow}
+        </table>
+        <div style="background:#111;color:#fff;text-align:center;padding:10px 0;margin:10px 0;border-radius:3px;font-size:16px;font-weight:900;letter-spacing:1px">TOTAL: $${v.total_final.toLocaleString('es-AR')}</div>
+        <div style="text-align:center;font-size:11px;color:#555">□ ${v.forma_pago}</div>
+        <div style="border-top:1px dashed #aaa;margin-top:14px;padding-top:10px;text-align:center">
+          <div style="font-size:13px;font-weight:700">¡Gracias por su compra!</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">Repuestos Electromecánicos</div>
+          <div style="font-size:10px;color:#aaa;margin-top:4px">Generado: ${new Date().toLocaleString('es-AR')}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
 function posMostrarTicket(id, v) {
   const fecha = new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   const num   = id.slice(-6).toUpperCase();
-  const filas = v.items.map(it=>`
-    <tr>
-      <td style="padding:6px 0;font-size:12px;color:var(--text)">${it.nombre}</td>
-      <td style="padding:6px 0;text-align:center;font-size:12px;color:var(--text2)">×${it.cantidad}</td>
-      <td style="padding:6px 0;text-align:right;font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace">$ ${it.precio_iva.toLocaleString('es-AR')}</td>
-      <td style="padding:6px 0;text-align:right;font-size:12px;font-weight:600;color:var(--green);font-family:'JetBrains Mono',monospace">$ ${it.subtotal_iva.toLocaleString('es-AR')}</td>
-    </tr>`).join('');
-  document.getElementById('pos-ticket-body').innerHTML = `
-    <div style="text-align:center;padding-bottom:12px;border-bottom:1px solid var(--border)">
-      <div style="font-size:22px;margin-bottom:4px">🧾</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--text)">Repuestos Electromecánicos</div>
-      <div style="font-size:11px;color:var(--text3)">Venta N° ${num} · ${fecha}</div>
-    </div>
-    ${v.cliente_nombre?`<div style="margin:10px 0 4px;font-size:12px;color:var(--text2)">Cliente: <strong>${v.cliente_nombre}</strong>${v.cliente_tel?' · 📱 '+v.cliente_tel:''}${v.cliente_empresa?' · '+v.cliente_empresa:''}</div>`:''}
-    <table style="width:100%;border-collapse:collapse;margin:10px 0">
-      <thead><tr style="border-bottom:1px solid var(--border)">
-        <th style="padding:4px 0;text-align:left;font-size:10px;color:var(--text3);text-transform:uppercase">Producto</th>
-        <th style="padding:4px 0;text-align:center;font-size:10px;color:var(--text3);text-transform:uppercase">Cant</th>
-        <th style="padding:4px 0;text-align:right;font-size:10px;color:var(--text3);text-transform:uppercase">Precio</th>
-        <th style="padding:4px 0;text-align:right;font-size:10px;color:var(--text3);text-transform:uppercase">Subtotal</th>
-      </tr></thead>
-      <tbody>${filas}</tbody>
-    </table>
-    <div style="border-top:1px solid var(--border);padding-top:10px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-        <span style="font-size:11px;color:var(--text3)">Sin IVA</span>
-        <span style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace">$ ${v.total_sin_iva.toLocaleString('es-AR')}</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:15px;font-weight:700;color:var(--text)">TOTAL c/IVA</span>
-        <span style="font-size:18px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace">$ ${v.total_iva.toLocaleString('es-AR')}</span>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <span style="font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;color:var(--text2)">💳 ${v.forma_pago}</span>
-        <span style="font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;color:var(--text2)">${v.forma_entrega==='Retira en local'?'🏪':v.forma_entrega==='Envío a domicilio'?'🛵':'📦'} ${v.forma_entrega}</span>
-        ${v.vuelto!==null&&v.vuelto>0?`<span style="font-size:11px;background:var(--amber-dim);border:1px solid var(--amber);border-radius:6px;padding:3px 10px;color:var(--amber)">Vuelto: $ ${v.vuelto.toLocaleString('es-AR')}</span>`:''}
-      </div>
-      ${v.nota?`<div style="margin-top:8px;font-size:11px;color:var(--text3);font-style:italic">📝 ${v.nota}</div>`:''}
-    </div>`;
+  document.getElementById('pos-ticket-body').innerHTML = posGenerarHTMLTicket(num, fecha, v);
   document.getElementById('modal-pos-ticket').classList.add('open');
   window._posLastTicket = { num, fecha, v };
 }
@@ -5317,17 +5353,18 @@ window.cerrarModalTicket = function() {
 };
 
 window.posImprimirTicket = function() {
-  const body = document.getElementById('pos-ticket-body').innerHTML;
-  const w = window.open('','_blank','width=480,height=700');
-  w.document.write(`<!DOCTYPE html><html><head><title>Ticket</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  const { num, fecha, v } = window._posLastTicket || {};
+  if (!v) return;
+  const ticketHTML = posGenerarHTMLTicket(num, fecha, v);
+  const w = window.open('','_blank','width=500,height=780');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket ${num}</title>
     <style>
-      :root{--bg:#080b12;--bg2:#0f1117;--bg3:#141720;--border:#1e2433;--text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;--green:#22c55e;--amber:#f59e0b;--amber-dim:rgba(245,158,11,.15);--blue:#3b82f6}
-      body{background:#fff;color:#111;font-family:'Inter',sans-serif;padding:20px;font-size:13px}
-      @media print{body{padding:8px}}
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{background:#f5f5f5;display:flex;justify-content:center;padding:20px;font-family:'Courier New',monospace}
+      @media print{body{background:#fff;padding:0}@page{margin:8mm}}
     </style></head>
-    <body>${body.replace(/var\(--[\w-]+\)/g,'inherit').replace(/style="[^"]*color:var[^"]*"/g,'')}</body>
-    <script>window.onload=()=>window.print();<\/script></html>`);
+    <body>${ticketHTML}</body>
+    <script>window.onload=function(){setTimeout(()=>window.print(),300);};<\/script></html>`);
   w.document.close();
 };
 
@@ -5358,7 +5395,7 @@ window.posVerHistorial = async function() {
         </div>
         <div style="text-align:right;flex-shrink:0">
           <div style="font-size:11px;color:var(--text3)">Sin IVA: $ ${(v.total_sin_iva||0).toLocaleString('es-AR')}</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--green)">$ ${(v.total_iva||0).toLocaleString('es-AR')}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--green)">$ ${(v.total_final||v.total_iva||0).toLocaleString('es-AR')}</div>
         </div>
       </div>`;
     }).join('');
@@ -5455,16 +5492,17 @@ function closeMobMenu(){
 }
 function checkMobile(){
   const btn = document.getElementById('mob-menu-btn');
+  if (!btn) return;
   if(window.innerWidth <= 768) btn.style.display='flex';
-  else { btn.style.display='none'; document.querySelector('.sidebar').classList.remove('mob-open'); document.getElementById('mob-overlay').classList.remove('active'); }
+  else { btn.style.display='none'; document.querySelector('.sidebar')?.classList.remove('mob-open'); document.getElementById('mob-overlay')?.classList.remove('active'); }
 }
 window.addEventListener('resize', checkMobile);
+// Ejecutar inmediatamente y también en DOMContentLoaded por si corre antes
+checkMobile();
 document.addEventListener('DOMContentLoaded', checkMobile);
-// Cerrar sidebar al navegar en móvil
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.nav-item').forEach(el => {
-    el.addEventListener('click', () => { if(window.innerWidth<=768) closeMobMenu(); });
-  });
+// Cerrar sidebar al navegar en móvil — usando event delegation para cubrir items agregados dinámicamente
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.nav-item') && window.innerWidth<=768) closeMobMenu();
 });
 </script>
 
