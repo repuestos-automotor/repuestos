@@ -380,9 +380,12 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 .pos-entrega-btn:hover{border-color:var(--green);color:var(--green)}
 .pos-entrega-btn.active{background:var(--green-dim);border-color:rgba(34,197,94,.4);color:var(--green);font-weight:600}
 /* confirmar */
-.pos-btn-checkout{width:100%;margin-top:10px;padding:13px;border-radius:10px;background:linear-gradient(135deg,var(--green2),#15803d);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:'Rajdhani',sans-serif;letter-spacing:.05em;box-shadow:0 4px 16px rgba(22,163,74,.3)}
+.pos-btn-checkout{width:100%;margin-top:10px;padding:13px;border-radius:10px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:'Rajdhani',sans-serif;letter-spacing:.05em;box-shadow:0 4px 16px rgba(22,163,74,.3)}
 .pos-btn-checkout:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 20px rgba(22,163,74,.4)}
 .pos-btn-checkout svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.pos-tarj-tipo{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--bg4);color:var(--text3);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;width:100%}
+.pos-tarj-tipo:hover{border-color:#3b82f6;color:#60a5fa}
+.pos-tarj-tipo.active{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#60a5fa}
 /* — Panel detalle estilo catálogo — */
 .pos-detail-overlay{position:fixed;inset:0;z-index:300;pointer-events:none}
 .pos-detail-overlay.open{pointer-events:all}
@@ -1724,31 +1727,64 @@ tbody tr:hover td:last-child{background:var(--bg3)}
               <div class="pos-sum-label"><i class="fas fa-credit-card" style="color:var(--text3)"></i> MÉTODO DE PAGO</div>
               <div class="pos-metodos-grid">
                 <button class="pos-metodo-btn active" id="posm-efectivo" onclick="posSelMetodo('Efectivo',this)">
-                  <i class="fas fa-money-bill-wave"></i><span>Efectivo</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M22 10H2M6 14h.01M10 14h2"/></svg>
+                  <span>Efectivo</span>
                 </button>
                 <button class="pos-metodo-btn" id="posm-tarjeta" onclick="posSelMetodo('Tarjeta',this)">
-                  <i class="fas fa-credit-card"></i><span>Tarjeta</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  <span>Tarjeta</span>
                 </button>
                 <button class="pos-metodo-btn" id="posm-transfer" onclick="posSelMetodo('Transferencia',this)">
-                  <i class="fas fa-arrow-right-arrow-left"></i><span>Transfer.</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+                  <span>Transfer.</span>
                 </button>
                 <button class="pos-metodo-btn" id="posm-mp" onclick="posSelMetodo('Mercado Pago',this)">
-                  <i class="fas fa-qrcode"></i><span>MP</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:18px;height:18px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h4v4H7zM13 7h4v4h-4zM7 13h4v4H7zM15 13h2M15 17h2M13 15h1"/></svg>
+                  <span>MP</span>
                 </button>
               </div>
-              <!-- Bloque tarjeta -->
-              <div id="pos-bloque-tarjeta" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px">
-                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">💳 Cobro con tarjeta</div>
-                <div id="pos-tarjeta-info" style="font-size:12px;color:var(--text2);line-height:1.7">Cargando...</div>
-                <input id="pos-tarjeta-nro" type="text" placeholder="N° de aprobación / cupón" class="form-input" style="font-size:12px;padding:6px 8px;margin-top:8px">
+
+              <!-- ── BLOQUE TARJETA ── -->
+              <div id="pos-bloque-tarjeta" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid #3b82f6;border-top:2px solid #3b82f6;border-radius:10px;padding:12px">
+                <div style="font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" style="width:14px;height:14px"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  COBRO CON TARJETA
+                </div>
+                <div id="pos-tarjeta-info" style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:10px">Cargando...</div>
+                <!-- Tipo de tarjeta -->
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Tipo de tarjeta</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+                  <button id="pos-tarj-debito" class="pos-tarj-tipo active" onclick="posSelTipoTarj('debito')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Débito
+                  </button>
+                  <button id="pos-tarj-credito" class="pos-tarj-tipo" onclick="posSelTipoTarj('credito')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Crédito
+                  </button>
+                </div>
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Últimos 4 dígitos <span style="color:var(--text3);font-weight:400;font-size:9px">(opcional)</span></div>
+                <input id="pos-tarjeta-digitos" type="number" placeholder="1 2 3 4" maxlength="4" class="form-input" style="font-size:13px;padding:7px 10px;margin-bottom:8px;letter-spacing:.1em">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Banco / Emisor <span style="color:var(--text3);font-weight:400;font-size:9px">(opcional)</span></div>
+                <input id="pos-tarjeta-banco" type="text" placeholder="Ej: Galicia, BBVA, Naranja..." class="form-input" style="font-size:12px;padding:7px 10px;margin-bottom:8px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">N° de aprobación / cupón <span style="color:var(--text3);font-weight:400;font-size:9px">(opcional)</span></div>
+                <input id="pos-tarjeta-nro" type="text" placeholder="Ej: 123456" class="form-input" style="font-size:12px;padding:7px 10px">
               </div>
-              <!-- Bloque transferencia -->
-              <div id="pos-bloque-transferencia" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px">
-                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🏦 Datos para transferencia</div>
-                <div id="pos-transf-info" style="font-size:12px;color:var(--text2);line-height:1.7">Cargando...</div>
-                <input id="pos-transf-nro" type="text" placeholder="N° de operación (opcional)" class="form-input" style="font-size:12px;padding:6px 8px;margin-top:8px">
+
+              <!-- ── BLOQUE TRANSFERENCIA ── -->
+              <div id="pos-bloque-transferencia" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid #a855f7;border-top:2px solid #a855f7;border-radius:10px;padding:12px">
+                <div style="font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" style="width:14px;height:14px"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+                  DATOS DE TRANSFERENCIA
+                </div>
+                <div id="pos-transf-info" style="font-size:12px;color:var(--text2);line-height:1.9;margin-bottom:10px">Cargando...</div>
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">N° de comprobante / referencia <span style="color:var(--text3);font-size:9px">(opcional)</span></div>
+                <input id="pos-transf-nro" type="text" placeholder="Ej. 0012345678" class="form-input" style="font-size:12px;padding:7px 10px;margin-bottom:8px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Titular que transfirió <span style="color:var(--text3);font-size:9px">(opcional)</span></div>
+                <input id="pos-transf-titular" type="text" placeholder="Nombre del cliente" class="form-input" style="font-size:12px;padding:7px 10px;margin-bottom:8px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Alias / CBU destino <span style="color:var(--text3);font-size:9px">(referencia)</span></div>
+                <input id="pos-transf-alias" type="text" placeholder="Ej. aguadorada.mp" class="form-input" style="font-size:12px;padding:7px 10px">
               </div>
-              <!-- Bloque MP -->
+
+              <!-- ── BLOQUE MERCADO PAGO ── -->
               <div id="pos-bloque-mp" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid rgba(6,182,212,.3);border-radius:10px;padding:14px;text-align:center">
                 <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">📲 Mercado Pago</div>
                 <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">ALIAS MERCADO PAGO</div>
@@ -1886,50 +1922,6 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 
     <!-- ─── PEDIDOS ────────────────────────────────────── -->
     <div class="page" id="page-pedidos">
-
-      <div style="display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:start">
-
-        <!-- ── PANEL IZQUIERDO: BUSCAR + RESULTADOS ── -->
-        <div>
-          <!-- Buscador -->
-          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
-            <div style="display:flex;gap:8px;margin-bottom:10px">
-              <div style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 12px">
-                <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input id="pos-search" type="text" placeholder="Buscar por nombre, código, vehículo..." 
-                  style="background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;font-family:'Inter',sans-serif;padding:9px 0"
-                  oninput="posBuscar(this.value)">
-                <button onclick="document.getElementById('pos-search').value='';posBuscar('')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:0 4px;font-size:16px">×</button>
-              </div>
-              <select id="pos-filtro-cat" class="form-select" style="width:180px;font-size:12px" onchange="posBuscar(document.getElementById('pos-search').value)">
-                <option value="">Todas las categorías</option>
-              </select>
-            </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);cursor:pointer">
-                <input type="checkbox" id="pos-solo-stock" onchange="posBuscar(document.getElementById('pos-search').value)" style="accent-color:var(--blue)"> Solo con stock
-              </label>
-              <span style="color:var(--border);margin:0 4px">|</span>
-              <span id="pos-count" style="font-size:11px;color:var(--text3)">—</span>
-            </div>
-          </div>
-
-          <!-- Resultados -->
-          <div id="pos-resultados" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;max-height:calc(100vh - 280px);overflow-y:auto;padding-right:4px">
-            <div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando repuestos...</div></div>
-          </div>
-        </div>
-
-
-      <!-- HISTORIAL DE VENTAS POS (oculto inicialmente) -->
-      <div id="pos-historial-wrap" style="display:none;margin-top:20px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <h3 style="font-size:15px;font-weight:600;color:var(--text)">📋 Historial de ventas POS</h3>
-          <button onclick="document.getElementById('pos-historial-wrap').style.display='none'" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">✖ Cerrar</button>
-        </div>
-        <div id="pos-historial-items"><div class="loading-wrap"><div class="spinner"></div></div></div>
-      </div>
-    </div>
 
     <!-- MODAL NUEVO USUARIO DESDE POS -->
     <div class="modal-overlay" id="modal-pos-usuario">
@@ -5466,16 +5458,33 @@ async function posCargarDatosPago() {
 
 function posAplicarDatosPago() {
   const d = _posDatosPago||{};
+  // Tarjeta — mostrar titular y banco de config
   const ti = document.getElementById('pos-tarjeta-info');
-  if (ti) ti.innerHTML = `<div><span style="color:var(--text3);font-size:10px">Titular:</span> <strong>${d.titular||'—'}</strong></div><div><span style="color:var(--text3);font-size:10px">Banco:</span> ${d.banco||'—'}</div>`;
+  if (ti) ti.innerHTML = [
+    d.titular ? `<div><span style="color:var(--text3);font-size:10px">Titular:</span> <strong style="color:var(--text)">${d.titular}</strong></div>` : '',
+    d.banco   ? `<div><span style="color:var(--text3);font-size:10px">Banco:</span> ${d.banco}</div>` : '',
+    `<div style="font-size:11px;color:var(--text3);margin-top:4px">Pasar tarjeta por posnet y anotar N° de aprobación abajo.</div>`
+  ].join('');
+  // Transferencia — mostrar todos los datos bancarios
   const tr = document.getElementById('pos-transf-info');
-  if (tr) tr.innerHTML = `<div><span style="color:var(--text3);font-size:10px">Titular:</span> <strong>${d.titular||'—'}</strong></div><div><span style="color:var(--text3);font-size:10px">Banco:</span> ${d.banco||'—'}</div><div><span style="color:var(--text3);font-size:10px">Alias:</span> <strong style="font-family:monospace;color:var(--blue)">${d.alias||d.mp_alias||'—'}</strong></div><div><span style="color:var(--text3);font-size:10px">CBU/CVU:</span> <span style="font-family:monospace;font-size:11px">${d.cbu||'—'}</span></div>`;
+  if (tr) tr.innerHTML = [
+    d.titular         ? `<div><span style="color:var(--text3);font-size:10px">Titular:</span> <strong style="color:var(--text)">${d.titular}</strong></div>` : '',
+    d.banco           ? `<div><span style="color:var(--text3);font-size:10px">Banco:</span> ${d.banco}</div>` : '',
+    (d.alias||d.mp_alias) ? `<div><span style="color:var(--text3);font-size:10px">Alias:</span> <strong style="font-family:'JetBrains Mono',monospace;color:#3b82f6">${d.alias||d.mp_alias}</strong></div>` : '',
+    d.cbu             ? `<div><span style="color:var(--text3);font-size:10px">CBU/CVU:</span> <span style="font-family:'JetBrains Mono',monospace;font-size:11px">${d.cbu}</span></div>` : '',
+  ].join('') || '<span style="color:var(--text3);font-size:11px">Configurar en Config MP →</span>';
+  // MP
   const al=document.getElementById('pos-mp-alias'), tt=document.getElementById('pos-mp-titular');
   const qw=document.getElementById('pos-mp-qr-wrap'), qi=document.getElementById('pos-mp-qr');
   if(al) al.textContent = d.mp_alias||d.alias||'Sin configurar';
   if(tt) tt.textContent = d.mp_titular||d.titular||'';
   if(qw&&qi){ const q=d.mp_qr_url||d.qr_url||''; if(q){qi.src=q;qw.style.display='block';} else qw.style.display='none'; }
 }
+
+window.posSelTipoTarj = function(tipo) {
+  document.getElementById('pos-tarj-debito')?.classList.toggle('active', tipo==='debito');
+  document.getElementById('pos-tarj-credito')?.classList.toggle('active', tipo==='credito');
+};
 
 window.posCopiarAlias = function() {
   const a = document.getElementById('pos-mp-alias')?.textContent||'';
@@ -5559,6 +5568,15 @@ window.posConfirmarVenta = async function() {
   const nroOp      = document.getElementById('pos-tarjeta-nro')?.value.trim()
                   || document.getElementById('pos-transf-nro')?.value.trim()
                   || document.getElementById('pos-mp-nro')?.value.trim() || '';
+  const tarjExtra  = _posPago==='Tarjeta' ? {
+    tarjeta_tipo:    document.getElementById('pos-tarj-debito')?.classList.contains('active') ? 'Débito' : 'Crédito',
+    tarjeta_digitos: document.getElementById('pos-tarjeta-digitos')?.value.trim()||null,
+    tarjeta_banco:   document.getElementById('pos-tarjeta-banco')?.value.trim()||null,
+  } : {};
+  const transfExtra = _posPago==='Transferencia' ? {
+    transf_titular: document.getElementById('pos-transf-titular')?.value.trim()||null,
+    transf_alias:   document.getElementById('pos-transf-alias')?.value.trim()||null,
+  } : {};
   if (!confirm(`Confirmar venta de $ ${totalFinal.toLocaleString('es-AR')}${_posDescPct>0?' (con '+_posDescPct+'% desc.)':''} a ${nombre||'cliente sin nombre'}?`)) return;
   try {
     const venta = {
@@ -5575,6 +5593,7 @@ window.posConfirmarVenta = async function() {
       total_iva_bruto:totalIva, total_sin_iva:totalSin,
       descuento_pct:_posDescPct||null, total_final:totalFinal,
       forma_pago:_posPago, nro_operacion:nroOp||null,
+      ...tarjExtra, ...transfExtra,
       forma_entrega:_posEntrega,
       monto_recibido:recibido||null, vuelto:recibido?recibido-totalFinal:null,
       cliente_nombre:nombre||null, cliente_tel:tel||null, cliente_empresa:empresa||null,
