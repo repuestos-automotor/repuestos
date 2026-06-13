@@ -295,20 +295,8 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 .sort-arrow{font-size:9px;margin-left:2px;opacity:.8}
 
 /* ── POS ─────────────────────────────────────────────── */
-.pos-pago-btn{padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);font-size:12px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;text-align:center}
-.pos-pago-btn:hover{border-color:var(--blue);color:var(--blue)}
-.pos-pago-btn.active{background:var(--blue-dim);border-color:var(--blue2);color:var(--blue);font-weight:600}
-.pos-entrega-btn{padding:8px 4px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);font-size:12px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;text-align:center}
-.pos-entrega-btn:hover{border-color:var(--green);color:var(--green)}
-.pos-entrega-btn.active{background:var(--green-dim);border-color:rgba(34,197,94,.4);color:var(--green);font-weight:600}
-.pos-monto-btn{padding:6px 9px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;font-family:'JetBrains Mono',monospace;font-weight:500}
-.pos-monto-btn:hover{border-color:var(--orange);color:var(--orange);background:var(--orange-dim)}
-.pos-monto-btn.active{background:var(--orange-dim);border-color:var(--orange);color:var(--orange)}
-.pos-desc-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
-.pos-desc-btn:hover{border-color:var(--orange);color:var(--orange)}
-.pos-desc-btn.active{background:var(--orange-dim);border-color:var(--orange);color:var(--orange);font-weight:600}
-/* Cards catálogo-style: imagen grande, toda la info */
-.pos-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:default;transition:border-color .2s;position:relative}
+/* — Cards productos — */
+.pos-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
 .pos-card:hover{border-color:var(--blue2)}
 .pos-card.en-carrito{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.03)}
 .pos-card-img{width:100%;height:140px;object-fit:contain;border-radius:8px;background:var(--bg4);display:block;margin-bottom:10px}
@@ -320,8 +308,8 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 .pos-card-badge.usado{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
 .pos-card-badge.reac{background:rgba(6,182,212,.15);color:#06b6d4;border:1px solid rgba(6,182,212,.25)}
 .pos-card-codigo{font-size:11px;font-weight:600;color:var(--blue);font-family:'JetBrains Mono',monospace;margin-bottom:4px;letter-spacing:.03em}
-.pos-card-nombre{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:5px}
-.pos-card-cats{font-size:11px;color:var(--text3);margin-bottom:4px}
+.pos-card-nombre{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:3px}
+.pos-card-cats{font-size:11px;color:var(--text3);margin-bottom:3px}
 .pos-card-marca{font-size:11px;color:var(--text3);margin-bottom:8px}
 .pos-card-precios{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 .pos-card-precio-siniva{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
@@ -331,18 +319,118 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 .pos-add-btn{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(59,130,246,.3);background:var(--blue-glow);color:var(--blue);font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;font-weight:500}
 .pos-add-btn:hover{background:var(--blue-dim);border-color:var(--blue)}
 .pos-add-btn.added{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1);color:var(--green)}
-/* Carrito items */
-.pos-cart-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border)}
-.pos-cart-row:last-child{border-bottom:none}
-.pos-cart-nombre{flex:1;font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pos-cart-siniva{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace}
-.pos-cart-precio{font-size:13px;font-weight:600;color:var(--green);font-family:'JetBrains Mono',monospace}
-.pos-qty-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.pos-qty-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
-.pos-qty-btn:hover{border-color:var(--blue);color:var(--blue)}
-.pos-qty-val{font-size:13px;font-weight:600;color:var(--text);min-width:20px;text-align:center;font-family:'JetBrains Mono',monospace}
-/* Resultados: sin gradiente que tapa las cards */
-#pos-resultados{overflow-y:visible!important;max-height:none!important}
+/* — Carrito estilo catálogo — */
+.pos-cart-outer{width:320px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border2);display:flex;flex-direction:column;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--blue2) transparent}
+.pos-cart-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;background:var(--bg2);z-index:2}
+.pos-cart-head-title{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px}
+.pos-cart-head-title svg{width:16px;height:16px;stroke:var(--green);fill:none;stroke-width:2}
+.pos-cart-clear-btn{font-size:10.5px;color:var(--text3);cursor:pointer;padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:none;transition:all .15s}
+.pos-cart-clear-btn:hover{color:var(--red);border-color:rgba(239,68,68,.3)}
+.pos-cart-list{padding:10px;display:flex;flex-direction:column;gap:7px;flex-shrink:0}
+.pos-cart-item{background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:9px 10px;display:flex;align-items:center;gap:8px;animation:slideIn .2s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.pos-cart-item-img{width:44px;height:44px;border-radius:7px;overflow:hidden;flex-shrink:0;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:18px}
+.pos-cart-item-img img{width:100%;height:100%;object-fit:contain;padding:2px}
+.pos-cart-item-info{flex:1;min-width:0}
+.pos-cart-item-name{font-size:11.5px;font-weight:500;color:var(--text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:2px}
+.pos-cart-item-price{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green)}
+.pos-cart-item-siniva{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)}
+.pos-qty{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.pos-qty-btn{width:22px;height:22px;border-radius:5px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;transition:all .15s;line-height:1}
+.pos-qty-btn:hover{border-color:var(--border2);background:var(--bg3);color:var(--text)}
+.pos-qty-btn.minus:hover{border-color:rgba(239,68,68,.4);color:var(--red)}
+.pos-qty-btn.plus:hover{border-color:rgba(34,197,94,.4);color:var(--green)}
+.pos-qty-num{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text);min-width:20px;text-align:center}
+.pos-cart-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;color:var(--text3);text-align:center;gap:10px}
+/* — Resumen carrito — */
+.pos-summary{padding:10px 14px 14px;border-top:1px solid var(--border)}
+.pos-sum-section{margin-bottom:10px}
+.pos-sum-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;display:flex;align-items:center;gap:4px}
+/* totales */
+.pos-sin-iva-row{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px}
+.pos-desc-row{display:none;justify-content:space-between;align-items:center;padding:5px 8px;background:var(--orange-dim);border:1px solid rgba(249,115,22,.3);border-radius:6px;margin-bottom:4px}
+.pos-total-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0 2px}
+.pos-total-label{font-size:11px;color:var(--text3)}
+.pos-total-cant{font-size:11px;color:var(--text3)}
+.pos-total-precio{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-bottom:10px}
+/* descuento */
+.pos-desc-btn{padding:4px 9px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.pos-desc-btn:hover{border-color:var(--orange);color:var(--orange)}
+.pos-desc-btn.active{background:var(--orange-dim);border-color:var(--orange);color:var(--orange);font-weight:600}
+/* montos */
+.pos-montos-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+.pos-monto-btn{font-size:11px;font-weight:600;padding:5px 9px;border-radius:7px;cursor:pointer;background:var(--orange-dim);border:1.5px solid #f97316;color:#f97316;transition:all .15s;font-family:'JetBrains Mono',monospace}
+.pos-monto-btn:hover{background:rgba(249,115,22,.3);color:#fed7aa}
+.pos-monto-input-wrap{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.pos-monto-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .2s}
+.pos-monto-input:focus{border-color:#f97316}
+/* vuelto */
+.pos-diferencia{font-size:15px;font-weight:700;margin-top:7px;letter-spacing:-.01em}
+.pos-diferencia.faltan{color:#f87171}.pos-diferencia.sobra{color:#4ade80}
+.pos-vuelto-billetes{display:flex;flex-wrap:wrap;gap:5px}
+.pos-billete{font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:7px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#4ade80;font-family:'JetBrains Mono',monospace}
+/* método de pago */
+.pos-metodos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.pos-metodo-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 4px;border-radius:9px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);color:var(--text3);font-size:10.5px;transition:all .15s;font-family:'Inter',sans-serif}
+.pos-metodo-btn i{font-size:16px}
+.pos-metodo-btn:hover{border-color:rgba(34,197,94,.6);color:#4ade80}
+.pos-metodo-btn.active{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.7);color:#4ade80;box-shadow:0 0 0 1px rgba(34,197,94,.3)}
+/* botones entrega */
+.pos-entrega-btn{padding:8px 4px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;text-align:center}
+.pos-entrega-btn:hover{border-color:var(--green);color:var(--green)}
+.pos-entrega-btn.active{background:var(--green-dim);border-color:rgba(34,197,94,.4);color:var(--green);font-weight:600}
+/* confirmar */
+.pos-btn-checkout{width:100%;margin-top:10px;padding:13px;border-radius:10px;background:linear-gradient(135deg,var(--green2),#15803d);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:'Rajdhani',sans-serif;letter-spacing:.05em;box-shadow:0 4px 16px rgba(22,163,74,.3)}
+.pos-btn-checkout:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 6px 20px rgba(22,163,74,.4)}
+.pos-btn-checkout svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+/* — Panel detalle estilo catálogo — */
+.pos-detail-overlay{position:fixed;inset:0;z-index:300;pointer-events:none}
+.pos-detail-overlay.open{pointer-events:all}
+.pos-detail-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);opacity:0;transition:opacity .3s}
+.pos-detail-overlay.open .pos-detail-backdrop{opacity:1}
+.pos-detail-panel{position:absolute;right:0;top:0;bottom:0;width:min(460px,100vw);background:var(--bg2);border-left:1px solid var(--border2);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--blue2) transparent}
+.pos-detail-overlay.open .pos-detail-panel{transform:translateX(0)}
+.pos-detail-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--bg2);z-index:1}
+.pos-detail-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);flex-shrink:0;transition:all .15s}
+.pos-detail-close:hover{border-color:var(--red);color:var(--red)}
+.pos-detail-close svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.pos-detail-cat{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.pos-detail-name{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--text);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pos-detail-img-wrap{height:280px;background:linear-gradient(135deg,#0d1016,#141720);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:zoom-in}
+.pos-detail-img-wrap img{width:100%;height:100%;object-fit:contain;padding:12px}
+.pos-galeria-thumbs{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;background:var(--bg2)}
+.pos-galeria-thumbs:empty{display:none}
+.pos-galeria-thumb{flex:0 0 60px;height:60px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;background:var(--bg3);transition:border-color .15s}
+.pos-galeria-thumb:hover{transform:scale(1.05)}
+.pos-galeria-thumb.active{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.pos-galeria-thumb img{width:100%;height:100%;object-fit:contain;padding:4px}
+.pos-detail-body{padding:16px}
+/* detalle campos igual que catálogo */
+.pos-detail-section-title{font-size:11.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.pos-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.pos-detail-field{background:var(--bg3);border-radius:8px;padding:9px 11px}
+.pos-df-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.pos-df-val{font-size:14px;color:var(--text);font-weight:500;line-height:1.3}
+.pos-df-val.green{color:var(--green)}.pos-df-val.orange{color:#f97316}.pos-df-val.blue{color:var(--blue)}.pos-df-val.mono{font-family:'JetBrains Mono',monospace}
+.pos-price-boxes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.pos-price-box{background:var(--bg3);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)}
+.pos-price-box.main{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.05)}
+.pos-price-box.desc{border-color:rgba(249,115,22,.3);background:rgba(249,115,22,.05)}
+.pos-pb-label{font-size:9.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.pos-pb-val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:500}
+.pos-pb-val.green{color:var(--green)}.pos-pb-val.muted{color:var(--text2);font-size:16px}.pos-pb-val.orange{color:#f97316}
+.pos-pb-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.pos-compat-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.pos-compat-tag{font-size:12px;padding:3px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+.pos-codigo-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.pos-codigo-table td{padding:6px 8px;font-size:13px;border-bottom:1px solid var(--border)}
+.pos-codigo-table td:first-child{color:var(--text3);width:40%}
+.pos-codigo-table td:last-child{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.pos-add-big{width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,var(--green2),#15803d);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:'Rajdhani',sans-serif;letter-spacing:.04em;margin-top:10px}
+.pos-add-big:hover{opacity:.9;transform:translateY(-1px)}
+.pos-add-big svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+/* stock pie del detalle */
+.pos-detail-stock-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);margin-bottom:10px}
 
 
 ::-webkit-scrollbar{width:6px;height:6px}
@@ -1491,14 +1579,313 @@ tbody tr:hover td:last-child{background:var(--bg3)}
     <!-- ═══════════════════════════════════════════════════
          VENTA POS
     ═══════════════════════════════════════════════════ -->
-    <div class="page" id="page-venta-pos">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-        <h2 style="font-size:18px;font-weight:600;color:var(--text);margin:0">🛒 Venta al Cliente (POS)</h2>
+    <div class="page" id="page-venta-pos" style="display:none;flex-direction:column;height:calc(100vh - 60px);padding:0;overflow:hidden">
+
+      <!-- Header del POS -->
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg2)">
+        <h2 style="font-size:16px;font-weight:600;color:var(--text);margin:0;display:flex;align-items:center;gap:8px">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--green);fill:none;stroke-width:2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Venta al Cliente (POS)
+        </h2>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" style="font-size:12px;padding:6px 14px" onclick="posVerHistorial()">📋 Historial de ventas</button>
-          <button class="btn btn-danger" style="font-size:12px;padding:6px 14px" onclick="posLimpiarTodo()">🗑 Limpiar todo</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:5px 12px" onclick="posVerHistorial()">📋 Historial</button>
+          <button class="btn btn-danger" style="font-size:11px;padding:5px 12px" onclick="posLimpiarTodo()">🗑 Limpiar</button>
         </div>
       </div>
+
+      <!-- Cuerpo: izquierda + carrito derecha -->
+      <div style="display:flex;flex:1;overflow:hidden">
+
+        <!-- ── PANEL IZQUIERDO: BUSCAR + RESULTADOS ── -->
+        <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;padding:12px 12px 12px 16px">
+          <!-- Buscador -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;flex-shrink:0">
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <div style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 12px">
+                <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:var(--text3);fill:none;stroke-width:2;flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input id="pos-search" type="text" placeholder="Buscar por nombre, código, vehículo..."
+                  style="background:none;border:none;outline:none;color:var(--text);font-size:13px;width:100%;font-family:'Inter',sans-serif;padding:8px 0"
+                  oninput="posBuscar(this.value)">
+                <button onclick="document.getElementById('pos-search').value='';posBuscar('')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:0 4px;font-size:16px">×</button>
+              </div>
+              <select id="pos-filtro-cat" class="form-select" style="width:170px;font-size:12px" onchange="posBuscar(document.getElementById('pos-search').value)">
+                <option value="">Todas las categorías</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);cursor:pointer">
+                <input type="checkbox" id="pos-solo-stock" onchange="posBuscar(document.getElementById('pos-search').value)" style="accent-color:var(--blue)"> Solo con stock
+              </label>
+              <span style="color:var(--border)">|</span>
+              <span id="pos-count" style="font-size:11px;color:var(--text3)">—</span>
+            </div>
+          </div>
+          <!-- Resultados con scroll propio -->
+          <div id="pos-resultados" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;overflow-y:auto;flex:1;padding-right:4px;padding-bottom:8px;align-content:start">
+            <div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Cargando repuestos...</div></div>
+          </div>
+        </div>
+
+        <!-- ── PANEL DERECHO: CARRITO ── -->
+        <div class="pos-cart-outer" id="pos-cart-outer">
+
+          <!-- Header -->
+          <div class="pos-cart-head">
+            <div class="pos-cart-head-title">
+              <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              Carrito
+              <span id="pos-cart-count" style="font-size:11px;color:var(--text3);font-weight:400;font-family:'Inter',sans-serif"></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <button class="pos-cart-clear-btn" id="pos-clear-btn" onclick="posLimpiarCarrito()" style="display:none">Limpiar</button>
+              <span id="badge-pos-items" style="display:none;background:rgba(34,197,94,.15);color:var(--green);font-size:11px;padding:2px 7px;border-radius:8px;font-family:'Inter',sans-serif"></span>
+            </div>
+          </div>
+
+          <!-- Lista de items -->
+          <div class="pos-cart-list" id="pos-cart-items">
+            <div class="pos-cart-empty" id="pos-cart-empty">
+              <div style="font-size:36px;opacity:.5">🛒</div>
+              <div style="font-size:12px;color:var(--text3)">Tu carrito está vacío.<br>Hacé clic en <strong>+ Agregar</strong>.</div>
+            </div>
+          </div>
+
+          <!-- Resumen y cobro -->
+          <div class="pos-summary" id="pos-summary" style="display:none">
+
+            <!-- Totales -->
+            <div style="margin-bottom:8px">
+              <div class="pos-sin-iva-row">
+                <span>Sin IVA</span>
+                <span id="pos-subtotal-siniva">$ 0</span>
+              </div>
+              <div class="pos-desc-row" id="pos-fila-desc">
+                <span style="font-size:11px;color:#f97316" id="pos-desc-label">Con 10% desc.</span>
+                <span id="pos-subtotal-desc" style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#f97316">$ 0</span>
+              </div>
+              <div class="pos-total-row">
+                <span class="pos-total-label">Total a cobrar</span>
+                <span class="pos-total-cant" id="pos-items-qty"></span>
+              </div>
+              <div class="pos-total-precio" id="pos-subtotal">$ 0</div>
+              <!-- Selector de descuento -->
+              <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:4px">
+                <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Desc:</span>
+                <button class="pos-desc-btn active" data-desc="0" onclick="posSetDesc(this)">Sin desc.</button>
+                <button class="pos-desc-btn" data-desc="5" onclick="posSetDesc(this)">5%</button>
+                <button class="pos-desc-btn" data-desc="10" onclick="posSetDesc(this)">10%</button>
+                <button class="pos-desc-btn" data-desc="15" onclick="posSetDesc(this)">15%</button>
+                <button class="pos-desc-btn" data-desc="20" onclick="posSetDesc(this)">20%</button>
+                <button class="pos-desc-btn" data-desc="custom" onclick="posSetDesc(this)">%...</button>
+                <input id="pos-desc-custom" type="number" min="1" max="99" placeholder="%" style="display:none;width:48px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:3px 6px;color:var(--text);font-size:11px;outline:none;font-family:'Inter',sans-serif" oninput="posCalcTotales()">
+              </div>
+            </div>
+
+            <!-- Cliente -->
+            <div class="pos-sum-section">
+              <div class="pos-sum-label">
+                <i class="fas fa-user" style="color:var(--text3)"></i> Cliente
+              </div>
+              <div style="display:flex;gap:5px;margin-bottom:5px">
+                <input id="pos-cli-nombre" type="text" placeholder="Nombre (opcional)" class="form-input" style="font-size:11px;padding:6px 8px">
+                <input id="pos-cli-tel" type="text" placeholder="Tel / WA" class="form-input" style="font-size:11px;padding:6px 8px;width:100px">
+              </div>
+              <div style="display:flex;gap:5px">
+                <input id="pos-cli-empresa" type="text" placeholder="Empresa (opcional)" class="form-input" style="font-size:11px;padding:6px 8px;flex:1">
+                <button onclick="posAbrirNuevoUsuario()" style="background:var(--blue-dim);border:1px solid var(--blue2);color:var(--blue);border-radius:8px;padding:6px 8px;cursor:pointer;font-size:10px;white-space:nowrap;flex-shrink:0">+ Usuario</button>
+              </div>
+            </div>
+
+            <!-- MONTO RECIBIDO (efectivo) -->
+            <div class="pos-sum-section" id="pos-seccion-monto">
+              <div class="pos-sum-label"><i class="fas fa-coins" style="color:#f97316"></i> MONTO RECIBIDO (EFECTIVO)</div>
+              <div class="pos-montos-wrap">
+                <button class="pos-monto-btn" onclick="posSetMonto(500)">$500</button>
+                <button class="pos-monto-btn" onclick="posSetMonto(1000)">$1.000</button>
+                <button class="pos-monto-btn" onclick="posSetMonto(2000)">$2.000</button>
+                <button class="pos-monto-btn" onclick="posSetMonto(10000)">$10.000</button>
+                <button class="pos-monto-btn" onclick="posSetMonto(20000)">$20.000</button>
+              </div>
+              <div class="pos-monto-input-wrap">
+                <input type="number" class="pos-monto-input" id="pos-monto-recibido" placeholder="Ingresá el monto..." oninput="posCalcVuelto()">
+                <button onclick="document.getElementById('pos-monto-recibido').value='';posCalcVuelto()" style="width:26px;height:26px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+              </div>
+              <div id="pos-diferencia-txt" class="pos-diferencia" style="display:none"></div>
+            </div>
+
+            <!-- VUELTO con billetes -->
+            <div class="pos-sum-section" id="pos-vuelto-section" style="display:none">
+              <div class="pos-sum-label"><i class="fas fa-money-bill-wave" style="color:#4ade80"></i> VUELTO A DAR</div>
+              <div class="pos-vuelto-billetes" id="pos-vuelto-billetes"></div>
+            </div>
+
+            <!-- MÉTODO DE PAGO -->
+            <div class="pos-sum-section">
+              <div class="pos-sum-label"><i class="fas fa-credit-card" style="color:var(--text3)"></i> MÉTODO DE PAGO</div>
+              <div class="pos-metodos-grid">
+                <button class="pos-metodo-btn active" id="posm-efectivo" onclick="posSelMetodo('Efectivo',this)">
+                  <i class="fas fa-money-bill-wave"></i><span>Efectivo</span>
+                </button>
+                <button class="pos-metodo-btn" id="posm-tarjeta" onclick="posSelMetodo('Tarjeta',this)">
+                  <i class="fas fa-credit-card"></i><span>Tarjeta</span>
+                </button>
+                <button class="pos-metodo-btn" id="posm-transfer" onclick="posSelMetodo('Transferencia',this)">
+                  <i class="fas fa-arrow-right-arrow-left"></i><span>Transfer.</span>
+                </button>
+                <button class="pos-metodo-btn" id="posm-mp" onclick="posSelMetodo('Mercado Pago',this)">
+                  <i class="fas fa-qrcode"></i><span>MP</span>
+                </button>
+              </div>
+              <!-- Bloque tarjeta -->
+              <div id="pos-bloque-tarjeta" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">💳 Cobro con tarjeta</div>
+                <div id="pos-tarjeta-info" style="font-size:12px;color:var(--text2);line-height:1.7">Cargando...</div>
+                <input id="pos-tarjeta-nro" type="text" placeholder="N° de aprobación / cupón" class="form-input" style="font-size:12px;padding:6px 8px;margin-top:8px">
+              </div>
+              <!-- Bloque transferencia -->
+              <div id="pos-bloque-transferencia" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">🏦 Datos para transferencia</div>
+                <div id="pos-transf-info" style="font-size:12px;color:var(--text2);line-height:1.7">Cargando...</div>
+                <input id="pos-transf-nro" type="text" placeholder="N° de operación (opcional)" class="form-input" style="font-size:12px;padding:6px 8px;margin-top:8px">
+              </div>
+              <!-- Bloque MP -->
+              <div id="pos-bloque-mp" style="display:none;margin-top:8px;background:var(--bg3);border:1px solid rgba(6,182,212,.3);border-radius:10px;padding:14px;text-align:center">
+                <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">📲 Mercado Pago</div>
+                <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">ALIAS MERCADO PAGO</div>
+                <div id="pos-mp-alias" style="font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;color:#06b6d4;margin-bottom:2px;word-break:break-all">—</div>
+                <div id="pos-mp-titular" style="font-size:11px;color:var(--text3);margin-bottom:8px">—</div>
+                <button onclick="posCopiarAlias()" style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.4);color:#06b6d4;border-radius:8px;padding:5px 14px;font-size:11px;cursor:pointer;margin-bottom:10px;font-family:'Inter',sans-serif">📋 Copiar alias</button>
+                <div id="pos-mp-qr-wrap" style="display:none;margin-bottom:8px">
+                  <div style="display:inline-block;padding:6px;background:#fff;border-radius:10px;border:3px solid #fbbf24">
+                    <img id="pos-mp-qr" src="" alt="QR MP" style="width:140px;height:140px;display:block;object-fit:contain">
+                  </div>
+                </div>
+                <input id="pos-mp-nro" type="text" placeholder="N° de operación (opcional)" class="form-input" style="font-size:12px;padding:6px 8px;text-align:left">
+              </div>
+            </div>
+
+            <!-- ENTREGA -->
+            <div class="pos-sum-section">
+              <div class="pos-sum-label"><i class="fas fa-truck" style="color:var(--text3)"></i> ENTREGA</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+                <button class="pos-entrega-btn active" data-entrega="Retira en local" onclick="posSelEntrega(this)">🏪 Local</button>
+                <button class="pos-entrega-btn" data-entrega="Envío a domicilio" onclick="posSelEntrega(this)">🛵 Domicilio</button>
+                <button class="pos-entrega-btn" data-entrega="Encomienda" onclick="posSelEntrega(this)">📦 Encomienda</button>
+              </div>
+            </div>
+
+            <!-- NOTA -->
+            <div style="margin-bottom:8px">
+              <textarea id="pos-nota" placeholder="Nota interna (opcional)..." class="form-textarea" style="font-size:11px;min-height:40px;padding:6px 8px"></textarea>
+            </div>
+
+            <!-- BOTÓN CONFIRMAR -->
+            <button onclick="posConfirmarVenta()" class="pos-btn-checkout">
+              <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              Confirmar venta
+            </button>
+          </div><!-- /pos-summary -->
+
+        </div><!-- /pos-cart-outer -->
+      </div><!-- /flex body -->
+
+      <!-- HISTORIAL -->
+      <div id="pos-historial-wrap" style="display:none;padding:16px;border-top:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h3 style="font-size:14px;font-weight:600;color:var(--text)">📋 Historial de ventas POS</h3>
+          <button onclick="document.getElementById('pos-historial-wrap').style.display='none'" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">✖ Cerrar</button>
+        </div>
+        <div id="pos-historial-items"><div class="loading-wrap"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- PANEL DETALLE PRODUCTO (estilo catálogo) -->
+    <div class="pos-detail-overlay" id="pos-detail-overlay">
+      <div class="pos-detail-backdrop" onclick="posCerrarDetalle()"></div>
+      <div class="pos-detail-panel" id="pos-detail-panel">
+        <div class="pos-detail-header">
+          <button class="pos-detail-close" onclick="posCerrarDetalle()">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div style="flex:1;min-width:0">
+            <div class="pos-detail-cat" id="pos-d-cat"></div>
+            <div class="pos-detail-name" id="pos-d-name">Cargando...</div>
+          </div>
+          <!-- Flecha derecha para cerrar -->
+          <button onclick="posCerrarDetalle()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:0 4px">→</button>
+        </div>
+        <div class="pos-detail-img-wrap" id="pos-d-img-wrap">
+          <div style="font-size:64px;opacity:.4">⚡</div>
+        </div>
+        <div class="pos-galeria-thumbs" id="pos-d-galeria"></div>
+        <div class="pos-detail-body" id="pos-detail-body"></div>
+      </div>
+    </div>
+
+    <!-- MODAL NUEVO USUARIO DESDE POS -->
+    <div class="modal-overlay" id="modal-pos-usuario">
+      <div class="modal" style="max-width:460px">
+        <div class="modal-header">
+          <span class="modal-title">👤 Registrar nuevo usuario</span>
+          <button class="modal-close" onclick="cerrarModalPosUsuario()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nombre completo <span class="req">*</span></label>
+              <input id="pou-nombre" class="form-input" type="text" placeholder="Juan Pérez">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Teléfono</label>
+              <input id="pou-tel" class="form-input" type="text" placeholder="+54 9 351...">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email <span class="req">*</span></label>
+              <input id="pou-email" class="form-input" type="email" placeholder="usuario@email.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Empresa</label>
+              <input id="pou-empresa" class="form-input" type="text" placeholder="Taller / Empresa">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contraseña provisoria <span class="req">*</span></label>
+            <div style="display:flex;gap:8px">
+              <input id="pou-pass" class="form-input" type="text" placeholder="Mínimo 6 caracteres">
+              <button onclick="posGenerarPass()" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:0 12px;cursor:pointer;font-size:11px;white-space:nowrap">Generar</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rol</label>
+            <select id="pou-rol" class="form-select"><option value="cliente">Cliente</option><option value="admin">Admin</option></select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="cerrarModalPosUsuario()">Cancelar</button>
+          <button class="btn btn-primary" onclick="posCrearUsuario()">✅ Crear usuario</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL TICKET VENTA -->
+    <div class="modal-overlay" id="modal-pos-ticket">
+      <div class="modal" style="max-width:480px">
+        <div class="modal-header">
+          <span class="modal-title">🧾 Venta confirmada</span>
+          <button class="modal-close" onclick="cerrarModalTicket()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="modal-body" id="pos-ticket-body"></div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="posImprimirTicket()">🖨 Imprimir</button>
+          <button class="btn btn-primary" onclick="cerrarModalTicket()">✔ Listo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PEDIDOS ────────────────────────────────────── -->
+    <div class="page" id="page-pedidos">
 
       <div style="display:grid;grid-template-columns:1fr 380px;gap:14px;align-items:start">
 
@@ -1533,224 +1920,6 @@ tbody tr:hover td:last-child{background:var(--bg3)}
           </div>
         </div>
 
-        <!-- ── PANEL DERECHO: CARRITO ── -->
-        <div style="position:sticky;top:0;max-height:calc(100vh - 130px);overflow-y:auto" class="pos-cart-panel">
-          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden">
-
-            <!-- Handle drag / toggle móvil -->
-            <div class="pos-cart-toggle" style="display:none;justify-content:center;padding:8px 0;cursor:pointer;border-bottom:1px solid var(--border)" onclick="posToggleCart()">
-              <div style="width:40px;height:4px;border-radius:2px;background:var(--border2)"></div>
-            </div>
-
-            <!-- Header carrito -->
-            <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="posToggleCart()">
-              <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">
-                🛒 Carrito
-                <span id="pos-cart-count" style="background:var(--blue-glow);color:var(--blue);font-size:11px;padding:2px 7px;border-radius:8px;font-family:'Inter',sans-serif">0 ítem</span>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px">
-                <button onclick="event.stopPropagation();posLimpiarCarrito()" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer">Limpiar</button>
-                <span id="pos-cart-chevron" style="font-size:14px;color:var(--text3);transition:transform .2s">▲</span>
-              </div>
-            </div>
-
-            <!-- Cuerpo colapsable del carrito -->
-            <div class="pos-cart-body">
-
-            <!-- Items carrito -->
-            <div id="pos-cart-items" style="max-height:260px;overflow-y:auto;padding:8px 0">
-              <div style="text-align:center;padding:30px 16px;color:var(--text3);font-size:12px">
-                Agregá productos desde la izquierda
-              </div>
-            </div>
-
-            <!-- TOTALES -->
-            <div style="padding:12px 16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg3)">
-              <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-                <span style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Sin IVA</span>
-                <span id="pos-subtotal-siniva" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3)">$ 0</span>
-              </div>
-              <!-- Fila descuento -->
-              <div id="pos-fila-desc" style="display:none;justify-content:space-between;align-items:center;margin-bottom:4px;padding:5px 8px;background:rgba(249,115,22,.08);border-radius:6px;border:1px solid rgba(249,115,22,.25)">
-                <span style="font-size:11px;color:var(--orange)" id="pos-desc-label">Con 10% desc.</span>
-                <span id="pos-subtotal-desc" style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--orange)">$ 0</span>
-              </div>
-              <!-- TOTAL grande -->
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
-                <span style="font-size:14px;font-weight:700;color:var(--text)">TOTAL c/IVA</span>
-                <span id="pos-subtotal" style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--green)">$ 0</span>
-              </div>
-              <!-- Descuento selector -->
-              <div style="margin-top:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Descuento:</span>
-                <button class="pos-desc-btn active" data-desc="0" onclick="posSetDesc(this)">Sin desc.</button>
-                <button class="pos-desc-btn" data-desc="5" onclick="posSetDesc(this)">5%</button>
-                <button class="pos-desc-btn" data-desc="10" onclick="posSetDesc(this)">10%</button>
-                <button class="pos-desc-btn" data-desc="15" onclick="posSetDesc(this)">15%</button>
-                <button class="pos-desc-btn" data-desc="20" onclick="posSetDesc(this)">20%</button>
-                <button class="pos-desc-btn" data-desc="custom" onclick="posSetDesc(this)">%...</button>
-                <input id="pos-desc-custom" type="number" min="1" max="99" placeholder="%" style="display:none;width:52px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;color:var(--text);font-size:12px;outline:none;font-family:'Inter',sans-serif" oninput="posCalcTotales()">
-              </div>
-            </div>
-
-            <!-- Datos del cliente -->
-            <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Cliente</div>
-              <div style="display:flex;gap:6px;margin-bottom:6px">
-                <input id="pos-cli-nombre" type="text" placeholder="Nombre (opcional)" class="form-input" style="font-size:12px;padding:7px 10px">
-                <input id="pos-cli-tel" type="text" placeholder="Tel / WA" class="form-input" style="font-size:12px;padding:7px 10px;width:120px">
-              </div>
-              <div style="display:flex;gap:6px;align-items:center">
-                <input id="pos-cli-empresa" type="text" placeholder="Empresa (opcional)" class="form-input" style="font-size:12px;padding:7px 10px;flex:1">
-                <button onclick="posAbrirNuevoUsuario()" style="background:var(--blue-dim);border:1px solid var(--blue2);color:var(--blue);border-radius:8px;padding:7px 10px;cursor:pointer;font-size:11px;white-space:nowrap">+ Usuario</button>
-              </div>
-            </div>
-
-            <!-- Forma de pago -->
-            <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Forma de pago</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-                <button class="pos-pago-btn active" data-pago="Efectivo" onclick="posSelPago(this)">💵 Efectivo</button>
-                <button class="pos-pago-btn" data-pago="Tarjeta" onclick="posSelPago(this)">💳 Tarjeta</button>
-                <button class="pos-pago-btn" data-pago="Transferencia" onclick="posSelPago(this)">🏦 Transfer.</button>
-                <button class="pos-pago-btn" data-pago="Mercado Pago" onclick="posSelPago(this)">📲 MP</button>
-              </div>
-
-              <!-- ─ EFECTIVO ─ -->
-              <div id="pos-bloque-efectivo">
-                <div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Monto recibido</div>
-                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
-                  <button class="pos-monto-btn" onclick="posSetMonto(500)">$500</button>
-                  <button class="pos-monto-btn" onclick="posSetMonto(1000)">$1.000</button>
-                  <button class="pos-monto-btn" onclick="posSetMonto(2000)">$2.000</button>
-                  <button class="pos-monto-btn" onclick="posSetMonto(5000)">$5.000</button>
-                  <button class="pos-monto-btn" onclick="posSetMonto(10000)">$10.000</button>
-                  <button class="pos-monto-btn" onclick="posSetMonto(20000)">$20.000</button>
-                  <button class="pos-monto-btn" onclick="posSetMonto(50000)">$50.000</button>
-                </div>
-                <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
-                  <input id="pos-monto-recibido" type="number" placeholder="Monto exacto..." class="form-input" style="font-size:14px;padding:8px 10px" oninput="posCalcVuelto()">
-                  <button onclick="posSetMontoExacto()" style="background:var(--green-dim);border:1px solid rgba(34,197,94,.3);color:var(--green);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:11px;white-space:nowrap">= Exacto</button>
-                </div>
-                <!-- VUELTO GRANDE -->
-                <div id="pos-vuelto-wrap" style="display:none;border-radius:12px;border:2px solid var(--orange);overflow:hidden">
-                  <div style="background:rgba(249,115,22,.08);padding:10px 14px">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-end">
-                      <div>
-                        <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Recibido</div>
-                        <div id="pos-recibido-display" style="font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--text2)">$ 0</div>
-                      </div>
-                      <div style="text-align:right">
-                        <div style="font-size:10px;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px" id="pos-vuelto-label">Vuelto a dar</div>
-                        <div id="pos-vuelto" style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--orange);line-height:1">$ 0</div>
-                      </div>
-                    </div>
-                    <!-- Billetes del vuelto -->
-                    <div id="pos-vuelto-billetes" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:10px"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- ─ TARJETA ─ -->
-              <div id="pos-bloque-tarjeta" style="display:none">
-                <div style="background:var(--bg3);border:1px solid rgba(59,130,246,.35);border-radius:10px;padding:14px">
-                  <div style="font-size:10px;color:#60a5fa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-weight:600">💳 Cobro con tarjeta</div>
-                  <div id="pos-tarjeta-info" style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px"></div>
-                  <div style="display:flex;flex-direction:column;gap:8px">
-                    <div>
-                      <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">Tipo de tarjeta</label>
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-                        <button id="pos-tarj-debito-btn" class="pos-pago-btn active" onclick="posSelTipoTarjeta('debito')">💳 Débito</button>
-                        <button id="pos-tarj-credito-btn" class="pos-pago-btn" onclick="posSelTipoTarjeta('credito')">💎 Crédito</button>
-                      </div>
-                    </div>
-                    <div>
-                      <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">Últimos 4 dígitos (opcional)</label>
-                      <input id="pos-tarjeta-digitos" type="number" placeholder="1234" maxlength="4" class="form-input" style="font-size:13px;padding:8px 10px">
-                    </div>
-                    <div>
-                      <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">Banco / Emisor (opcional)</label>
-                      <input id="pos-tarjeta-banco" type="text" placeholder="Ej: Galicia, BBVA..." class="form-input" style="font-size:13px;padding:8px 10px">
-                    </div>
-                    <div>
-                      <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">N° de aprobación / cupón (opcional)</label>
-                      <input id="pos-tarjeta-nro" type="text" placeholder="Ej: 123456" class="form-input" style="font-size:13px;padding:8px 10px">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- ─ TRANSFERENCIA ─ -->
-              <div id="pos-bloque-transferencia" style="display:none">
-                <div style="background:var(--bg3);border:1px solid rgba(168,85,247,.35);border-radius:10px;padding:14px">
-                  <div style="font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-weight:600">🏦 Datos de transferencia</div>
-                  <div id="pos-transf-info" style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px"></div>
-                  <div style="display:flex;flex-direction:column;gap:8px">
-                    <div>
-                      <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">N° de comprobante / referencia</label>
-                      <input id="pos-transf-nro" type="text" placeholder="Ej: 0012345678" class="form-input" style="font-size:13px;padding:8px 10px">
-                    </div>
-                    <div>
-                      <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">Titular que transfirió (opcional)</label>
-                      <input id="pos-transf-titular" type="text" placeholder="Nombre del cliente" class="form-input" style="font-size:13px;padding:8px 10px">
-                    </div>
-                    <div>
-                      <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">Alias / CBU destino (referencia)</label>
-                      <input id="pos-transf-alias" type="text" placeholder="Ej: aguadorada.mp" class="form-input" style="font-size:13px;padding:8px 10px">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- ─ MERCADO PAGO ─ -->
-              <div id="pos-bloque-mp" style="display:none">
-                <div style="background:var(--bg3);border:1px solid rgba(6,182,212,.3);border-radius:10px;padding:16px;text-align:center">
-                  <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">📲 Pago con Mercado Pago</div>
-                  <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">ALIAS MERCADO PAGO</div>
-                  <div id="pos-mp-alias" style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:#06b6d4;margin-bottom:2px;word-break:break-all">—</div>
-                  <div id="pos-mp-titular" style="font-size:12px;color:var(--text3);margin-bottom:10px">—</div>
-                  <button id="pos-mp-copiar-btn" onclick="posCopiarAlias()" style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.4);color:#06b6d4;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;margin-bottom:14px;font-family:'Inter',sans-serif">📋 Copiar alias</button>
-                  <div id="pos-mp-qr-wrap" style="display:none;margin-bottom:10px">
-                    <div style="font-size:10px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">O escaneá el QR con la cámara o app MP</div>
-                    <div style="display:inline-block;padding:8px;background:#fff;border-radius:12px;border:3px solid #fbbf24">
-                      <img id="pos-mp-qr" src="" alt="QR MP" style="width:160px;height:160px;display:block;object-fit:contain">
-                    </div>
-                  </div>
-                  <div style="text-align:left">
-                    <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px">N° de operación (opcional)</label>
-                    <input id="pos-mp-nro" type="text" placeholder="Ej: 12345678901" class="form-input" style="font-size:13px;padding:8px 10px">
-                  </div>
-                </div>
-              </div>
-
-            </div><!-- /forma de pago -->
-
-            <!-- Forma de entrega -->
-            <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Entrega</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-                <button class="pos-entrega-btn active" data-entrega="Retira en local" onclick="posSelEntrega(this)">🏪 Local</button>
-                <button class="pos-entrega-btn" data-entrega="Envío a domicilio" onclick="posSelEntrega(this)">🛵 Domicilio</button>
-                <button class="pos-entrega-btn" data-entrega="Encomienda" onclick="posSelEntrega(this)">📦 Encomienda</button>
-              </div>
-            </div>
-
-            <!-- Nota -->
-            <div style="padding:10px 16px;border-bottom:1px solid var(--border)">
-              <textarea id="pos-nota" placeholder="Nota interna (opcional)..." class="form-textarea" style="font-size:12px;min-height:48px;padding:7px 10px"></textarea>
-            </div>
-
-            <!-- Botón confirmar -->
-            <div style="padding:12px 16px">
-              <button onclick="posConfirmarVenta()" class="btn btn-success" style="width:100%;justify-content:center;font-size:15px;padding:14px;font-weight:700;letter-spacing:.02em">
-                ✅ Confirmar venta
-              </button>
-            </div>
-
-            </div><!-- /pos-cart-body -->
-          </div>
-        </div>
-      </div>
 
       <!-- HISTORIAL DE VENTAS POS (oculto inicialmente) -->
       <div id="pos-historial-wrap" style="display:none;margin-top:20px">
@@ -4993,52 +5162,72 @@ window.abrirEstanterias = function() {
 //  MÓDULO POS — Venta al Cliente
 // ══════════════════════════════════════════════════════
 
-let _posCarrito   = [];          // { repuesto, cantidad }
-let _posReps      = [];          // todos los repuestos (caché)
-let _posPago      = 'Efectivo';
-let _posEntrega   = 'Retira en local';
-let _posSearchTO  = null;
+let _posCarrito  = [];
+let _posReps     = [];
+let _posPago     = 'Efectivo';
+let _posEntrega  = 'Retira en local';
+let _posDescPct  = 0;
+let _posSearchTO = null;
+let _posDatosPago = null;
 
-// ── INIT ─────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────
 window.initPOS = async function() {
-  // Cargar repuestos si no están en caché (usa el mismo _repsAll del admin)
+  const pageEl = document.getElementById('page-venta-pos');
+  if (pageEl) { pageEl.style.display = 'flex'; }
   if (window._repsAll && window._repsAll.length) {
     _posReps = window._repsAll;
   } else {
     const snap = await getDocs(collection(db,'repuestos'));
     _posReps = snap.docs.map(d=>({id:d.id,...d.data()}));
+    window._repsAll = _posReps;
   }
-  // Cargar categorías en select
+  // Cargar logos para el detalle
+  if (!window.logosMarcasVeh) {
+    try {
+      const snL = await getDocs(collection(db,'marcas_vehiculo'));
+      window.logosMarcasVeh = {};
+      snL.docs.forEach(d=>{ if(d.data().logo_url) window.logosMarcasVeh[d.id]=d.data().logo_url; });
+    } catch(e){ window.logosMarcasVeh = {}; }
+  }
+  if (!window.logosMarcasRep) {
+    try {
+      const snR = await getDocs(collection(db,'marcas_repuesto'));
+      window.logosMarcasRep = {};
+      snR.docs.forEach(d=>{ if(d.data().logo_url) window.logosMarcasRep[d.id]=d.data().logo_url; });
+    } catch(e){ window.logosMarcasRep = {}; }
+  }
   const cats = [...new Set(_posReps.map(r=>r.categoria).filter(Boolean))].sort();
   const sel = document.getElementById('pos-filtro-cat');
-  sel.innerHTML = '<option value="">Todas las categorías</option>' +
-    cats.map(c=>`<option value="${c}">${c}</option>`).join('');
-  // Mostrar todos
-  posRenderResultados(_posReps.slice(0,60));
+  if (sel) sel.innerHTML = '<option value="">Todas las categorías</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('');
   document.getElementById('pos-count').textContent = `${_posReps.length} repuestos`;
+  posRenderResultados(_posReps.slice(0,60));
+  posRefreshCarrito();
 };
 
 // ── BUSCAR ────────────────────────────────────────────
 window.posBuscar = function(q) {
   clearTimeout(_posSearchTO);
   _posSearchTO = setTimeout(()=>{
-    const cat      = document.getElementById('pos-filtro-cat').value;
-    const soloStock= document.getElementById('pos-solo-stock').checked;
-    const term     = q.toLowerCase().trim();
+    const cat       = document.getElementById('pos-filtro-cat').value;
+    const soloStock = document.getElementById('pos-solo-stock').checked;
+    const term      = q.toLowerCase().trim();
     let res = _posReps;
-    if (cat)      res = res.filter(r=>r.categoria===cat);
-    if (soloStock)res = res.filter(r=>(r.cant_artic||0)>0);
+    if (cat)       res = res.filter(r=>r.categoria===cat);
+    if (soloStock) res = res.filter(r=>(r.cant_artic||0)>0);
     if (term) {
       res = res.filter(r=>{
-        const hay = [r.titulo_repuesto,r.codigo_repuesto,r.codigo_hard,
-          r.modelo_repuesto,r.arranque,r.categoria,r.marca_vehiculo,r.proveedor]
-          .filter(Boolean).join(' ').toLowerCase();
+        const hay = [r.titulo_repuesto,r.codigo_repuesto,r.codigo_hard,r.modelo_repuesto,
+          r.arranque,r.categoria,r.subcategoria].concat(
+          Array.isArray(r.marcas_vehiculo)?r.marcas_vehiculo:[r.marca_vehiculo]
+        ).concat(
+          Array.isArray(r.marcas_repuesto)?r.marcas_repuesto:[]
+        ).filter(Boolean).join(' ').toLowerCase();
         return term.split(' ').every(t=>hay.includes(t));
       });
     }
     document.getElementById('pos-count').textContent = `${res.length} resultado${res.length!==1?'s':''}`;
     posRenderResultados(res.slice(0,80));
-  }, 200);
+  },200);
 };
 
 // ── RENDER CARDS ──────────────────────────────────────
@@ -5048,39 +5237,40 @@ function posRenderResultados(reps) {
     wrap.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);font-size:13px">Sin resultados</div>';
     return;
   }
-  const noImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"%3E%3Crect fill="%230f1117" width="80" height="80"/%3E%3Ctext x="40" y="48" text-anchor="middle" font-size="28" fill="%234b5563"%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E';
+  const noImg = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 80%22%3E%3Crect fill=%22%230f1117%22 width=%2280%22 height=%2280%22/%3E%3Ctext x=%2240%22 y=%2248%22 text-anchor=%22middle%22 font-size=%2228%22 fill=%22%234b5563%22%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E';
   wrap.innerHTML = reps.map(r=>{
     const stock    = r.cant_artic||0;
     const enCart   = _posCarrito.find(c=>c.repuesto.id===r.id);
     const stockCls = stock>1?'ok':stock===1?'poco':'cero';
     const stockTxt = stock>1?`✅ Stock: ${stock}`:stock===1?'⚠️ Queda 1':'❌ Sin stock';
-    const imgUrl   = (Array.isArray(r.imagenes)&&r.imagenes.length) ? r.imagenes[0] : (r.imagen_url||noImg);
+    const imgUrl   = (Array.isArray(r.imagenes)&&r.imagenes.length)?r.imagenes[0]:(r.imagen_url||noImg);
     const pIva     = r.precio_venta_iva||0;
     const pSin     = r.precio_venta||0;
     const codigo   = r.codigo_repuesto||r.codigo_hard||'';
-    const prov     = r.proveedor ? `${r.proveedor} ` : '';
-    const tipoRep  = r.tipo_repuesto||'';
+    const prov     = r.proveedor||'';
+    const tipoRep  = r.tipo_repuesto||r.tipo||'';
     const condRep  = r.condicion||'';
-    const badgeTipo= tipoRep==='Original'?'original':tipoRep==='Alternativo'?'alternativo':'';
-    const badgeCond= condRep==='Nuevo'?'nuevo':condRep==='Usado'?'usado':condRep==='Reacondicionado'?'reac':'';
-    const marcas   = Array.isArray(r.marca_vehiculo)?r.marca_vehiculo.join(', '):(r.marca_vehiculo||'');
+    const badgeTipo= tipoRep.toLowerCase().includes('original')?'original':tipoRep.toLowerCase().includes('alter')?'alternativo':'';
+    const badgeCond= condRep.toLowerCase().includes('nuevo')?'nuevo':condRep.toLowerCase().includes('usado')?'usado':condRep.toLowerCase().includes('reac')?'reac':'';
+    const marcas   = Array.isArray(r.marcas_vehiculo)?r.marcas_vehiculo.join(', '):(r.marca_vehiculo||'');
     const cats     = [r.categoria, r.subcategoria].filter(Boolean).join(' | ');
-    return `<div class="pos-card${enCart?' en-carrito':''}" id="poscard-${r.id}">
-      <img class="pos-card-img" src="${imgUrl}" loading="lazy" onerror="this.src='${noImg}'" style="cursor:zoom-in" onclick="posVerDetalle('${r.id}')" title="Ver detalles">
+    const codLabel = [prov&&codigo?`${prov} ${codigo}`:codigo].filter(Boolean).join('');
+    return `<div class="pos-card${enCart?' en-carrito':''}" id="poscard-${r.id}" onclick="posAbrirDetalle('${r.id}')">
+      <img class="pos-card-img" src="${imgUrl}" loading="lazy" onerror="this.src='${noImg}'">
       <div class="pos-card-badges">
         ${badgeTipo?`<span class="pos-card-badge ${badgeTipo}">${tipoRep}</span>`:''}
         ${badgeCond?`<span class="pos-card-badge ${badgeCond}">${condRep}</span>`:''}
         <span class="pos-card-stock ${stockCls}" style="margin:0">${stockTxt}</span>
       </div>
-      ${codigo?`<div class="pos-card-codigo">${prov}${codigo}</div>`:''}
-      <div class="pos-card-nombre" style="cursor:pointer" onclick="posVerDetalle('${r.id}')">${r.titulo_repuesto||'Sin nombre'}</div>
+      ${codLabel?`<div class="pos-card-codigo">${codLabel}</div>`:''}
+      <div class="pos-card-nombre">${r.titulo_repuesto||'Sin nombre'}</div>
       ${cats?`<div class="pos-card-cats">${cats}</div>`:''}
       ${marcas?`<div class="pos-card-marca">🚗 ${marcas}</div>`:''}
       <div class="pos-card-precios">
         <div class="pos-card-precio-siniva">Sin IVA: $ ${pSin.toLocaleString('es-AR')}</div>
         <div class="pos-card-precio">$ ${pIva.toLocaleString('es-AR')}</div>
       </div>
-      <button class="pos-add-btn${enCart?' added':''}" onclick="posAgregarAlCarrito('${r.id}')">
+      <button class="pos-add-btn${enCart?' added':''}" onclick="event.stopPropagation();posAgregarAlCarrito('${r.id}')">
         ${enCart?`✅ En carrito (${enCart.cantidad})`:'+ Agregar al carrito'}
       </button>
     </div>`;
@@ -5092,14 +5282,10 @@ window.posAgregarAlCarrito = function(id) {
   const r = _posReps.find(x=>x.id===id);
   if (!r) return;
   const idx = _posCarrito.findIndex(c=>c.repuesto.id===id);
-  if (idx>=0) {
-    _posCarrito[idx].cantidad++;
-  } else {
-    _posCarrito.push({repuesto:r, cantidad:1});
-  }
+  if (idx>=0) _posCarrito[idx].cantidad++;
+  else _posCarrito.push({repuesto:r, cantidad:1});
   posRefreshCarrito();
   posRefreshCard(id);
-  posAutoExpandCart();
 };
 
 window.posCambiarCantidad = function(id, delta) {
@@ -5119,99 +5305,114 @@ window.posQuitarItem = function(id) {
 
 window.posLimpiarCarrito = function() {
   if (!_posCarrito.length) return;
-  if (!confirm('¿Limpiar el carrito?')) return;
   _posCarrito=[];
   posRefreshCarrito();
-  posRenderResultados(document.getElementById('pos-resultados').children.length ? _posReps.slice(0,60) : []);
+  posRenderResultados(_posReps.slice(0,60));
 };
 
 window.posLimpiarTodo = function() {
   if (!confirm('¿Limpiar carrito y formulario completo?')) return;
-  _posCarrito=[];
-  _posDescPct=0;
+  _posCarrito=[]; _posDescPct=0;
   ['pos-cli-nombre','pos-cli-tel','pos-cli-empresa','pos-nota','pos-monto-recibido',
-   'pos-tarjeta-nro','pos-tarjeta-banco','pos-tarjeta-digitos',
-   'pos-transf-nro','pos-transf-titular','pos-transf-alias',
-   'pos-mp-nro','pos-desc-custom'].forEach(id=>{
+   'pos-tarjeta-nro','pos-transf-nro','pos-mp-nro','pos-desc-custom'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
-  document.getElementById('pos-vuelto-wrap').style.display='none';
-  // reset descuento
   document.querySelectorAll('.pos-desc-btn').forEach(b=>b.classList.remove('active'));
-  const defDesc=document.querySelector('.pos-desc-btn[data-desc="0"]');
-  if(defDesc) defDesc.classList.add('active');
-  const cusInp=document.getElementById('pos-desc-custom');
-  if(cusInp) cusInp.style.display='none';
-  document.getElementById('pos-fila-desc').style.display='none';
-  // reset pago
-  document.querySelectorAll('.pos-pago-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelector('.pos-pago-btn[data-pago="Efectivo"]').classList.add('active');
+  const def=document.querySelector('.pos-desc-btn[data-desc="0"]'); if(def) def.classList.add('active');
+  const ci=document.getElementById('pos-desc-custom'); if(ci) ci.style.display='none';
+  document.querySelectorAll('.pos-metodo-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('posm-efectivo')?.classList.add('active');
   _posPago='Efectivo';
-  ['pos-bloque-efectivo','pos-bloque-tarjeta','pos-bloque-transferencia','pos-bloque-mp'].forEach(id=>{
+  ['pos-bloque-tarjeta','pos-bloque-transferencia','pos-bloque-mp'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.style.display='none';
   });
-  document.getElementById('pos-bloque-efectivo').style.display='block';
-  // reset entrega
+  const seM=document.getElementById('pos-seccion-monto'); if(seM) seM.style.display='block';
   document.querySelectorAll('.pos-entrega-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelector('.pos-entrega-btn[data-entrega="Retira en local"]').classList.add('active');
+  document.querySelector('.pos-entrega-btn[data-entrega="Retira en local"]')?.classList.add('active');
   _posEntrega='Retira en local';
   posRefreshCarrito();
   posRenderResultados(_posReps.slice(0,60));
 };
 
 function posRefreshCarrito() {
-  const wrap  = document.getElementById('pos-cart-items');
-  const count = document.getElementById('pos-cart-count');
+  const listEl  = document.getElementById('pos-cart-items');
+  const countEl = document.getElementById('pos-cart-count');
+  const badgeEl = document.getElementById('badge-pos-items');
+  const clearEl = document.getElementById('pos-clear-btn');
+  const summEl  = document.getElementById('pos-summary');
+  const emptyEl = document.getElementById('pos-cart-empty');
   if (!_posCarrito.length) {
-    wrap.innerHTML='<div style="text-align:center;padding:30px 16px;color:var(--text3);font-size:12px">Agregá productos desde la izquierda</div>';
-    count.textContent='0 ítems';
-    const bi = document.getElementById('badge-pos-items');
-    if(bi) bi.style.display='none';
+    if (emptyEl) { emptyEl.style.display='flex'; }
+    if (clearEl) clearEl.style.display='none';
+    if (badgeEl) badgeEl.style.display='none';
+    if (countEl) countEl.textContent='';
+    if (summEl) summEl.style.display='none';
     posCalcTotales();
     return;
   }
+  if (emptyEl) emptyEl.style.display='none';
+  if (clearEl) clearEl.style.display='inline';
+  if (summEl) summEl.style.display='block';
   let totalIva=0, totalSin=0, totalItems=0;
-  wrap.innerHTML = _posCarrito.map(c=>{
-    const r      = c.repuesto;
-    const sub    = (r.precio_venta_iva||0)*c.cantidad;
-    const sinSub = (r.precio_venta||0)*c.cantidad;
-    totalIva += sub; totalSin += sinSub; totalItems += c.cantidad;
-    return `<div class="pos-cart-row">
-      <div style="flex:1;min-width:0">
-        <div class="pos-cart-nombre">${r.titulo_repuesto||'—'}</div>
-        <div class="pos-cart-siniva">Sin IVA: $ ${sinSub.toLocaleString('es-AR')}</div>
+  const noImg='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Crect fill=%22%230f1117%22 width=%2240%22 height=%2240%22/%3E%3Ctext x=%2220%22 y=%2226%22 text-anchor=%22middle%22 font-size=%2216%22 fill=%22%234b5563%22%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E';
+  const itemsHTML = _posCarrito.map(c=>{
+    const r   = c.repuesto;
+    const sub = (r.precio_venta_iva||0)*c.cantidad;
+    const sin = (r.precio_venta||0)*c.cantidad;
+    totalIva+=sub; totalSin+=sin; totalItems+=c.cantidad;
+    const img = (Array.isArray(r.imagenes)&&r.imagenes.length)?r.imagenes[0]:(r.imagen_url||noImg);
+    return `<div class="pos-cart-item" id="pcitem-${r.id}">
+      <div class="pos-cart-item-img"><img src="${img}" onerror="this.src='${noImg}'"></div>
+      <div class="pos-cart-item-info">
+        <div class="pos-cart-item-name">${r.titulo_repuesto||'—'}</div>
+        <div class="pos-cart-item-price">$ ${sub.toLocaleString('es-AR')}</div>
+        <div class="pos-cart-item-siniva">Sin IVA: $ ${sin.toLocaleString('es-AR')}</div>
       </div>
-      <div class="pos-qty-wrap">
-        <button class="pos-qty-btn" onclick="posCambiarCantidad('${r.id}',-1)">−</button>
-        <span class="pos-qty-val">${c.cantidad}</span>
-        <button class="pos-qty-btn" onclick="posCambiarCantidad('${r.id}',1)">+</button>
+      <div class="pos-qty">
+        <button class="pos-qty-btn minus" onclick="posCambiarCantidad('${r.id}',-1)">−</button>
+        <span class="pos-qty-num">${c.cantidad}</span>
+        <button class="pos-qty-btn plus" onclick="posCambiarCantidad('${r.id}',1)">+</button>
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div class="pos-cart-precio">$ ${sub.toLocaleString('es-AR')}</div>
-      </div>
-      <button onclick="posQuitarItem('${r.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:0 2px;font-size:18px;flex-shrink:0;line-height:1">×</button>
+      <button onclick="posQuitarItem('${r.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;padding:0 2px;font-size:16px;flex-shrink:0;line-height:1">×</button>
     </div>`;
   }).join('');
-  const bi = document.getElementById('badge-pos-items');
-  if(bi){ bi.textContent=totalItems; bi.style.display='inline'; }
-  count.textContent = `${_posCarrito.length} ítem${_posCarrito.length!==1?'s':''}`;
+  // Reemplazar solo los items, mantener el empty div
+  if (listEl) {
+    const emptyDiv = listEl.querySelector('#pos-cart-empty');
+    listEl.innerHTML = (emptyDiv ? emptyDiv.outerHTML : '') + itemsHTML;
+    const newEmpty = listEl.querySelector('#pos-cart-empty');
+    if (newEmpty) newEmpty.style.display='none';
+  }
+  if (badgeEl) { badgeEl.textContent=totalItems; badgeEl.style.display='inline'; }
+  if (countEl) countEl.textContent = `· ${_posCarrito.length} ítem${_posCarrito.length!==1?'s':''}`;
+  if (document.getElementById('pos-items-qty'))
+    document.getElementById('pos-items-qty').textContent = totalItems+' producto'+(totalItems!==1?'s':'');
   posCalcTotales();
 }
 
-// ── TOTALES + DESCUENTO ───────────────────────────────
-let _posDescPct = 0;
+function posRefreshCard(id) {
+  const card = document.getElementById('poscard-'+id);
+  if (!card) return;
+  const enCart = _posCarrito.find(c=>c.repuesto.id===id);
+  const btn = card.querySelector('.pos-add-btn');
+  if (btn) {
+    btn.textContent = enCart ? `✅ En carrito (${enCart.cantidad})` : '+ Agregar al carrito';
+    btn.classList.toggle('added', !!enCart);
+  }
+  card.classList.toggle('en-carrito', !!enCart);
+}
 
+// ── TOTALES + DESCUENTO ───────────────────────────────
 window.posSetDesc = function(btn) {
   document.querySelectorAll('.pos-desc-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   const val = btn.dataset.desc;
-  const customInput = document.getElementById('pos-desc-custom');
+  const ci  = document.getElementById('pos-desc-custom');
   if (val==='custom') {
-    customInput.style.display='inline-block';
-    customInput.focus();
-    _posDescPct = parseFloat(customInput.value)||0;
+    if (ci) ci.style.display='inline-block';
+    _posDescPct = parseFloat(ci?.value)||0;
   } else {
-    customInput.style.display='none';
+    if (ci) ci.style.display='none';
     _posDescPct = parseFloat(val)||0;
   }
   posCalcTotales();
@@ -5220,547 +5421,376 @@ window.posSetDesc = function(btn) {
 window.posCalcTotales = function() {
   const totalIva = _posCarrito.reduce((a,c)=>a+(c.repuesto.precio_venta_iva||0)*c.cantidad,0);
   const totalSin = _posCarrito.reduce((a,c)=>a+(c.repuesto.precio_venta||0)*c.cantidad,0);
-  document.getElementById('pos-subtotal-siniva').textContent = '$ '+totalSin.toLocaleString('es-AR');
-  const filaDesc = document.getElementById('pos-fila-desc');
+  const el = id => document.getElementById(id);
+  if (el('pos-subtotal-siniva')) el('pos-subtotal-siniva').textContent = '$ '+totalSin.toLocaleString('es-AR');
+  const filaDesc = el('pos-fila-desc');
   if (_posDescPct>0 && totalIva>0) {
-    const conDesc = totalIva * (1 - _posDescPct/100);
-    filaDesc.style.display='flex';
-    document.getElementById('pos-desc-label').textContent = `Con ${_posDescPct}% desc.`;
-    document.getElementById('pos-subtotal-desc').textContent = '$ '+conDesc.toLocaleString('es-AR');
-    document.getElementById('pos-subtotal').textContent = '$ '+conDesc.toLocaleString('es-AR');
+    const conDesc = Math.round(totalIva*(1-_posDescPct/100));
+    if (filaDesc) filaDesc.style.display='flex';
+    if (el('pos-desc-label')) el('pos-desc-label').textContent = `Con ${_posDescPct}% desc.`;
+    if (el('pos-subtotal-desc')) el('pos-subtotal-desc').textContent = '$ '+conDesc.toLocaleString('es-AR');
+    if (el('pos-subtotal')) el('pos-subtotal').textContent = '$ '+conDesc.toLocaleString('es-AR');
   } else {
-    filaDesc.style.display='none';
-    document.getElementById('pos-subtotal').textContent = '$ '+totalIva.toLocaleString('es-AR');
+    if (filaDesc) filaDesc.style.display='none';
+    if (el('pos-subtotal')) el('pos-subtotal').textContent = '$ '+totalIva.toLocaleString('es-AR');
   }
   posCalcVuelto();
 };
 
-// ── PAGO / ENTREGA ────────────────────────────────────
-window.posSelPago = function(btn) {
-  document.querySelectorAll('.pos-pago-btn').forEach(b=>b.classList.remove('active'));
+// ── MÉTODO DE PAGO ────────────────────────────────────
+window.posSelMetodo = function(pago, btn) {
+  document.querySelectorAll('.pos-metodo-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  _posPago = btn.dataset.pago;
-  document.getElementById('pos-bloque-efectivo').style.display     = _posPago==='Efectivo'?'block':'none';
-  document.getElementById('pos-bloque-tarjeta').style.display      = _posPago==='Tarjeta'?'block':'none';
-  document.getElementById('pos-bloque-transferencia').style.display= _posPago==='Transferencia'?'block':'none';
-  document.getElementById('pos-bloque-mp').style.display           = _posPago==='Mercado Pago'?'block':'none';
-  if(_posPago!=='Efectivo') document.getElementById('pos-vuelto-wrap').style.display='none';
-  if(_posPago==='Tarjeta'||_posPago==='Transferencia'||_posPago==='Mercado Pago') posCargarDatosPago();
+  _posPago = pago;
+  const seM = document.getElementById('pos-seccion-monto');
+  if (seM) seM.style.display = pago==='Efectivo' ? 'block' : 'none';
+  ['pos-bloque-tarjeta','pos-bloque-transferencia','pos-bloque-mp'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.style.display='none';
+  });
+  if (pago==='Tarjeta')          { document.getElementById('pos-bloque-tarjeta').style.display='block'; posCargarDatosPago(); }
+  if (pago==='Transferencia')    { document.getElementById('pos-bloque-transferencia').style.display='block'; posCargarDatosPago(); }
+  if (pago==='Mercado Pago')     { document.getElementById('pos-bloque-mp').style.display='block'; posCargarDatosPago(); }
+  if (pago!=='Efectivo') {
+    const vs = document.getElementById('pos-vuelto-section'); if(vs) vs.style.display='none';
+    const dt = document.getElementById('pos-diferencia-txt'); if(dt) { dt.style.display='none'; }
+  }
 };
 
+// ── DATOS PAGO ────────────────────────────────────────
+async function posCargarDatosPago() {
+  if (_posDatosPago) { posAplicarDatosPago(); return; }
+  try { const s=await getDoc(doc(db,'configuracion','pago')); _posDatosPago=s.exists()?s.data():{}; }
+  catch(e){ _posDatosPago={}; }
+  posAplicarDatosPago();
+}
+
+function posAplicarDatosPago() {
+  const d = _posDatosPago||{};
+  const ti = document.getElementById('pos-tarjeta-info');
+  if (ti) ti.innerHTML = `<div><span style="color:var(--text3);font-size:10px">Titular:</span> <strong>${d.titular||'—'}</strong></div><div><span style="color:var(--text3);font-size:10px">Banco:</span> ${d.banco||'—'}</div>`;
+  const tr = document.getElementById('pos-transf-info');
+  if (tr) tr.innerHTML = `<div><span style="color:var(--text3);font-size:10px">Titular:</span> <strong>${d.titular||'—'}</strong></div><div><span style="color:var(--text3);font-size:10px">Banco:</span> ${d.banco||'—'}</div><div><span style="color:var(--text3);font-size:10px">Alias:</span> <strong style="font-family:monospace;color:var(--blue)">${d.alias||d.mp_alias||'—'}</strong></div><div><span style="color:var(--text3);font-size:10px">CBU/CVU:</span> <span style="font-family:monospace;font-size:11px">${d.cbu||'—'}</span></div>`;
+  const al=document.getElementById('pos-mp-alias'), tt=document.getElementById('pos-mp-titular');
+  const qw=document.getElementById('pos-mp-qr-wrap'), qi=document.getElementById('pos-mp-qr');
+  if(al) al.textContent = d.mp_alias||d.alias||'Sin configurar';
+  if(tt) tt.textContent = d.mp_titular||d.titular||'';
+  if(qw&&qi){ const q=d.mp_qr_url||d.qr_url||''; if(q){qi.src=q;qw.style.display='block';} else qw.style.display='none'; }
+}
+
+window.posCopiarAlias = function() {
+  const a = document.getElementById('pos-mp-alias')?.textContent||'';
+  if (!a||a==='Sin configurar') { toast('No hay alias configurado','error'); return; }
+  navigator.clipboard.writeText(a).then(()=>toast('Alias copiado: '+a,'success')).catch(()=>toast('No se pudo copiar','error'));
+};
+
+// ── ENTREGA ───────────────────────────────────────────
 window.posSelEntrega = function(btn) {
   document.querySelectorAll('.pos-entrega-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   _posEntrega = btn.dataset.entrega;
 };
 
-// ── DATOS DE PAGO (tarjeta / transfer / MP) ───────────
-let _posDatosPago = null;
-async function posCargarDatosPago() {
-  if (_posDatosPago) { posAplicarDatosPago(); return; }
-  try {
-    const snap = await getDoc(doc(db,'configuracion','pago'));
-    _posDatosPago = snap.exists() ? snap.data() : {};
-  } catch(e){ _posDatosPago = {}; }
-  posAplicarDatosPago();
-}
-function posAplicarDatosPago() {
-  const d = _posDatosPago||{};
-  // Tarjeta
-  const tarjEl = document.getElementById('pos-tarjeta-info');
-  if (tarjEl) {
-    tarjEl.innerHTML = `
-      <div style="margin-bottom:4px"><span style="color:var(--text3);font-size:11px">Titular:</span> <strong>${d.titular||'—'}</strong></div>
-      <div style="margin-bottom:4px"><span style="color:var(--text3);font-size:11px">Banco:</span> ${d.banco||'—'}</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:6px">Pasar tarjeta por posnet y anotar N° de aprobación abajo.</div>`;
-  }
-  // Transferencia
-  const trEl = document.getElementById('pos-transf-info');
-  if (trEl) {
-    trEl.innerHTML = `
-      <div style="margin-bottom:5px"><span style="color:var(--text3);font-size:11px">Titular:</span> <strong>${d.titular||'—'}</strong></div>
-      <div style="margin-bottom:5px"><span style="color:var(--text3);font-size:11px">Banco:</span> ${d.banco||'—'}</div>
-      <div style="margin-bottom:5px"><span style="color:var(--text3);font-size:11px">Alias:</span> <strong style="font-family:monospace;color:var(--blue)">${d.alias||d.mp_alias||'—'}</strong></div>
-      <div><span style="color:var(--text3);font-size:11px">CBU/CVU:</span> <span style="font-family:monospace;font-size:12px">${d.cbu||'—'}</span></div>`;
-  }
-  // Mercado Pago
-  const mpAlias   = d.mp_alias||d.alias||'';
-  const mpTitular = d.mp_titular||d.titular||'';
-  const mpQr      = d.mp_qr_url||d.qr_url||'';
-  const aliasEl   = document.getElementById('pos-mp-alias');
-  const titEl     = document.getElementById('pos-mp-titular');
-  const qrWrap    = document.getElementById('pos-mp-qr-wrap');
-  const qrImg     = document.getElementById('pos-mp-qr');
-  if (aliasEl) aliasEl.textContent = mpAlias||'Sin configurar';
-  if (titEl)   titEl.textContent   = mpTitular||'';
-  if (qrWrap && qrImg) {
-    if (mpQr) { qrImg.src=mpQr; qrWrap.style.display='block'; }
-    else        qrWrap.style.display='none';
-  }
-}
-
-window.posCopiarAlias = function() {
-  const alias = document.getElementById('pos-mp-alias')?.textContent||'';
-  if (!alias || alias==='Sin configurar') { toast('No hay alias configurado','error'); return; }
-  navigator.clipboard.writeText(alias).then(()=>toast('Alias copiado: '+alias,'success')).catch(()=>toast('No se pudo copiar','error'));
-};
-
-// ── MONTO / VUELTO ────────────────────────────────────
+// ── MONTO / VUELTO con billetes ───────────────────────
 window.posSetMonto = function(m) {
-  const totalFinal = posGetTotalFinal();
+  const total = posGetTotalFinal();
   const actual = parseFloat(document.getElementById('pos-monto-recibido').value)||0;
-  const nuevo  = actual < totalFinal && actual > 0 ? actual + m : m;
+  const nuevo = actual < total && actual > 0 ? actual + m : m;
   document.getElementById('pos-monto-recibido').value = nuevo;
   posCalcVuelto();
 };
 
-window.posSetMontoExacto = function() {
-  document.getElementById('pos-monto-recibido').value = posGetTotalFinal();
-  posCalcVuelto();
-};
-
 function posGetTotalFinal() {
-  const totalIva = _posCarrito.reduce((a,c)=>a+(c.repuesto.precio_venta_iva||0)*c.cantidad,0);
-  return _posDescPct>0 ? totalIva*(1-_posDescPct/100) : totalIva;
+  const t = _posCarrito.reduce((a,c)=>a+(c.repuesto.precio_venta_iva||0)*c.cantidad,0);
+  return _posDescPct>0 ? Math.round(t*(1-_posDescPct/100)) : t;
 }
 
 window.posCalcVuelto = function() {
-  if (_posPago!=='Efectivo') return;
   const total    = posGetTotalFinal();
-  const recibido = parseFloat(document.getElementById('pos-monto-recibido').value)||0;
-  const wrap     = document.getElementById('pos-vuelto-wrap');
-  if (!total || !recibido) { wrap.style.display='none'; return; }
-  wrap.style.display='block';
-  const vuelto = recibido - total;
-  document.getElementById('pos-recibido-display').textContent = '$ '+recibido.toLocaleString('es-AR');
-  const el    = document.getElementById('pos-vuelto');
-  const label = document.getElementById('pos-vuelto-label');
-  el.textContent = '$ '+Math.abs(vuelto).toLocaleString('es-AR');
-  const billetesEl = document.getElementById('pos-vuelto-billetes');
-  if (vuelto<0) {
-    el.style.color='var(--red)';
-    wrap.style.borderColor='var(--red)';
-    if(label) label.textContent='Falta abonar';
-    if(billetesEl) billetesEl.innerHTML='';
-  } else {
-    el.style.color='var(--orange,#f97316)';
-    wrap.style.borderColor='var(--orange,#f97316)';
-    if(label) label.textContent='Vuelto a dar';
-    if(billetesEl) billetesEl.innerHTML = posRenderBilletes(Math.round(vuelto));
+  const rec      = parseFloat(document.getElementById('pos-monto-recibido')?.value)||0;
+  const difEl    = document.getElementById('pos-diferencia-txt');
+  const vueltoS  = document.getElementById('pos-vuelto-section');
+  const vueltoB  = document.getElementById('pos-vuelto-billetes');
+  if (!total || !rec) {
+    if (difEl) difEl.style.display='none';
+    if (vueltoS) vueltoS.style.display='none';
+    return;
   }
-};
-
-// Devuelve HTML con billetes/monedas para representar el vuelto
-function posRenderBilletes(monto) {
-  const denominaciones = [10000,5000,2000,1000,500,200,100,50,10];
-  let resto = monto;
-  let html = '';
-  for (const d of denominaciones) {
-    const cant = Math.floor(resto / d);
-    if (cant > 0) {
-      const esBillete = d >= 100;
-      html += `<div style="display:inline-flex;align-items:center;gap:3px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.35);border-radius:7px;padding:4px 8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:#f97316;font-weight:600">
-        <span style="font-size:10px;opacity:.7">${esBillete?'💵':'🪙'}</span>
-        <span>$${d>=1000?(d/1000)+'k':d}</span>
-        <span style="background:rgba(249,115,22,.2);border-radius:4px;padding:1px 5px;font-size:11px">×${cant}</span>
-      </div>`;
-      resto -= cant * d;
+  const diff = rec - total;
+  if (difEl) {
+    difEl.style.display='block';
+    if (diff < 0) {
+      difEl.className='pos-diferencia faltan';
+      difEl.textContent = `Faltan $ ${Math.abs(diff).toLocaleString('es-AR')}`;
+    } else {
+      difEl.className='pos-diferencia sobra';
+      difEl.textContent = `Vuelto: $ ${diff.toLocaleString('es-AR')}`;
     }
   }
-  return html || '';
-}
+  if (diff > 0 && vueltoS && vueltoB) {
+    vueltoS.style.display='block';
+    // Calcular billetes
+    const billetes = [50000,20000,10000,5000,2000,1000,500,200,100];
+    let resto = diff;
+    let html = '';
+    for (const b of billetes) {
+      const cant = Math.floor(resto/b);
+      if (cant>0) {
+        html += `<span class="pos-billete">$${b.toLocaleString('es-AR')} ×${cant}</span>`;
+        resto -= b*cant;
+      }
+    }
+    vueltoB.innerHTML = html;
+  } else if (vueltoS) {
+    vueltoS.style.display='none';
+  }
+};
 
 // ── CONFIRMAR VENTA ────────────────────────────────────
-window.posSelTipoTarjeta = function(tipo) {
-  const db = document.getElementById('pos-tarj-debito-btn');
-  const cr = document.getElementById('pos-tarj-credito-btn');
-  if (db) db.classList.toggle('active', tipo==='debito');
-  if (cr) cr.classList.toggle('active', tipo==='credito');
-  window._posTipoTarjeta = tipo;
-};
-window._posTipoTarjeta = 'debito';
-
 window.posConfirmarVenta = async function() {
   if (!_posCarrito.length) { toast('Agregá al menos un producto','error'); return; }
   const totalIva   = _posCarrito.reduce((a,c)=>a+(c.repuesto.precio_venta_iva||0)*c.cantidad,0);
   const totalSin   = _posCarrito.reduce((a,c)=>a+(c.repuesto.precio_venta||0)*c.cantidad,0);
   const totalFinal = posGetTotalFinal();
-  const recibido   = parseFloat(document.getElementById('pos-monto-recibido').value)||0;
-  const nombre     = document.getElementById('pos-cli-nombre').value.trim();
-  const tel        = document.getElementById('pos-cli-tel').value.trim();
-  const empresa    = document.getElementById('pos-cli-empresa').value.trim();
-  const nota       = document.getElementById('pos-nota').value.trim();
-  const nroOp = _posPago==='Tarjeta'
-    ? (document.getElementById('pos-tarjeta-nro')||{value:''}).value.trim()
-    : _posPago==='Transferencia'
-      ? (document.getElementById('pos-transf-nro')||{value:''}).value.trim()
-      : (document.getElementById('pos-mp-nro')||{value:''}).value.trim();
-  const tipoTarjeta = _posPago==='Tarjeta' ? (window._posTipoTarjeta||'debito') : null;
-  const tarjBanco   = _posPago==='Tarjeta' ? (document.getElementById('pos-tarjeta-banco')||{value:''}).value.trim() : null;
-  const tarjDigitos = _posPago==='Tarjeta' ? (document.getElementById('pos-tarjeta-digitos')||{value:''}).value.trim() : null;
-  const transfTitular = _posPago==='Transferencia' ? (document.getElementById('pos-transf-titular')||{value:''}).value.trim() : null;
-  const transfAlias   = _posPago==='Transferencia' ? (document.getElementById('pos-transf-alias')||{value:''}).value.trim() : null;
-  const ok = confirm(`Confirmar venta de $ ${totalFinal.toLocaleString('es-AR')}${_posDescPct>0?' (con '+_posDescPct+'% desc.)':''} a ${nombre||'cliente sin nombre'}?`);
-  if (!ok) return;
+  const recibido   = parseFloat(document.getElementById('pos-monto-recibido')?.value)||0;
+  const nombre     = document.getElementById('pos-cli-nombre')?.value.trim()||'';
+  const tel        = document.getElementById('pos-cli-tel')?.value.trim()||'';
+  const empresa    = document.getElementById('pos-cli-empresa')?.value.trim()||'';
+  const nota       = document.getElementById('pos-nota')?.value.trim()||'';
+  const nroOp      = document.getElementById('pos-tarjeta-nro')?.value.trim()
+                  || document.getElementById('pos-transf-nro')?.value.trim()
+                  || document.getElementById('pos-mp-nro')?.value.trim() || '';
+  if (!confirm(`Confirmar venta de $ ${totalFinal.toLocaleString('es-AR')}${_posDescPct>0?' (con '+_posDescPct+'% desc.)':''} a ${nombre||'cliente sin nombre'}?`)) return;
   try {
     const venta = {
-      tipo: 'pos',
+      tipo:'pos',
       items: _posCarrito.map(c=>({
-        id:          c.repuesto.id,
-        nombre:      c.repuesto.titulo_repuesto||'—',
-        codigo:      c.repuesto.codigo_repuesto||c.repuesto.codigo_hard||'',
-        cantidad:    c.cantidad,
-        precio_iva:  c.repuesto.precio_venta_iva||0,
-        precio_sin:  c.repuesto.precio_venta||0,
+        id:c.repuesto.id, nombre:c.repuesto.titulo_repuesto||'—',
+        codigo:c.repuesto.codigo_repuesto||c.repuesto.codigo_hard||'',
+        cantidad:c.cantidad,
+        precio_iva:c.repuesto.precio_venta_iva||0, precio_sin:c.repuesto.precio_venta||0,
         subtotal_iva:(c.repuesto.precio_venta_iva||0)*c.cantidad,
         subtotal_sin:(c.repuesto.precio_venta||0)*c.cantidad,
+        imagen: (Array.isArray(c.repuesto.imagenes)&&c.repuesto.imagenes.length)?c.repuesto.imagenes[0]:(c.repuesto.imagen_url||''),
       })),
-      total_iva_bruto: totalIva,
-      total_sin_iva:   totalSin,
-      descuento_pct:   _posDescPct||null,
-      total_final:     totalFinal,
-      forma_pago:      _posPago,
-      nro_operacion:   nroOp||null,
-      tipo_tarjeta:    tipoTarjeta||null,
-      tarjeta_banco:   tarjBanco||null,
-      tarjeta_digitos: tarjDigitos||null,
-      transf_titular:  transfTitular||null,
-      transf_alias:    transfAlias||null,
-      forma_entrega:   _posEntrega,
-      monto_recibido:  recibido||null,
-      vuelto:          recibido ? recibido-totalFinal : null,
-      cliente_nombre:  nombre||null,
-      cliente_tel:     tel||null,
-      cliente_empresa: empresa||null,
-      nota:            nota||null,
-      creado_en:       serverTimestamp(),
-      vendedor_uid:    auth.currentUser?.uid||null,
+      total_iva_bruto:totalIva, total_sin_iva:totalSin,
+      descuento_pct:_posDescPct||null, total_final:totalFinal,
+      forma_pago:_posPago, nro_operacion:nroOp||null,
+      forma_entrega:_posEntrega,
+      monto_recibido:recibido||null, vuelto:recibido?recibido-totalFinal:null,
+      cliente_nombre:nombre||null, cliente_tel:tel||null, cliente_empresa:empresa||null,
+      nota:nota||null,
+      creado_en:serverTimestamp(), vendedor_uid:auth.currentUser?.uid||null,
     };
     const docRef = await addDoc(collection(db,'ventas_pos'), venta);
-
-    // Descontar stock de cada repuesto
     for (const c of _posCarrito) {
-      const rRef   = doc(db,'repuestos',c.repuesto.id);
-      const rSnap  = await getDoc(rRef);
-      if (rSnap.exists()) {
-        const cur = rSnap.data().cant_artic||0;
-        await updateDoc(rRef, { cant_artic: Math.max(0, cur - c.cantidad) });
-      }
+      try {
+        const rSnap = await getDoc(doc(db,'repuestos',c.repuesto.id));
+        if (rSnap.exists()) await updateDoc(doc(db,'repuestos',c.repuesto.id),{cant_artic:Math.max(0,(rSnap.data().cant_artic||0)-c.cantidad)});
+      } catch(e){}
     }
-
-    // Mostrar ticket
+    // Actualizar cache
+    venta.items.forEach(it=>{
+      const r=window._repsAll?.find(x=>x.id===it.id);
+      if(r) r.cant_artic=Math.max(0,(r.cant_artic||0)-it.cantidad);
+    });
+    _posReps = window._repsAll||_posReps;
     posMostrarTicket(docRef.id, venta);
-
-    // Limpiar carrito
     _posCarrito=[];
     posRefreshCarrito();
     posRenderResultados(_posReps.slice(0,60));
     document.getElementById('pos-monto-recibido').value='';
-    document.getElementById('pos-vuelto-wrap').style.display='none';
-
-    // Actualizar caché local de stock
-    if (window._repsAll) {
-      venta.items.forEach(it=>{
-        const r = window._repsAll.find(x=>x.id===it.id);
-        if (r) r.cant_artic = Math.max(0,(r.cant_artic||0)-it.cantidad);
-      });
-      _posReps = window._repsAll;
-    }
+    const vs=document.getElementById('pos-vuelto-section'); if(vs) vs.style.display='none';
+    const dt=document.getElementById('pos-diferencia-txt'); if(dt) dt.style.display='none';
     toast('✅ Venta confirmada y stock descontado','success');
   } catch(e){ toast('Error: '+e.message,'error'); }
 };
 
 // ── TICKET ────────────────────────────────────────────
-function posGenerarHTMLTicket(num, fecha, v) {
-  const filasHTML = v.items.map(it=>`
-    <tr>
-      <td style="padding:6px 0;border-bottom:1px dashed #ddd;font-size:13px">${it.nombre}${it.cantidad>1?'':''}</td>
-      <td style="padding:6px 8px;border-bottom:1px dashed #ddd;text-align:center;font-size:13px;color:#555">x${it.cantidad}</td>
-      <td style="padding:6px 0;border-bottom:1px dashed #ddd;text-align:right;font-size:13px;font-weight:600">$${it.subtotal_iva.toLocaleString('es-AR')}</td>
-    </tr>`).join('');
-  const vueltoRow = (v.vuelto!==null&&v.vuelto>0)
-    ? `<tr><td style="font-size:12px;color:#22a35a;padding:3px 0">Vuelto:</td><td colspan="2" style="text-align:right;font-size:12px;color:#22a35a;font-weight:600">$${v.vuelto.toLocaleString('es-AR')}</td></tr>` : '';
-  const descRow = (v.descuento_pct>0)
-    ? `<tr><td style="font-size:12px;color:#f97316;padding:3px 0">Descuento ${v.descuento_pct}%:</td><td colspan="2" style="text-align:right;font-size:12px;color:#f97316">-$${Math.round((v.total_iva_bruto-v.total_final)).toLocaleString('es-AR')}</td></tr>` : '';
-  return `
-    <div style="font-family:'Courier New',monospace;max-width:380px;margin:0 auto;padding:24px 20px;border:2px dashed #aaa;border-radius:4px;background:#fff;color:#111">
-      <div style="text-align:center;margin-bottom:16px">
-        <div style="font-family:Arial,sans-serif;font-size:18px;font-weight:900;letter-spacing:2px;text-transform:uppercase">REPUESTOS ELECTROMECÁNICOS</div>
-        <div style="font-size:11px;color:#555;margin-top:2px">Electromecánica Automotor</div>
-        <div style="border:1px solid #111;border-radius:3px;display:inline-block;padding:3px 16px;margin:10px 0;font-size:13px;font-weight:700;letter-spacing:1px">□ TICKET DE VENTA</div>
-        <div style="font-size:10px;color:#666;font-style:italic">NO VÁLIDO COMO FACTURA</div>
-      </div>
-      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px">
-        <tr><td style="padding:2px 0;color:#444">Ticket N°:</td><td style="text-align:right;font-weight:700">${num}</td></tr>
-        <tr><td style="padding:2px 0;color:#444">Fecha:</td><td style="text-align:right">${fecha}</td></tr>
-        ${v.cliente_nombre?`<tr><td style="padding:2px 0;color:#444">Cliente:</td><td style="text-align:right">${v.cliente_nombre}${v.cliente_tel?' · '+v.cliente_tel:''}</td></tr>`:''}
-        ${v.cliente_empresa?`<tr><td style="padding:2px 0;color:#444">Empresa:</td><td style="text-align:right">${v.cliente_empresa}</td></tr>`:''}
-      </table>
-      <div style="border-top:2px solid #111;border-bottom:2px solid #111;padding:2px 0;margin-bottom:10px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 0">□ PRODUCTOS</div>
-      </div>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
-        <tbody>${filasHTML}</tbody>
-      </table>
-      <div style="border-top:2px solid #111;padding-top:8px">
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <tr><td style="padding:2px 0;color:#444">Sin IVA:</td><td style="text-align:right">$${v.total_sin_iva.toLocaleString('es-AR')}</td></tr>
-          ${descRow}
-          ${v.monto_recibido?`<tr><td style="padding:2px 0;color:#444">Recibido:</td><td style="text-align:right">$${v.monto_recibido.toLocaleString('es-AR')}</td></tr>`:''}
-          ${vueltoRow}
-        </table>
-        <div style="background:#111;color:#fff;text-align:center;padding:10px 0;margin:10px 0;border-radius:3px;font-size:16px;font-weight:900;letter-spacing:1px">TOTAL: $${v.total_final.toLocaleString('es-AR')}</div>
-        <div style="text-align:center;font-size:11px;color:#555">□ ${v.forma_pago}${v.tipo_tarjeta?' ('+v.tipo_tarjeta+')':''}${v.tarjeta_banco?' — '+v.tarjeta_banco:''}${v.tarjeta_digitos?' ****'+v.tarjeta_digitos:''}${v.nro_operacion?' · N°: '+v.nro_operacion:''}${v.transf_titular?' — '+v.transf_titular:''}</div>
-        <div style="border-top:1px dashed #aaa;margin-top:14px;padding-top:10px;text-align:center">
-          <div style="font-size:13px;font-weight:700">¡Gracias por su compra!</div>
-          <div style="font-size:11px;color:#555;margin-top:2px">Repuestos Electromecánicos</div>
-          <div style="font-size:10px;color:#aaa;margin-top:4px">Generado: ${new Date().toLocaleString('es-AR')}</div>
-        </div>
-      </div>
-    </div>`;
-}
-
 function posMostrarTicket(id, v) {
   const fecha = new Date().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   const num   = id.slice(-6).toUpperCase();
-  document.getElementById('pos-ticket-body').innerHTML = posGenerarHTMLTicket(num, fecha, v);
+  const tot   = v.total_final || v.total_iva_bruto || 0;
+  const totSin= v.total_sin_iva||0;
+  const filas = (v.items||[]).map(it=>`
+    <tr>
+      <td style="padding:5px 4px;font-size:12px;color:#222;border-bottom:1px solid #eee">${it.nombre||'—'}${it.codigo?`<br><span style="font-size:10px;color:#888;font-family:monospace">${it.codigo}</span>`:''}</td>
+      <td style="padding:5px 4px;text-align:center;font-size:12px;color:#555;border-bottom:1px solid #eee">×${it.cantidad}</td>
+      <td style="padding:5px 4px;text-align:right;font-size:12px;color:#555;font-family:monospace;border-bottom:1px solid #eee">$ ${(it.precio_iva||0).toLocaleString('es-AR')}</td>
+      <td style="padding:5px 4px;text-align:right;font-size:12px;font-weight:700;color:#111;font-family:monospace;border-bottom:1px solid #eee">$ ${(it.subtotal_iva||0).toLocaleString('es-AR')}</td>
+    </tr>`).join('');
+  document.getElementById('pos-ticket-body').innerHTML = `
+    <div style="font-family:'Inter',sans-serif;color:#111">
+      <div style="text-align:center;padding-bottom:12px;border-bottom:2px dashed #ccc;margin-bottom:12px">
+        <div style="font-size:24px;margin-bottom:4px">🔧</div>
+        <div style="font-size:17px;font-weight:800;letter-spacing:.02em">REPUESTOS ELECTROMECÁNICOS</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">Automotor · La Falda, Córdoba</div>
+        <div style="margin-top:8px;background:#f3f4f6;border-radius:6px;padding:3px 12px;display:inline-block">
+          <span style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.08em">Comprobante N°</span>
+          <span style="font-family:monospace;font-size:13px;font-weight:700;color:#111;margin-left:6px">${num}</span>
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:3px">${fecha}</div>
+        <div style="margin-top:6px;font-size:10px;color:#bbb;font-style:italic">⚠ NO VÁLIDO COMO FACTURA</div>
+      </div>
+      ${v.cliente_nombre?`<div style="background:#f8fafc;border-radius:8px;padding:8px 12px;margin-bottom:10px"><div style="font-size:14px;font-weight:600">${v.cliente_nombre}</div>${v.cliente_tel?`<div style="font-size:11px;color:#555;margin-top:1px">📱 ${v.cliente_tel}</div>`:''}${v.cliente_empresa?`<div style="font-size:11px;color:#555">🏢 ${v.cliente_empresa}</div>`:''}</div>`:''}
+      <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
+        <thead><tr style="background:#f3f4f6">
+          <th style="padding:5px 4px;text-align:left;font-size:10px;color:#888;text-transform:uppercase;font-weight:600">Producto</th>
+          <th style="padding:5px 4px;text-align:center;font-size:10px;color:#888;text-transform:uppercase;font-weight:600">Cant</th>
+          <th style="padding:5px 4px;text-align:right;font-size:10px;color:#888;text-transform:uppercase;font-weight:600">P.Unit</th>
+          <th style="padding:5px 4px;text-align:right;font-size:10px;color:#888;text-transform:uppercase;font-weight:600">Subtotal</th>
+        </tr></thead>
+        <tbody>${filas}</tbody>
+      </table>
+      <div style="border-top:2px dashed #ccc;padding-top:10px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:#888">Sin IVA</span><span style="font-size:11px;color:#888;font-family:monospace">$ ${totSin.toLocaleString('es-AR')}</span></div>
+        ${v.descuento_pct?`<div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:#f97316">Descuento ${v.descuento_pct}%</span><span style="font-size:11px;color:#f97316;font-family:monospace">- $ ${((v.total_iva_bruto||0)-tot).toLocaleString('es-AR')}</span></div>`:''}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;padding-top:6px;border-top:2px solid #111">
+          <span style="font-size:15px;font-weight:800">TOTAL</span>
+          <span style="font-size:22px;font-weight:800;font-family:monospace">$ ${tot.toLocaleString('es-AR')}</span>
+        </div>
+        ${v.monto_recibido&&v.forma_pago==='Efectivo'?`<div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:11px;color:#555">Recibido</span><span style="font-size:11px;color:#555;font-family:monospace">$ ${(v.monto_recibido||0).toLocaleString('es-AR')}</span></div>${(v.vuelto||0)>0?`<div style="display:flex;justify-content:space-between;margin-top:3px;background:#fff8f0;border-radius:5px;padding:3px 8px"><span style="font-size:12px;font-weight:700;color:#f97316">Vuelto</span><span style="font-size:14px;font-weight:700;color:#f97316;font-family:monospace">$ ${(v.vuelto||0).toLocaleString('es-AR')}</span></div>`:''}`:''}
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+          <span style="font-size:11px;background:#f3f4f6;border-radius:5px;padding:3px 8px;color:#555">${v.forma_pago==='Efectivo'?'💵':v.forma_pago==='Tarjeta'?'💳':v.forma_pago==='Transferencia'?'🏦':'📲'} ${v.forma_pago||'—'}</span>
+          <span style="font-size:11px;background:#f3f4f6;border-radius:5px;padding:3px 8px;color:#555">${v.forma_entrega==='Retira en local'?'🏪':v.forma_entrega==='Envío a domicilio'?'🛵':'📦'} ${v.forma_entrega||'—'}</span>
+          ${v.nro_operacion?`<span style="font-size:11px;background:#f3f4f6;border-radius:5px;padding:3px 8px;color:#555">Op. N° ${v.nro_operacion}</span>`:''}
+        </div>
+        ${v.nota?`<div style="margin-top:8px;font-size:11px;color:#888;font-style:italic;border-top:1px solid #eee;padding-top:6px">📝 ${v.nota}</div>`:''}
+        <div style="text-align:center;margin-top:14px;padding-top:10px;border-top:1px dashed #ccc">
+          <div style="font-size:11px;color:#bbb">¡Gracias por su compra!</div>
+        </div>
+      </div>
+    </div>`;
   document.getElementById('modal-pos-ticket').classList.add('open');
-  window._posLastTicket = { num, fecha, v };
 }
 
-window.cerrarModalTicket = function() {
-  document.getElementById('modal-pos-ticket').classList.remove('open');
-};
+window.cerrarModalTicket = function() { document.getElementById('modal-pos-ticket').classList.remove('open'); };
 
 window.posImprimirTicket = function() {
-  const { num, fecha, v } = window._posLastTicket || {};
-  if (!v) return;
-  const ticketHTML = posGenerarHTMLTicket(num, fecha, v);
-  const w = window.open('','_blank','width=500,height=780');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket ${num}</title>
-    <style>
-      *{box-sizing:border-box;margin:0;padding:0}
-      body{background:#f5f5f5;display:flex;justify-content:center;padding:20px;font-family:'Courier New',monospace}
-      @media print{body{background:#fff;padding:0}@page{margin:8mm}}
-    </style></head>
-    <body>${ticketHTML}</body>
-    <script>window.onload=function(){setTimeout(()=>window.print(),300);};<\/script></html>`);
+  const body = document.getElementById('pos-ticket-body').innerHTML;
+  const w = window.open('','_blank','width=480,height=700');
+  w.document.write(`<!DOCTYPE html><html><head><title>Ticket</title><style>body{font-family:sans-serif;padding:20px;color:#111}@media print{body{padding:8px}}</style></head><body>${body}</body><script>window.onload=()=>window.print();<\/script></html>`);
   w.document.close();
 };
 
-// ── DETALLE PRODUCTO POS ──────────────────────────────
-let _posDetalleId = null;
-
-window.posVerDetalle = function(id) {
+// ── PANEL DETALLE (igual que catálogo) ────────────────
+window.posAbrirDetalle = function(id) {
   const r = _posReps.find(x=>x.id===id);
   if (!r) return;
-  _posDetalleId = id;
-  const fmt = n => n ? '$ '+Math.round(n).toLocaleString('es-AR') : '—';
-
-  // Título y categoría
-  const cats = [r.categoria, r.subcategoria].filter(Boolean).join(' | ');
-  document.getElementById('pos-det-cats').textContent  = cats||'';
-  document.getElementById('pos-det-titulo').textContent = r.titulo_repuesto||'Sin nombre';
-
-  // ── GALERÍA — idéntica al catálogo ──────────────────────────────
+  document.getElementById('pos-d-cat').textContent  = [r.categoria, r.subcategoria].filter(Boolean).join(' | ');
+  document.getElementById('pos-d-name').textContent = r.titulo_repuesto||'';
+  const imgWrap   = document.getElementById('pos-d-img-wrap');
+  const galeriaEl = document.getElementById('pos-d-galeria');
+  const noImg = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 80%22%3E%3Crect fill=%22%230d1016%22 width=%2280%22 height=%2280%22/%3E%3Ctext x=%2240%22 y=%2248%22 text-anchor=%22middle%22 font-size=%2230%22 fill=%22%234b5563%22%3E%E2%9A%A1%3C/text%3E%3C/svg%3E';
   const todasImgs = [];
-  if (Array.isArray(r.imagenes) && r.imagenes.length) {
-    r.imagenes.forEach(u => { if (u && !todasImgs.includes(u)) todasImgs.push(u); });
-  } else if (r.imagen_url) {
-    todasImgs.push(r.imagen_url);
-  }
-  // Extraer imágenes embebidas en notas (igual al catálogo)
+  if (Array.isArray(r.imagenes)&&r.imagenes.length) r.imagenes.forEach(u=>{if(u&&!todasImgs.includes(u))todasImgs.push(u);});
+  else if (r.imagen_url) todasImgs.push(r.imagen_url);
   if (r.notas) {
-    const matches = [...r.notas.matchAll(/src=["']([^"']+(?:cloudinary|zensa\.com\.br)[^"']+)["']/gi)];
-    matches.forEach(m => { if (m[1] && !todasImgs.includes(m[1])) todasImgs.push(m[1]); });
+    const ms=[...r.notas.matchAll(/src=["']([^"']+(?:cloudinary|zensa\.com\.br)[^"']+)["']/gi)];
+    ms.forEach(m=>{if(m[1]&&!todasImgs.includes(m[1]))todasImgs.push(m[1]);});
   }
-
-  const imgWrap   = document.getElementById('pos-det-img-wrap');
-  const galeriaEl = document.getElementById('pos-det-thumbs');
-
-  const mostrarImg = (url, thumbEl) => {
-    imgWrap.innerHTML = `<img src="${url}" alt="${r.titulo_repuesto||''}" style="width:100%;height:100%;object-fit:contain;padding:8px" onclick="window.open('${url}','_blank')" title="Click para ver en tamaño completo" onerror="this.style.opacity='.4'">`;
-    galeriaEl.querySelectorAll('.pos-det-thumb-item').forEach(t => t.classList.remove('active'));
-    if (thumbEl) thumbEl.classList.add('active');
+  const mostrarImg = (url, th) => {
+    imgWrap.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:contain;padding:8px" onclick="window.open('${url}','_blank')" title="Click para ver en tamaño completo" onerror="this.style.opacity='.4'">`;
+    galeriaEl.querySelectorAll('.pos-galeria-thumb').forEach(t=>t.classList.remove('active'));
+    if (th) th.classList.add('active');
   };
-
-  if (todasImgs.length > 0) {
-    mostrarImg(todasImgs[0], null);
-  } else {
-    imgWrap.innerHTML = '<div class="pos-det-img-placeholder">⚡</div>';
-  }
-
-  // Galería de thumbnails — idéntica al catálogo
-  galeriaEl.innerHTML = '';
-  todasImgs.forEach((url, i) => {
-    const th = document.createElement('div');
-    th.className = 'pos-det-thumb-item' + (i === 0 ? ' active' : '');
-    th.innerHTML = `<img src="${url}" loading="lazy" onerror="this.parentElement.style.display='none'">`;
-    th.onclick = () => mostrarImg(url, th);
+  if (todasImgs.length>0) mostrarImg(todasImgs[0], null);
+  else imgWrap.innerHTML = `<div style="font-size:64px;opacity:.4">⚡</div>`;
+  galeriaEl.innerHTML='';
+  todasImgs.forEach((url,i)=>{
+    const th=document.createElement('div');
+    th.className='pos-galeria-thumb'+(i===0?' active':'');
+    th.innerHTML=`<img src="${url}" loading="lazy" onerror="this.parentElement.style.display='none'">`;
+    th.onclick=()=>mostrarImg(url,th);
     galeriaEl.appendChild(th);
   });
-
-  // ── CÓDIGOS POR PROVEEDOR ────────────────────────────────────────
-  const codigos = (r.codigos_proveedores||[]).filter(c=>c.proveedor&&c.codigo&&c.proveedor.toUpperCase()!=='BOBINAR');
-  const codWrap = document.getElementById('pos-det-codigos-wrap');
-  if (codigos.length) {
-    codWrap.style.display='block';
-    document.getElementById('pos-det-codigos').innerHTML = codigos.map(c=>`<tr><td>${c.proveedor}</td><td>${c.codigo}</td></tr>`).join('');
-  } else { codWrap.style.display='none'; }
-
-  // ── GRID DE CAMPOS (Fabricante, Condición, Tipo, Stock, Forma pago, Entrega) ──
-  const fabs  = (r.fabricantes||[]).filter(Boolean);
-  const stock = r.cant_artic||0;
-  const sc    = stock===0?'':stock===1?'amber':'green';
-  const stockTxt = stock===0 ? 'Sin stock' : stock===1 ? '⚠️ Queda 1' : `✅ ${stock} unidades`;
-  document.getElementById('pos-det-fab').textContent     = fabs.length ? fabs.join(', ') : (r.fabricante_repuesto||r.fabricante||'—');
-  document.getElementById('pos-det-cond').textContent    = r.condicion||'—';
-  const tipoEl = document.getElementById('pos-det-tipo');
-  tipoEl.textContent = r.tipo||'—';
-  tipoEl.className   = 'df-val' + (r.tipo==='ORIGINAL'?' green':'');
-  const stockEl = document.getElementById('pos-det-stock-field');
-  stockEl.textContent = stockTxt;
-  stockEl.className   = 'df-val ' + (stock===0?'':sc);
-  document.getElementById('pos-det-fpago').textContent   = r.forma_pago||'—';
-  document.getElementById('pos-det-entrega').textContent = r.forma_entrega||'—';
-
-  // ── DESCRIPCIÓN ──────────────────────────────────────────────────
-  const descWrap = document.getElementById('pos-det-desc-wrap');
-  if (r.descripcion) { descWrap.style.display='block'; document.getElementById('pos-det-desc').innerHTML = r.descripcion; }
-  else { descWrap.style.display='none'; }
-
-  // ── APLICACIÓN ───────────────────────────────────────────────────
-  const aplicWrap = document.getElementById('pos-det-aplic-wrap');
-  if (r.aplicacion) { aplicWrap.style.display='block'; document.getElementById('pos-det-aplic').textContent = r.aplicacion; }
-  else { aplicWrap.style.display='none'; }
-
-  // ── VEHÍCULOS COMPATIBLES CON LOGOS — idéntico al catálogo ──────
-  const marcas    = Array.isArray(r.marcas_vehiculo) ? r.marcas_vehiculo : (r.marca_vehiculo_1?[r.marca_vehiculo_1]:[]);
-  const marcasWrap = document.getElementById('pos-det-marcas-wrap');
-  if (marcas.length) {
-    marcasWrap.style.display='block';
-    document.getElementById('pos-det-marcas').innerHTML = marcas.map(m=>{
-      const logo = (window._logosMarcasVeh||{})[m];
-      return logo
-        ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:var(--blue2);color:var(--blue)"><img src="${logo}" style="height:36px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
-        : `<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue)">${m}</span>`;
-    }).join('');
-    // Modelos por marca — idéntico al catálogo
-    const modelosHtml = (r.marcas_modelos||[]).filter(mm=>mm.marca&&mm.modelos).length
-      ? `<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">${(r.marcas_modelos).filter(mm=>mm.marca&&mm.modelos).map(mm=>`<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue);display:inline-flex;align-items:center;gap:8px;width:100%;box-sizing:border-box"><strong style="white-space:nowrap">${mm.marca}:</strong><span style="color:var(--text2)">${mm.modelos}</span></span>`).join('')}</div>`
-      : (r.marcas_modelos_texto ? `<div style="margin-top:6px"><span class="compat-tag" style="border-color:var(--blue2);color:var(--blue);width:100%;box-sizing:border-box;display:block">📋 ${r.marcas_modelos_texto}</span></div>` : '');
-    document.getElementById('pos-det-marcas').insertAdjacentHTML('beforeend', modelosHtml);
-  } else {
-    // mostrar "Universal" igual que catálogo
-    marcasWrap.style.display='block';
-    document.getElementById('pos-det-marcas').innerHTML = `<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue)">Universal</span>`;
-  }
-
-  // ── MARCAS DEL REPUESTO CON LOGOS — idéntico al catálogo ────────
-  const marcasRepWrap = document.getElementById('pos-det-marcas-rep-wrap');
-  const mRep = (Array.isArray(r.marcas_repuesto) && r.marcas_repuesto.length) ? r.marcas_repuesto : (r.fabricante_repuesto ? [r.fabricante_repuesto] : []);
-  if (mRep.filter(Boolean).length) {
-    marcasRepWrap.style.display='block';
-    document.getElementById('pos-det-marcas-rep').innerHTML = mRep.filter(Boolean).map(m=>{
-      const logo = (window._logosMarcasRep||{})[m];
-      return logo
-        ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:36px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
-        : `<span class="compat-tag" style="border-color:rgba(99,102,241,.3);color:var(--indigo)">${m}</span>`;
-    }).join('') || '<span style="font-size:13px;color:var(--text3)">—</span>';
-  } else { marcasRepWrap.style.display='none'; }
-
-  // ── PRECIOS — idéntico al catálogo ──────────────────────────────
-  const sinIva  = r.precio_venta     || 0;
-  const conIva  = r.precio_venta_iva || 0;
-  const conDesc = conIva * 0.9;
-  document.getElementById('pos-det-psin').textContent   = fmt(sinIva);
-  document.getElementById('pos-det-piva').textContent   = fmt(conIva);
-  document.getElementById('pos-det-pdesc').textContent  = fmt(conDesc);
-  document.getElementById('pos-det-pahorro').textContent = conIva ? `Ahorrás ${fmt(conIva-conDesc)}` : '';
-  document.getElementById('pos-det-codigo').textContent = r.codigo||'—';
-
-  // ── IMPORTANTE ───────────────────────────────────────────────────
-  const impWrap = document.getElementById('pos-det-imp-wrap');
-  if (r.importante) { impWrap.style.display='block'; document.getElementById('pos-det-imp').textContent = r.importante; }
-  else { impWrap.style.display='none'; }
-
-  // ── NOTAS — igual al catálogo (con sanitizarNotas si existe) ────
-  const notasWrap = document.getElementById('pos-det-notas-wrap');
-  const notasHtml = r.notas_internas || r.notas || '';
-  if (notasHtml) {
-    notasWrap.style.display='block';
-    const san = typeof sanitizarNotas === 'function' ? sanitizarNotas(notasHtml) : notasHtml;
-    document.getElementById('pos-det-notas').innerHTML = san;
-  } else { notasWrap.style.display='none'; }
-
-  // ── BOTÓN AGREGAR — idéntico al catálogo ────────────────────────
-  const enCart = _posCarrito.find(c=>c.repuesto.id===id);
-  const btn = document.getElementById('pos-det-agregar-btn');
-  if (enCart) {
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>✅ En carrito (${enCart.cantidad}) — agregar 1 más`;
-    btn.classList.add('en-carrito');
-  } else {
-    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Agregar al carrito`;
-    btn.classList.remove('en-carrito');
-  }
-
-  // Mostrar overlay
-  document.getElementById('modal-pos-detalle').style.display='flex';
+  const stock    = r.cant_artic||0;
+  const sinIva   = r.precio_venta||0;
+  const conIva   = r.precio_venta_iva||0;
+  const conDesc  = Math.round(conIva*0.9);
+  const codigos  = (r.codigos_proveedores||[]).filter(c=>(c.proveedor||'').toUpperCase()!=='BOBINAR');
+  const marcasV  = Array.isArray(r.marcas_vehiculo)?r.marcas_vehiculo:(r.marca_vehiculo?[r.marca_vehiculo]:[]);
+  const marcasR  = Array.isArray(r.marcas_repuesto)?r.marcas_repuesto:(r.fabricante_repuesto?[r.fabricante_repuesto]:[]);
+  const enCart   = !!_posCarrito.find(c=>c.repuesto.id===r.id);
+  const fmt = n => '$ '+n.toLocaleString('es-AR');
+  document.getElementById('pos-detail-body').innerHTML = `
+    ${codigos.length?`<div class="pos-detail-section-title">Códigos por proveedor</div>
+    <table class="pos-codigo-table">${codigos.map(c=>`<tr><td>${c.proveedor}</td><td>${c.codigo}</td></tr>`).join('')}</table>`:''}
+    <div class="pos-detail-grid">
+      <div class="pos-detail-field"><div class="pos-df-label">Fabricante</div><div class="pos-df-val">${r.fabricante_repuesto||'—'}</div></div>
+      <div class="pos-detail-field"><div class="pos-df-label">Condición</div><div class="pos-df-val orange">${r.condicion||'—'}</div></div>
+      <div class="pos-detail-field"><div class="pos-df-label">Tipo</div><div class="pos-df-val ${(r.tipo_repuesto||r.tipo||'').toLowerCase().includes('original')?'green':''}">${r.tipo_repuesto||r.tipo||'—'}</div></div>
+      <div class="pos-detail-field"><div class="pos-df-label">Stock</div><div class="pos-df-val ${stock===0?'':stock===1?'orange':'green'}">${stock===0?'❌ Sin stock':stock===1?'⚠️ Queda 1':'✅ '+stock+' unidad'+(stock!==1?'es':'')}</div></div>
+      <div class="pos-detail-field"><div class="pos-df-label">Forma de pago</div><div class="pos-df-val">${r.forma_pago||'—'}</div></div>
+      <div class="pos-detail-field"><div class="pos-df-label">Entrega</div><div class="pos-df-val">${r.forma_entrega||'—'}</div></div>
+    </div>
+    ${r.descripcion?`<div class="pos-detail-section-title">Descripción</div><div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">${r.descripcion}</div>`:''}
+    ${marcasV.length?`<div class="pos-detail-section-title">Vehículos compatibles</div>
+    <div class="pos-compat-tags" style="margin-bottom:14px">${marcasV.map(m=>{const logo=window.logosMarcasVeh?.[m];return logo?`<span class="pos-compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:var(--blue2);color:var(--blue)"><img src="${logo}" style="height:32px;width:auto;object-fit:contain">${m}</span>`:`<span class="pos-compat-tag" style="border-color:var(--blue2);color:var(--blue)">${m}</span>`;}).join('')}</div>`:''}
+    ${marcasR.length?`<div class="pos-detail-section-title">Marcas del repuesto</div>
+    <div class="pos-compat-tags" style="margin-bottom:14px">${marcasR.map(m=>{const logo=window.logosMarcasRep?.[m];return logo?`<span class="pos-compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:32px;width:auto;object-fit:contain">${m}</span>`:`<span class="pos-compat-tag" style="border-color:rgba(99,102,241,.3);color:var(--indigo)">${m}</span>`;}).join('')}</div>`:''}
+    <div class="pos-detail-section-title">Precios</div>
+    <div class="pos-price-boxes">
+      <div class="pos-price-box"><div class="pos-pb-label">Sin IVA</div><div class="pos-pb-val muted">${fmt(sinIva)}</div></div>
+      <div class="pos-price-box main"><div class="pos-pb-label">Precio final c/IVA</div><div class="pos-pb-val green">${fmt(conIva)}</div><div class="pos-pb-sub">IVA 21% incluido</div></div>
+      <div class="pos-price-box desc"><div class="pos-pb-label">Con 10% descuento</div><div class="pos-pb-val orange">${fmt(conDesc)}</div><div class="pos-pb-sub">Ahorrás ${fmt(conIva-conDesc)}</div></div>
+      <div class="pos-price-box"><div class="pos-pb-label">Código interno</div><div class="pos-pb-val" style="font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--blue)">${r.codigo||r.codigo_repuesto||r.codigo_hard||'—'}</div></div>
+    </div>
+    <div class="pos-detail-stock-bar">
+      <span style="font-size:12px;color:var(--text2)">Sin IVA: $ ${sinIva.toLocaleString('es-AR')}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--green)">$ ${conIva.toLocaleString('es-AR')}</span>
+      <span style="font-size:11px;font-weight:600;color:${stock===0?'var(--red)':stock===1?'var(--amber)':'var(--green)'}">${stock===0?'❌ Sin stock':stock===1?'⚠️ Queda 1':'✅ Stock: '+stock}</span>
+    </div>
+    <button class="pos-add-big" id="pos-detail-add-btn" onclick="posAgregarDesdeDetalle('${r.id}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      ${enCart?'✅ En carrito — agregar 1 más':'+ Agregar al carrito'}
+    </button>
+  `;
+  document.getElementById('pos-detail-overlay').classList.add('open');
 };
 
-window.cerrarModalPosDetalle = function() {
-  document.getElementById('modal-pos-detalle').style.display='none';
-  _posDetalleId = null;
+window.posAgregarDesdeDetalle = function(id) {
+  posAgregarAlCarrito(id);
+  const btn = document.getElementById('pos-detail-add-btn');
+  if (btn) {
+    const c = _posCarrito.find(x=>x.repuesto.id===id);
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>✅ En carrito (${c?c.cantidad:1}) — agregar 1 más`;
+  }
 };
 
-// Cerrar al click en el overlay (fuera del panel)
-document.getElementById('modal-pos-detalle')?.addEventListener('click', function(e){
-  if (e.target===this) cerrarModalPosDetalle();
-});
-
-window.posAgregarDesdeDetalle = function() {
-  if (!_posDetalleId) return;
-  posAgregarAlCarrito(_posDetalleId);
-  // Actualizar botón
-  const r = _posReps.find(x=>x.id===_posDetalleId);
-  const enCart = _posCarrito.find(c=>c.repuesto.id===_posDetalleId);
-  const btn = document.getElementById('pos-det-agregar-btn');
-  if (btn && enCart) {
-    btn.textContent = `✅ En carrito (${enCart.cantidad}) — agregar 1 más`;
-    btn.style.background='var(--green-dim)';
-    btn.style.color='var(--green)';
-    btn.style.border='1px solid rgba(34,197,94,.4)';
-  }
+window.posCerrarDetalle = function() {
+  document.getElementById('pos-detail-overlay').classList.remove('open');
 };
 
 // ── HISTORIAL ─────────────────────────────────────────
 window.posVerHistorial = async function() {
   const wrap = document.getElementById('pos-historial-wrap');
+  if (!wrap) return;
   wrap.style.display='block';
   wrap.scrollIntoView({behavior:'smooth'});
   const inner = document.getElementById('pos-historial-items');
   inner.innerHTML='<div class="loading-wrap"><div class="spinner"></div></div>';
   try {
     const snap = await getDocs(query(collection(db,'ventas_pos'),orderBy('creado_en','desc'),limit(50)));
-    if (snap.empty) { inner.innerHTML='<p style="color:var(--text-muted);text-align:center;padding:30px">Sin ventas POS todavía.</p>'; return; }
+    if (snap.empty) { inner.innerHTML='<p style="color:var(--text3);text-align:center;padding:30px">Sin ventas POS todavía.</p>'; return; }
     inner.innerHTML = snap.docs.map(d=>{
-      const v  = d.data();
-      const fecha = v.creado_en?.toDate ? v.creado_en.toDate().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
-      const num = d.id.slice(-6).toUpperCase();
-      const items = (v.items||[]).map(it=>`<span style="font-size:11px;color:var(--text2)">${it.nombre} ×${it.cantidad}</span>`).join(', ');
-      return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+      const v=d.data();
+      const fecha=v.creado_en?.toDate?v.creado_en.toDate().toLocaleString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+      const num=d.id.slice(-6).toUpperCase();
+      const tot=v.total_final||v.total_iva_bruto||v.total_iva||0;
+      const items=(v.items||[]).map(it=>`<span style="font-size:11px;color:var(--text2)">${it.nombre} ×${it.cantidad}</span>`).join(', ');
+      return `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div>
-          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">#${num} · ${fecha}</div>
-          <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">${v.cliente_nombre||'Cliente sin nombre'}</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:2px">#${num} · ${fecha}</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">${v.cliente_nombre||'Cliente sin nombre'}</div>
           <div style="font-size:11px;color:var(--text3)">${items}</div>
-          <div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap">
-            <span style="font-size:10px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:2px 8px;color:var(--text2)">💳 ${v.forma_pago||'—'}</span>
-            <span style="font-size:10px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:2px 8px;color:var(--text2)">${v.forma_entrega||'—'}</span>
+          <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap">
+            <span style="font-size:10px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:2px 7px;color:var(--text2)">${v.forma_pago||'—'}</span>
+            <span style="font-size:10px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:2px 7px;color:var(--text2)">${v.forma_entrega||'—'}</span>
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0">
           <div style="font-size:11px;color:var(--text3)">Sin IVA: $ ${(v.total_sin_iva||0).toLocaleString('es-AR')}</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--green)">$ ${(v.total_final||v.total_iva||0).toLocaleString('es-AR')}</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--green)">$ ${tot.toLocaleString('es-AR')}</div>
         </div>
       </div>`;
     }).join('');
@@ -5769,81 +5799,48 @@ window.posVerHistorial = async function() {
 
 // ── NUEVO USUARIO DESDE POS ────────────────────────────
 window.posAbrirNuevoUsuario = function() {
-  const nombre = document.getElementById('pos-cli-nombre').value.trim();
-  const tel    = document.getElementById('pos-cli-tel').value.trim();
-  if (nombre) document.getElementById('pou-nombre').value = nombre;
-  if (tel)    document.getElementById('pou-tel').value    = tel;
+  const n=document.getElementById('pos-cli-nombre')?.value.trim();
+  const t=document.getElementById('pos-cli-tel')?.value.trim();
+  if(n) document.getElementById('pou-nombre').value=n;
+  if(t) document.getElementById('pou-tel').value=t;
   document.getElementById('modal-pos-usuario').classList.add('open');
 };
 
-window.cerrarModalPosUsuario = function() {
-  document.getElementById('modal-pos-usuario').classList.remove('open');
-};
+window.cerrarModalPosUsuario = function() { document.getElementById('modal-pos-usuario').classList.remove('open'); };
 
 window.posGenerarPass = function() {
-  const chars='abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let p=''; for(let i=0;i<8;i++) p+=chars[Math.floor(Math.random()*chars.length)];
-  document.getElementById('pou-pass').value = p;
+  const c='abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let p=''; for(let i=0;i<8;i++) p+=c[Math.floor(Math.random()*c.length)];
+  document.getElementById('pou-pass').value=p;
 };
 
 window.posCrearUsuario = async function() {
-  const nombre  = document.getElementById('pou-nombre').value.trim();
-  const tel     = document.getElementById('pou-tel').value.trim();
-  const email   = document.getElementById('pou-email').value.trim();
-  const empresa = document.getElementById('pou-empresa').value.trim();
-  const pass    = document.getElementById('pou-pass').value.trim();
-  const rol     = document.getElementById('pou-rol').value;
-  if (!nombre||!email||!pass) { toast('Completá nombre, email y contraseña','error'); return; }
-  if (pass.length<6) { toast('La contraseña debe tener al menos 6 caracteres','error'); return; }
+  const nombre=document.getElementById('pou-nombre').value.trim();
+  const email=document.getElementById('pou-email').value.trim();
+  const pass=document.getElementById('pou-pass').value.trim();
+  const tel=document.getElementById('pou-tel').value.trim();
+  const empresa=document.getElementById('pou-empresa').value.trim();
+  const rol=document.getElementById('pou-rol').value;
+  if(!nombre||!email||!pass){toast('Completá nombre, email y contraseña','error');return;}
+  if(pass.length<6){toast('La contraseña debe tener al menos 6 caracteres','error');return;}
   try {
-    // Crear auth user via Admin REST no es posible desde cliente.
-    // Guardamos en Firestore como pre-registro y mostramos las credenciales.
-    const preRef = await addDoc(collection(db,'usuarios_prereg'), {
-      nombre_completo: nombre,
-      email,
-      telefono: tel||null,
-      empresa:  empresa||null,
-      pass_provisoria: pass,
-      rol,
-      estado: 'pendiente',
-      creado_en: serverTimestamp(),
-      creado_por: 'pos',
+    await addDoc(collection(db,'usuarios_prereg'),{
+      nombre_completo:nombre, email, telefono:tel||null, empresa:empresa||null,
+      pass_provisoria:pass, rol, estado:'pendiente',
+      creado_en:serverTimestamp(), creado_por:'pos',
     });
     toast(`Usuario pre-registrado. Email: ${email} / Pass: ${pass}`,'success');
     cerrarModalPosUsuario();
-    // Copiar datos al formulario cliente del POS
-    document.getElementById('pos-cli-nombre').value = nombre;
-    document.getElementById('pos-cli-tel').value    = tel;
-    document.getElementById('pos-cli-empresa').value= empresa;
-    // Resetear campos
-    ['pou-nombre','pou-tel','pou-email','pou-empresa','pou-pass'].forEach(id=>document.getElementById(id).value='');
-  } catch(e){ toast('Error: '+e.message,'error'); }
+    if(document.getElementById('pos-cli-nombre')) document.getElementById('pos-cli-nombre').value=nombre;
+    if(document.getElementById('pos-cli-tel')) document.getElementById('pos-cli-tel').value=tel;
+    if(document.getElementById('pos-cli-empresa')) document.getElementById('pos-cli-empresa').value=empresa;
+    ['pou-nombre','pou-tel','pou-email','pou-empresa','pou-pass'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  } catch(e){toast('Error: '+e.message,'error');}
 };
 
+// ── TOGGLE CART / RESIZE ──────────────────────────────
+window.posToggleCart = function() {};
 
-// ── TOGGLE CARRITO (móvil) ────────────────────────────
-window.posToggleCart = function() {
-  if (window.innerWidth > 768) return;
-  const panel   = document.querySelector('.pos-cart-panel');
-  const body    = document.querySelector('.pos-cart-body');
-  const chevron = document.getElementById('pos-cart-chevron');
-  if (!panel||!body) return;
-  const collapsed = panel.classList.toggle('collapsed');
-  body.style.display = collapsed ? 'none' : 'block';
-  if (chevron) chevron.style.transform = collapsed ? 'rotate(180deg)' : '';
-};
-
-function posAutoExpandCart() {
-  if (window.innerWidth > 768) return;
-  const panel = document.querySelector('.pos-cart-panel');
-  const body  = document.querySelector('.pos-cart-body');
-  if (panel && panel.classList.contains('collapsed')) {
-    panel.classList.remove('collapsed');
-    if (body) body.style.display = 'block';
-    const chevron = document.getElementById('pos-cart-chevron');
-    if (chevron) chevron.style.transform = '';
-  }
-}
 
 function toggleMobMenu(){
   const sb = document.querySelector('.sidebar');
