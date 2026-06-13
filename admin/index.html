@@ -416,6 +416,29 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 .pb-val.muted{color:var(--text2);font-size:13px}
 .pb-val.amber{color:var(--amber)}
 .pb-sub{font-size:10px;color:var(--text3);margin-top:2px}
+/* ── POS DETALLE: clases idénticas al catálogo ── */
+.detail-section-title{font-size:11.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.detail-field{background:var(--bg3);border-radius:8px;padding:9px 11px}
+.df-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.df-val{font-size:14px;color:var(--text);font-weight:500;line-height:1.3}
+.df-val.green{color:var(--green)}.df-val.amber{color:var(--amber)}.df-val.blue{color:var(--blue)}.df-val.mono{font-family:'JetBrains Mono',monospace}
+.codigo-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+.codigo-table td{padding:6px 8px;font-size:13px;border-bottom:1px solid var(--border)}
+.codigo-table td:first-child{color:var(--text3);width:40%}
+.codigo-table td:last-child{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.add-to-cart-big{width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,var(--green2),#15803d);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:'Rajdhani',sans-serif;letter-spacing:.04em;margin-top:10px}
+.add-to-cart-big:hover{opacity:.9;transform:translateY(-1px)}
+.add-to-cart-big svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.add-to-cart-big.en-carrito{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.4)}
+.pos-det-img-wrap{height:320px;background:linear-gradient(135deg,#0d1016,#141720);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:zoom-in;border-radius:10px;margin-bottom:8px}
+.pos-det-img-wrap img{width:100%;height:100%;object-fit:contain;padding:12px}
+.pos-det-img-placeholder{font-size:64px;opacity:.4}
+.pos-det-galeria{display:flex;gap:6px;padding:0 0 8px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.pos-det-galeria:empty{display:none}
+.pos-det-thumb-item{width:64px;height:64px;border:2px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;flex-shrink:0;background:var(--bg3);transition:border-color .15s}
+.pos-det-thumb-item.active{border-color:var(--blue)}
+.pos-det-thumb-item img{width:100%;height:100%;object-fit:contain;padding:4px}
 .nota-html table,.desc-html table{width:100%;border-collapse:collapse;margin:6px 0;font-size:11px}
 .nota-html td,.nota-html th,.desc-html td,.desc-html th{border:1px solid var(--border)!important;padding:4px 8px;color:var(--text2)!important;background-color:transparent!important}
 .nota-html th,.desc-html th{background:var(--bg3)!important;color:var(--text3)!important;font-weight:600;font-size:10px}
@@ -1791,73 +1814,94 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 
     <!-- MODAL DETALLE PRODUCTO POS -->
     <div class="modal-overlay" id="modal-pos-detalle" style="align-items:flex-start;padding:0;justify-content:flex-end">
-      <div style="width:440px;max-width:100vw;height:100vh;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;animation:slideInRight .2s ease">
-        <!-- Header -->
-        <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-          <div>
-            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em" id="pos-det-cats">—</div>
-            <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--text);line-height:1.2" id="pos-det-titulo">—</div>
+      <div style="width:460px;max-width:100vw;height:100vh;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;animation:slideInRight .2s ease">
+        <!-- Header — idéntico al catálogo -->
+        <div class="detail-header" style="position:sticky;top:0;z-index:1">
+          <button class="detail-close" onclick="cerrarModalPosDetalle()">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="detail-title-wrap">
+            <div class="detail-cat" id="pos-det-cats"></div>
+            <div class="detail-name" id="pos-det-titulo">Cargando...</div>
           </div>
-          <button onclick="cerrarModalPosDetalle()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--text2);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
         </div>
         <!-- Scrollable body -->
-        <div style="flex:1;overflow-y:auto;padding:16px 18px">
-          <!-- Galería -->
-          <div style="margin-bottom:14px">
-            <div style="height:280px;background:linear-gradient(135deg,#0d1016,#141720);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:10px;margin-bottom:8px;border:1px solid var(--border)">
-              <img id="pos-det-img-main" src="" style="width:100%;height:100%;object-fit:contain;padding:12px;cursor:zoom-in" onerror="this.style.opacity='.2'">
+        <div style="flex:1;overflow-y:auto">
+          <!-- Imagen principal — idéntica al catálogo -->
+          <div class="pos-det-img-wrap" id="pos-det-img-wrap">
+            <div class="pos-det-img-placeholder">⚡</div>
+          </div>
+          <!-- Galería de thumbs — idéntica al catálogo -->
+          <div class="pos-det-galeria" id="pos-det-thumbs"></div>
+
+          <div style="padding:16px 16px 0">
+            <!-- Códigos por proveedor -->
+            <div id="pos-det-codigos-wrap" style="display:none">
+              <div class="detail-section-title">Códigos por proveedor</div>
+              <table class="codigo-table" id="pos-det-codigos"></table>
             </div>
-            <div id="pos-det-thumbs" style="display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto;padding-bottom:4px"></div>
-          </div>
-          <!-- Códigos por proveedor -->
-          <div id="pos-det-codigos-wrap" style="display:none;margin-bottom:14px">
-            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Códigos por proveedor</div>
-            <table id="pos-det-codigos" style="width:100%;border-collapse:collapse;font-size:12px"></table>
-          </div>
-          <!-- Fabricante / Condición -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px" id="pos-det-fab-wrap">
-            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Fabricante</div>
-              <div style="font-size:13px;font-weight:600;color:var(--text)" id="pos-det-fab">—</div>
+
+            <!-- Grid campos: Fabricante / Condición / Tipo / Stock / Forma pago / Entrega -->
+            <div class="detail-grid" id="pos-det-grid">
+              <div class="detail-field"><div class="df-label">Fabricante</div><div class="df-val" id="pos-det-fab">—</div></div>
+              <div class="detail-field"><div class="df-label">Condición</div><div class="df-val amber" id="pos-det-cond">—</div></div>
+              <div class="detail-field"><div class="df-label">Tipo</div><div class="df-val" id="pos-det-tipo">—</div></div>
+              <div class="detail-field"><div class="df-label">Stock</div><div class="df-val" id="pos-det-stock-field">—</div></div>
+              <div class="detail-field"><div class="df-label">Forma de pago</div><div class="df-val" id="pos-det-fpago">—</div></div>
+              <div class="detail-field"><div class="df-label">Entrega</div><div class="df-val" id="pos-det-entrega">—</div></div>
             </div>
-            <div style="background:var(--bg3);border-radius:8px;padding:10px 12px">
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Condición</div>
-              <div style="font-size:13px;font-weight:600;color:var(--green)" id="pos-det-cond">—</div>
+
+            <!-- Descripción -->
+            <div id="pos-det-desc-wrap" style="display:none">
+              <div class="detail-section-title">Descripción</div>
+              <div id="pos-det-desc" class="desc-html" style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:14px"></div>
             </div>
-          </div>
-          <!-- Marcas compatibles -->
-          <div id="pos-det-marcas-wrap" style="display:none;margin-bottom:14px">
-            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Vehículos compatibles</div>
-            <div id="pos-det-marcas" class="compat-tags" style="margin-bottom:0"></div>
-          </div>
-          <!-- Marcas de repuesto con logos -->
-          <div id="pos-det-marcas-rep-wrap" style="display:none;margin-bottom:14px">
-            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Marcas del repuesto</div>
-            <div id="pos-det-marcas-rep" class="compat-tags" style="margin-bottom:0"></div>
-          </div>
-          <!-- Descripción -->
-          <div id="pos-det-desc-wrap" style="display:none;margin-bottom:14px">
-            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--border)">Descripción</div>
-            <div id="pos-det-desc" class="desc-html" style="font-size:12px;color:var(--text2);line-height:1.6"></div>
-          </div>
-          <!-- Notas internas -->
-          <div id="pos-det-notas-wrap" style="display:none;margin-bottom:14px">
-            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">Notas internas</div>
-            <div id="pos-det-notas" class="nota-html" style="font-size:12px;color:var(--text2);line-height:1.6;font-style:italic"></div>
-          </div>
-        </div>
-        <!-- Footer fijo con precio + botón -->
-        <div style="flex-shrink:0;border-top:1px solid var(--border);padding:14px 18px;background:var(--bg2)">
-          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
-            <div>
-              <div style="font-size:11px;color:var(--text3);margin-bottom:2px">Sin IVA: <span id="pos-det-psin">—</span></div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--green)" id="pos-det-piva">—</div>
+
+            <!-- Aplicación -->
+            <div id="pos-det-aplic-wrap" style="display:none">
+              <div class="detail-section-title">Aplicación</div>
+              <div id="pos-det-aplic" style="font-size:14px;color:var(--text2);margin-bottom:14px"></div>
             </div>
-            <div id="pos-det-stock-badge" style="font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px">—</div>
+
+            <!-- Vehículos compatibles -->
+            <div id="pos-det-marcas-wrap" style="display:none">
+              <div class="detail-section-title">Vehículos compatibles</div>
+              <div id="pos-det-marcas" class="compat-tags" style="margin-bottom:8px"></div>
+            </div>
+
+            <!-- Marcas del repuesto -->
+            <div id="pos-det-marcas-rep-wrap" style="display:none">
+              <div class="detail-section-title">Marcas del repuesto</div>
+              <div id="pos-det-marcas-rep" class="compat-tags" style="margin-bottom:14px"></div>
+            </div>
+
+            <!-- Precios — idéntico al catálogo con price-boxes -->
+            <div class="detail-section-title">Precios</div>
+            <div class="price-boxes" style="margin-bottom:16px">
+              <div class="price-box"><div class="pb-label">Sin IVA</div><div class="pb-val muted" id="pos-det-psin">—</div></div>
+              <div class="price-box main"><div class="pb-label">Precio final c/IVA</div><div class="pb-val green" id="pos-det-piva">—</div><div class="pb-sub">IVA 21% incluido</div></div>
+              <div class="price-box desc"><div class="pb-label">Con 10% descuento</div><div class="pb-val amber" id="pos-det-pdesc">—</div><div class="pb-sub" id="pos-det-pahorro"></div></div>
+              <div class="price-box"><div class="pb-label">Código interno</div><div class="pb-val" style="font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--blue)" id="pos-det-codigo">—</div></div>
+            </div>
+
+            <!-- Importante -->
+            <div id="pos-det-imp-wrap" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--amber)">
+              ⚠️ <strong>IMPORTANTE:</strong> <span id="pos-det-imp"></span>
+            </div>
+
+            <!-- Notas internas -->
+            <div id="pos-det-notas-wrap" style="display:none;background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--text2)">
+              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">📌 Notas internas</div>
+              <div id="pos-det-notas" class="nota-html" style="line-height:1.6"></div>
+            </div>
+
+            <!-- Botón agregar — idéntico al catálogo con SVG y clase add-to-cart-big -->
+            <button class="add-to-cart-big" id="pos-det-agregar-btn" onclick="posAgregarDesdeDetalle()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              Agregar al carrito
+            </button>
+            <div style="height:24px"></div>
           </div>
-          <button id="pos-det-agregar-btn" style="width:100%;padding:12px;border-radius:10px;border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.04em;background:var(--blue);color:#fff" onclick="posAgregarDesdeDetalle()">
-            + Agregar al carrito
-          </button>
         </div>
       </div>
     </div>
@@ -4542,6 +4586,17 @@ window.addEventListener('message', async (e) => {
   }
 });
 
+// ── sanitizarNotas — igual al catálogo ──
+window.sanitizarNotas = function sanitizarNotas(html) {
+  if (!html) return '';
+  return html
+    .replace(/background(-color)?:\s*[^;'"]+[;'"]/gi, 'background:transparent;')
+    .replace(/background(-color)?:\s*[^;>]+/gi, 'background:transparent')
+    .replace(/\bcolor:\s*(white|#fff|#ffffff|rgb\(255,\s*255,\s*255\)|rgba\(255,\s*255,\s*255[^)]*\))[;'"]/gi, '')
+    .replace(/\bfont-family:[^;'"]+[;'"]/gi, '')
+    .replace(/bgcolor=["'][^"']*["']/gi, '');
+};
+
 // ── HELPER: URL de imagen (ya migradas a img_repuestos, devolver tal cual) ──
 window.urlGrande = function(url) {
   if (!url) return url;
@@ -5501,68 +5556,86 @@ window.posVerDetalle = function(id) {
   if (!r) return;
   _posDetalleId = id;
   const fmt = n => n ? '$ '+Math.round(n).toLocaleString('es-AR') : '—';
-  const noImg = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"%3E%3Crect fill="%230f1117" width="80" height="80"/%3E%3Ctext x="40" y="48" text-anchor="middle" font-size="28" fill="%234b5563"%3E%F0%9F%93%A6%3C/text%3E%3C/svg%3E';
 
   // Título y categoría
-  document.getElementById('pos-det-titulo').textContent = r.titulo_repuesto||'Sin nombre';
   const cats = [r.categoria, r.subcategoria].filter(Boolean).join(' | ');
-  document.getElementById('pos-det-cats').textContent = cats||'—';
+  document.getElementById('pos-det-cats').textContent  = cats||'';
+  document.getElementById('pos-det-titulo').textContent = r.titulo_repuesto||'Sin nombre';
 
-  // Galería — idéntica al catálogo
-  const imgs = (Array.isArray(r.imagenes)&&r.imagenes.length) ? r.imagenes : (r.imagen_url?[r.imagen_url]:[]);
-  // También extraer imágenes embebidas en notas
+  // ── GALERÍA — idéntica al catálogo ──────────────────────────────
+  const todasImgs = [];
+  if (Array.isArray(r.imagenes) && r.imagenes.length) {
+    r.imagenes.forEach(u => { if (u && !todasImgs.includes(u)) todasImgs.push(u); });
+  } else if (r.imagen_url) {
+    todasImgs.push(r.imagen_url);
+  }
+  // Extraer imágenes embebidas en notas (igual al catálogo)
   if (r.notas) {
     const matches = [...r.notas.matchAll(/src=["']([^"']+(?:cloudinary|zensa\.com\.br)[^"']+)["']/gi)];
-    matches.forEach(m => { if (m[1] && !imgs.includes(m[1])) imgs.push(m[1]); });
+    matches.forEach(m => { if (m[1] && !todasImgs.includes(m[1])) todasImgs.push(m[1]); });
   }
 
-  const imgWrapEl = document.getElementById('pos-det-img-main').parentElement;
-  const mostrarImgFn = (url, thumbEl) => {
-    const mainI = document.getElementById('pos-det-img-main');
-    mainI.src = url;
-    mainI.onclick = () => window.open(url, '_blank');
-    mainI.style.cursor = 'zoom-in';
-    document.querySelectorAll('.pos-det-thumb').forEach(t => t.style.borderColor='var(--border)');
-    if (thumbEl) thumbEl.style.borderColor = 'var(--blue)';
+  const imgWrap   = document.getElementById('pos-det-img-wrap');
+  const galeriaEl = document.getElementById('pos-det-thumbs');
+
+  const mostrarImg = (url, thumbEl) => {
+    imgWrap.innerHTML = `<img src="${url}" alt="${r.titulo_repuesto||''}" style="width:100%;height:100%;object-fit:contain;padding:8px" onclick="window.open('${url}','_blank')" title="Click para ver en tamaño completo" onerror="this.style.opacity='.4'">`;
+    galeriaEl.querySelectorAll('.pos-det-thumb-item').forEach(t => t.classList.remove('active'));
+    if (thumbEl) thumbEl.classList.add('active');
   };
-  const mainImg = document.getElementById('pos-det-img-main');
-  if (imgs.length > 0) {
-    mainImg.src = imgs[0];
-    mainImg.onclick = () => window.open(imgs[0], '_blank');
-    mainImg.style.cursor = 'zoom-in';
-  } else {
-    mainImg.src = noImg;
-    mainImg.onclick = null;
-    mainImg.style.cursor = 'default';
-  }
-  const thumbs = document.getElementById('pos-det-thumbs');
-  if (imgs.length>1) {
-    thumbs.innerHTML = imgs.map((url,i)=>`
-      <div class="pos-det-thumb" style="width:64px;height:64px;border:2px solid ${i===0?'var(--blue)':'var(--border)'};border-radius:8px;overflow:hidden;cursor:pointer;flex-shrink:0;background:var(--bg3);transition:border-color .15s"
-        onclick="document.getElementById('pos-det-img-main').src='${url}';document.getElementById('pos-det-img-main').onclick=()=>window.open('${url}','_blank');document.querySelectorAll('.pos-det-thumb').forEach(t=>t.style.borderColor='var(--border)');this.style.borderColor='var(--blue)'">
-        <img src="${url}" loading="lazy" style="width:100%;height:100%;object-fit:contain;padding:4px" onerror="this.parentElement.style.display='none'">
-      </div>`).join('');
-  } else { thumbs.innerHTML=''; }
 
-  // Códigos por proveedor
-  const codigos = (r.codigos_proveedores||[]).filter(c=>c.proveedor&&c.codigo);
+  if (todasImgs.length > 0) {
+    mostrarImg(todasImgs[0], null);
+  } else {
+    imgWrap.innerHTML = '<div class="pos-det-img-placeholder">⚡</div>';
+  }
+
+  // Galería de thumbnails — idéntica al catálogo
+  galeriaEl.innerHTML = '';
+  todasImgs.forEach((url, i) => {
+    const th = document.createElement('div');
+    th.className = 'pos-det-thumb-item' + (i === 0 ? ' active' : '');
+    th.innerHTML = `<img src="${url}" loading="lazy" onerror="this.parentElement.style.display='none'">`;
+    th.onclick = () => mostrarImg(url, th);
+    galeriaEl.appendChild(th);
+  });
+
+  // ── CÓDIGOS POR PROVEEDOR ────────────────────────────────────────
+  const codigos = (r.codigos_proveedores||[]).filter(c=>c.proveedor&&c.codigo&&c.proveedor.toUpperCase()!=='BOBINAR');
   const codWrap = document.getElementById('pos-det-codigos-wrap');
   if (codigos.length) {
     codWrap.style.display='block';
-    document.getElementById('pos-det-codigos').innerHTML = codigos.map(c=>`
-      <tr>
-        <td style="padding:5px 0;color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.04em;width:40%">${c.proveedor}</td>
-        <td style="padding:5px 0;color:var(--blue);font-family:'JetBrains Mono',monospace;font-weight:600">${c.codigo}</td>
-      </tr>`).join('');
+    document.getElementById('pos-det-codigos').innerHTML = codigos.map(c=>`<tr><td>${c.proveedor}</td><td>${c.codigo}</td></tr>`).join('');
   } else { codWrap.style.display='none'; }
 
-  // Fabricante / condición
-  const fabs = (r.fabricantes||[]).filter(Boolean);
-  document.getElementById('pos-det-fab').textContent = fabs.length ? fabs.join(', ') : (r.fabricante||'—');
-  document.getElementById('pos-det-cond').textContent = r.condicion||'—';
+  // ── GRID DE CAMPOS (Fabricante, Condición, Tipo, Stock, Forma pago, Entrega) ──
+  const fabs  = (r.fabricantes||[]).filter(Boolean);
+  const stock = r.cant_artic||0;
+  const sc    = stock===0?'':stock===1?'amber':'green';
+  const stockTxt = stock===0 ? 'Sin stock' : stock===1 ? '⚠️ Queda 1' : `✅ ${stock} unidades`;
+  document.getElementById('pos-det-fab').textContent     = fabs.length ? fabs.join(', ') : (r.fabricante_repuesto||r.fabricante||'—');
+  document.getElementById('pos-det-cond').textContent    = r.condicion||'—';
+  const tipoEl = document.getElementById('pos-det-tipo');
+  tipoEl.textContent = r.tipo||'—';
+  tipoEl.className   = 'df-val' + (r.tipo==='ORIGINAL'?' green':'');
+  const stockEl = document.getElementById('pos-det-stock-field');
+  stockEl.textContent = stockTxt;
+  stockEl.className   = 'df-val ' + (stock===0?'':sc);
+  document.getElementById('pos-det-fpago').textContent   = r.forma_pago||'—';
+  document.getElementById('pos-det-entrega').textContent = r.forma_entrega||'—';
 
-  // Marcas de vehículo CON logos (igual al catálogo)
-  const marcas = Array.isArray(r.marcas_vehiculo) ? r.marcas_vehiculo : (r.marca_vehiculo_1?[r.marca_vehiculo_1]:[]);
+  // ── DESCRIPCIÓN ──────────────────────────────────────────────────
+  const descWrap = document.getElementById('pos-det-desc-wrap');
+  if (r.descripcion) { descWrap.style.display='block'; document.getElementById('pos-det-desc').innerHTML = r.descripcion; }
+  else { descWrap.style.display='none'; }
+
+  // ── APLICACIÓN ───────────────────────────────────────────────────
+  const aplicWrap = document.getElementById('pos-det-aplic-wrap');
+  if (r.aplicacion) { aplicWrap.style.display='block'; document.getElementById('pos-det-aplic').textContent = r.aplicacion; }
+  else { aplicWrap.style.display='none'; }
+
+  // ── VEHÍCULOS COMPATIBLES CON LOGOS — idéntico al catálogo ──────
+  const marcas    = Array.isArray(r.marcas_vehiculo) ? r.marcas_vehiculo : (r.marca_vehiculo_1?[r.marca_vehiculo_1]:[]);
   const marcasWrap = document.getElementById('pos-det-marcas-wrap');
   if (marcas.length) {
     marcasWrap.style.display='block';
@@ -5572,71 +5645,67 @@ window.posVerDetalle = function(id) {
         ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:var(--blue2);color:var(--blue)"><img src="${logo}" style="height:36px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
         : `<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue)">${m}</span>`;
     }).join('');
-    // Modelos por marca
+    // Modelos por marca — idéntico al catálogo
     const modelosHtml = (r.marcas_modelos||[]).filter(mm=>mm.marca&&mm.modelos).length
       ? `<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">${(r.marcas_modelos).filter(mm=>mm.marca&&mm.modelos).map(mm=>`<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue);display:inline-flex;align-items:center;gap:8px;width:100%;box-sizing:border-box"><strong style="white-space:nowrap">${mm.marca}:</strong><span style="color:var(--text2)">${mm.modelos}</span></span>`).join('')}</div>`
       : (r.marcas_modelos_texto ? `<div style="margin-top:6px"><span class="compat-tag" style="border-color:var(--blue2);color:var(--blue);width:100%;box-sizing:border-box;display:block">📋 ${r.marcas_modelos_texto}</span></div>` : '');
     document.getElementById('pos-det-marcas').insertAdjacentHTML('beforeend', modelosHtml);
-  } else { marcasWrap.style.display='none'; }
-
-  // Marcas de REPUESTO con logos (nueva sección)
-  const marcasRepWrap = document.getElementById('pos-det-marcas-rep-wrap');
-  if (marcasRepWrap) {
-    const mRep = (Array.isArray(r.marcas_repuesto) && r.marcas_repuesto.length) ? r.marcas_repuesto : (r.fabricante_repuesto ? [r.fabricante_repuesto] : []);
-    if (mRep.length) {
-      marcasRepWrap.style.display='block';
-      document.getElementById('pos-det-marcas-rep').innerHTML = mRep.filter(Boolean).map(m=>{
-        const logo = (window._logosMarcasRep||{})[m];
-        return logo
-          ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:36px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
-          : `<span class="compat-tag" style="border-color:rgba(99,102,241,.3);color:var(--indigo)">${m}</span>`;
-      }).join('') || '<span style="font-size:13px;color:var(--text3)">—</span>';
-    } else { marcasRepWrap.style.display='none'; }
+  } else {
+    // mostrar "Universal" igual que catálogo
+    marcasWrap.style.display='block';
+    document.getElementById('pos-det-marcas').innerHTML = `<span class="compat-tag" style="border-color:var(--blue2);color:var(--blue)">Universal</span>`;
   }
 
-  // Descripción
-  const descWrap = document.getElementById('pos-det-desc-wrap');
-  if (r.descripcion) {
-    descWrap.style.display='block';
-    document.getElementById('pos-det-desc').innerHTML = r.descripcion;
-  } else { descWrap.style.display='none'; }
+  // ── MARCAS DEL REPUESTO CON LOGOS — idéntico al catálogo ────────
+  const marcasRepWrap = document.getElementById('pos-det-marcas-rep-wrap');
+  const mRep = (Array.isArray(r.marcas_repuesto) && r.marcas_repuesto.length) ? r.marcas_repuesto : (r.fabricante_repuesto ? [r.fabricante_repuesto] : []);
+  if (mRep.filter(Boolean).length) {
+    marcasRepWrap.style.display='block';
+    document.getElementById('pos-det-marcas-rep').innerHTML = mRep.filter(Boolean).map(m=>{
+      const logo = (window._logosMarcasRep||{})[m];
+      return logo
+        ? `<span class="compat-tag" style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-color:rgba(99,102,241,.3);color:var(--indigo)"><img src="${logo}" style="height:36px;width:auto;object-fit:contain;vertical-align:middle">${m}</span>`
+        : `<span class="compat-tag" style="border-color:rgba(99,102,241,.3);color:var(--indigo)">${m}</span>`;
+    }).join('') || '<span style="font-size:13px;color:var(--text3)">—</span>';
+  } else { marcasRepWrap.style.display='none'; }
 
-  // Notas internas
+  // ── PRECIOS — idéntico al catálogo ──────────────────────────────
+  const sinIva  = r.precio_venta     || 0;
+  const conIva  = r.precio_venta_iva || 0;
+  const conDesc = conIva * 0.9;
+  document.getElementById('pos-det-psin').textContent   = fmt(sinIva);
+  document.getElementById('pos-det-piva').textContent   = fmt(conIva);
+  document.getElementById('pos-det-pdesc').textContent  = fmt(conDesc);
+  document.getElementById('pos-det-pahorro').textContent = conIva ? `Ahorrás ${fmt(conIva-conDesc)}` : '';
+  document.getElementById('pos-det-codigo').textContent = r.codigo||'—';
+
+  // ── IMPORTANTE ───────────────────────────────────────────────────
+  const impWrap = document.getElementById('pos-det-imp-wrap');
+  if (r.importante) { impWrap.style.display='block'; document.getElementById('pos-det-imp').textContent = r.importante; }
+  else { impWrap.style.display='none'; }
+
+  // ── NOTAS — igual al catálogo (con sanitizarNotas si existe) ────
   const notasWrap = document.getElementById('pos-det-notas-wrap');
-  if (r.notas_internas||r.notas) {
+  const notasHtml = r.notas_internas || r.notas || '';
+  if (notasHtml) {
     notasWrap.style.display='block';
-    document.getElementById('pos-det-notas').innerHTML = r.notas_internas||r.notas||'';
+    const san = typeof sanitizarNotas === 'function' ? sanitizarNotas(notasHtml) : notasHtml;
+    document.getElementById('pos-det-notas').innerHTML = san;
   } else { notasWrap.style.display='none'; }
 
-  // Precio
-  document.getElementById('pos-det-psin').textContent = fmt(r.precio_venta);
-  document.getElementById('pos-det-piva').textContent = fmt(r.precio_venta_iva);
-
-  // Stock badge
-  const stock = r.cant_artic||0;
-  const badge = document.getElementById('pos-det-stock-badge');
-  if (stock===0) { badge.textContent='Sin stock'; badge.style.background='var(--red-dim)'; badge.style.color='var(--red)'; }
-  else if (stock===1) { badge.textContent='⚠️ Queda 1'; badge.style.background='var(--orange-dim,rgba(249,115,22,.15))'; badge.style.color='var(--orange,#f97316)'; }
-  else { badge.textContent=`✅ Stock: ${stock}`; badge.style.background='var(--green-dim)'; badge.style.color='var(--green)'; }
-
-  // Botón agregar
+  // ── BOTÓN AGREGAR — idéntico al catálogo ────────────────────────
   const enCart = _posCarrito.find(c=>c.repuesto.id===id);
   const btn = document.getElementById('pos-det-agregar-btn');
   if (enCart) {
-    btn.textContent = `✅ En carrito (${enCart.cantidad}) — agregar 1 más`;
-    btn.style.background = 'var(--green-dim)';
-    btn.style.color = 'var(--green)';
-    btn.style.border = '1px solid rgba(34,197,94,.4)';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>✅ En carrito (${enCart.cantidad}) — agregar 1 más`;
+    btn.classList.add('en-carrito');
   } else {
-    btn.textContent = '+ Agregar al carrito';
-    btn.style.background = 'var(--blue)';
-    btn.style.color = '#fff';
-    btn.style.border = 'none';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Agregar al carrito`;
+    btn.classList.remove('en-carrito');
   }
 
-  // Mostrar modal
-  const overlay = document.getElementById('modal-pos-detalle');
-  overlay.style.display='flex';
+  // Mostrar overlay
+  document.getElementById('modal-pos-detalle').style.display='flex';
 };
 
 window.cerrarModalPosDetalle = function() {
