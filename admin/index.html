@@ -299,6 +299,11 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 .pos-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
 .pos-card:hover{border-color:var(--blue2)}
 .pos-card.en-carrito{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.03)}
+.pos-card-sep{height:1px;background:var(--border);margin:8px 0}
+.pos-card-prov-block{margin-bottom:4px}
+.pos-card-prov-nombre{font-size:11px;color:var(--text2);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pos-card-prov-cod{font-size:11px;color:var(--text3);margin-bottom:2px}
+.pos-card-prov-marca{font-size:11px;color:var(--text3);margin-top:3px}
 .pos-card-img{width:100%;height:140px;object-fit:contain;border-radius:8px;background:var(--bg4);display:block;margin-bottom:10px}
 .pos-card-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
 .pos-card-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
@@ -5238,33 +5243,83 @@ function posRenderResultados(reps) {
     const imgUrl   = (Array.isArray(r.imagenes)&&r.imagenes.length)?r.imagenes[0]:(r.imagen_url||noImg);
     const pIva     = r.precio_venta_iva||0;
     const pSin     = r.precio_venta||0;
-    const codigo   = r.codigo_repuesto||r.codigo_hard||'';
-    const prov     = r.proveedor||'';
+
+    // Badges ORIGINAL/NUEVO
     const tipoRep  = r.tipo_repuesto||r.tipo||'';
     const condRep  = r.condicion||'';
     const badgeTipo= tipoRep.toLowerCase().includes('original')?'original':tipoRep.toLowerCase().includes('alter')?'alternativo':'';
     const badgeCond= condRep.toLowerCase().includes('nuevo')?'nuevo':condRep.toLowerCase().includes('usado')?'usado':condRep.toLowerCase().includes('reac')?'reac':'';
-    const marcas   = Array.isArray(r.marcas_vehiculo)?r.marcas_vehiculo.join(', '):(r.marca_vehiculo||'');
-    const cats     = [r.categoria, r.subcategoria].filter(Boolean).join(' | ');
-    const codLabel = [prov&&codigo?`${prov} ${codigo}`:codigo].filter(Boolean).join('');
+
+    // Categorías
+    const cats = [r.categoria, r.subcategoria].filter(Boolean).join(' | ');
+
+    // Bloque proveedor: "ICF - Industria Argentina, ICF" + "FAL: 049903" en azul
+    // Viene de codigos_proveedores[] o de campos sueltos
+    const codsProveedores = (r.codigos_proveedores||[]).filter(c=>(c.proveedor||'').toUpperCase()!=='BOBINAR');
+    let provBlock = '';
+    if (codsProveedores.length) {
+      // Nombre del proveedor en texto normal, código en azul
+      provBlock = codsProveedores.map(cp=>`
+        <div class="pos-card-prov-nombre">${cp.proveedor||''}</div>
+        <div class="pos-card-prov-cod">${cp.proveedor ? cp.proveedor.split(' ')[0].toUpperCase() : ''}: <span style="color:var(--blue);font-family:'JetBrains Mono',monospace">${cp.codigo||''}</span></div>
+      `).join('');
+    } else {
+      // Fallback a campos sueltos
+      const prov  = r.proveedor||r.fabricante||'';
+      const cod   = r.codigo_repuesto||r.codigo_hard||r.codigo||'';
+      if (prov) provBlock += `<div class="pos-card-prov-nombre">${prov}</div>`;
+      if (cod)  provBlock += `<div class="pos-card-prov-cod"><span style="color:var(--blue);font-family:'JetBrains Mono',monospace">${cod}</span></div>`;
+    }
+
+    // Marca vehículo
+    const marcas = Array.isArray(r.marcas_vehiculo) ? r.marcas_vehiculo
+                 : (r.marca_vehiculo_1 ? [r.marca_vehiculo_1] : []);
+    const marcaStr = marcas.slice(0,2).join(', ');
+
     return `<div class="pos-card${enCart?' en-carrito':''}" id="poscard-${r.id}" onclick="posAbrirDetalle('${r.id}')">
+
+      <!-- 1. IMAGEN GRANDE -->
       <img class="pos-card-img" src="${imgUrl}" loading="lazy" onerror="this.src='${noImg}'">
-      <div class="pos-card-badges">
+
+      <!-- 2. BADGES + STOCK -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
         ${badgeTipo?`<span class="pos-card-badge ${badgeTipo}">${tipoRep}</span>`:''}
         ${badgeCond?`<span class="pos-card-badge ${badgeCond}">${condRep}</span>`:''}
-        <span class="pos-card-stock ${stockCls}" style="margin:0">${stockTxt}</span>
+        <span class="pos-card-stock ${stockCls}">${stockTxt}</span>
       </div>
-      ${codLabel?`<div class="pos-card-codigo">${codLabel}</div>`:''}
+
+      <!-- 3. NOMBRE -->
       <div class="pos-card-nombre">${r.titulo_repuesto||'Sin nombre'}</div>
+
+      <!-- 4. CATEGORÍAS -->
       ${cats?`<div class="pos-card-cats">${cats}</div>`:''}
-      ${marcas?`<div class="pos-card-marca">🚗 ${marcas}</div>`:''}
-      <div class="pos-card-precios">
+
+      <!-- separador -->
+      <div class="pos-card-sep"></div>
+
+      <!-- 5. PROVEEDOR + CÓDIGO + MARCA VEHÍCULO -->
+      <div class="pos-card-prov-block">
+        ${provBlock}
+        ${marcaStr?`<div class="pos-card-prov-marca">🚗 ${marcaStr}</div>`:''}
+      </div>
+
+      <!-- separador -->
+      <div class="pos-card-sep"></div>
+
+      <!-- 6. PRECIOS -->
+      <div style="margin-bottom:6px">
         <div class="pos-card-precio-siniva">Sin IVA: $ ${pSin.toLocaleString('es-AR')}</div>
         <div class="pos-card-precio">$ ${pIva.toLocaleString('es-AR')}</div>
       </div>
+
+      <!-- separador -->
+      <div class="pos-card-sep" style="margin-bottom:8px"></div>
+
+      <!-- 7. BOTÓN -->
       <button class="pos-add-btn${enCart?' added':''}" onclick="event.stopPropagation();posAgregarAlCarrito('${r.id}')">
         ${enCart?`✅ En carrito (${enCart.cantidad})`:'+ Agregar al carrito'}
       </button>
+
     </div>`;
   }).join('');
 }
