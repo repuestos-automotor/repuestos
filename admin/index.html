@@ -2856,7 +2856,7 @@ window.showPage = function(id) {
   document.getElementById('topbar-title').textContent = ti[id]||id;
   if (id==='usuarios')              loadUsuarios();
   if (id==='repuestos')             loadRepuestos();
-  if (id==='nuevo-repuesto')        { initFormRepuesto(window._editingRepId||''); window._editingRepId=null; }
+  if (id==='nuevo-repuesto')        { setupIframe(document.getElementById('iframe-repuesto')); initFormRepuesto(window._editingRepId||''); window._editingRepId=null; }
   if (id==='categorias')            loadCategorias();
   if (id==='marcas-vehiculo')       loadMarcasVeh();
   if (id==='marcas-repuesto')       loadMarcasRep();
@@ -4731,13 +4731,18 @@ window.setupIframe = function(iframe) {
     iframe.contentWindow._db = db;
     iframe.contentWindow._saveRepuesto = saveRepuesto;
     iframe.contentWindow.toast = toast;
+    // Recargar selects con datos frescos de Firestore ahora que _db está disponible
+    if (typeof iframe.contentWindow.cargarSelectsDesdeFirebase === 'function') {
+      iframe.contentWindow.cargarSelectsDesdeFirebase();
+    }
     // Si hay un repuesto pendiente de cargar para edición, enviarlo
+    // Esperar 1500ms para que cargarSelectsDesdeFirebase termine antes de preseleccionar valores
     if (window._pendingEditData) {
       setTimeout(() => {
         try { iframe.contentWindow.cargarDatosEdicion(window._pendingEditData); }
         catch(e) { iframe.contentWindow.postMessage({ type: 'cargar-edicion', datos: window._pendingEditData }, '*'); }
         window._pendingEditData = null;
-      }, 200);
+      }, 1500);
     }
   } catch(e) {}
 };
