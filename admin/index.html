@@ -1006,6 +1006,7 @@ tbody tr:hover td:last-child{background:var(--bg3)}
           <table>
             <thead><tr id="rep-thead">
               <th class="th-sort" data-col="id" onclick="sortRepuestos('id')" title="Ordenar por ID" style="cursor:pointer;user-select:none">ID <span class="sort-arrow" id="sort-id"></span></th>
+              <th style="width:44px">IMG</th>
               <th class="th-sort" data-col="titulo_repuesto" onclick="sortRepuestos('titulo_repuesto')" style="cursor:pointer;user-select:none">Repuesto <span class="sort-arrow" id="sort-titulo_repuesto"></span></th>
               <th class="th-sort" data-col="codigo" onclick="sortRepuestos('codigo')" style="cursor:pointer;user-select:none">Código <span class="sort-arrow" id="sort-codigo"></span></th>
               <th class="th-sort" data-col="categoria" onclick="sortRepuestos('categoria')" style="cursor:pointer;user-select:none">Categoría <span class="sort-arrow" id="sort-categoria"></span></th>
@@ -1017,7 +1018,7 @@ tbody tr:hover td:last-child{background:var(--bg3)}
               <th>Acciones</th>
             </tr></thead>
             <tbody id="tabla-repuestos">
-              <tr><td colspan="10"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>
+              <tr><td colspan="11"><div class="loading-wrap"><div class="spinner"></div></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -2608,7 +2609,7 @@ function renderRepuestos(reps) {
   const tbody = document.getElementById('tabla-repuestos');
   const cnt   = document.getElementById('rep-count');
   cnt.textContent = `${reps.length} repuesto${reps.length!==1?'s':''} encontrado${reps.length!==1?'s':''}`;
-  if (reps.length===0){ tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Sin repuestos</div></div></td></tr>'; return; }
+  if (reps.length===0){ tbody.innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-icon">📦</div><div class="empty-title">Sin repuestos</div></div></td></tr>'; return; }
   const sem = (s)=>s===0?'sem-r':s===1?'sem-a':'sem-g';
   const fmtDate = (ts) => {
     if (!ts) return '<span style="color:var(--text4);font-size:10px">—</span>';
@@ -2631,9 +2632,10 @@ function renderRepuestos(reps) {
     const stock = r.cant_artic||0;
     return `<tr>
       <td class="td-code" style="font-size:11px;color:var(--blue);font-family:'JetBrains Mono',monospace;text-align:center;min-width:48px" title="Firestore: ${r.id}">${r.id_mysql ? '#'+r.id_mysql : '<span style="color:var(--text4);font-size:10px">—</span>'}</td>
-      <td class="td-name" title="${r.titulo_repuesto||''}">${r.titulo_repuesto||'—'}</td>
-      <td class="td-code">${r.codigo||(r.codigos_proveedores?.[0]?.codigo)||'—'}</td>
-      <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.categoria||(window._catsMap&&window._catsMap[r.categoria_id])||''}">${r.categoria||(window._catsMap&&window._catsMap[r.categoria_id])||'—'}</td>
+      <td style="padding:6px 10px;width:44px">${(r.imagen_url||(r.imagenes&&r.imagenes[0]))?`<img src="${r.imagen_url||(r.imagenes&&r.imagenes[0])}" style="width:36px;height:36px;object-fit:cover;border-radius:5px;border:1px solid var(--border)" onerror="this.style.display='none'">` : `<div style="width:36px;height:36px;border-radius:5px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:14px">📦</div>`}</td>
+      <td class="td-name" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px" title="${r.titulo_repuesto||''}">${r.titulo_repuesto||'—'}</td>
+      <td class="td-code" style="font-size:11px">${r.codigo||(r.codigos_proveedores?.[0]?.codigo)||'—'}</td>
+      <td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.categoria||(window._catsMap&&window._catsMap[r.categoria_id])||''}">${r.categoria||(window._catsMap&&window._catsMap[r.categoria_id])||'—'}</td>
       <td style="font-size:11px">${(r.marcas_vehiculo?.[0]||r.marcas_modelos?.[0]?.marca||r.marca_vehiculo_1||'Universal')}</td>
       <td><div style="display:flex;align-items:center;gap:5px"><div class="sem ${sem(stock)}"></div><span style="font-size:11.5px;font-family:'JetBrains Mono',monospace">${stock}</span></div></td>
       <td class="td-price">${fmt(r.precio_venta_iva)}</td>
