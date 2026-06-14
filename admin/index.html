@@ -4733,6 +4733,8 @@ window.setupIframe = function(iframe) {
     iframe.contentWindow.toast = toast;
     // Recargar selects con datos frescos de Firestore ahora que _db está disponible
     if (typeof iframe.contentWindow.cargarSelectsDesdeFirebase === 'function') {
+      // Resetear mutex para permitir nueva carga (no resetear _rowsInicializados — las filas ya existen)
+      iframe.contentWindow._cargandoSelects = false;
       iframe.contentWindow.cargarSelectsDesdeFirebase();
     }
     // Si hay un repuesto pendiente de cargar para edición, enviarlo

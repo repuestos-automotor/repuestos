@@ -528,15 +528,19 @@ function cargarFallbackEstatico() {
 
 // Cargar desde Firebase — con reintentos si _db todavía no está listo
 async function cargarSelectsDesdeFirebase() {
-  // Esperar hasta 3 segundos a que el parent inyecte _db
+  // Evitar ejecuciones paralelas
+  if (window._cargandoSelects) return;
+  window._cargandoSelects = true;
+  // Esperar hasta 5 segundos a que el parent inyecte _db
   let intentos = 0;
-  while (!window._db && intentos < 30) {
+  while (!window._db && intentos < 50) {
     await new Promise(r => setTimeout(r, 100));
     intentos++;
   }
   if (!window._db) {
-    // Firebase no disponible → usar fallback estático
-    cargarFallbackEstatico();
+    console.warn('_db no disponible tras espera — sin datos de Firebase');
+    window._cargandoSelects = false;
+    _initRowsSiNoHecho();
     return;
   }
   try {
@@ -613,19 +617,26 @@ async function cargarSelectsDesdeFirebase() {
       });
     }
 
+    // ── Inicializar filas DESPUÉS de tener todas las listas ────
+    _initRowsSiNoHecho();
+
   } catch(e) {
-    console.warn('Error cargando selects desde Firebase, usando fallback:', e);
-  } finally {
-    // Inicializar filas después de que las listas estén listas (con o sin Firebase)
-    if (!window._rowsInicializados) {
-      window._rowsInicializados = true;
-      addMarcaModelo();
-      addCodigoProveedor();
-      addCatalogo();
-      addImageSlot();
-      loadMarcasRepSelect(document.querySelector('[data-field="fabricante"]'));
-    }
+    console.warn('Error cargando selects desde Firebase:', e);
+    _initRowsSiNoHecho();
   }
+  window._cargandoSelects = false;
+}
+
+// Crea las filas iniciales solo una vez por sesión del iframe
+function _initRowsSiNoHecho() {
+  if (window._rowsInicializados) return;
+  window._rowsInicializados = true;
+  addMarcaModelo();
+  addCodigoProveedor();
+  addCatalogo();
+  addImageSlot();
+  const fab = document.querySelector('[data-field="fabricante"]');
+  if (fab) loadMarcasRepSelect(fab);
 }
 
 // ── TIPO ORIGINAL/COPIA ───────────────────────────────
