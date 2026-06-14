@@ -1046,8 +1046,9 @@ tbody tr:hover td:last-child{background:var(--bg3)}
     <!-- ─── STOCK ──────────────────────────────────────── -->
     <div class="page" id="page-stock">
       <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;margin-bottom:14px">Stock total</div>
-      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stats-grid" style="grid-template-columns:repeat(5,1fr)">
         <div class="stat-card" style="border-color:var(--border)"><div class="stat-top"><div class="stat-icon" style="background:rgba(99,102,241,.15)"><svg viewBox="0 0 24 24" style="stroke:#6366f1"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div><div class="stat-label">Total repuestos</div></div><div class="stat-val" id="stock-total" style="color:#6366f1">—</div></div>
+        <div class="stat-card" style="border-color:var(--border)"><div class="stat-top"><div class="stat-icon" style="background:rgba(20,184,166,.15)"><svg viewBox="0 0 24 24" style="stroke:#14b8a6;fill:none;stroke-width:2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><div class="stat-label">Unidades en stock</div></div><div class="stat-val" id="stock-unidades" style="color:#14b8a6">—</div></div>
         <div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-label">Con stock</div></div><div class="stat-val" id="stock-ok">—</div></div>
         <div class="stat-card amber"><div class="stat-top"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-label">Queda 1</div></div><div class="stat-val" id="stock-one">—</div></div>
         <div class="stat-card red"><div class="stat-top"><div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="stat-label">Sin stock</div></div><div class="stat-val" id="stock-zero">—</div></div>
@@ -4244,7 +4245,9 @@ window.loadStock = async function() {
   const uno=reps.filter(r=>r.cant_artic===1).length;
   const zero=reps.filter(r=>!r.cant_artic||r.cant_artic===0).length;
   const total=ok+uno;
+  const unidades=reps.reduce((acc,r)=>acc+(r.cant_artic||0),0);
   const elTot=document.getElementById('stock-total'); if(elTot) elTot.textContent=total;
+  const elUni=document.getElementById('stock-unidades'); if(elUni) elUni.textContent=unidades.toLocaleString('es-AR');
   const elOk=document.getElementById('stock-ok'); if(elOk) elOk.textContent=ok;
   const elOne=document.getElementById('stock-one'); if(elOne) elOne.textContent=uno;
   const elZ=document.getElementById('stock-zero'); if(elZ) elZ.textContent=zero;
