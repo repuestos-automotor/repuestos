@@ -1045,7 +1045,8 @@ tbody tr:hover td:last-child{background:var(--bg3)}
     <!-- ─── STOCK ──────────────────────────────────────── -->
     <div class="page" id="page-stock">
       <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;margin-bottom:14px">Stock total</div>
-      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card" style="border-color:var(--border)"><div class="stat-top"><div class="stat-icon" style="background:rgba(99,102,241,.15)"><svg viewBox="0 0 24 24" style="stroke:#6366f1"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div><div class="stat-label">Total repuestos</div></div><div class="stat-val" id="stock-total" style="color:#6366f1">—</div></div>
         <div class="stat-card green"><div class="stat-top"><div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-label">Con stock</div></div><div class="stat-val" id="stock-ok">—</div></div>
         <div class="stat-card amber"><div class="stat-top"><div class="stat-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="stat-label">Queda 1</div></div><div class="stat-val" id="stock-one">—</div></div>
         <div class="stat-card red"><div class="stat-top"><div class="stat-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="stat-label">Sin stock</div></div><div class="stat-val" id="stock-zero">—</div></div>
@@ -1054,8 +1055,8 @@ tbody tr:hover td:last-child{background:var(--bg3)}
         <div class="panel-header"><div class="panel-title">Listado de stock</div></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Repuesto</th><th>Categoría</th><th>Ubicación</th><th>Stock</th><th>Estado</th></tr></thead>
-            <tbody id="tabla-stock"><tr><td colspan="5"><div class="loading-wrap"><div class="spinner"></div></div></td></tr></tbody>
+            <thead><tr><th>ID</th><th>IMG</th><th>Repuesto</th><th>Categoría</th><th>Ubicación</th><th>Stock</th><th>Estado</th></tr></thead>
+            <tbody id="tabla-stock"><tr><td colspan="7"><div class="loading-wrap"><div class="spinner"></div></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -4233,12 +4234,14 @@ window.loadStock = async function() {
   const ok=reps.filter(r=>(r.cant_artic||0)>1).length;
   const uno=reps.filter(r=>r.cant_artic===1).length;
   const zero=reps.filter(r=>!r.cant_artic||r.cant_artic===0).length;
+  const total=ok+uno;
+  const elTot=document.getElementById('stock-total'); if(elTot) elTot.textContent=total;
   const elOk=document.getElementById('stock-ok'); if(elOk) elOk.textContent=ok;
   const elOne=document.getElementById('stock-one'); if(elOne) elOne.textContent=uno;
   const elZ=document.getElementById('stock-zero'); if(elZ) elZ.textContent=zero;
   const tbody=document.getElementById('tabla-stock'); if(!tbody) return;
   const sem=(s)=>s===0?'sem-r':s===1?'sem-a':'sem-g';
-  tbody.innerHTML=reps.map(r=>'<tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;color:var(--text);font-size:12.5px">'+(r.titulo_repuesto||'—')+'</td><td style="padding:9px 14px;color:var(--text2);font-size:12px">'+(r.categoria||'—')+'</td><td style="padding:9px 14px;color:var(--text3);font-size:12px;font-family:monospace">'+([getNombreEstanteria(r),getNombreEstante(r)].filter(b=>b&&b!=='—').join(' · ')||'—')+'</td><td style="padding:9px 14px"><div style="display:flex;align-items:center;gap:6px"><div class="sem '+sem(r.cant_artic||0)+'"></div><span style="font-family:JetBrains Mono,monospace;font-size:12px">'+(r.cant_artic||0)+'</span></div></td><td style="padding:9px 14px"><span class="badge '+((r.cant_artic||0)===0?'badge-blk':(r.cant_artic||0)===1?'badge-pend':'badge-act')+'">'+(((r.cant_artic||0)===0)?'Sin stock':((r.cant_artic||0)===1)?'Último':'OK')+'</span></td></tr>').join('');
+  tbody.innerHTML=reps.map(r=>'<tr style="border-bottom:1px solid var(--border)"><td style="padding:9px 14px;color:var(--text3);font-size:10px;font-family:monospace;white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis" title="'+r.id+'">'+r.id+'</td><td style="padding:6px 10px;width:44px">'+(r.img_repuestos?'<img src="'+r.img_repuestos+'" style="width:36px;height:36px;object-fit:cover;border-radius:5px;border:1px solid var(--border)" onerror="this.style.display=\'none\'">':'<div style="width:36px;height:36px;border-radius:5px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:14px">📦</div>')+'</td><td style="padding:9px 14px;color:var(--text);font-size:12.5px">'+(r.titulo_repuesto||'—')+'</td><td style="padding:9px 14px;color:var(--text2);font-size:12px">'+(r.categoria||'—')+'</td><td style="padding:9px 14px;color:var(--text3);font-size:12px;font-family:monospace">'+([getNombreEstanteria(r),getNombreEstante(r)].filter(b=>b&&b!=='—').join(' · ')||'—')+'</td><td style="padding:9px 14px"><div style="display:flex;align-items:center;gap:6px"><div class="sem '+sem(r.cant_artic||0)+'"></div><span style="font-family:JetBrains Mono,monospace;font-size:12px">'+(r.cant_artic||0)+'</span></div></td><td style="padding:9px 14px"><span class="badge '+((r.cant_artic||0)===0?'badge-blk':(r.cant_artic||0)===1?'badge-pend':'badge-act')+'">'+(((r.cant_artic||0)===0)?'Sin stock':((r.cant_artic||0)===1)?'Último':'OK')+'</span></td></tr>').join('');
 };
 
 // ── AUMENTOS: poblar selects ──────────────────────────
