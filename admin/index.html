@@ -3964,7 +3964,8 @@ window.ejecutarBuscador = async function() {
   const mv   = document.getElementById('bav-mv').value;
   const cond = document.getElementById('bav-cond').value;
   const tipo = document.getElementById('bav-tipo').value;
-  const stock= parseInt(document.getElementById('bav-stock').value)||0;
+  const stockRaw = document.getElementById('bav-stock').value.trim();
+  const stockVal = stockRaw==='' ? null : parseInt(stockRaw);
   if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
   let res = window._repsAll;
   if (q)    res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q)||(r.descripcion||'').toLowerCase().includes(q));
@@ -3972,24 +3973,30 @@ window.ejecutarBuscador = async function() {
   if (mv)   res = res.filter(r=>r.marcas_vehiculo?.includes(mv));
   if (cond) res = res.filter(r=>r.condicion===cond);
   if (tipo) res = res.filter(r=>r.tipo_repuesto===tipo);
-  res = res.filter(r=>(r.cant_artic||0)>=stock);
+  if (stockVal!==null) res = res.filter(r=>(r.cant_artic||0)>=stockVal);
   document.getElementById('bav-result-info').textContent = `${res.length} resultado${res.length!==1?'s':''} encontrado${res.length!==1?'s':''}`;
   if (!res.length) { document.getElementById('bav-results').innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados para esa búsqueda.</p>'; return; }
   document.getElementById('bav-results').innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead><tr style="border-bottom:1px solid var(--border)">
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">ID</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">IMG</th>
       <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Producto</th>
       <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Código</th>
       <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Categoría</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Ubicación</th>
       <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Stock</th>
       <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Precio</th>
     </tr></thead>
-    <tbody>${res.map(r=>`<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="editarRepuesto('${r.id}')">
+    <tbody>${res.map(r=>{const imgS=r.imagen_url||(r.imagenes&&r.imagenes[0])||'';const ub=[getNombreEstanteria(r),getNombreEstante(r)].filter(b=>b&&b!=='—').join(' · ')||'—';return`<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="editarRepuesto('${r.id}')">
+      <td style="padding:8px 10px;color:#818cf8;font-family:JetBrains Mono,monospace;white-space:nowrap">${r.id_mysql?'#'+r.id_mysql:'—'}</td>
+      <td style="padding:6px 8px;width:44px">${imgS?`<img src="${imgS}" style="width:34px;height:34px;object-fit:cover;border-radius:5px;border:1px solid var(--border)" onerror="this.style.display='none'">`:`<div style="width:34px;height:34px;border-radius:5px;border:1px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px">📦</div>`}</td>
       <td style="padding:8px 10px;color:var(--text)">${r.titulo_repuesto||'—'}</td>
       <td style="padding:8px 10px;color:var(--text-muted);font-family:monospace">${r.codigo||'—'}</td>
       <td style="padding:8px 10px;color:var(--text-muted)">${r.categoria||'—'}</td>
+      <td style="padding:8px 10px;color:var(--text3);font-size:11px;font-family:monospace">${ub}</td>
       <td style="padding:8px 10px;text-align:right"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><div class="sem ${(r.cant_artic||0)===0?'sem-r':(r.cant_artic||0)===1?'sem-a':'sem-g'}"></div>${r.cant_artic||0}</div></td>
       <td style="padding:8px 10px;text-align:right;color:var(--green)">${fmt(r.precio_venta_iva)}</td>
-    </tr>`).join('')}</tbody>
+    </tr>`}).join('')}</tbody>
   </table>`;
 };
 
