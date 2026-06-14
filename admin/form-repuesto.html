@@ -512,17 +512,8 @@ const MARCAS_VEH_LIST = [];
 // ── INIT ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('f-fecha-compra').valueAsDate = new Date();
-  // Cargar datos estáticos de inmediato (para que los selects no queden vacíos)
-  cargarFallbackEstatico();
-  // Luego intentar sobrescribir con datos reales de Firebase
+  // Cargar desde Firebase (puebla las listas y luego agrega las filas iniciales)
   cargarSelectsDesdeFirebase();
-  // Agregar filas iniciales
-  addMarcaModelo();
-  addCodigoProveedor();
-  addCatalogo();
-  addImageSlot();
-  // Fabricante inicial
-  loadMarcasRepSelect(document.querySelector('[data-field="fabricante"]'));
 });
 
 // ── FALLBACK ESTÁTICO (siempre disponible) ────────────
@@ -624,7 +615,16 @@ async function cargarSelectsDesdeFirebase() {
 
   } catch(e) {
     console.warn('Error cargando selects desde Firebase, usando fallback:', e);
-    cargarFallbackEstatico();
+  } finally {
+    // Inicializar filas después de que las listas estén listas (con o sin Firebase)
+    if (!window._rowsInicializados) {
+      window._rowsInicializados = true;
+      addMarcaModelo();
+      addCodigoProveedor();
+      addCatalogo();
+      addImageSlot();
+      loadMarcasRepSelect(document.querySelector('[data-field="fabricante"]'));
+    }
   }
 }
 
