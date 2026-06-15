@@ -591,9 +591,15 @@ async function cargarSelectsDesdeFirebase() {
     const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     // Categorías
     const catSnap = await getDocs(collection(window._db, 'categorias'));
-    const cats = catSnap.docs.map(d => d.data().nombre).sort((a,b)=>a.localeCompare(b,'es'));
+    const cats = catSnap.docs
+      .map(d => ({ id: d.id, nombre: d.data().nombre }))
+      .filter(x => x.nombre)
+      .sort((a,b) => a.nombre.localeCompare(b.nombre,'es'));
+    // Guardar mapa global id→nombre para usarlo al editar
+    window._CATS_MAP = {};
+    cats.forEach(c => { window._CATS_MAP[c.id] = c.nombre; window._CATS_MAP[c.nombre] = c.id; });
     const catSel = document.getElementById('f-categoria');
-    catSel.innerHTML = '<option value="">Seleccione categoría</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+    catSel.innerHTML = '<option value="">Seleccione categoría</option>' + cats.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('');
     // Estanterías
     const estSnap = await getDocs(collection(window._db, 'estanterias'));
     const ests = estSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.orden||0)-(b.orden||0));
@@ -632,7 +638,8 @@ async function cargarSelectsDesdeFirebase() {
     const mvSnap = await getDocs(collection(window._db, 'marcas_vehiculo'));
     if (mvSnap.docs.length > 0) {
       const marcasVeh = mvSnap.docs.map(d=>d.data().nombre||d.id).filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
-      // Actualizar la lista global para que addMarcaModelo use datos frescos
+      // Guardar en variable global fresca (no pisar el array estático)
+      window._MARCAS_VEH_FIRESTORE = marcasVeh;
       MARCAS_VEH_LIST.length = 0;
       marcasVeh.forEach(m => MARCAS_VEH_LIST.push(m));
       // Actualizar selects ya renderizados en el DOM
@@ -647,7 +654,8 @@ async function cargarSelectsDesdeFirebase() {
     const provSnap = await getDocs(collection(window._db, 'proveedores'));
     if (provSnap.docs.length > 0) {
       const proveedores = provSnap.docs.map(d=>d.data().nombre||d.id).filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
-      // Actualizar la lista global para que addCodigoProveedor use datos frescos
+      // Guardar en variable global fresca
+      window._PROVEEDORES_FIRESTORE = proveedores;
       PROVEEDORES_LIST.length = 0;
       proveedores.forEach(p => PROVEEDORES_LIST.push(p));
       // Actualizar selects ya renderizados en el DOM
@@ -740,11 +748,12 @@ window.addMarcaModelo = () => {
   const wrap = document.getElementById('marca-modelo-wrap');
   const div  = document.createElement('div');
   div.className = 'marca-modelo-row';
+  const listaVeh = window._MARCAS_VEH_FIRESTORE || MARCAS_VEH_LIST;
   div.innerHTML = `
     <div class="marca-modelo-top">
       <select class="form-select" style="flex:1" data-field="marca-veh">
         <option value="">Seleccione marca de vehículo</option>
-        ${MARCAS_VEH_LIST.map(m=>`<option value="${m}">${m}</option>`).join('')}
+        ${listaVeh.map(m=>`<option value="${m}">${m}</option>`).join('')}
       </select>
       <button class="multi-remove" onclick="this.closest('.marca-modelo-row').remove()">
         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -762,8 +771,9 @@ window.addCodigoProveedor = () => {
   const wrap = document.getElementById('codigos-wrap');
   const div  = document.createElement('div');
   div.className = 'codigo-row';
+  const listaProvActual = window._PROVEEDORES_FIRESTORE || PROVEEDORES_LIST;
   div.innerHTML = `
-    <select><option value="">Seleccione proveedor</option>${PROVEEDORES_LIST.map(p=>`<option value="${p}">${p}</option>`).join('')}</select>
+    <select><option value="">Seleccione proveedor</option>${listaProvActual.map(p=>`<option value="${p}">${p}</option>`).join('')}</select>
     <input type="text" placeholder="Código del proveedor para este producto">
     <button class="multi-remove" onclick="this.parentElement.remove()">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1038,17 +1048,18 @@ window.cargarDatosEdicion = function(r) {
   // Categoría (esperar a que esté cargada)
   const setCat = () => {
     const sel = document.getElementById('f-categoria');
-    if (sel && r.categoria) {
-      // Buscar por texto exacto
-      for (const opt of sel.options) {
-        if (opt.value === r.categoria || opt.text === r.categoria) {
-          sel.value = opt.value; break;
-        }
+    if (!sel) return;
+    // Intentar por categoria_id primero, luego por nombre
+    const catId = r.categoria_id || '';
+    const catNom = r.categoria || '';
+    for (const opt of sel.options) {
+      if ((catId && opt.value === catId) || (catNom && (opt.value === catNom || opt.text === catNom))) {
+        sel.value = opt.value; return;
       }
     }
   };
   setCat();
-  setTimeout(setCat, 800); // reintento por si Firebase aún cargaba
+  setTimeout(setCat, 1200); // reintento por si Firebase aún cargaba
 
   // Ubicación
   set('f-estanteria', r.id_estanteria || r.estanteria || '');
@@ -1212,6 +1223,11 @@ window.cargarDatosEdicion = function(r) {
 window.addEventListener('message', (e) => {
   if (e.data?.type === 'cargar-edicion' && e.data.datos) {
     window.cargarDatosEdicion(e.data.datos);
+  }
+  // Cuando el parent avisa que _db ya está disponible, recargar selects
+  if (e.data?.type === 'db-ready' && e.data.db) {
+    window._db = e.data.db;
+    cargarSelectsDesdeFirebase();
   }
 });
 

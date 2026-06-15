@@ -4733,17 +4733,21 @@ window.setupIframe = function(iframe) {
     iframe.contentWindow._db = db;
     iframe.contentWindow._saveRepuesto = saveRepuesto;
     iframe.contentWindow.toast = toast;
-    // Recargar selects con _db ya disponible
+    // Recargar selects con _db ya disponible (acceso directo)
     if (typeof iframe.contentWindow.cargarSelectsDesdeFirebase === 'function') {
       iframe.contentWindow.cargarSelectsDesdeFirebase();
+    } else {
+      // Fallback: enviar mensaje para que el iframe recargue cuando esté listo
+      iframe.contentWindow.postMessage({ type: 'db-ready', db }, '*');
     }
     // Si hay un repuesto pendiente de cargar para edición, enviarlo
+    // con suficiente tiempo para que Firebase cargue todos los selects antes
     if (window._pendingEditData) {
       setTimeout(() => {
         try { iframe.contentWindow.cargarDatosEdicion(window._pendingEditData); }
         catch(e) { iframe.contentWindow.postMessage({ type: 'cargar-edicion', datos: window._pendingEditData }, '*'); }
         window._pendingEditData = null;
-      }, 1500);
+      }, 2500);
     }
   } catch(e) {}
 };
@@ -4752,6 +4756,30 @@ async function saveRepuesto(datosRaw) {
   // Serializar para asegurar plain objects (el objeto viene de un iframe con distinto window)
   const datos = JSON.parse(JSON.stringify(datosRaw));
   datos.actualizado_en = serverTimestamp();
+
+  // Normalizar categoría: asegurar que categoria_id sea el doc.id de Firestore
+  // y categoria sea el nombre legible
+  if (datos.categoria) {
+    try {
+      const catSnap = await getDocs(collection(db, 'categorias'));
+      const catDocs = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre }));
+      // ¿El valor guardado es un ID de Firestore?
+      const byId = catDocs.find(c => c.id === datos.categoria);
+      if (byId) {
+        datos.categoria_id = byId.id;
+        datos.categoria    = byId.nombre;
+      } else {
+        // Es el nombre → buscar el ID
+        const byNombre = catDocs.find(c => c.nombre === datos.categoria);
+        if (byNombre) {
+          datos.categoria_id = byNombre.id;
+          datos.categoria    = byNombre.nombre;
+        }
+        // Si no se encuentra en Firestore, lo dejamos como texto libre
+      }
+    } catch(e) { console.warn('No se pudo normalizar categoría:', e); }
+  }
+
   if (window._editingId) {
     const id = window._editingId;
     await updateDoc(doc(db,'repuestos', id), datos);
