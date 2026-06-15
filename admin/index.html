@@ -3007,6 +3007,7 @@ async function abrirModalMarcaConLogo(coleccion, id, nombre, logoUrl, onGuardado
     overlay.remove();
     onGuardado();
     precargarLogosMarcas(); // refrescar mapas globales para form y modal
+    window._repsAll = null; // forzar recarga del listado con nuevos nombres
     toast(id ? 'Marca actualizada' : 'Marca creada', 'success');
   };
 }
@@ -4263,11 +4264,11 @@ window.loadStock = async function() {
 window.loadAumentos = async function() {
   const [cSnap,mrSnap,mvSnap]=await Promise.all([getDocs(collection(db,'categorias')),getDocs(collection(db,'marcas_repuesto')),getDocs(collection(db,'marcas_vehiculo'))]);
   const catSel=document.getElementById('aum-cat-sel');
-  if(catSel&&catSel.options.length<=1) cSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;catSel.appendChild(o);});
+  if(catSel){catSel.innerHTML='<option value=>Seleccioná categoría</option>';cSnap.docs.sort((a,b)=>a.data().nombre?.localeCompare(b.data().nombre,'es')).forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;catSel.appendChild(o);})}
   const mrSel=document.getElementById('aum-marca-rep-sel');
-  if(mrSel&&mrSel.options.length<=1) mrSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mrSel.appendChild(o);});
+  if(mrSel){mrSel.innerHTML='<option value=>Seleccioná marca</option>';mrSnap.docs.sort((a,b)=>a.data().nombre?.localeCompare(b.data().nombre,'es')).forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mrSel.appendChild(o);})}
   const mvSel=document.getElementById('aum-marca-veh-sel');
-  if(mvSel&&mvSel.options.length<=1) mvSnap.docs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mvSel.appendChild(o);});
+  if(mvSel){mvSel.innerHTML='<option value=>Seleccioná marca</option>';mvSnap.docs.sort((a,b)=>a.data().nombre?.localeCompare(b.data().nombre,'es')).forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.data().nombre;mvSel.appendChild(o);})}
 
   // Guardar mapas de logos globales para el modal y el form
   window._logosMarcasVeh = {};
@@ -4512,11 +4513,12 @@ window.initFormRepuesto = async function(repId) {
     if (catSel) {
       catSel.innerHTML = '<option value="">Seleccioná categoría</option>';
       catSnap.docs
-        .map(d => d.data().nombre).filter(Boolean)
-        .sort((a,b) => a.localeCompare(b,'es'))
-        .forEach(nombre => {
+        .map(d => ({ id: d.id, nombre: d.data().nombre }))
+        .filter(x => x.nombre)
+        .sort((a,b) => a.nombre.localeCompare(b.nombre,'es'))
+        .forEach(({ id, nombre }) => {
           const o = document.createElement('option');
-          o.value = nombre; o.textContent = nombre;
+          o.value = id; o.textContent = nombre;
           catSel.appendChild(o);
         });
     }
@@ -4541,7 +4543,7 @@ window.initFormRepuesto = async function(repId) {
     if (dlMV) { dlMV.innerHTML=''; window._nombresMarcasVeh.forEach(n=>{const o=document.createElement('option');o.value=n;dlMV.appendChild(o);}); }
     if (dlMR) { dlMR.innerHTML=''; window._nombresMarcasRep.forEach(n=>{const o=document.createElement('option');o.value=n;dlMR.appendChild(o);}); }
     // Poblar selects de chips (ya con datos frescos cargados arriba)
-    fpPoblarSelectsMarcas();
+    await fpPoblarSelectsMarcas();
   } catch(e) { console.warn('Error cargando marcas/categorías:', e); }
 
   // Resetear chips si es nuevo repuesto
@@ -4570,7 +4572,7 @@ window.initFormRepuesto = async function(repId) {
         // Cargar marcas vehículo en chips
         const mvData = (r.marcas_vehiculo||[]).filter(Boolean);
         document.getElementById('fp-mv-data').value = JSON.stringify(mvData);
-        fpPoblarSelectsMarcas();
+        await fpPoblarSelectsMarcas();
         fpRenderChips('veh');
         // Cargar marcas repuesto en chips
         const mrData = (r.marcas_repuesto||[]).filter(Boolean);
