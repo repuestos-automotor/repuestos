@@ -574,21 +574,25 @@ function cargarFallbackEstatico() {
   document.getElementById('f-estante').innerHTML = '<option value="">Seleccione</option>' + estantes;
 }
 
-// Cargar desde Firebase — con reintentos si _db todavía no está listo
+// Cargar desde Firebase — el iframe inicializa su propia conexión, sin depender del parent
 async function cargarSelectsDesdeFirebase() {
-  // Esperar hasta 3 segundos a que el parent inyecte _db
-  let intentos = 0;
-  while (!window._db && intentos < 30) {
-    await new Promise(r => setTimeout(r, 100));
-    intentos++;
-  }
-  if (!window._db) {
-    // Firebase no disponible → usar fallback estático
-    cargarFallbackEstatico();
-    return;
-  }
   try {
-    const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+
+    // Reusar app existente si ya fue inicializada (evita error "already exists")
+    const FIREBASE_CONFIG = {
+      apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+      authDomain:        "repuestos-automotor.firebaseapp.com",
+      projectId:         "repuestos-automotor",
+      storageBucket:     "repuestos-automotor.firebasestorage.app",
+      messagingSenderId: "952203469999",
+      appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+    };
+    const apps = getApps();
+    const app = apps.find(a => a.name === 'form-repuesto') || initializeApp(FIREBASE_CONFIG, 'form-repuesto');
+    const db = getFirestore(app);
+    window._db = db; // guardar para uso posterior
     // Categorías
     const catSnap = await getDocs(collection(window._db, 'categorias'));
     const cats = catSnap.docs
