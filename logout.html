@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cerrando sesión…</title>
+<style>
+  body{background:#080c14;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}
+</style>
+</head>
+<body>
+<div>
+  <p>Cerrando sesión…</p>
+  <p id="status" style="color:#8aa"></p>
+</div>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+  // Mismo firebaseConfig que usa el resto del sistema
+  const firebaseConfig = {
+    apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+    authDomain:        "repuestos-automotor.firebaseapp.com",
+    projectId:         "repuestos-automotor",
+    storageBucket:     "repuestos-automotor.firebasestorage.app",
+    messagingSenderId: "952203469999",
+    appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  signOut(auth).then(() => {
+    document.getElementById('status').textContent = 'Listo. Redirigiendo…';
+    setTimeout(() => window.location.href = './index.html', 800);
+  }).catch(e => {
+    document.getElementById('status').textContent = 'Ya no había sesión activa. Redirigiendo…';
+    setTimeout(() => window.location.href = './index.html', 800);
+  });
+</script>
+</body>
+</html>
