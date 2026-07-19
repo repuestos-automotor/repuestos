@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuevo Repuesto</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;--text4:#374151;
+  --blue:#3b82f6;--blue2:#2563eb;--blue-dim:#1e3a5f;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:0}
+.form-wrap{max-width:960px;padding-bottom:80px}
+.section-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.section-head{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg3)}
+.section-head svg{width:14px;height:14px;stroke:var(--blue);fill:none;stroke-width:1.8;flex-shrink:0}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:600;color:var(--text);letter-spacing:.04em}
+.section-body{padding:14px}
+.form-group{margin-bottom:12px}
+.form-label{font-size:10.5px;color:var(--text2);font-weight:500;margin-bottom:5px;display:flex;align-items:center;gap:4px;text-transform:uppercase;letter-spacing:.04em}
+.req{color:var(--red)}
+.hint{font-size:10px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:9px 11px;color:var(--text);font-size:12.5px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue2)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text4)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.form-textarea{resize:vertical;min-height:90px;line-height:1.6}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.row4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+
+/* MULTISELECT TIPO VEHICULO */
+.multicheck-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.mc-opt{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;font-size:12px;color:var(--text3);transition:all .15s;user-select:none}
+.mc-opt:hover{border-color:var(--border2);color:var(--text2)}
+.mc-opt.selected{border-color:var(--blue2);color:var(--blue);background:var(--blue-dim)}
+.mc-opt input[type=checkbox]{display:none}
+
+/* MULTI ROWS */
+.multi-wrap{display:flex;flex-direction:column;gap:6px}
+.multi-row{display:flex;gap:8px;align-items:center}
+.multi-row .form-select,.multi-row .form-input{flex:1}
+.multi-add{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text3);cursor:pointer;padding:8px 12px;font-size:11px;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .15s;font-family:'Inter',sans-serif}
+.multi-add:hover{border-color:var(--blue);color:var(--blue)}
+.multi-add svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.multi-remove{background:none;border:none;color:var(--text3);cursor:pointer;padding:4px 6px;border-radius:5px;transition:color .15s;flex-shrink:0}
+.multi-remove:hover{color:var(--red)}
+.multi-remove svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* MARCA+MODELO VEHICULO */
+.marca-modelo-row{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:6px}
+.marca-modelo-top{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.marca-modelo-modelos{display:flex;gap:6px;align-items:center}
+.marca-modelo-modelos input{flex:1}
+.marca-modelo-hint{font-size:10px;color:var(--text3);margin-top:4px}
+
+/* IMAGENES */
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:8px}
+.img-slot{background:var(--bg3);border:2px dashed var(--border2);border-radius:8px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.img-slot:hover{border-color:var(--blue);background:var(--blue-dim)}
+.img-slot.filled{border-style:solid;border-color:var(--border)}
+.img-slot img{width:100%;height:100%;object-fit:cover;border-radius:6px}
+.img-slot .img-remove{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.7);border:none;color:var(--red);border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.img-slot .img-progress{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--blue);transform-origin:left;transition:transform .2s}
+.img-slot .img-label{font-size:10px;color:var(--text3);margin-top:4px;text-align:center;padding:0 4px}
+.img-slot svg{width:20px;height:20px;stroke:var(--text3);fill:none;stroke-width:1.5}
+
+/* CODIGOS */
+.codigo-row{display:grid;grid-template-columns:180px 1fr 32px;gap:8px;align-items:center;margin-bottom:6px}
+.codigo-row select,.codigo-row input{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'Inter',sans-serif;outline:none;width:100%}
+.codigo-row select:focus,.codigo-row input:focus{border-color:var(--blue2)}
+.codigo-row input{font-family:'JetBrains Mono',monospace}
+.codigo-row input::placeholder{font-family:'Inter',sans-serif;color:var(--text4)}
+
+/* CATALOGO ROWS */
+.catalogo-row{display:grid;grid-template-columns:1fr 90px 32px;gap:8px;align-items:center;margin-bottom:6px}
+
+/* TIPO ORIGINAL/COPIA */
+.tipo-row{display:flex;gap:8px}
+.tipo-opt{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);text-align:center;cursor:pointer;font-size:12px;color:var(--text3);background:var(--bg3);transition:all .15s;user-select:none}
+.tipo-opt.selected.orig{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.1)}
+.tipo-opt.selected.copy{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+
+/* CONDICION */
+.cond-row{display:flex;flex-wrap:wrap;gap:6px}
+.cond-opt{padding:6px 12px;border-radius:7px;border:1px solid var(--border2);font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;background:var(--bg3);user-select:none}
+.cond-opt.selected{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+.cont-opt{padding:6px 12px;border-radius:7px;border:1px solid var(--border2);font-size:12px;color:var(--text3);cursor:pointer;transition:all .15s;background:var(--bg3);user-select:none}
+.cont-opt:hover{border-color:var(--indigo);color:var(--text2)}
+.cont-opt.selected{border-color:var(--indigo);color:var(--indigo);background:rgba(99,102,241,.12)}
+.cont-opt-otro.selected{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,.1)}
+
+/* PRECIOS */
+.precio-display{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:10px 14px}
+.precio-display-label{font-size:9.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.precio-display-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500}
+.pv-green{color:var(--green)}.pv-blue{color:var(--blue)}.pv-amber{color:var(--amber)}
+
+/* IMPORTANTE */
+.importante-input{border-color:rgba(245,158,11,.4)!important;background:rgba(245,158,11,.04)!important}
+
+/* EDITOR ENRIQUECIDO */
+.rich-toolbar{display:flex;gap:4px;padding:6px 8px;background:var(--bg4);border:1px solid var(--border2);border-bottom:none;border-radius:8px 8px 0 0;flex-wrap:wrap}
+.rich-btn{background:none;border:1px solid var(--border);border-radius:4px;color:var(--text2);cursor:pointer;padding:3px 7px;font-size:11px;font-family:'Inter',sans-serif;transition:all .15s}
+.rich-btn:hover{background:var(--bg2);color:var(--text);border-color:var(--border2)}
+.rich-btn.active{background:var(--blue-dim);color:var(--blue);border-color:var(--blue2)}
+.rich-editor{background:var(--bg3);border:1px solid var(--border2);border-radius:0 0 8px 8px;min-height:100px;padding:10px 12px;color:var(--text);font-size:12.5px;line-height:1.6;outline:none}
+.rich-editor:focus{border-color:var(--blue2)}
+.rich-editor a{color:var(--blue)}
+
+/* ACCIONES */
+.actions-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;justify-content:flex-end;z-index:100}
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-primary{background:var(--blue2);color:#fff}
+.btn-primary:hover{background:#1d4ed8}
+.btn-success{background:rgba(34,197,94,.2);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border)}
+.spinner-inline{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){
+  .row2,.row3,.row4{grid-template-columns:1fr}
+  .codigo-row{grid-template-columns:1fr 32px}
+  .codigo-row select{display:none}
+  .catalogo-row{grid-template-columns:1fr 32px}
+  .actions-bar{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+<div class="form-wrap" id="form-repuesto-root">
+
+<!-- 1. UBICACIÓN -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <div class="section-title">Ubicación física en depósito</div>
+  </div>
+  <div class="section-body">
+    <div class="row3">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Estantería <span class="hint">— Dónde está</span></label>
+        <select class="form-select" id="f-estanteria"><option value="">Seleccione</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Estante <span class="hint">— Número</span></label>
+        <select class="form-select" id="f-estante"><option value="">Seleccione</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Publicar en catálogo</label>
+        <select class="form-select" id="f-publicar">
+          <option value="1">✅ Sí — visible para compradores</option>
+          <option value="0">🔒 No — oculto</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. IDENTIFICACIÓN -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    <div class="section-title">Identificación del producto</div>
+  </div>
+  <div class="section-body">
+    <div class="row2">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Nombre / Título</label>
+        <input type="text" class="form-input" id="f-titulo" placeholder="Ej: Alternador, Motor de Arranque...">
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Categoría</label>
+        <select class="form-select" id="f-categoria"><option value="">Cargando...</option></select>
+      </div>
+    </div>
+    <div class="row3">
+      <div class="form-group">
+        <label class="form-label">Nombre arranque <span class="hint">Ej: Arr Bosch</span></label>
+        <input type="text" class="form-input" id="f-arranque" placeholder="Ej: Arr Bosch 12V">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre alternador <span class="hint">Ej: Alt Indiel</span></label>
+        <input type="text" class="form-input" id="f-alternador" placeholder="Ej: Alternador Indiel 14V">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Modelo del repuesto <span class="hint">Ej: M74R</span></label>
+        <input type="text" class="form-input" id="f-modelo-repuesto" placeholder="Ej: M74R, 20-30">
+      </div>
+    </div>
+
+    <!-- FABRICANTES MÚLTIPLES -->
+    <div class="form-group">
+      <label class="form-label">Fabricantes / Marcas del repuesto <span class="hint">— Podés agregar varios</span></label>
+      <div class="multi-wrap" id="fabricantes-wrap">
+        <div class="multi-row">
+          <select class="form-select" data-field="fabricante"><option value="">Seleccione marca de repuesto</option></select>
+          <button class="multi-add" onclick="addFabricante()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar otro
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row3">
+      <div class="form-group">
+        <label class="form-label">Material <span class="hint">Ej: Acrílico</span></label>
+        <input type="text" class="form-input" id="f-material" placeholder="Ej: Cobre, Acrílico">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Lado</label>
+        <select class="form-select" id="f-lado">
+          <option value="">No aplica</option>
+          <option>Derecho</option><option>Izquierdo</option>
+          <option>Derecho e Izquierdo</option><option>Ambos lados</option>
+          <option>Horario</option><option>Antihorario</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Código interno <span class="req">*</span></label>
+        <input type="text" class="form-input" id="f-codigo" placeholder="Ej: F000AL0304">
+      </div>
+    </div>
+
+    <!-- TIPO ORIGINAL/COPIA -->
+    <div class="form-group">
+      <label class="form-label">Tipo de repuesto</label>
+      <div class="tipo-row">
+        <div class="tipo-opt orig selected" id="tipo-orig" onclick="selectTipo('ORIGINAL')">✅ ORIGINAL</div>
+        <div class="tipo-opt copy" id="tipo-copy" onclick="selectTipo('COPIA')">📋 COPIA</div>
+      </div>
+      <input type="hidden" id="f-tipo" value="ORIGINAL">
+    </div>
+
+    <!-- CONDICIÓN -->
+    <div class="form-group">
+      <label class="form-label"><span class="req">*</span> Condición</label>
+      <div class="cond-row">
+        <div class="cond-opt selected" onclick="selectCond(this,'NUEVO')">NUEVO</div>
+        <div class="cond-opt" onclick="selectCond(this,'REACONDICIONADO')">REACONDICIONADO</div>
+        <div class="cond-opt" onclick="selectCond(this,'RECAMBIO')">RECAMBIO</div>
+        <div class="cond-opt" onclick="selectCond(this,'DESCONTINUADO')">DESCONTINUADO</div>
+        <div class="cond-opt" onclick="selectCond(this,'REEMPLAZO')">REEMPLAZO</div>
+        <div class="cond-opt" onclick="selectCond(this,'OUTLET')">OUTLET</div>
+      </div>
+      <input type="hidden" id="f-condicion" value="NUEVO">
+    </div>
+
+    <!-- CONTENEDOR -->
+    <div class="form-group">
+      <label class="form-label">Contenedor <span class="hint">— Cómo viene el repuesto</span></label>
+      <div class="cond-row" id="contenedor-row">
+        <div class="cont-opt" onclick="selectCont(this,'CAJA ORIGINAL')">📦 CAJA ORIGINAL</div>
+        <div class="cont-opt" onclick="selectCont(this,'BOLSA ORIGINAL')">🛍️ BOLSA ORIGINAL</div>
+        <div class="cont-opt" onclick="selectCont(this,'OTRA CAJA')">🗃️ OTRA CAJA</div>
+        <div class="cont-opt" onclick="selectCont(this,'OTRA BOLSA')">🛍️ OTRA BOLSA</div>
+        <div class="cont-opt" onclick="selectCont(this,'BLISTER')">🫧 BLISTER</div>
+        <div class="cont-opt" onclick="selectCont(this,'SUELTO')">🔩 SUELTO</div>
+        <div class="cont-opt cont-opt-otro" id="cont-opt-otro-btn" onclick="toggleContOtro()">✏️ OTRO...</div>
+      </div>
+      <input type="text" class="form-input" id="f-contenedor-otro" placeholder="Especificá el tipo de contenedor..." style="display:none;margin-top:7px" oninput="syncContOtro(this.value)">
+      <input type="hidden" id="f-contenedor" value="">
+    </div>
+  </div>
+</div>
+
+<!-- 3. TIPO Y COMPATIBILIDAD VEHICULAR -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v5"/><circle cx="15.5" cy="17.5" r="2.5"/><circle cx="5.5" cy="17.5" r="2.5"/></svg>
+    <div class="section-title">Tipo y compatibilidad vehicular</div>
+  </div>
+  <div class="section-body">
+
+    <!-- TIPO DE VEHÍCULO MULTISELECT -->
+    <div class="form-group">
+      <label class="form-label">Tipo de vehículo <span class="hint">— Seleccioná todos los que aplican</span></label>
+      <div class="multicheck-wrap" id="tipo-vehiculo-wrap">
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="TODOS"> TODOS</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Automóvil"> Automóvil</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Bus"> Bus</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Camión"> Camión</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Carro"> Carro</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Pick Up"> Pick Up</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Remolque"> Remolque</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Tractor"> Tractor</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Trailer"> Trailer</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Jeep"> Jeep</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Unimog"> Unimog</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Maquinaria Pesada"> Maquinaria Pesada</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Maquinaria Agrícola"> Maquinaria Agrícola</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Máquina de Construcción"> Máquina de Construcción</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Vehículo Militar"> Vehículo Militar</label>
+        <label class="mc-opt" onclick="toggleMC(this, event)"><input type="checkbox" value="Omnibus - Bus"> Omnibus - Bus</label>
+      </div>
+    </div>
+
+    <!-- APLICACIÓN -->
+    <div class="form-group">
+      <label class="form-label">Aplicación general <span class="hint">Ej: Para todos los VW / Ford / Chevrolet</span></label>
+      <input type="text" class="form-input" id="f-aplicacion" placeholder="Ej: En todos los vehículos que usan Volkswagen / Ford / Chevrolet">
+    </div>
+
+    <!-- MARCAS + MODELOS DINÁMICOS -->
+    <div class="form-group">
+      <label class="form-label">Marcas y modelos compatibles <span class="hint">— Ej: PEUGEOT: 405, 306, 306 diesel · CITROËN: C3, C4</span></label>
+      <div id="marca-modelo-wrap"></div>
+      <button class="multi-add" onclick="addMarcaModelo()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        + Agregar marca de vehículo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. CÓDIGOS DE PROVEEDORES -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+    <div class="section-title">Códigos por proveedor</div>
+  </div>
+  <div class="section-body">
+    <div id="codigos-wrap"></div>
+    <button class="multi-add" onclick="addCodigoProveedor()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      + Agregar código de proveedor
+    </button>
+  </div>
+</div>
+
+<!-- 5. CATÁLOGOS DE PAPEL -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <div class="section-title">Catálogos de papel <span style="font-size:11px;color:var(--text3);font-weight:400">— En qué lista de precio aparece y en qué página</span></div>
+  </div>
+  <div class="section-body">
+    <div id="catalogos-wrap"></div>
+    <button class="multi-add" onclick="addCatalogo()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      + Agregar catálogo / lista de precio
+    </button>
+  </div>
+</div>
+
+<!-- 6. DESCRIPCIÓN -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <div class="section-title">Descripción y observaciones</div>
+  </div>
+  <div class="section-body">
+    <div class="form-group">
+      <label class="form-label">Descripción completa <span class="hint">— Texto enriquecido</span></label>
+      <div class="rich-toolbar" id="tb-desc">
+        <button class="rich-btn" onclick="fmt('bold','desc')" title="Negrita"><b>B</b></button>
+        <button class="rich-btn" onclick="fmt('italic','desc')" title="Cursiva"><i>I</i></button>
+        <button class="rich-btn" onclick="fmt('underline','desc')" title="Subrayado"><u>U</u></button>
+        <button class="rich-btn" onclick="fmt('insertUnorderedList','desc')" title="Lista">≡</button>
+        <button class="rich-btn" onclick="fmt('insertOrderedList','desc')" title="Lista numerada">1.</button>
+        <button class="rich-btn" onclick="insertLink('desc')" title="Link">🔗</button>
+        <button class="rich-btn" onclick="fmt('removeFormat','desc')" title="Limpiar formato">✕</button>
+      </div>
+      <div class="rich-editor" id="f-descripcion" contenteditable="true" data-placeholder="Descripción técnica del repuesto, voltaje, amperios, dimensiones..."></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas internas <span class="hint">— Texto enriquecido, solo vos lo ves</span></label>
+      <div class="rich-toolbar">
+        <button class="rich-btn" onclick="fmt('bold','notas')"><b>B</b></button>
+        <button class="rich-btn" onclick="fmt('italic','notas')"><i>I</i></button>
+        <button class="rich-btn" onclick="fmt('insertUnorderedList','notas')">≡</button>
+        <button class="rich-btn" onclick="insertLink('notas')" title="Link">🔗</button>
+        <button class="rich-btn" onclick="fmt('removeFormat','notas')">✕</button>
+      </div>
+      <div class="rich-editor" id="f-notas" contenteditable="true" data-placeholder="Notas internas: dónde lo compré, a quién contactar, detalles de negociación..."></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="color:var(--amber)">⚠️ IMPORTANTE <span class="hint" style="color:var(--text3)">— Mensaje destacado para compradores</span></label>
+      <input type="text" class="form-input importante-input" id="f-importante" placeholder="Ej: Piezas únicas y originales Renault. Made in France">
+    </div>
+  </div>
+</div>
+
+<!-- 7. STOCK Y LOGÍSTICA -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+    <div class="section-title">Stock y logística</div>
+  </div>
+  <div class="section-body">
+    <div class="row4">
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Stock inicial</label>
+        <input type="number" class="form-input" id="f-stock" value="1" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stock mínimo <span class="hint">Alerta</span></label>
+        <input type="number" class="form-input" id="f-stock-min" value="1" min="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Forma de pago</label>
+        <select class="form-select" id="f-forma-pago">
+          <option>Contado Efectivo</option><option>Transferencia</option>
+          <option>Mercado Pago</option><option>A convenir</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Forma de entrega</label>
+        <select class="form-select" id="f-forma-entrega">
+          <option>A convenir</option><option>Correo Argentino</option>
+          <option>Comisionista</option><option>Micro (cargo del cliente)</option>
+          <option>Andreani</option><option>Retiro en persona</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha de compra</label>
+      <input type="date" class="form-input" id="f-fecha-compra">
+    </div>
+  </div>
+</div>
+
+<!-- 8. PRECIOS -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <div class="section-title">Precios</div>
+  </div>
+  <div class="section-body">
+    <div class="row3">
+      <div class="form-group">
+        <label class="form-label">Moneda</label>
+        <select class="form-select" id="f-moneda" onchange="calcularPrecios()">
+          <option value="ARS">$ ARS — Pesos</option>
+          <option value="USD">U$D — Dólares</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><span class="req">*</span> Precio de costo (lo que pagué)</label>
+        <input type="number" class="form-input" id="f-precio-costo" placeholder="0.00" step="0.01" oninput="calcularPrecios()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">% Ganancia</label>
+        <input type="number" class="form-input" id="f-ganancia-pct" value="40" step="1" oninput="calcularPrecios()">
+      </div>
+    </div>
+    <div class="row4" style="margin-top:4px">
+      <div class="precio-display"><div class="precio-display-label">Sin IVA + ganancia</div><div class="precio-display-val pv-blue" id="calc-sin-iva">$ 0</div></div>
+      <div class="precio-display"><div class="precio-display-label">IVA 21%</div><div class="precio-display-val" style="color:var(--text3)" id="calc-iva">$ 0</div></div>
+      <div class="precio-display"><div class="precio-display-label">Precio venta con IVA ✅</div><div class="precio-display-val pv-green" id="calc-con-iva">$ 0</div></div>
+      <div class="precio-display"><div class="precio-display-label">Con 10% descuento</div><div class="precio-display-val pv-amber" id="calc-descuento">$ 0</div></div>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3)">
+      Ganancia neta: <span id="calc-ganancia-neta" style="color:var(--green);font-weight:500">$ 0</span> &nbsp;·&nbsp;
+      Con descuento: <span id="calc-ganancia-desc" style="color:var(--amber);font-weight:500">$ 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- 9. IMÁGENES MÚLTIPLES -->
+<div class="section-card">
+  <div class="section-head">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <div class="section-title">Imágenes del producto <span style="font-size:10px;color:var(--text3);font-weight:400">— Subidas automáticamente a Cloudinary</span></div>
+  </div>
+  <div class="section-body">
+    <div class="img-grid" id="img-grid"></div>
+    <button class="multi-add" onclick="addImageSlot()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      + Agregar imagen
+    </button>
+    <div style="font-size:10.5px;color:var(--text3);margin-top:6px">JPG, PNG, WEBP — máx 5MB por imagen · La primera imagen es la principal</div>
+  </div>
+</div>
+
+<!-- ACCIONES -->
+<div class="actions-bar">
+  <button class="btn btn-ghost" onclick="limpiarFormulario()">Limpiar</button>
+  <button class="btn btn-success" onclick="guardarRepuesto(false)">
+    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    Guardar y cargar otro
+  </button>
+  <button class="btn btn-primary" onclick="guardarRepuesto(true)" id="btn-guardar">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    Guardar repuesto
+  </button>
+</div>
+
+</div><!-- /form-wrap -->
+
+<script>
+// ── DATOS ─────────────────────────────────────────────
+const PROVEEDORES_LIST = [
+  'BOBINAR','AJ','ALFA (EP)','AR GON','AUTOBAT','AUTOLUBE','BAIML','BOSCH','BYC','BZM',
+  'CL - CARBONES LORRAINE','COR-PAC','DAIPART','DIPRA','DOG','DZE','ECHLIN','ERALSA','FA','FESAL',
+  'GENOUD','GV','HARD','HDS','INDIEL','KESSEL','LC','MIRBA','ML','NOSSO','OMER','ORO',
+  'OSRAM','PH','PHILIPS','PORTAFICH','PRESTOLITE','RALUX','ROHER','ROTOFRANCE','RTM',
+  'SCHUNK','TCH','TURI','VALEO','VEYPA','VUARAM','ZEN','ZM','ZOCCHIO'
+];
+
+const MARCAS_REP_LIST = [
+  '***EN CAJA OTRA MARCA**','***SUELTA***','Acau','Aj','Alfa','Ar-Gon','Artelec',
+  'Autobat','Autolube','Automechanika','Baiml','Baud - Mol','Beru','Bobina Importada',
+  'Bosch','Bronco','Buck','Buffalo','ByC','Bzm','Carbones Lorraine','Carvic',
+  'Case Construcción','Champion','Cibie','Clark','Clips','CNH (Case New Holland)',
+  'Cummins','Daema','Dam','Dauphine - Gordini','Delco Remi','Deutz','Dipra','Doduco',
+  'Dog','Dze','Echlin','Electrotec','Emg','Eralsa','Espaguettis','Estaño: Eximetal',
+  'Fa','Facobras','Fal','Fch','FEMSA','Fesal','Fitam','Flood','G.Cartier','Gama',
+  'Garef','Gauss','Gen Rod','Genoud','Geny','Gg','Gm','Gv: Escobillas','Hard','Hds',
+  'Hella','Hf - Hongfa','Hit','Ht','Icf - Industria Argentina','Impco','Importación',
+  'Indiel','Internacional','Isuzu','Iveco','Izeta','Kessel','Kostal','Kube','Lc',
+  'Leducom: cables unipolar','Liming','Lucas','Magneti Marelli','Maquinaria Pesada',
+  'Marilia','Metal Grab','Mirba','Mitsubishi','Mobiletron','Motorcraft','Narva',
+  'Nashville','New Holland Agr','New Holland Const.','Nosso','Ntn','Omer',
+  'Original Renault','Orlan Rober','Oro','Osfrancor','Osram','Otto Ish','Oyster',
+  'Ph Autopartes Eléctricas','Philips','Portafich','Prestolite','Ralux','Reimotor',
+  'Retenes Dbh','Rofil','Roher','RonBay','Rotofrance','Rtm','Schunk','Staryen',
+  'Sulcarbon','Tacsa','Tch','Telexs','Torycoll','Transpo','Travagliante','Turi',
+  'Unipoint','Valeo','Vesubio','Veypa','Vini Tape (Cinta)','XOXOXO','Zen','Zh','Zm','Zocchio'
+];
+
+const MARCAS_VEH_LIST = [
+  '*UNIVERSAL*','Abarth','Acura','AGCO','AGRALE','Alfa Romeo','AMC','Aston Martin',
+  'ATLAS COPCO','Audi','AUSTIN MORRIS','BEDFORD','Bentley','BMW','BORGWARD','BUCK',
+  'BUICK','Bus Pesados','Cadillac','Camiones Carga Pesada','CASE','CASE CONSTRUCCION',
+  'Caterham','Caterpillar','CBT','CHEROKEE','Chery','Chevrolet','Chrysler','Citroen',
+  'CLARK','CNH (CASE NEW HOLLAND)','CUMMINS','Dacia','Daewoo','Daihatsu','Datsun',
+  'DATSUN CONSTRUCCIONES','DAUPHINE','DECAROLI','DELCO','DEUTZ','DFSK','DIMEX','Dodge',
+  'DS','EATON','ERALSA','Ferrari','Fiat','Ford','GMC','GURGEL','HOLDEN','Honda',
+  'Hummer','HYSTER','Hyundai','IKA','IME','IMPCO','Infiniti','INTERNATIONAL',
+  'INTERNATIONAL ENGINES','Isuzu','Iveco','Jaguar','Jeep','John Deere','Kia','KTM',
+  'KUBOTA','Lada','Lamborghini','Lancia','Land Rover','Lexus','Lincoln','Lotus',
+  'Maquinaria Agrícola','Maquinaria Pesada','Maquinaria Pesada de Construcción',
+  'Maquinaria Pesada Pala Cargadora','MARCOPOLO','Maserati','Massey Ferguson','MAXION',
+  'Mazda','McLaren','Mercedes Benz','Mercury','Mini','Mitsubishi','Morgan','MOTORCRAFT',
+  'MULLER','MWM','NASHVILLE','NAVISTAR','NEW HOLLAND AGR','NEW HOLLAND CONTR','Nissan',
+  'Opel','Perkins','Peugeot','Piaggio','Pontiac','Porsche','RAM','Rastrojero','Renault',
+  'Rolls-Royce','Rover','Saab','SangYong','Scania','Seat','SHANGAI Camión chino 3Star',
+  'Skoda','Smart','SsangYong','Subaru','Suzuki','Tata','TCM EQUIPMENT AG','Tesla',
+  'Torino','Toyota','TROLLER','Unimog Vehiculo Militar','VALMET','VALTRA','VASSALI',
+  'VAUXHALL','Volkswagen','Volvo','WORKHORSE','YAMMAR','Yanmar','YUEN JIN','ZANELLO'
+];
+
+// ── INIT ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('f-fecha-compra').valueAsDate = new Date();
+  // Cargar datos estáticos de inmediato (para que los selects no queden vacíos)
+  cargarFallbackEstatico();
+  // Luego intentar sobrescribir con datos reales de Firebase
+  cargarSelectsDesdeFirebase();
+  // Agregar filas iniciales
+  addMarcaModelo();
+  addCodigoProveedor();
+  addCatalogo();
+  // Fabricante inicial
+  loadMarcasRepSelect(document.querySelector('[data-field="fabricante"]'));
+});
+
+// ── FALLBACK ESTÁTICO (siempre disponible) ────────────
+function cargarFallbackEstatico() {
+  const CATS = ['Abrazadera','Acoples','Alternador Completo','Alternador Completo | Bosch','Alternador Completo | Denso','Alternador Completo | Monoblock','Alternador Completo | Reparaciones','Alternador Completo | Trifásico','Alternador con Refrigeración Líquida','Alternador Despiece','Alternador Despiece | Aislaciones para Alternador','Alternador Despiece | Aislación del Rotor','Alternador Despiece | Aislante Borne B+ Positivo Alternador','Alternador Despiece | Arandela de la Tuerca del Rotor','Alternador Despiece | Arandela Ondulada Alternador','Alternador Despiece | Borne Positivo y Negativo de Alternador','Alternador Despiece | Buje Soporta Alternador','Alternador Despiece | Bujes de Plástico para Rulemanes','Alternador Despiece | Bujes Partido de Alternador','Alternador Despiece | Carbones de Alternador','Alternador Despiece | Chaveta Medialuna','Alternador Despiece | Colector de Arranque','Alternador Despiece | Conjunto Electrónico Puente Rectificador','Alternador Despiece | Conjunto Tornillos Armado Alternador','Alternador Despiece | Diodos Positivos + - Diodos Negativos -','Alternador Despiece | Espaciador','Alternador Despiece | Estator (Alternador)','Alternador Despiece | Junta Porta Escobillas Alternador','Alternador Despiece | Plaqueta Circuito Impreso','Alternador Despiece | Plaqueta Porta DIODOS | RECTIFICADORAS | Conjunto Puente Rectificador','Alternador Despiece | Polea en V','Alternador Despiece | Polea Multivia','Alternador Despiece | Poleas','Alternador Despiece | Porta Escobilla de Alternador','Alternador Despiece | Reguladores de voltaje','Alternador Despiece | Retén Alternador','Alternador Despiece | Retén Alternador 2','Alternador Despiece | Retén o Goma Tope Rulemán','Alternador Despiece | Retén Sujeta Rulemán','Alternador Despiece | Retén Sujeta Rulemán 2','Alternador Despiece | Rodamiento TEI y TEC de alternador','Alternador Despiece | Rotor Alternador','Alternador Despiece | Rulemán para Alternador','Alternador Despiece | Seguro del Rotor de Alternador','Alternador Despiece | Separador de Alternador','Alternador Despiece | Soporte Alternador','Alternador Despiece | Tapa Alternador Trasera Entremo Colector','Alternador Despiece | Tapa de Alternador Delantera','Alternador Despiece | Tapa de Alternadores','Alternador Despiece | Tapa Porta Escobillas Alternador','Alternador Despiece | Tapa Soporte Rodamiento o Tapa Retén Ruleman','Alternador Despiece | Tornillo Alternador','Alternador Despiece | Tornillo Autoroscante Alternador','Alternador Despiece | Tornillo Renté','Alternador Despiece | Tornillo Sujeta Alternador','Alternador Despiece | Tornillos Armados para Alternador','Alternador Despiece | Tornillos Pasante Alternador','Alternador Despiece | Traba Porta Escobillas Alternador','Alternador Despiece | Tuerca - Tornillo - Arandela Aislante - Aislante - Terminal de Conexion - Tornillo Borne w','Alternador Despiece | Tuerca del rotor','Arandela Aluminio','Arandela de Plástico Nylon','Arandela Hierro','Arandelas de Hierro','Aro Bocina','Aros Opticas','Arranque BNG | Arandela de bronce','Arranque Despice | Seguro Tipo U Freno','Arranque Despiece','Arranque Despiece BNG | Borne Potencia Curvo','Arranque Despiece | Aislante Carcaza','Arranque Despiece | Aislante de Carcaza','Arranque Despiece | Anillo Seguer Seguro de Bobina','Arranque Despiece | Arandela Cónica de Hierro Freno','Arranque Despiece | Arandela de Freno','Arranque Despiece | Arandela de Freno Picadillo','Arranque Despiece | Arandela de Plástico para Impulsor de Arranque','Arranque Despiece | Arandela Fibra Freno EJD Bosch Brasil','Arranque Despiece | Arandela Freno Baquelita','Arranque Despiece | Arandela Hierro Doble pestaña de Freno','Arranque Despiece | Arandela Hierro EJD Bosch','Arranque Despiece | Arandela Hierro Freno Lado Colector Bosch JF','Arranque Despiece | Arandela Micarta Lado Colector','Arranque Despiece | Arandela Traba Impulsor de Arranque','Arranque Despiece | BAKELITA Porta escobilla','Arranque Despiece | Barrilito','Arranque Despiece | Barrilito Impulsor de Arranque','Arranque Despiece | BNG','Arranque Despiece | Borne de Maza de la Tapa del Solenoide','Arranque Despiece | Campos de Arranque','Arranque Despiece | Capuchón Goma Salida de Campo','Arranque Despiece | Capuchón Porta Escobilla o Carbón','Arranque Despiece | Carbones de Arranque','Arranque Despiece | Carcasa de Arranque','Arranque Despiece | Carcaza','Arranque Despiece | Chaveta Campana Impulsor','Arranque Despiece | Chavetas Varias','Arranque Despiece | Cinta para Campos','Arranque Despiece | Colectores Bobina de Arranque','Arranque Despiece | Collares y Seguros','Arranque Despiece | Contactor de Arranque','Arranque Despiece | Cubre Impulsor de Arranque o Tapa de Arranque','Arranque Despiece | Engranaje de Planetarios','Arranque Despiece | Engranajes','Arranque Despiece | Espina Tuerca Tope Impulsor','Arranque Despiece | Goma Aislación Planetario','Arranque Despiece | Goma Antivibradora Planetario','Arranque Despiece | Goma de Cierre','Arranque Despiece | Goma de Salida de Campo','Arranque Despiece | Goma Planetario','Arranque Despiece | Goma Salida de Campo','Arranque Despiece | Gomas Aislación Salida de Campo','Arranque Despiece | Impulsor Motor de Arranque','Arranque Despiece | Inducidos de Arranque - Bobina de Arranque','Arranque Despiece | Juego de Aislaciones Carcaza','Arranque Despiece | Juego de Aislación Carcaza','Arranque Despiece | Juego de Arandelas y Frenos','Arranque Despiece | Juego de Buje Salida de Arranque','Arranque Despiece | Juego de Goma Planetario','Arranque Despiece | Juego de Retén de Piñon','Arranque Despiece | Juego Juntas Cierre Tapa','Arranque Despiece | Juego para Reparar Tapa Porta Escobillas o Carbones','Arranque Despiece | Juego Retenes de Goma Tornillos Pasantes','Arranque Despiece | Junta Tapa Guardapolvo','Arranque Despiece | Junta Tapa Solenoide','Arranque Despiece | Masa Polar','Arranque Despiece | ORing de Cierre Tapa Intermedia','Arranque Despiece | Planetario','Arranque Despiece | Planetario con Eje Reductor y Engranajes','Arranque Despiece | Planetario de Arranque','Arranque Despiece | Porta Escobilla o Carbones Solo','Arranque Despiece | Porta Escobillas o Carbones Completo','Arranque Despiece | Porta Escobillas o Carbones Supresor de Ruido','Arranque Despiece | Relé o Solenoide','Arranque Despiece | Resorte Barrilito','Arranque Despiece | Resorte Porta Escobilla o Carbón','Arranque Despiece | Resortes Varios Porta Escobillas o Carbones','Arranque Despiece | Retén Tapa Intermedia','Arranque Despiece | Salidas y Mallas de Arranque','Arranque Despiece | Seguro Traba Inducido','Arranque Despiece | Seguros de Bobina de Arranque','Arranque Despiece | Solenoide de Arranque Tipo Bosch','Arranque Despiece | Solenoide o Automático - Bendix - Relé de Engrane - Relé de Arranque - Chanchito','Arranque Despiece | Solenoide | Contacto Solenoide','Arranque Despiece | Solenoide | Pistón de Solenoide','Arranque Despiece | Solenoide | Puente Cobre de Solenoide','Arranque Despiece | Solenoide | Registros de Solenoide','Arranque Despiece | Solenoide | Tapón Registro de solenoide arranque','Arranque Despiece | Solenoide | Tornillo Registro de solenoide de Arranque','Arranque Despiece | Suncho Arranque','Arranque Despiece | Suplemento de Arranque','Arranque Despiece | Suplementos de Arranque','Arranque Despiece | Tacos de Goma Salida de Campos','Arranque Despiece | Tapa de Solenoide','Arranque Despiece | Tapa Intermedia','Arranque Despiece | Tapa Porta Carbon de Arranque','Arranque Despiece | Tapa Portaescobillas','Arranque Despiece | Tapa Retén Piñon Arranque','Arranque Despiece | Tope Impulsor','Arranque Despiece | Tornillo de Masa Polar','Arranque Despiece | Tornillo Freno Arranque con Rosca Giro Izquierdo','Arranque Despiece | Tornillo Pasante de Arranque','Arranque Despiece | Tornillo Sujeta Solenoide','Arranque Despiece | Traba Inducido','Arranque Despiece | Tuerca Bonina','Arranque Despiece | Tuerca y Seguro de Eje Tensor','Arranque FKB -','Arranque FKB | Arandela de Tope','Arranque FKB | Arandela Deflectora de Piñón','Arranque FKB | Chaveta Plana Eje Lado Piñón','Arranque FKB | Eje Tensor Largo Corto Mediano','Arranque | Horquilla de Mando Arranque','Arranque | Horquilla de Mando Sola','Arranque | Motor de Arranque','Arranque | Patines de Horquilla de Mando','Arranque | Patines Horquilla de Mando','Arranque | Perno y Trabas de Horquilla de Mando','Arranque | Pivote Plástico de Horquilla','Arranque | Porta Patines de Horquilla de Mando','Arranque | Reparaciones','Arranque | Trabas y Pivote y de Metal de Horquilla','Barreros | Goma para Barro','Bateria | Borne 1056 Plomo Antimonioso','Bateria | Borne 1500 Bronce','Bateria | Borne 1700 Bronce','Bateria | Borne 1800 Bronce','Bateria | Borne 1856 Plomo Antimonioso','Bateria | Borne 1900 Plomo Antimonioso','Bateria | Borne 2005 Bronce','Bateria | Borne 2006 Bronce','Bateria | Borne 2056 Plomo Antimonioso','Bateria | Borne 2100 Bronce','Bateria | Carga de Baterías','Bateria | Cargadores de Baterías','Bateria | Clips de Baterias','Bateria | Corta Corriente','Bateria | Corta Corriente Sobre Batería','Bateria | Nuevas','Bateria | Pinza Puente','Bateria | Servicio de Carga de Bateria','Batería | Bornes','Bobina de Ignición','Bobina de Ignición o Resistores','Bocinas','Bomba de Combustible Mecánica y Eléctrica','Bomba de Inyección | Solenoide de Pare','Buje Centrador','Bujes','Bujía Post-Calentamiento','Bujías de Encendido','Bujías de Pre-Calentamiento','Bulbo de Aceite','Bulbo de Electroventilador','Bulbo de Temperatura','Bulbo Marcha Atrás','Bulbos | Interruptores, Bulbos','Bulones Tuercas Arandelas','Cable | Espaguetti Termocontraible','Cable | Espaguettis','Cable | Instalaciones Eléctricas, Elementos para','Cables','Capuchón Tapa Goma Óptica','Carbones o Escobillas de arranque y Alternador','Cerradura','Cerraduras','Cinta Aislante','Conmutador de Luces, Giros y Limpiaparabrisas','Contactores','Correa','Distribuidor Despiece | Avance Al Vacio','Distribuidor Despiece | Cable de Bujía','Distribuidor Despiece | Cables de Bujías','Distribuidor Despiece | Captor','Distribuidor Despiece | Condensadores','Distribuidor Despiece | Placa Electrónica con Captor Hall','Distribuidor Despiece | Platinos','Distribuidor Despiece | Rotor','Distribuidor Despiece | Tapa','Distribuidor | Completo','Distribuidor | Despiece','Dínamo','Electroventilador','Electroventilador | Resistencia','Electroventilador | Resistencia Electroventilador','Electroventilador | Soporte','Electroventiladores, y Paletas','Emuladores','Encendedor de Cigarrillos automático','Escobillas','Estaño y Estañolín','Faros BAIML','Faros GAMA','Faros y Lentes Marcas','Faros | Circuito Impreso','Faros | Lente BAIML','Ficha | Caja Fusibleras','Ficha | Conectores Inyectados','Ficha | Conectores Linea Pesada','Ficha | Conectores para Armar','Ficha | Conectores para Trailers','Ficha | Contactores Inyección Electrónica','Ficha | Enchufes de Acoplados, Motorhome.','Ficha | Fusible | 1 Amper','Ficha | Fusible | 2 Amper','Ficha | Fusible | 4 Amper','Ficha | Fusible | 5 Amper','Ficha | Fusible | Maxi 100 Amper','Ficha | Fusible | Maxi 20 Amper','Ficha | Fusible | Maxi 30 Amper','Ficha | Fusible | Maxi 40 Amper','Ficha | Fusible | Maxi 50 Amper','Ficha | Fusible | Maxi 60 Amper','Ficha | Fusible | Maxi 70 Amper','Ficha | Fusible | Maxi 80 Amper','Ficha | Fusible | Muela Macho 100 Amper','Ficha | Fusible | Muela Macho 30 Amper','Ficha | Fusible | Muela Macho 40 Amper','Ficha | Fusible | Muela Macho 50 Amper','Ficha | Fusible | Muela Macho 60 Amper','Ficha | Fusible | Muela Macho 80 Amper','Ficha | Fusibles','Ficha | Fusibles | Cónico Europeo','Ficha | Fusibles | Desnudo','Ficha | Fusibles | Fusible Ficha','Ficha | Fusibles | Mega 100 Amper','Ficha | Fusibles | Mega 150 Amper','Ficha | Fusibles | Mega 175 Amper','Ficha | Fusibles | Mega 200 Amper','Ficha | Fusibles | Mega 225 Amper','Ficha | Fusibles | Mega 250 Amper','Ficha | Fusibles | Mega 300 Amper','Ficha | Fusibles | Mega 350 Amper','Ficha | Fusibles | Mega 400 Amper','Ficha | Fusibles | Mega Mini','Ficha | Fusibles | Mini 10 Amper','Ficha | Fusibles | Mini 15 Amper','Ficha | Fusibles | Mini 2 Amper','Ficha | Fusibles | Mini 20 Amper','Ficha | Fusibles | Mini 25 Amper','Ficha | Fusibles | Mini 3 Amper','Ficha | Fusibles | Mini 30 Amper','Ficha | Fusibles | Mini 35 Amper','Ficha | Fusibles | Mini 4 Amper','Ficha | Fusibles | Mini 5 Amper','Ficha | Fusibles | Mini 7.5 Amper','Ficha | Fusibles | Pal Clip','Ficha | Fusibles | Pal Clip Mini','Ficha | Fusibles | Pal Hembra','Ficha | Fusibles | Pal Hembra Micro','Ficha | Fusibles | Pal Hembra Mini','Ficha | Fusibles | Pal Hembra Mini Perfil Bajo','Ficha | Fusibles | Pal Macho','Ficha | Fusibles | Pal Macho 48','Ficha | Fusibles | Pal Macho 62','Ficha | Fusibles | Vidrio','Ficha | Porta Fusibles','Ficha | Ramal Bomba Combustible','Ficha | Tablero - Mazos de Conexión','Ficha | Terminales','Ficha | Terminales de Instalación de Bronce','Ficha | Terminales de Instalación para Cables','Fichas para portalámparas','Flotantes','Hélices','Instrumental Relojes','Llave | Cortacorriente','Llave | Llave Anti Robo','Llave | Llave Conmutador Interruptor Comando Luces','Llave | Llave Contacto y Luces Universal','Llave | Llave Cromada','Llave | Llave de Contacto','Llave | Llave de Luces Volante','Llave | Llave de Precalentamiento y Arranque Universal','Llave | Llave Inversora Tablero','Llave | Llave Limpia Parabrizas','Llave | Llave un Punto Tablero','Luces | Cambio de Luz de Piso','Luces | Destelladores','Luces | Luz Led Piloto Indicador Testigo','Luces | Luz Piloto Testigo','Luces | Luz Piloto | LED','Luces | Portátiles','Luces | Volante | Plaqueta de Giro | Interruptor Direccional','Lámpara | Lampara Tablero','Lámpara | Lampara Tablero | LED','Lámpara | Lamparitas para Tableros','Lámpara | Lámpara Portátil','Lámpara | Lámparas','Lámpara | Porta Lampara Metal','Lámpara | Porta Lampara Plastico','Lámpara | Portalampara de Tablero','Lámpara | Portalampara | Chicote','Lámpara | Portalámparas Metálicos','Lámpara | Portalámparas Plásticos','Módulo | Modulo de Encendido','Módulo | Módulos de Ignición','Módulo | Precalentador','Opticas | Livianos | Pesados | Deportivos | Público','Parrilla','Parrilla | Insignia Parrilla o Logo','Poleas','Precinto Plástico','Relay | Minis Relays | Micro Relay DE ENCENDIDO','Resorte | Resorte Bulbo de Freno','Resorte | Resorte de Acelerador','Resorte | Resorte de Ópticas','Resorte | Resorte Impulsor','Ruleman | Alternador - Arranque - Otros','Sensores','Soldador de Estaño','Tecla Llave un Punto Metal','Tecla o Interruptores','Tecla o Llave de Punto','Teclas','Teclas | Teclas y Módulos','Temporizadores','Terminal de Cobre para Cable','Terminal de Cobre Reforzado Estaño para Cable','Termostatos','Varios'].sort((a,b)=>a.localeCompare(b,'es'));
+  document.getElementById('f-categoria').innerHTML = '<option value="">Seleccione categoría</option>' + CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const estList = ['1ra - Frente','1ra - Dorso','2da - Frente','2da - Dorso','3ra - Frente Izquierda','3ra - Frente Derecha','3ra - Dorso Izquierda','3ra - Dorso Derecha','4ta - Frente Izquierda','4ta - Frente Derecha','4ta - Dorso Izquierda','4ta - Dorso Derecha','5ta - Frente Izquierda','5ta - Frente Derecha','5ta - Dorso Izquierda','5ta - Dorso Derecha','Acomodar'];
+  document.getElementById('f-estanteria').innerHTML = '<option value="">Seleccione</option>' + estList.map(e=>`<option value="${e}">${e}</option>`).join('');
+  const estantes = [...Array(14)].map((_,i)=>`<option value="${i+1}">${i+1}</option>`).join('') + '<option value="Acomodar">Acomodar</option>';
+  document.getElementById('f-estante').innerHTML = '<option value="">Seleccione</option>' + estantes;
+}
+
+// Cargar desde Firebase — el iframe inicializa su propia conexión, sin depender del parent
+async function cargarSelectsDesdeFirebase() {
+  try {
+    const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+
+    // Reusar app existente si ya fue inicializada (evita error "already exists")
+    const FIREBASE_CONFIG = {
+      apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+      authDomain:        "repuestos-automotor.firebaseapp.com",
+      projectId:         "repuestos-automotor",
+      storageBucket:     "repuestos-automotor.firebasestorage.app",
+      messagingSenderId: "952203469999",
+      appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+    };
+    const apps = getApps();
+    const app = apps.find(a => a.name === 'form-repuesto') || initializeApp(FIREBASE_CONFIG, 'form-repuesto');
+    const db = getFirestore(app);
+    window._db = db; // guardar para uso posterior
+    // Categorías
+    const catSnap = await getDocs(collection(window._db, 'categorias'));
+    const cats = catSnap.docs
+      .map(d => ({ id: d.id, nombre: d.data().nombre }))
+      .filter(x => x.nombre)
+      .sort((a,b) => a.nombre.localeCompare(b.nombre,'es'));
+    // Guardar mapa global id→nombre para usarlo al editar
+    window._CATS_MAP = {};
+    cats.forEach(c => { window._CATS_MAP[c.id] = c.nombre; window._CATS_MAP[c.nombre] = c.id; });
+    const catSel = document.getElementById('f-categoria');
+    catSel.innerHTML = '<option value="">Seleccione categoría</option>' + cats.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('');
+    // Estanterías
+    const estSnap = await getDocs(collection(window._db, 'estanterias'));
+    const ests = estSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.orden||0)-(b.orden||0));
+    const estSel = document.getElementById('f-estanteria');
+    if (ests.length > 0) {
+      estSel.innerHTML = '<option value="">Seleccione</option>' + ests.map(e=>`<option value="${e.id_mysql||e.id}">${e.nombre||e.id_mysql}</option>`).join('');
+    } else {
+      // Colección vacía → fallback estanterías estáticas
+      const estList = ['1ra - Frente','1ra - Dorso','2da - Frente','2da - Dorso','3ra - Frente Izquierda','3ra - Frente Derecha','3ra - Dorso Izquierda','3ra - Dorso Derecha','4ta - Frente Izquierda','4ta - Frente Derecha','4ta - Dorso Izquierda','4ta - Dorso Derecha','5ta - Frente Izquierda','5ta - Frente Derecha','5ta - Dorso Izquierda','5ta - Dorso Derecha','Acomodar'];
+      estSel.innerHTML = '<option value="">Seleccione</option>' + estList.map(e=>`<option value="${e}">${e}</option>`).join('');
+    }
+    // Estantes
+    const estanSnap = await getDocs(collection(window._db, 'estantes'));
+    const estans = estanSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.numero||0)-(b.numero||0));
+    const estanSel = document.getElementById('f-estante');
+    if (estans.length > 0) {
+      estanSel.innerHTML = '<option value="">Seleccione</option>' + estans.map(e=>`<option value="${e.id_mysql||e.id}">${e.nombre||e.numero||e.id_mysql}</option>`).join('');
+    } else {
+      // Colección vacía → fallback numérico
+      const estantes = [...Array(14)].map((_,i)=>`<option value="${i+1}">${i+1}</option>`).join('') + '<option value="Acomodar">Acomodar</option>';
+      estanSel.innerHTML = '<option value="">Seleccione</option>' + estantes;
+    }
+    // Marcas de repuesto desde Firestore
+    const mrSnap = await getDocs(collection(window._db, 'marcas_repuesto'));
+    if (mrSnap.docs.length > 0) {
+      const marcasFirestore = mrSnap.docs.map(d=>d.data().nombre||d.id).filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
+      window._MARCAS_REP_FIRESTORE = marcasFirestore;
+      document.querySelectorAll('[data-field="fabricante"]').forEach(sel => {
+        const val = sel.value;
+        sel.innerHTML = '<option value="">Seleccione marca de repuesto</option>' + marcasFirestore.map(m=>`<option value="${m}">${m}</option>`).join('');
+        if (val) sel.value = val;
+      });
+    }
+
+    // ── Marcas de vehículo desde Firestore ───────────────
+    const mvSnap = await getDocs(collection(window._db, 'marcas_vehiculo'));
+    if (mvSnap.docs.length > 0) {
+      const marcasVeh = mvSnap.docs.map(d=>d.data().nombre||d.id).filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
+      // Guardar en variable global fresca (no pisar el array estático)
+      window._MARCAS_VEH_FIRESTORE = marcasVeh;
+      MARCAS_VEH_LIST.length = 0;
+      marcasVeh.forEach(m => MARCAS_VEH_LIST.push(m));
+      // Actualizar selects ya renderizados en el DOM
+      document.querySelectorAll('[data-field="marca-veh"]').forEach(sel => {
+        const val = sel.value;
+        sel.innerHTML = '<option value="">Seleccione marca de vehículo</option>' + marcasVeh.map(m=>`<option value="${m}">${m}</option>`).join('');
+        if (val) sel.value = val;
+      });
+    }
+
+    // ── Proveedores desde Firestore ───────────────────────
+    const provSnap = await getDocs(collection(window._db, 'proveedores'));
+    if (provSnap.docs.length > 0) {
+      const proveedores = provSnap.docs.map(d=>d.data().nombre||d.id).filter(Boolean).sort((a,b)=>a.localeCompare(b,'es'));
+      // Guardar en variable global fresca
+      window._PROVEEDORES_FIRESTORE = proveedores;
+      PROVEEDORES_LIST.length = 0;
+      proveedores.forEach(p => PROVEEDORES_LIST.push(p));
+      // Actualizar selects ya renderizados en el DOM
+      document.querySelectorAll('.codigo-row select').forEach(sel => {
+        const val = sel.value;
+        sel.innerHTML = '<option value="">Seleccione proveedor</option>' + proveedores.map(p=>`<option value="${p}">${p}</option>`).join('');
+        if (val) sel.value = val;
+      });
+    }
+
+  } catch(e) {
+    console.warn('Error cargando selects desde Firebase, usando fallback:', e);
+    cargarFallbackEstatico();
+  }
+}
+
+// ── TIPO ORIGINAL/COPIA ───────────────────────────────
+window.selectTipo = (val) => {
+  document.getElementById('f-tipo').value = val;
+  document.getElementById('tipo-orig').classList.toggle('selected', val==='ORIGINAL');
+  document.getElementById('tipo-copy').classList.toggle('selected', val==='COPIA');
+};
+
+// ── CONDICIÓN ─────────────────────────────────────────
+window.selectCond = (el, val) => {
+  document.querySelectorAll('.cond-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('f-condicion').value = val;
+};
+
+// ── CONTENEDOR ────────────────────────────────────────
+window.selectCont = (el, val) => {
+  // Deseleccionar todos y ocultar campo "otro"
+  document.querySelectorAll('.cont-opt').forEach(e=>e.classList.remove('selected'));
+  document.getElementById('f-contenedor-otro').style.display = 'none';
+  el.classList.add('selected');
+  document.getElementById('f-contenedor').value = val;
+};
+window.toggleContOtro = () => {
+  const btn   = document.getElementById('cont-opt-otro-btn');
+  const input = document.getElementById('f-contenedor-otro');
+  const isOpen = input.style.display !== 'none';
+  if (isOpen) {
+    // Cerrar
+    input.style.display = 'none';
+    btn.classList.remove('selected');
+    document.getElementById('f-contenedor').value = '';
+  } else {
+    // Abrir y deseleccionar los otros
+    document.querySelectorAll('.cont-opt').forEach(e=>e.classList.remove('selected'));
+    btn.classList.add('selected');
+    input.style.display = 'block';
+    input.focus();
+    document.getElementById('f-contenedor').value = input.value;
+  }
+};
+window.syncContOtro = (val) => {
+  document.getElementById('f-contenedor').value = val.trim();
+};
+
+// ── TIPO VEHÍCULO MULTICHECK ──────────────────────────
+window.toggleMC = (el, event) => {
+  if (event) event.preventDefault(); // evita el doble disparo label->checkbox
+  el.classList.toggle('selected');
+  el.querySelector('input').checked = el.classList.contains('selected');
+};
+
+// ── FABRICANTES MÚLTIPLES ─────────────────────────────
+function loadMarcasRepSelect(sel) {
+  const lista = window._MARCAS_REP_FIRESTORE || MARCAS_REP_LIST;
+  sel.innerHTML = '<option value="">Seleccione marca de repuesto</option>' + lista.map(m=>`<option value="${m}">${m}</option>`).join('');
+}
+window.addFabricante = () => {
+  const wrap = document.getElementById('fabricantes-wrap');
+  const div  = document.createElement('div');
+  div.className = 'multi-row';
+  div.innerHTML = `
+    <select class="form-select" data-field="fabricante">
+      <option value="">Seleccione marca de repuesto</option>
+      ${(window._MARCAS_REP_FIRESTORE||MARCAS_REP_LIST).map(m=>`<option value="${m}">${m}</option>`).join('')}
+    </select>
+    <button class="multi-remove" onclick="this.parentElement.remove()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  wrap.insertBefore(div, wrap.lastElementChild);
+};
+
+// ── MARCAS + MODELOS ──────────────────────────────────
+window.addMarcaModelo = () => {
+  const wrap = document.getElementById('marca-modelo-wrap');
+  const div  = document.createElement('div');
+  div.className = 'marca-modelo-row';
+  const listaVeh = window._MARCAS_VEH_FIRESTORE || MARCAS_VEH_LIST;
+  div.innerHTML = `
+    <div class="marca-modelo-top">
+      <select class="form-select" style="flex:1" data-field="marca-veh">
+        <option value="">Seleccione marca de vehículo</option>
+        ${listaVeh.map(m=>`<option value="${m}">${m}</option>`).join('')}
+      </select>
+      <button class="multi-remove" onclick="this.closest('.marca-modelo-row').remove()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="marca-modelo-modelos">
+      <input type="text" class="form-input" data-field="modelos-veh" placeholder="Modelos compatibles: 306, 405, 206, PARTNER, 306 diesel...">
+    </div>
+    <div class="marca-modelo-hint">Separar modelos con coma: 306, 405, 206 1.9 diesel, PARTNER</div>`;
+  wrap.appendChild(div);
+};
+
+// ── CÓDIGOS PROVEEDORES ───────────────────────────────
+window.addCodigoProveedor = () => {
+  const wrap = document.getElementById('codigos-wrap');
+  const div  = document.createElement('div');
+  div.className = 'codigo-row';
+  const listaProvActual = window._PROVEEDORES_FIRESTORE || PROVEEDORES_LIST;
+  div.innerHTML = `
+    <select><option value="">Seleccione proveedor</option>${listaProvActual.map(p=>`<option value="${p}">${p}</option>`).join('')}</select>
+    <input type="text" placeholder="Código del proveedor para este producto">
+    <button class="multi-remove" onclick="this.parentElement.remove()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  wrap.appendChild(div);
+};
+
+// ── CATÁLOGOS PAPEL ───────────────────────────────────
+window.addCatalogo = () => {
+  const wrap = document.getElementById('catalogos-wrap');
+  const div  = document.createElement('div');
+  div.className = 'catalogo-row';
+  div.innerHTML = `
+    <input type="text" class="form-input" placeholder="Nombre catálogo / lista (Ej: Hard, Dipra, Bosch)">
+    <input type="text" class="form-input" placeholder="Página N°">
+    <button class="multi-remove" onclick="this.parentElement.remove()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  wrap.appendChild(div);
+};
+
+// ── IMÁGENES MÚLTIPLES ────────────────────────────────
+let imgCount = 0;
+
+// Input oculto para selección múltiple
+(function() {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.id = 'multi-img-input';
+  inp.accept = 'image/*'; inp.multiple = true;
+  inp.style.display = 'none';
+  inp.addEventListener('change', async function() {
+    const files = Array.from(this.files);
+    if (!files.length) return;
+    for (const file of files) await crearYSubirSlot(file);
+    this.value = ''; // reset para permitir re-selección
+  });
+  document.body.appendChild(inp);
+})();
+
+window.addImageSlot = () => {
+  document.getElementById('multi-img-input').click();
+};
+
+async function crearYSubirSlot(file) {
+  if (file.size > 5*1024*1024) { if(window.toast) window.toast(`${file.name}: mayor a 5MB, omitida`,'error'); return; }
+  const grid = document.getElementById('img-grid');
+  const id   = `img-slot-${++imgCount}`;
+  const div  = document.createElement('div');
+  div.className = 'img-slot filled';
+  div.id = id;
+
+  // Preview inmediato
+  const objUrl = URL.createObjectURL(file);
+  div.innerHTML = `
+    <img src="${objUrl}" alt="preview">
+    <button class="img-remove" onclick="event.stopPropagation();removeImageSlot('${id}')">✕</button>
+    <div class="img-progress" id="prog-${id}" style="transform:scaleX(0)"></div>`;
+  grid.appendChild(div);
+
+  // Subir a Cloudinary
+  if (window.subirImagenCloudinary) {
+    try {
+      const url = await window.subirImagenCloudinary(file, (p) => {
+        const bar = document.getElementById(`prog-${id}`);
+        if (bar) bar.style.transform = `scaleX(${p/100})`;
+      });
+      div.dataset.url = url;
+    } catch(e) {
+      if(window.toast) window.toast(`Error al subir ${file.name}`,'error');
+      div.remove();
+    }
+  }
+}
+
+window.handleImageUpload = async (input, slotId) => {
+  // Compatibilidad con slots individuales viejos
+  if (!input.files[0]) return;
+  await crearYSubirSlot(input.files[0]);
+  document.getElementById(slotId)?.remove();
+};
+
+window.removeImageSlot = (slotId) => {
+  document.getElementById(slotId)?.remove();
+};
+
+// ── EDITOR ENRIQUECIDO ────────────────────────────────
+window.fmt = (cmd, field) => {
+  document.getElementById(`f-${field}`).focus();
+  document.execCommand(cmd, false, null);
+};
+window.insertLink = (field) => {
+  const url = prompt('URL del link:');
+  if (url) { document.getElementById(`f-${field}`).focus(); document.execCommand('createLink', false, url); }
+};
+
+// ── CÁLCULO DE PRECIOS ────────────────────────────────
+const fmtPeso = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n||0);
+window.calcularPrecios = () => {
+  const costo = parseFloat(document.getElementById('f-precio-costo').value)||0;
+  const pct   = parseFloat(document.getElementById('f-ganancia-pct').value)||40;
+  const sinIva  = costo * (1 + pct/100);
+  const iva     = sinIva * 0.21;
+  const conIva  = sinIva + iva;
+  const conDesc = conIva * 0.9;
+  document.getElementById('calc-sin-iva').textContent   = fmtPeso(sinIva);
+  document.getElementById('calc-iva').textContent       = fmtPeso(iva);
+  document.getElementById('calc-con-iva').textContent   = fmtPeso(conIva);
+  document.getElementById('calc-descuento').textContent = fmtPeso(conDesc);
+  document.getElementById('calc-ganancia-neta').textContent = fmtPeso(sinIva - costo);
+  document.getElementById('calc-ganancia-desc').textContent = fmtPeso(conDesc - costo);
+  window._precios = {sinIva, iva, conIva, conDesc, costo};
+};
+
+// ── RECOLECTAR DATOS ──────────────────────────────────
+function recolectarDatos() {
+  const tiposVeh = [...document.querySelectorAll('#tipo-vehiculo-wrap .mc-opt.selected')]
+    .map(el => el.querySelector('input').value);
+  const fabricantes = [...document.querySelectorAll('[data-field="fabricante"]')]
+    .map(el => el.value).filter(v => v);
+  const marcasModelos = [...document.querySelectorAll('.marca-modelo-row')].map(row => ({
+    marca:   row.querySelector('[data-field="marca-veh"]')?.value || '',
+    modelos: row.querySelector('[data-field="modelos-veh"]')?.value || ''
+  })).filter(m => m.marca);
+  const codigos = [...document.querySelectorAll('#codigos-wrap .codigo-row')].map(row => {
+    const sel = row.querySelector('select'); const inp = row.querySelector('input');
+    return sel?.value && inp?.value ? {proveedor: sel.value, codigo: inp.value} : null;
+  }).filter(Boolean);
+  const catalogos = [...document.querySelectorAll('#catalogos-wrap .catalogo-row')].map(row => {
+    const ins = row.querySelectorAll('input');
+    return ins[0]?.value && ins[1]?.value ? {nombre: ins[0].value, pagina: ins[1].value} : null;
+  }).filter(Boolean);
+  const imagenes = [...document.querySelectorAll('#img-grid .img-slot.filled')]
+    .map(slot => slot.dataset.url).filter(Boolean);
+
+  calcularPrecios();
+  return {
+    titulo_repuesto:   document.getElementById('f-titulo').value.trim(),
+    categoria:         document.getElementById('f-categoria').value,
+    id_estanteria:     document.getElementById('f-estanteria').value,
+    id_estante:        document.getElementById('f-estante').value,
+    tipos_vehiculo:    tiposVeh,
+    tipo:              document.getElementById('f-tipo').value,
+    condicion:         document.getElementById('f-condicion').value,
+    contenedor:        document.getElementById('f-contenedor').value,
+    marcas_repuesto:   fabricantes,
+    fabricantes:       fabricantes,
+    arranque:          document.getElementById('f-arranque').value.trim(),
+    alternador:        document.getElementById('f-alternador').value.trim(),
+    modelo_repuesto:   document.getElementById('f-modelo-repuesto').value.trim(),
+    material:          document.getElementById('f-material').value.trim(),
+    lado:              document.getElementById('f-lado').value,
+    codigo:            document.getElementById('f-codigo').value.trim(),
+    aplicacion:        document.getElementById('f-aplicacion').value.trim(),
+    marcas_modelos:    marcasModelos,
+    marcas_vehiculo:   marcasModelos.map(m => m.marca).filter(Boolean),
+    codigos_proveedores: codigos,
+    catalogos_papel:   catalogos,
+    descripcion:       document.getElementById('f-descripcion').innerHTML,
+    notas_internas:    document.getElementById('f-notas').innerHTML,
+    importante:        document.getElementById('f-importante').value.trim(),
+    cant_artic:        parseInt(document.getElementById('f-stock').value)||0,
+    stock_minimo:      parseInt(document.getElementById('f-stock-min').value)||1,
+    forma_pago:        document.getElementById('f-forma-pago').value,
+    forma_entrega:     document.getElementById('f-forma-entrega').value,
+    fecha_compra:      document.getElementById('f-fecha-compra').value,
+    moneda:            document.getElementById('f-moneda').value,
+    precio_costo:      window._precios?.costo || 0,
+    precio_venta:      window._precios?.sinIva || 0,
+    precio_venta_iva:  window._precios?.conIva || 0,
+    precio_ganancia_pct: parseFloat(document.getElementById('f-ganancia-pct').value)||40,
+    imagenes:          imagenes,
+    imagen_url:        imagenes[0] || '',
+    alta:              document.getElementById('f-publicar').value === '1',
+  };
+}
+
+// ── VALIDAR ───────────────────────────────────────────
+function validar(d) {
+  if (!d.titulo_repuesto) return 'El nombre/título del repuesto es obligatorio.';
+  if (!d.categoria)       return 'Seleccioná una categoría.';
+  if (!d.precio_costo)    return 'Ingresá el precio de costo.';
+  return null;
+}
+
+// ── LIMPIAR ───────────────────────────────────────────
+window.limpiarFormulario = () => {
+  document.querySelectorAll('.form-input,.form-select').forEach(el => {
+    if (el.type==='number') el.value = el.id==='f-stock'?'1':el.id==='f-stock-min'?'1':el.id==='f-ganancia-pct'?'40':'';
+    else if (!['f-publicar','f-forma-pago','f-forma-entrega','f-moneda'].includes(el.id)) el.value='';
+  });
+  document.getElementById('f-descripcion').innerHTML = '';
+  document.getElementById('f-notas').innerHTML = '';
+  document.getElementById('f-tipo').value = 'ORIGINAL';
+  document.getElementById('f-condicion').value = 'NUEVO';
+  document.getElementById('f-contenedor').value = '';
+  document.getElementById('f-contenedor-otro').value = '';
+  document.getElementById('f-contenedor-otro').style.display = 'none';
+  selectTipo('ORIGINAL');
+  document.querySelectorAll('.cond-opt').forEach((e,i) => e.classList.toggle('selected', i===0));
+  document.querySelectorAll('.cont-opt').forEach(e => e.classList.remove('selected'));
+  document.querySelectorAll('.mc-opt').forEach(e => { e.classList.remove('selected'); e.querySelector('input').checked=false; });
+  document.getElementById('img-grid').innerHTML = '';
+  document.getElementById('marca-modelo-wrap').innerHTML = '';
+  document.getElementById('codigos-wrap').innerHTML = '';
+  document.getElementById('catalogos-wrap').innerHTML = '';
+  addMarcaModelo(); addCodigoProveedor(); addCatalogo();
+  calcularPrecios();
+  if(window.toast) window.toast('Formulario limpiado','info');
+};
+
+// ── GUARDAR ───────────────────────────────────────────
+window.guardarRepuesto = async function(irALista) {
+  const datos  = recolectarDatos();
+  const error  = validar(datos);
+  if (error) { if(window.toast) window.toast(error,'error'); else alert(error); return; }
+  const btn = document.getElementById('btn-guardar');
+  btn.innerHTML = '<div class="spinner-inline"></div><span>Guardando...</span>';
+  btn.disabled  = true;
+  try {
+    if (window._saveRepuesto) {
+      await window._saveRepuesto(datos);
+    } else {
+      // fallback solo si no hay referencia directa
+      window.parent?.postMessage({type:'save-repuesto', data: datos, repId: window._currentRepId||null}, '*');
+      await new Promise(r => setTimeout(r, 800));
+    }
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Guardar repuesto';
+    btn.disabled  = false;
+    if (!irALista) limpiarFormulario();
+  } catch(e) {
+    console.error(e);
+    if(window.toast) window.toast('Error al guardar: '+e.message,'error');
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Guardar repuesto';
+    btn.disabled  = false;
+  }
+};
+</script>
+<script src="../js/cloudinary.js"></script>
+<script>
+// ── CARGAR DATOS PARA EDICIÓN ─────────────────────────
+window.cargarDatosEdicion = function(r) {
+  // Guardar el ID del repuesto que se está editando
+  window._currentRepId = r.id || null;
+
+  const set    = (id, val) => { const el=document.getElementById(id); if(el && val!==undefined && val!==null) el.value=val; };
+  const setHTML= (id, val) => { const el=document.getElementById(id); if(el && val) el.innerHTML=val; };
+
+  // Limpiar filas dinámicas antes de rellenar
+  const mmWrapClean = document.getElementById('marca-modelo-wrap');
+  if (mmWrapClean) mmWrapClean.innerHTML = '';
+  const codWrapClean = document.getElementById('codigos-wrap');
+  if (codWrapClean) codWrapClean.innerHTML = '';
+  const catWrapClean = document.getElementById('catalogos-wrap');
+  if (catWrapClean) catWrapClean.innerHTML = '';
+  const gridClean = document.getElementById('img-grid');
+  if (gridClean) gridClean.innerHTML = '';
+
+  // Identificación
+  set('f-titulo',          r.titulo_repuesto || '');
+  set('f-arranque',        r.arranque || '');
+  set('f-alternador',      r.alternador || '');
+  set('f-modelo-repuesto', r.modelo_repuesto || '');
+  set('f-material',        r.material || '');
+  set('f-codigo',          r.codigo || '');
+  set('f-lado',            r.lado || '');
+  set('f-fecha-compra',    r.fecha_compra || '');
+  set('f-aplicacion',      r.aplicacion || '');
+  set('f-importante',      r.importante || '');
+  setHTML('f-descripcion', r.descripcion || '');
+  setHTML('f-notas',       r.notas_internas || '');
+
+  // Categoría (esperar a que esté cargada)
+  const setCat = () => {
+    const sel = document.getElementById('f-categoria');
+    if (!sel) return;
+    // Intentar por categoria_id primero, luego por nombre
+    const catId = r.categoria_id || '';
+    const catNom = r.categoria || '';
+    for (const opt of sel.options) {
+      if ((catId && opt.value === catId) || (catNom && (opt.value === catNom || opt.text === catNom))) {
+        sel.value = opt.value; return;
+      }
+    }
+  };
+  setCat();
+  setTimeout(setCat, 1200); // reintento por si Firebase aún cargaba
+
+  // Ubicación
+  set('f-estanteria', r.id_estanteria || r.estanteria || '');
+  set('f-estante',    r.id_estante    || r.estante    || '');
+
+  // Tipo de repuesto (chips ORIGINAL/COPIA/REPARACIÓN)
+  if (r.tipo) selectTipo(r.tipo);
+
+  // Condición (chips)
+  if (r.condicion) {
+    document.querySelectorAll('.cond-opt').forEach(e => e.classList.remove('selected'));
+    document.querySelectorAll('.cond-opt').forEach(e => {
+      if (e.textContent.trim() === r.condicion) e.classList.add('selected');
+    });
+    document.getElementById('f-condicion').value = r.condicion;
+  }
+
+  // Contenedor (chips)
+  if (r.contenedor) {
+    const opciones = ['CAJA ORIGINAL','BOLSA ORIGINAL','OTRA CAJA','OTRA BOLSA','BLISTER','SUELTO'];
+    document.querySelectorAll('.cont-opt').forEach(e => e.classList.remove('selected'));
+    if (opciones.includes(r.contenedor)) {
+      document.querySelectorAll('.cont-opt').forEach(e => {
+        if (e.textContent.trim().includes(r.contenedor)) e.classList.add('selected');
+      });
+    } else {
+      // Es un valor "OTRO..."
+      toggleContOtro();
+      set('f-contenedor-otro', r.contenedor);
+      document.getElementById('f-contenedor').value = r.contenedor;
+    }
+  }
+
+  // Tipos de vehículo (multicheck)
+  const tipos = r.tipos_vehiculo || [];
+  document.querySelectorAll('#tipo-vehiculo-wrap .mc-opt').forEach(el => {
+    const val = el.querySelector('input')?.value;
+    const activo = tipos.includes(val);
+    el.classList.toggle('selected', activo);
+    if (el.querySelector('input')) el.querySelector('input').checked = activo;
+  });
+
+  // Marcas y modelos de vehículo
+  const mmWrap = document.getElementById('marca-modelo-wrap');
+  if (mmWrap && r.marcas_modelos?.length) {
+    mmWrap.innerHTML = '';
+    r.marcas_modelos.forEach(mm => {
+      addMarcaModelo();
+      const rows = mmWrap.querySelectorAll('.marca-modelo-row');
+      const lastRow = rows[rows.length - 1];
+      if (lastRow) {
+        const marcaSel = lastRow.querySelector('[data-field="marca-veh"]');
+        const modelosInp = lastRow.querySelector('[data-field="modelos-veh"]');
+        if (marcaSel && mm.marca) marcaSel.value = mm.marca;
+        if (modelosInp && mm.modelos) modelosInp.value = mm.modelos;
+      }
+    });
+  }
+
+  // Fabricantes / marcas de repuesto
+  const fabWrap = document.getElementById('fabricantes-wrap');
+  const fabricantesEditar = r.marcas_repuesto?.length ? r.marcas_repuesto : (r.fabricantes || []);
+  if (fabWrap && fabricantesEditar.length) {
+    fabWrap.innerHTML = '';
+    fabricantesEditar.forEach((f, i) => {
+      if (i === 0) {
+        // Agregar fila inicial con botón
+        fabWrap.innerHTML = `<div class="multi-row">
+          <select class="form-select" data-field="fabricante">
+            <option value="">Seleccione marca de repuesto</option>
+            ${(window._MARCAS_REP_FIRESTORE||MARCAS_REP_LIST).map(m=>`<option value="${m}">${m}</option>`).join('')}
+          </select>
+          <button class="multi-add" onclick="addFabricante()">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar otro
+          </button>
+        </div>`;
+        const sel = fabWrap.querySelector('[data-field="fabricante"]');
+        if (sel) sel.value = f;
+      } else {
+        addFabricante();
+        const sels = fabWrap.querySelectorAll('[data-field="fabricante"]');
+        const lastSel = sels[sels.length - 1];
+        if (lastSel) lastSel.value = f;
+      }
+    });
+  }
+
+  // Códigos de proveedores
+  const codWrap = document.getElementById('codigos-wrap');
+  if (codWrap && r.codigos_proveedores?.length) {
+    codWrap.innerHTML = '';
+    r.codigos_proveedores.forEach(c => {
+      addCodigoProveedor();
+      const rows = codWrap.querySelectorAll('.codigo-row');
+      const lastRow = rows[rows.length - 1];
+      if (lastRow) {
+        const sel = lastRow.querySelector('select');
+        const inp = lastRow.querySelector('input');
+        if (sel) sel.value = c.proveedor;
+        if (inp) inp.value = c.codigo;
+      }
+    });
+  }
+
+  // Catálogos
+  const catWrap = document.getElementById('catalogos-wrap');
+  if (catWrap && r.catalogos_papel?.length) {
+    catWrap.innerHTML = '';
+    r.catalogos_papel.forEach(c => {
+      addCatalogo();
+      const rows = catWrap.querySelectorAll('.catalogo-row');
+      const lastRow = rows[rows.length - 1];
+      if (lastRow) {
+        const inps = lastRow.querySelectorAll('input');
+        if (inps[0]) inps[0].value = c.nombre;
+        if (inps[1]) inps[1].value = c.pagina;
+      }
+    });
+  }
+
+  // Precios
+  set('f-stock',        r.cant_artic ?? '');
+  set('f-stock-min',    r.stock_minimo ?? '1');
+  set('f-precio-costo', r.precio_costo ?? '');
+  set('f-ganancia-pct', r.precio_ganancia_pct ?? '40');
+  set('f-forma-pago',   r.forma_pago || '');
+  set('f-forma-entrega',r.forma_entrega || '');
+  set('f-moneda',       r.moneda || 'ARS');
+  set('f-publicar',     r.alta ? '1' : '0');
+  calcularPrecios();
+
+  // Imágenes
+  if (r.imagenes?.length) {
+    const grid = document.getElementById('img-grid');
+    if (grid) {
+      r.imagenes.forEach(url => {
+        const slot = document.createElement('div');
+        slot.className = 'img-slot filled';
+        slot.dataset.url = url;
+        slot.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">
+          <button type="button" onclick="this.parentElement.remove()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px">×</button>`;
+        slot.style.position = 'relative';
+        grid.appendChild(slot);
+      });
+    }
+  }
+
+  // Si no había filas dinámicas, agregar una vacía
+  const mmWrapFinal = document.getElementById('marca-modelo-wrap');
+  if (mmWrapFinal && mmWrapFinal.children.length === 0) addMarcaModelo();
+  const codWrapFinal = document.getElementById('codigos-wrap');
+  if (codWrapFinal && codWrapFinal.children.length === 0) addCodigoProveedor();
+  const catWrapFinal = document.getElementById('catalogos-wrap');
+  if (catWrapFinal && catWrapFinal.children.length === 0) addCatalogo();
+};
+
+// Escuchar postMessage desde el parent (por si no se pudo inyectar directo)
+window.addEventListener('message', (e) => {
+  if (e.data?.type === 'cargar-edicion' && e.data.datos) {
+    window.cargarDatosEdicion(e.data.datos);
+  }
+  // Cuando el parent avisa que _db ya está disponible, recargar selects
+  if (e.data?.type === 'db-ready' && e.data.db) {
+    window._db = e.data.db;
+    cargarSelectsDesdeFirebase();
+  }
+});
+
+</script>
+</body>
+</html>
