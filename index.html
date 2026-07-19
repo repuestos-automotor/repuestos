@@ -576,15 +576,16 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ── CHEQUEO DE VERSIÓN (avisa cuando hay una actualización subida) ──
+// ── CHEQUEO DE VERSIÓN (100% automático: usa la fecha real del archivo en GitHub, no hay nada que editar a mano) ──
 (function(){
   let versionActual = null;
   async function chequearVersion(){
     try{
-      const r = await fetch('./version.json?t=' + Date.now(), {cache:'no-store'});
-      const data = await r.json();
-      if (versionActual === null){ versionActual = data.build; return; }
-      if (data.build !== versionActual) mostrarBannerActualizar();
+      const r = await fetch('./index.html?t=' + Date.now(), {method:'HEAD', cache:'no-store'});
+      const sello = r.headers.get('etag') || r.headers.get('last-modified');
+      if (!sello) return;
+      if (versionActual === null){ versionActual = sello; return; }
+      if (sello !== versionActual) mostrarBannerActualizar();
     }catch(e){}
   }
   function mostrarBannerActualizar(){
