@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Actualizar - Precios — Bobinar</title>
+<title>Actualizar k Precios — Bobinar</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:Arial,sans-serif;background:#0f0f0f;color:#e0e0e0;padding:24px;max-width:960px;margin:0 auto}
@@ -184,7 +184,9 @@
 </script>
 <script type="module">
 import { initializeApp }     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, getDocs, doc, updateDoc }
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence }
+                             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc }
                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -195,8 +197,22 @@ const firebaseConfig = {
   messagingSenderId: "952203469999",
   appId:             "1:952203469999:web:9d5ec956f834482172a05a"
 };
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── GUARD: hay que estar logueado como admin para poder leer/escribir
+//    en Firestore (las reglas de seguridad exigen request.auth != null).
+//    Sin esto, cualquier lectura/escritura devuelve "Missing or
+//    insufficient permissions", que es el error que estabas viendo.
+await setPersistence(auth, browserSessionPersistence);
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+});
 
 let excelData   = [];  // filas del Excel de Bobinar
 let matchList   = [];  // { repId, repNombre, codBobinar, costoViejo, costoNuevo, ventaViejo, ventaNuevo }
