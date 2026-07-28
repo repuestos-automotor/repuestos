@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Actualizar Precios — Bobinar</title>
+<title>Actualizar - Precios — Bobinar</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:Arial,sans-serif;background:#0f0f0f;color:#e0e0e0;padding:24px;max-width:960px;margin:0 auto}
@@ -53,7 +53,7 @@
 <body>
 
 <div id="err-banner"></div>
-<h1>🔄 Actualizador de Precios — Bobinar</h1>
+<h1>🔄 Actualizador de  - Precios — Bobinar</h1>
 <p class="sub">Subí el Excel exportado desde el Gestor de Pedidos Bobinar para actualizar los precios en tu sistema</p>
 
 <div class="card">
@@ -99,7 +99,7 @@
       </select>
     </div>
   </div>
-  <button class="btn btn-primary" onclick="analizarExcel()">🔎 Analizar y previsualizar</button>
+  <button class="btn btn-primary" id="btn-analizar" onclick="analizarExcel()">🔎 Analizar y previsualizar</button>
 </div>
 
 <div class="card" id="preview-card" style="display:none">
@@ -261,7 +261,14 @@ function handleFile(file) {
 // ── ANALIZAR ─────────────────────────────────────────
 window.analizarExcel = async function() {
   if (!excelData.length) { alert('Primero subí el Excel'); return; }
+  const btnAnalizar = document.getElementById('btn-analizar');
+  document.getElementById('err-banner').style.display = 'none';
+  btnAnalizar.disabled = true;
+  const textoOriginal = btnAnalizar.textContent;
+  btnAnalizar.textContent = '⏳ Cargando repuestos de Firestore...';
   document.getElementById('btn-aplicar') && (document.getElementById('btn-aplicar').disabled = true);
+
+  try {
 
   const campo       = document.getElementById('cfg-campo').value;
   const colCodigo   = parseInt(document.getElementById('cfg-col-codigo').value);
@@ -273,7 +280,9 @@ window.analizarExcel = async function() {
     document.getElementById('preview-card').style.display = 'none';
     const snap = await getDocs(collection(db,'repuestos'));
     repsFirestore = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (!repsFirestore.length) throw new Error('La colección "repuestos" de Firestore devolvió 0 documentos. Revisá el nombre de la colección o los permisos (reglas de seguridad de Firestore).');
   }
+  btnAnalizar.textContent = '⏳ Comparando ' + excelData.length + ' filas...';
 
   // Construir mapa código Bobinar → repuesto Firestore
   // Busca en codigos_proveedores donde proveedor.toUpperCase() incluye el nombre configurado
@@ -359,6 +368,15 @@ window.analizarExcel = async function() {
   document.getElementById('preview-card').style.display = 'block';
   document.getElementById('btn-aplicar').disabled = false;
   document.getElementById('preview-card').scrollIntoView({behavior:'smooth'});
+
+  } catch (err) {
+    document.getElementById('err-banner').style.display = 'block';
+    document.getElementById('err-banner').innerHTML = '<b>⚠️ Error al analizar:</b>\n' + (err.message || String(err));
+    console.error(err);
+  } finally {
+    btnAnalizar.disabled = false;
+    btnAnalizar.textContent = textoOriginal;
+  }
 };
 
 // ── TABS PREVIEW ─────────────────────────────────────
