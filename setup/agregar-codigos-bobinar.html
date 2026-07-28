@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agregar códigos Bobinar — Repuestos</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#161b27;--bg4:#1a2035;
+  --border:#1e2433;--border2:#263047;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --blue:#3b82f6;--blue2:#2563eb;
+  --green:#22c55e;--green-dim:rgba(34,197,94,.12);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,.12);
+  --indigo:#6366f1;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.topbar-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--blue2),var(--indigo));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.main{padding:24px;max-width:1200px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.alert{background:var(--green-dim);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--text2);margin-bottom:16px;display:flex;gap:10px;line-height:1.5}
+.btn{border:none;border-radius:9px;padding:11px 20px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--blue2),var(--indigo));color:#fff}
+.btn-success{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn:disabled{opacity:.45;cursor:default}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.drop-zone{border:2px dashed var(--border2);border-radius:12px;padding:30px;text-align:center;cursor:pointer;color:var(--text2);font-size:13.5px}
+.drop-zone:hover{border-color:var(--blue2)}
+.stat-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.stat{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:10px 16px;min-width:100px}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--green)}
+.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.search-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;width:280px;outline:none;font-family:inherit}
+.row-item{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.row-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.row-title{font-size:13.5px;font-weight:600;color:var(--text)}
+.row-sub{font-size:11.5px;color:var(--text3);margin-top:2px}
+.row-price{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3);white-space:nowrap}
+.cand-list{display:flex;flex-direction:column;gap:6px}
+.cand{display:flex;align-items:center;gap:10px;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:12px}
+.cand:hover{border-color:var(--blue2)}
+.cand input{accent-color:var(--blue2)}
+.cand.selected{border-color:var(--green);background:var(--green-dim)}
+.cand-code{font-family:'JetBrains Mono',monospace;color:var(--blue);min-width:120px}
+.cand-desc{color:var(--text2);flex:1}
+.cand-price{font-family:'JetBrains Mono',monospace;color:var(--text3);white-space:nowrap}
+.cand-score{font-size:10px;color:var(--text3);white-space:nowrap;min-width:40px;text-align:right}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.badge-ok{background:var(--green-dim);color:var(--green)}
+.badge-pend{background:var(--amber-dim);color:var(--amber)}
+#panel-review{display:none}
+.progress-bar-bg{background:var(--bg3);border-radius:6px;height:8px;overflow:hidden;margin-top:10px}
+.progress-bar-fill{background:linear-gradient(90deg,var(--blue2),var(--indigo));height:100%;width:0%;transition:width .2s}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-icon">🏷️</div>
+  <div>
+    <div class="topbar-title">Agregar códigos Bobinar</div>
+    <div class="topbar-sub">A TODOS los repuestos que aún no tienen código Bobinar cargado</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="alert">
+    <span>🔒</span>
+    <div><b>Esta herramienta NUNCA toca precios.</b> Solo agrega el código Bobinar al repuesto cuando vos lo confirmás. El precio que ya tenés cargado (sea el que sea) queda exactamente igual, siempre.</div>
+  </div>
+
+  <div class="card">
+    <div id="status-auth" style="font-size:12.5px;color:var(--text3);margin-bottom:10px">Verificando sesión...</div>
+    <button class="btn btn-primary" id="btn-cargar" onclick="cargarRepuestos()" disabled>
+      <span>1️⃣</span> Cargar repuestos sin código Bobinar
+    </button>
+    <div class="stat-row" id="stats1" style="display:none">
+      <div class="stat"><div class="stat-num" id="st-sospechosos">—</div><div class="stat-lbl">Sin código Bobinar</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="card-excel" style="display:none">
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px">2️⃣ Subí el Excel de Bobinar para calcular candidatos</div>
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      📊 Hacé click o arrastrá el archivo .xls / .xlsx de Bobinar aquí
+      <input type="file" id="file-input" accept=".xls,.xlsx" style="display:none">
+    </div>
+    <div id="file-info" style="display:none;font-size:12.5px;color:var(--green);margin-top:8px"></div>
+  </div>
+
+  <div class="card" id="panel-review">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <input class="search-input" type="text" placeholder="Buscar por código o título..." oninput="filtrarLista(this.value)">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="marcarTodosNinguno()">Marcar todos "Ninguno"</button>
+        <button class="btn btn-success" id="btn-guardar" onclick="guardarSelecciones()">✅ Guardar códigos confirmados</button>
+      </div>
+    </div>
+    <div class="stat-row" style="margin-top:0;margin-bottom:16px">
+      <div class="stat"><div class="stat-num" id="st-confirmados">0</div><div class="stat-lbl">Confirmados para guardar</div></div>
+      <div class="stat"><div class="stat-num" style="color:#a5b4fc" id="st-autosugeridos">0</div><div class="stat-lbl">↳ auto-sugeridos (revisar)</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--text3)" id="st-pendientes">—</div><div class="stat-lbl">Ambiguos, a revisar</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--text3)" id="st-autoresueltos">—</div><div class="stat-lbl">Sin candidatos en Bobinar</div></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text2);margin-bottom:14px;cursor:pointer">
+      <input type="checkbox" id="chk-mostrar-resueltos" onchange="renderLista(document.querySelector('.search-input').value)">
+      Mostrar también los que no tienen candidatos en Bobinar
+    </label>
+    <div id="progress-wrap" style="display:none">
+      <div style="font-size:12.5px;color:var(--text2)" id="progress-text">Guardando...</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    </div>
+    <div id="lista-rows"></div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, (user) => {
+  const btn = document.getElementById('btn-cargar');
+  const st  = document.getElementById('status-auth');
+  if (user) {
+    btn.disabled = false;
+    st.textContent = 'Sesión activa ✅';
+    st.style.color = 'var(--green)';
+  } else {
+    btn.disabled = true;
+    st.innerHTML = '🔒 No hay sesión activa. Abrí <b>admin/index.html</b> en esta misma pestaña e iniciá sesión primero.';
+  }
+});
+
+let sospechosos = [];   // { id, codigo, titulo, categoria, costoActual, ventaActual, codigos_proveedores }
+let bobinarRows = [];   // { codigo, detalle, rubro, marca, costoFinal, precioPublico }
+let seleccion   = {};   // id -> { codigo, detalle, costoFinal, precioPublico } | 'NINGUNO' | null
+
+window.cargarRepuestos = async function() {
+  const btn = document.getElementById('btn-cargar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Cargando...';
+  try {
+    const snap = await getDocs(collection(db,'repuestos'));
+    const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    sospechosos = all.filter(r => {
+      const tieneBobinar = (r.codigos_proveedores||[]).some(cp => (cp.proveedor||'').toUpperCase().includes('BOBINAR'));
+      return !tieneBobinar;   // TODOS los repuestos sin código Bobinar, sin importar el precio
+    }).map(r => ({
+      id: r.id,
+      codigo: r.codigo || '',
+      titulo: r.titulo_repuesto || '',
+      categoria: r.categoria || '',
+      codigos_proveedores: r.codigos_proveedores || [],
+      costoActual: r.precio_costo || 0,
+      ventaActual: r.precio_venta_iva || 0
+    }));
+    document.getElementById('stats1').style.display = 'flex';
+    document.getElementById('st-sospechosos').textContent = sospechosos.length;
+    document.getElementById('card-excel').style.display = 'block';
+    btn.innerHTML = '✅ ' + sospechosos.length + ' repuestos cargados';
+  } catch(e) {
+    console.error(e);
+    btn.innerHTML = '❌ Error — reintentar';
+    btn.disabled = false;
+  }
+};
+
+// ── Manejo de archivo Bobinar ──
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor='var(--blue2)'; });
+dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor='var(--border2)'; });
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.style.borderColor='var(--border2)';
+  if (e.dataTransfer.files[0]) procesarArchivo(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) procesarArchivo(e.target.files[0]); });
+
+function procesarArchivo(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const wb = XLSX.read(e.target.result, {type:'array'});
+    const bestSheet = wb.SheetNames.find(n => {
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[n], {header:1, defval:''});
+      return rows.length > 1;
+    }) || wb.SheetNames[0];
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[bestSheet], {header:1, defval:''});
+    bobinarRows = rows.slice(1).filter(r => r[0]).map(r => {
+      const codigo = String(r[0]||'').trim();
+      const detalle = String(r[1]||'').trim();
+      const marca = String(r[5]||'').trim();
+      const rubro = String(r[6]||'').trim();
+      return {
+        codigo, detalle, marca, rubro,
+        precioPublico: parseFloat(String(r[2]||'').replace(/[^0-9.,]/g,'').replace(',','.'))||0,
+        costoFinal: parseFloat(String(r[4]||'').replace(/[^0-9.,]/g,'').replace(',','.'))||0,
+        codigoLimpio: codigo.toUpperCase().replace(/[^A-Z0-9]/g,''),
+        tokens: new Set(tokenizar(detalle + ' ' + rubro + ' ' + marca)),
+        color: extraerColor(detalle)
+      };
+    });
+    document.getElementById('file-info').style.display = 'block';
+    document.getElementById('file-info').textContent = `✅ ${file.name} — ${bobinarRows.length} productos Bobinar cargados`;
+    calcularCandidatos();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function limpiarCodigo(c) {
+  return String(c||'').toUpperCase().replace(/\.[A-Z0-9]+$/,'').replace(/[^A-Z0-9]/g,'');
+}
+function tokenizar(s) {
+  return String(s||'').toUpperCase().replace(/[^A-Z0-9 ]/g,' ').split(/\s+/).filter(w => w.length>2);
+}
+function quitarAcentos(s) {
+  return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+const COLORES = ['AMBAR','ROJO','VERDE','CRISTAL','AZUL','NARANJA','BLANCO','HUMO','FUME','TRANSPARENTE','AMARILLO'];
+function extraerColor(texto) {
+  const t = quitarAcentos(String(texto||'')).toUpperCase();
+  for (const c of COLORES) { if (t.includes(c)) return c; }
+  return null;
+}
+// rep ya viene con .codigoLimpio, .tokens (Set) y .color precalculados; bob idem
+function scoreMatch(repCodigoLimpio, repTokens, repColor, bob) {
+  let score = 0;
+  if (repCodigoLimpio.length >= 3 && bob.codigoLimpio.includes(repCodigoLimpio)) score += 55;
+  let overlap = 0;
+  repTokens.forEach(w => { if (bob.tokens.has(w)) overlap++; });
+  const denom = Math.max(repTokens.size, 1);
+  score += (overlap/denom) * 45;
+  // El color es la pista más confiable para desambiguar variantes (rojo/ámbar/verde/etc)
+  if (repColor && bob.color) {
+    score += (repColor === bob.color) ? 40 : -60;
+  }
+  return Math.round(score);
+}
+
+let candidatosPorId = {};
+
+async function calcularCandidatos() {
+  candidatosPorId = {};
+  document.getElementById('card-excel').querySelector('#calc-progress-wrap')?.remove();
+  const wrap = document.createElement('div');
+  wrap.id = 'calc-progress-wrap';
+  wrap.style.marginTop = '14px';
+  wrap.innerHTML = `<div style="font-size:12.5px;color:var(--text2)" id="calc-progress-text">Calculando candidatos...</div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="calc-progress-fill"></div></div>`;
+  document.getElementById('card-excel').appendChild(wrap);
+
+  const LOTE = 5;
+  for (let i = 0; i < sospechosos.length; i += LOTE) {
+    const tanda = sospechosos.slice(i, i + LOTE);
+    tanda.forEach(rep => {
+      const cl = limpiarCodigo(rep.codigo);
+      const tRep = new Set([...tokenizar(rep.titulo), ...tokenizar(rep.categoria)]);
+      const repColor = extraerColor(rep.titulo + ' ' + rep.categoria + ' ' + rep.codigo);
+      const scored = bobinarRows
+        .map(b => ({ codigo:b.codigo, detalle:b.detalle, marca:b.marca, costoFinal:b.costoFinal, precioPublico:b.precioPublico,
+                      score: scoreMatch(cl, tRep, repColor, b) }))
+        .filter(c => c.score > 35)
+        .sort((a,b) => b.score - a.score)
+        .slice(0, 5);
+      candidatosPorId[rep.id] = scored;
+      if (!scored.length) {
+        seleccion[rep.id] = 'NINGUNO';
+      } else if (scored.length === 1 || (scored[0].score >= 75 && (scored[0].score - (scored[1]?.score||0)) >= 20)) {
+        // un solo candidato pasó el filtro, o el primero destaca claramente sobre el resto: se pre-selecciona solo
+        seleccion[rep.id] = { ...scored[0], auto: true };
+      } else {
+        seleccion[rep.id] = null;
+      }
+    });
+    const pct = Math.min(100, Math.round(((i+LOTE)/sospechosos.length)*100));
+    document.getElementById('calc-progress-fill').style.width = pct + '%';
+    document.getElementById('calc-progress-text').textContent = `Calculando candidatos... ${Math.min(i+LOTE, sospechosos.length)} de ${sospechosos.length}`;
+    await new Promise(r => setTimeout(r, 0)); // cede el hilo para no trabar el navegador
+  }
+
+  document.getElementById('calc-progress-wrap').remove();
+
+  // Prioridad de orden: 1) necesita decisión manual, 2) auto-sugerido (para chequear rápido), 3) marcado a mano como ninguno, 4) resuelto solo sin datos
+  function prioridad(r) {
+    const s = seleccion[r.id];
+    if (s === null) return 0;
+    if (s && s !== 'NINGUNO' && s.auto) return 1;
+    if (s === 'NINGUNO' && (candidatosPorId[r.id]||[]).length > 0) return 2;
+    return 3;
+  }
+  sospechosos.sort((a, b) => {
+    const pa = prioridad(a), pb = prioridad(b);
+    if (pa !== pb) return pa - pb;
+    const ca = candidatosPorId[a.id]||[], cb = candidatosPorId[b.id]||[];
+    return (cb[0]?.score||0) - (ca[0]?.score||0);
+  });
+  renderLista();
+  document.getElementById('panel-review').style.display = 'block';
+  actualizarContadores();
+}
+
+function fmt(n) { return n ? new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n) : '$ 0'; }
+
+function renderLista(filtro='') {
+  const cont = document.getElementById('lista-rows');
+  const f = filtro.toUpperCase();
+  const mostrarResueltos = document.getElementById('chk-mostrar-resueltos')?.checked;
+  cont.innerHTML = sospechosos
+    .filter(r => !f || r.codigo.toUpperCase().includes(f) || r.titulo.toUpperCase().includes(f))
+    .filter(r => mostrarResueltos || !(seleccion[r.id] === 'NINGUNO' && (candidatosPorId[r.id]||[]).length === 0))
+    .map(r => {
+      const cands = candidatosPorId[r.id] || [];
+      const sel = seleccion[r.id];
+      let estadoBadge;
+      if (!sel) estadoBadge = '<span class="badge badge-pend">pendiente</span>';
+      else if (sel === 'NINGUNO' && cands.length === 0) estadoBadge = '<span class="badge" style="background:var(--bg4);color:var(--text3)">sin datos Bobinar</span>';
+      else if (sel === 'NINGUNO') estadoBadge = '<span class="badge" style="background:var(--bg4);color:var(--text3)">marcado a mano</span>';
+      else if (sel.auto) estadoBadge = '<span class="badge" style="background:rgba(99,102,241,.15);color:#a5b4fc">🤖 auto-sugerido</span>';
+      else estadoBadge = '<span class="badge badge-ok">✔ confirmado</span>';
+      const candsHtml = cands.map((c,i) => {
+        const isSel = sel && sel !== 'NINGUNO' && sel.codigo === c.codigo;
+        return `<label class="cand ${isSel?'selected':''}" onclick="seleccionar('${r.id}', ${i})">
+          <input type="radio" name="sel_${r.id}" ${isSel?'checked':''}>
+          <span class="cand-code">${c.codigo}</span>
+          <span class="cand-desc">${c.detalle} ${c.marca?`— ${c.marca}`:''}</span>
+          <span class="cand-price">Bobinar: ${fmt(c.costoFinal)} / ${fmt(c.precioPublico)}</span>
+          <span class="cand-score">${c.score}%</span>
+        </label>`;
+      }).join('');
+      const ningunoSel = sel === 'NINGUNO';
+      return `<div class="row-item">
+        <div class="row-head">
+          <div>
+            <div class="row-title">${r.codigo || '(sin código)'} — ${r.titulo}</div>
+            <div class="row-sub">${r.categoria || ''}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="row-price">tu precio: ${fmt(r.costoActual)} → ${fmt(r.ventaActual)} (no se toca)</div>
+            ${estadoBadge}
+          </div>
+        </div>
+        <div class="cand-list">
+          ${candsHtml || '<div style="color:var(--text3);font-size:12px">Sin candidatos con similitud suficiente</div>'}
+          <label class="cand ${ningunoSel?'selected':''}" onclick="marcarNinguno('${r.id}')">
+            <input type="radio" name="sel_${r.id}" ${ningunoSel?'checked':''}>
+            <span class="cand-desc" style="color:var(--text3)">Ninguno coincide — dejar para revisar a mano</span>
+          </label>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+window.seleccionar = function(id, idx) {
+  seleccion[id] = candidatosPorId[id][idx];
+  renderLista(document.querySelector('.search-input').value);
+  actualizarContadores();
+};
+window.marcarNinguno = function(id) {
+  seleccion[id] = 'NINGUNO';
+  renderLista(document.querySelector('.search-input').value);
+  actualizarContadores();
+};
+window.marcarTodosNinguno = function() {
+  sospechosos.forEach(r => { if (!seleccion[r.id]) seleccion[r.id] = 'NINGUNO'; });
+  renderLista(document.querySelector('.search-input').value);
+  actualizarContadores();
+};
+window.filtrarLista = function(v) { renderLista(v); };
+
+function actualizarContadores() {
+  const confirmadosManual = Object.values(seleccion).filter(s => s && s !== 'NINGUNO' && !s.auto).length;
+  const autoSugeridos = Object.values(seleccion).filter(s => s && s !== 'NINGUNO' && s.auto).length;
+  const autoresueltos = sospechosos.filter(r => seleccion[r.id] === 'NINGUNO' && (candidatosPorId[r.id]||[]).length === 0).length;
+  const pendientes  = Object.values(seleccion).filter(s => !s).length;
+  document.getElementById('st-confirmados').textContent = confirmadosManual + autoSugeridos;
+  document.getElementById('st-pendientes').textContent = pendientes;
+  document.getElementById('st-autoresueltos').textContent = autoresueltos;
+  const autoEl = document.getElementById('st-autosugeridos');
+  if (autoEl) autoEl.textContent = autoSugeridos;
+}
+
+window.guardarSelecciones = async function() {
+  const entradas = Object.entries(seleccion).filter(([id,s]) => s && s !== 'NINGUNO');
+  if (!entradas.length) { alert('No hay ningún código confirmado para guardar.'); return; }
+  if (!confirm(`¿Guardar el código Bobinar en ${entradas.length} repuestos? (los precios NO se modifican)`)) return;
+
+  const btn = document.getElementById('btn-guardar');
+  btn.disabled = true;
+  document.getElementById('progress-wrap').style.display = 'block';
+
+  const repMap = Object.fromEntries(sospechosos.map(r => [r.id, r]));
+
+  for (let i=0; i<entradas.length; i++) {
+    const [id, match] = entradas[i];
+    const rep = repMap[id];
+    try {
+      // SOLO se agrega el código de proveedor Bobinar. precio_costo y precio_venta_iva NO se tocan.
+      await updateDoc(doc(db,'repuestos', id), {
+        codigos_proveedores: [ ...(rep.codigos_proveedores||[]), { proveedor:'BOBINAR', codigo: match.codigo } ]
+      });
+    } catch(e) {
+      console.error('Error en', id, e);
+    }
+    const pct = Math.round(((i+1)/entradas.length)*100);
+    document.getElementById('progress-fill').style.width = pct+'%';
+    document.getElementById('progress-text').textContent = `Guardando ${i+1} de ${entradas.length}...`;
+  }
+
+  document.getElementById('progress-text').textContent = `✅ Listo — ${entradas.length} códigos Bobinar agregados`;
+  btn.innerHTML = '✅ Guardado';
+};
+</script>
+</body>
+</html>
