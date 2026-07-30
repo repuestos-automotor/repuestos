@@ -188,6 +188,7 @@ onAuthStateChanged(auth, async (user) => {
 let sospechosos = [];   // { id, codigo, titulo, categoria, costoActual, ventaActual, codigos_proveedores }
 let bobinarRows = [];   // { codigo, detalle, rubro, marca, costoFinal, precioPublico }
 let bobinarPorCodigo = new Map(); // codigoLimpio → fila de Bobinar (para búsqueda instantánea por patrón)
+let bobinarPorMarca  = new Map(); // MARCA (ZEN, BZM, INDIEL, HDS...) → filas de Bobinar de esa marca
 let seleccion   = {};   // id -> { codigo, detalle, costoFinal, precioPublico } | 'NINGUNO' | null
 
 // Misma corrección de encoding que usa admin/index.html, por si algún repuesto
@@ -282,12 +283,20 @@ function procesarArchivo(file) {
         codigoLimpio: codigo.toUpperCase().replace(/[^A-Z0-9]/g,''),
         tokens: new Set(tokenizar(detalle + ' ' + rubro + ' ' + marca)),
         color: extraerColor(detalle),
-        colorCodigo: extraerColorSufijoCodigo(codigo)
+        colorCodigo: extraerColorSufijoCodigo(codigo),
+        digitos: codigo.replace(/[^0-9]/g,'')
       };
     });
     document.getElementById('file-info').style.display = 'block';
     document.getElementById('file-info').textContent = `✅ ${file.name} — ${bobinarRows.length} productos Bobinar cargados`;
     bobinarPorCodigo = new Map(bobinarRows.map(b => [b.codigoLimpio, b]));
+    bobinarPorMarca = new Map();
+    bobinarRows.forEach(b => {
+      const m = String(b.marca||'').trim().toUpperCase();
+      if (!m) return;
+      if (!bobinarPorMarca.has(m)) bobinarPorMarca.set(m, []);
+      bobinarPorMarca.get(m).push(b);
+    });
     calcularCandidatos();
   };
   reader.readAsArrayBuffer(file);
@@ -400,6 +409,46 @@ function elegirPredichoFinal(predichos, titulo, bobinarPorCodigo) {
   return null;
 }
 
+// Saca solo los dígitos de un código (para comparar el "número de fábrica" sin
+// importar cómo cada marca lo envuelve con prefijos/sufijos/puntos).
+function soloDigitos(codigo) {
+  return String(codigo||'').replace(/[^0-9]/g,'');
+}
+// Saca los ceros a la izquierda (0837 y 837 son el mismo número), pero si el
+// código era todo ceros o quedó vacío, devuelve el original tal cual.
+function quitarCerosIniciales(s) {
+  const sinCeros = String(s||'').replace(/^0+/, '');
+  return sinCeros || s || '';
+}
+
+// LA SEÑAL MÁS CONFIABLE QUE HAY: revisa, entre TODOS los códigos de proveedor que
+// ya tenés cargados en el repuesto (ZEN, BZM, INDIEL, HDS, etc. — cualquiera menos
+// BOBINAR), si el número de alguno aparece adentro del código Bobinar de esa MISMA
+// marca. No es una suposición por texto/título, es el mismo código de fábrica.
+// Ej: vos tenés cargado ZEN: "0837" y en el Excel de Bobinar existe "ZEN01101.0837.0"
+// (marca ZEN) → matchea, porque "837" está adentro de "01101083 70".
+function matchPorCodigoProveedor(codigosProveedores) {
+  let mejor = null;
+  for (const cp of (codigosProveedores||[])) {
+    const marca = String(cp.proveedor||'').trim().toUpperCase();
+    if (!marca || marca === 'BOBINAR') continue;
+    const digitosRep = quitarCerosIniciales(soloDigitos(cp.codigo));
+    if (digitosRep.length < 3) continue; // muy corto para confiar, da falsos positivos
+    const filasMarca = bobinarPorMarca.get(marca);
+    if (!filasMarca) continue;
+    for (const b of filasMarca) {
+      if (b.digitos.includes(digitosRep)) {
+        // si matchean varias filas de esa marca, se queda con el número más largo
+        // (más específico → menos chance de que sea casualidad)
+        if (!mejor || digitosRep.length > mejor.digitosLen) {
+          mejor = { row: b, digitosLen: digitosRep.length, marcaProveedor: marca, codigoProveedorPropio: cp.codigo };
+        }
+      }
+    }
+  }
+  return mejor;
+}
+
 // rep ya viene con .codigoLimpio, .tokens (Set), .color y .colorCodigo precalculados; bob idem
 function scoreMatch(repCodigoLimpio, repTokens, repColor, repColorCodigo, bob, repPredicho) {
   // Match exacto por patrón conocido (BAI01+número+color) → gana siempre, sin importar el resto.
@@ -455,16 +504,38 @@ async function calcularCandidatos() {
         const predichoLente = codigosBobinarPredichoLente(rep.codigo, rep.titulo);
         if (predichoLente && bobinarPorCodigo.has(predichoLente)) repPredicho = predichoLente;
       }
-      const scored = bobinarRows
+      let scored = bobinarRows
         .map(b => ({ codigo:b.codigo, detalle:b.detalle, marca:b.marca, costoFinal:b.costoFinal, precioPublico:b.precioPublico,
                       score: scoreMatch(cl, tRep, repColor, repColorCodigo, b, repPredicho),
                       patron: !!(repPredicho && b.codigoLimpio === repPredicho) }))
         .filter(c => c.score > 35)
         .sort((a,b) => b.score - a.score)
         .slice(0, 5);
+
+      // Chequeo por código de proveedor (ZEN, BZM, INDIEL, HDS...): si matchea, va primero
+      // en la lista y gana por encima de cualquier score por texto.
+      const matchProveedor = matchPorCodigoProveedor(rep.codigos_proveedores);
+      if (matchProveedor) {
+        const b = matchProveedor.row;
+        const candProveedor = {
+          codigo: b.codigo, detalle: b.detalle, marca: b.marca,
+          costoFinal: b.costoFinal, precioPublico: b.precioPublico,
+          score: 450, patronProveedor: true,
+          proveedorMarca: matchProveedor.marcaProveedor,
+          codigoProveedorPropio: matchProveedor.codigoProveedorPropio
+        };
+        scored = scored.filter(c => c.codigo !== candProveedor.codigo);
+        scored.unshift(candProveedor);
+        scored = scored.slice(0, 5);
+      }
+
       candidatosPorId[rep.id] = scored;
       if (!scored.length) {
         seleccion[rep.id] = 'NINGUNO';
+      } else if (matchProveedor) {
+        // coincidencia por código de proveedor real: es la señal más confiable que hay,
+        // se auto-selecciona siempre, aunque haya otros candidatos ambiguos por texto
+        seleccion[rep.id] = { ...scored[0], auto: true };
       } else if (scored[0].score >= 60 && (scored.length === 1 || (scored[0].score >= 75 && (scored[0].score - (scored[1]?.score||0)) >= 20))) {
         // se auto-selecciona solo si hay confianza real: o es el único candidato pero con score alto (>=60),
         // o el primero destaca claramente sobre el resto (>=75 y con 20+ puntos de ventaja)
@@ -520,12 +591,16 @@ function renderLista(filtro='') {
       else estadoBadge = '<span class="badge badge-ok">✔ confirmado</span>';
       const candsHtml = cands.map((c,i) => {
         const isSel = sel && sel !== 'NINGUNO' && sel.codigo === c.codigo;
+        const desc = c.patronProveedor
+          ? `${c.detalle} ${c.marca?`— ${c.marca}`:''} <span style="color:var(--green)">(matchea con tu código ${c.proveedorMarca}: ${c.codigoProveedorPropio})</span>`
+          : `${c.detalle} ${c.marca?`— ${c.marca}`:''}`;
+        const scoreTxt = c.patronProveedor ? `🎯 código ${c.proveedorMarca}` : (c.patron ? '🎯 patrón BAIML' : c.score+'%');
         return `<label class="cand ${isSel?'selected':''}" onclick="seleccionar('${r.id}', ${i})">
           <input type="radio" name="sel_${r.id}" ${isSel?'checked':''}>
           <span class="cand-code">${c.codigo}</span>
-          <span class="cand-desc">${c.detalle} ${c.marca?`— ${c.marca}`:''}</span>
+          <span class="cand-desc">${desc}</span>
           <span class="cand-price">Bobinar: ${fmt(c.costoFinal)} / ${fmt(c.precioPublico)}</span>
-          <span class="cand-score">${c.patron ? '🎯 patrón BAIML' : c.score+'%'}</span>
+          <span class="cand-score">${scoreTxt}</span>
         </label>`;
       }).join('');
       const ningunoSel = sel === 'NINGUNO';
