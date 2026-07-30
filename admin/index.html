@@ -1712,7 +1712,7 @@ tbody tr:hover td:last-child{background:var(--bg3)}
 
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
         <div class="lote-tab-btn active" id="lote-tabbtn-cat" onclick="lotesCambiarTab('cat')">🗂 Por categoría / estantería</div>
-        <div class="lote-tab-btn" id="lote-tabbtn-precio" onclick="lotesCambiarTab('precio')">💲 Agrupar por precio idéntico</div>
+        <div class="lote-tab-btn" id="lote-tabbtn-precio" onclick="lotesCambiarTab('precio')">💲 Buscador de Precios</div>
       </div>
 
       <!-- ── TAB: POR CATEGORÍA / ESTANTERÍA ── -->
@@ -1748,23 +1748,36 @@ tbody tr:hover td:last-child{background:var(--bg3)}
         </div>
       </div>
 
-      <!-- ── TAB: AGRUPAR POR PRECIO ── -->
+      <!-- ── TAB: BUSCADOR DE PRECIOS ── -->
       <div id="lote-tab-precio" class="lote-tab" style="display:none">
         <div class="panel" style="padding:18px;margin-bottom:16px">
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px">
-            <div class="form-group" style="margin:0"><label class="form-label">Categoría (opcional)</label><select class="form-select" id="lp-cat"><option value="">Todas</option></select></div>
-            <div class="form-group" style="margin:0"><label class="form-label">Mínimo de productos por grupo</label>
-              <select class="form-select" id="lp-min">
-                <option value="2" selected>2 o más</option>
-                <option value="3">3 o más</option>
-                <option value="5">5 o más</option>
-                <option value="10">10 o más</option>
+            <div class="form-group" style="margin:0"><label class="form-label">Precio exacto</label><input type="number" class="form-input" id="lp-exacto" placeholder="Ej: 15000" min="0" oninput="lotesAgruparPorPrecio()"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Precio mínimo</label><input type="number" class="form-input" id="lp-min-precio" placeholder="$ 0" min="0" oninput="lotesAgruparPorPrecio()"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Precio máximo</label><input type="number" class="form-input" id="lp-max-precio" placeholder="$ ∞" min="0" oninput="lotesAgruparPorPrecio()"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Categoría (opcional)</label><select class="form-select" id="lp-cat" onchange="lotesAgruparPorPrecio()"><option value="">Todas</option></select></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Nombre / código (opcional)</label><input type="text" class="form-input" id="lp-texto" placeholder="Ej: alternador" oninput="lotesAgruparPorPrecio()"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Mostrar</label>
+              <select class="form-select" id="lp-min" onchange="lotesAgruparPorPrecio()">
+                <option value="1" selected>Todos los precios</option>
+                <option value="2">Solo precios repetidos (2+)</option>
+                <option value="3">Repetidos 3 o más</option>
+                <option value="5">Repetidos 5 o más</option>
+                <option value="10">Repetidos 10 o más</option>
               </select>
             </div>
-            <div class="form-group" style="margin:0"><label class="form-label">Solo con stock</label><label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text2);cursor:pointer;height:36px"><input type="checkbox" id="lp-solo-stock" style="accent-color:var(--blue)"> Excluir stock 0</label></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Ordenar</label>
+              <select class="form-select" id="lp-orden" onchange="lotesAgruparPorPrecio()">
+                <option value="desc" selected>Precio: mayor a menor</option>
+                <option value="asc">Precio: menor a mayor</option>
+                <option value="cant">Más repetido primero</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0"><label class="form-label">Solo con stock</label><label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text2);cursor:pointer;height:36px"><input type="checkbox" id="lp-solo-stock" onchange="lotesAgruparPorPrecio()" style="accent-color:var(--blue)"> Excluir stock 0</label></div>
           </div>
           <div style="margin-top:16px;display:flex;gap:10px">
-            <button class="btn btn-primary" onclick="lotesAgruparPorPrecio()">🔍 Buscar precios repetidos</button>
+            <button class="btn btn-primary" onclick="lotesAgruparPorPrecio()">🔍 Buscar</button>
+            <button class="btn btn-ghost" onclick="lotesLimpiarPrecio()">✖ Limpiar</button>
           </div>
         </div>
         <div id="lote-precio-info" style="font-size:13px;color:var(--text-muted);margin-bottom:10px"></div>
@@ -4400,7 +4413,7 @@ window.initBuscador = async function() {
   if (document.getElementById('bav-cat').options.length > 1) return;
   const [cSnap, mvSnap] = await Promise.all([getDocs(collection(db,'categorias')),getDocs(collection(db,'marcas_vehiculo'))]);
   const catSel = document.getElementById('bav-cat');
-  cSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'—'; catSel.appendChild(o); });
+  cSnap.docs.map(d=>d.data()).filter(c=>c.nombre).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')).forEach(c=>{ const o=document.createElement('option'); o.value=c.nombre; o.textContent=c.nombre; catSel.appendChild(o); });
   const mvSel = document.getElementById('bav-mv');
   mvSnap.docs.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().nombre||'—'; mvSel.appendChild(o); });
 };
@@ -4429,7 +4442,7 @@ window.ejecutarBuscador = async function() {
   if (!window._repsAll) { const s=await getDocs(collection(db,'repuestos')); window._repsAll=s.docs.map(d=>({id:d.id,...d.data()})); }
   let res = window._repsAll;
   if (q)    res = res.filter(r=>textoBusqueda(r).includes(q));
-  if (cat)  res = res.filter(r=>r.categoria_id===cat);
+  if (cat)  res = res.filter(r=>r.categoria===cat || r.categoria_id===cat);
   if (mv)   res = res.filter(r=>r.marcas_vehiculo?.includes(mv));
   if (cond) res = res.filter(r=>r.condicion===cond);
   if (tipo) res = res.filter(r=>r.tipo_repuesto===tipo);
@@ -4506,6 +4519,7 @@ window.lotesCambiarTab = function(tab) {
   document.getElementById('lote-tab-precio').style.display = tab==='precio' ? '' : 'none';
   document.getElementById('lote-tabbtn-cat').classList.toggle('active', tab==='cat');
   document.getElementById('lote-tabbtn-precio').classList.toggle('active', tab==='precio');
+  if (tab==='precio' && window._repsAll && !document.getElementById('lote-precio-results').innerHTML) lotesAgruparPorPrecio();
 };
 
 window.initLotes = async function() {
@@ -4518,7 +4532,7 @@ window.initLotes = async function() {
   if (catsWrap.dataset.built !== '1') {
     catsWrap.dataset.built = '1';
     catsWrap.innerHTML = cats.map(c=>{
-      const n = window._repsAll.filter(r=>r.categoria_id===c.id).length;
+      const n = window._repsAll.filter(r=>r.categoria===c.nombre || r.categoria_id===c.id).length;
       return `<label class="lote-cat-chip" id="lote-chip-${c.id}"><input type="checkbox" value="${c.id}" onchange="lotesToggleCat('${c.id}',this.checked)"> ${c.nombre||'—'} <span style="color:var(--text3)">(${n})</span></label>`;
     }).join('') || '<span style="font-size:12px;color:var(--text3)">Sin categorías cargadas.</span>';
   }
@@ -4568,7 +4582,15 @@ window.lotesGenerar = function() {
   }
 
   let res = window._repsAll;
-  if (window._loteCatsSel.size) res = res.filter(r=>window._loteCatsSel.has(r.categoria_id));
+  if (window._loteCatsSel.size) {
+    const matchSet = new Set();
+    window._loteCatsSel.forEach(id=>{
+      matchSet.add(id);
+      const c = (window._catsAllLotes||[]).find(x=>x.id===id);
+      if (c && c.nombre) matchSet.add(c.nombre);
+    });
+    res = res.filter(r=>matchSet.has(r.categoria_id) || matchSet.has(r.categoria));
+  }
   if (estanteria) res = res.filter(r=>getNombreEstanteria(r)===estanteria);
   if (estante)    res = res.filter(r=>getNombreEstante(r)===estante);
   if (cond)        res = res.filter(r=>r.condicion===cond);
@@ -4727,42 +4749,73 @@ window.lotesImprimir = function() {
 
 // ── AGRUPAR POR PRECIO ────────────────────────────────
 window.lotesAgruparPorPrecio = function() {
-  const catId  = document.getElementById('lp-cat').value;
-  const minGrp = parseInt(document.getElementById('lp-min').value);
+  const catId     = document.getElementById('lp-cat').value;
+  const minGrp    = parseInt(document.getElementById('lp-min').value);
   const soloStock = document.getElementById('lp-solo-stock').checked;
+  const orden     = document.getElementById('lp-orden').value;
+  const texto     = document.getElementById('lp-texto').value.toLowerCase().trim();
+  const exactoRaw = document.getElementById('lp-exacto').value.trim();
+  const minRaw    = document.getElementById('lp-min-precio').value.trim();
+  const maxRaw    = document.getElementById('lp-max-precio').value.trim();
+  const exacto = exactoRaw==='' ? null : parseFloat(exactoRaw);
+  const pMin   = minRaw==='' ? null : parseFloat(minRaw);
+  const pMax   = maxRaw==='' ? null : parseFloat(maxRaw);
 
-  let res = window._repsAll;
-  if (catId) res = res.filter(r=>r.categoria_id===catId);
+  let res = window._repsAll || [];
+  if (catId) {
+    const c = (window._catsAllLotes||[]).find(x=>x.id===catId);
+    res = res.filter(r=>r.categoria_id===catId || (c && r.categoria===c.nombre));
+  }
+  if (texto)     res = res.filter(r=>textoBusqueda(r).includes(texto));
   if (soloStock) res = res.filter(r=>(r.cant_artic||0)>0);
+  if (exacto!==null) res = res.filter(r=>Math.round((r.precio_venta_iva||0))===Math.round(exacto));
+  if (pMin!==null)   res = res.filter(r=>(r.precio_venta_iva||0)>=pMin);
+  if (pMax!==null)   res = res.filter(r=>(r.precio_venta_iva||0)<=pMax);
 
   const grupos = {};
   res.forEach(r=>{ const key = (r.precio_venta_iva||0).toFixed(2); if(parseFloat(key)<=0) return; (grupos[key]=grupos[key]||[]).push(r); });
-  const claves = Object.keys(grupos).filter(k=>grupos[k].length>=minGrp).sort((a,b)=>parseFloat(b)-parseFloat(a));
+  let claves = Object.keys(grupos).filter(k=>grupos[k].length>=minGrp);
+  if (orden==='asc')       claves.sort((a,b)=>parseFloat(a)-parseFloat(b));
+  else if (orden==='cant') claves.sort((a,b)=>grupos[b].length-grupos[a].length || parseFloat(b)-parseFloat(a));
+  else                     claves.sort((a,b)=>parseFloat(b)-parseFloat(a)); // desc (default)
 
   const info = document.getElementById('lote-precio-info');
   const cont = document.getElementById('lote-precio-results');
   if (!claves.length) {
-    info.textContent = 'No se encontraron grupos de productos con precio idéntico para ese filtro.';
-    cont.innerHTML = '';
+    info.textContent = 'No se encontraron productos con precio para ese filtro.';
+    cont.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados.</p>';
     return;
   }
   const totalProductos = claves.reduce((a,k)=>a+grupos[k].length,0);
-  info.textContent = `${claves.length} precio${claves.length!==1?'s':''} repetido${claves.length!==1?'s':''} · ${totalProductos} productos en total`;
+  const totalValor      = claves.reduce((a,k)=>a+grupos[k].reduce((s,r)=>s+(r.precio_venta_iva||0)*(r.cant_artic||0),0),0);
+  const repetidos = claves.filter(k=>grupos[k].length>1).length;
+  info.innerHTML = `<strong style="color:var(--text2)">${claves.length}</strong> precio${claves.length!==1?'s':''} distinto${claves.length!==1?'s':''} · <strong style="color:var(--text2)">${totalProductos}</strong> productos · <strong style="color:var(--text2)">${repetidos}</strong> precio${repetidos!==1?'s':''} repetido${repetidos!==1?'s':''} · Valor total del stock filtrado: <strong style="color:var(--green)">${fmt(totalValor)}</strong>`;
   cont.innerHTML = claves.map(k=>{
     const items = grupos[k];
     const unidades = items.reduce((a,r)=>a+(r.cant_artic||0),0);
     const valorTotal = items.reduce((a,r)=>a+(r.precio_venta_iva||0)*(r.cant_artic||0),0);
+    const repetido = items.length>1;
     return `<div class="lote-precio-group">
       <div class="lote-precio-group-head" onclick="const b=this.nextElementSibling;b.classList.toggle('open');this.querySelector('.gp-arrow').textContent=b.classList.contains('open')?'▾':'▸'">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="gp-arrow" style="color:var(--text3)">▸</span>
           <strong style="color:var(--green);font-family:'JetBrains Mono',monospace;font-size:14px">${fmt(parseFloat(k))}</strong>
-          <span style="color:var(--text-muted);font-size:12px">${items.length} productos · ${unidades} unidades · Valor total: <strong style="color:var(--text2)">${fmt(valorTotal)}</strong></span>
+          ${repetido?`<span class="badge badge-act" style="font-size:10px">${items.length} iguales</span>`:''}
+          <span style="color:var(--text-muted);font-size:12px">${items.length} producto${items.length!==1?'s':''} · ${unidades} unidades · Valor total: <strong style="color:var(--text2)">${fmt(valorTotal)}</strong></span>
         </div>
       </div>
       <div class="lote-precio-group-body">${buscadorTablaHTML(items)}</div>
     </div>`;
   }).join('');
+};
+
+window.lotesLimpiarPrecio = function() {
+  ['lp-exacto','lp-min-precio','lp-max-precio','lp-texto'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('lp-cat').value='';
+  document.getElementById('lp-min').value='1';
+  document.getElementById('lp-orden').value='desc';
+  document.getElementById('lp-solo-stock').checked=false;
+  lotesAgruparPorPrecio();
 };
 
 // ── FINANZAS ──────────────────────────────────────────
