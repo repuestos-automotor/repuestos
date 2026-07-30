@@ -113,6 +113,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <div style="display:flex;gap:8px">
         <button class="btn btn-ghost" onclick="marcarTodosNinguno()">Marcar todos "Ninguno"</button>
         <button class="btn btn-ghost" onclick="copiarListaSinCodigo()">📋 Copiar lista (sin código Bobinar)</button>
+        <button class="btn btn-ghost" onclick="copiarListaSinBobinar()">🚚 Copiar lista (Bobinar no lo tiene)</button>
         <button class="btn btn-success" id="btn-guardar" onclick="guardarSelecciones()">✅ Guardar códigos confirmados</button>
       </div>
     </div>
@@ -271,7 +272,7 @@ function procesarArchivo(file) {
       return rows.length > 1;
     }) || wb.SheetNames[0];
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[bestSheet], {header:1, defval:''});
-    bobinarRows = rows.slice(1).filter(r => r[0]).map(r => {
+    const todasLasFilas = rows.slice(1).filter(r => r[0]).map(r => {
       const codigo = String(r[0]||'').trim();
       const detalle = String(r[1]||'').trim();
       const marca = String(r[5]||'').trim();
@@ -287,8 +288,15 @@ function procesarArchivo(file) {
         digitos: codigo.replace(/[^0-9]/g,'')
       };
     });
+    // Bobinar también vende un SERVICIO de reparación (vos les mandás tu pieza rota
+    // y ellos te la devuelven arreglada) — eso NO es un repuesto que vos puedas
+    // comprar y cargar en tu catálogo, así que estas filas se descartan siempre,
+    // nunca se ofrecen como candidato ni entran en el match por código de proveedor.
+    bobinarRows = todasLasFilas.filter(b => !/REPARAC/i.test(b.detalle));
+    const excluidasPorReparacion = todasLasFilas.length - bobinarRows.length;
     document.getElementById('file-info').style.display = 'block';
-    document.getElementById('file-info').textContent = `✅ ${file.name} — ${bobinarRows.length} productos Bobinar cargados`;
+    document.getElementById('file-info').textContent = `✅ ${file.name} — ${bobinarRows.length} productos Bobinar cargados`
+      + (excluidasPorReparacion ? ` (${excluidasPorReparacion} filas de "servicio de reparación" descartadas — no son repuesto)` : '');
     bobinarPorCodigo = new Map(bobinarRows.map(b => [b.codigoLimpio, b]));
     bobinarPorMarca = new Map();
     bobinarRows.forEach(b => {
@@ -642,6 +650,22 @@ window.marcarTodosNinguno = function() {
   actualizarContadores();
 };
 window.filtrarLista = function(v) { renderLista(v); };
+
+// Copia SOLO los repuestos donde Bobinar no tiene absolutamente nada (ni como
+// repuesto ni como reparación) — estos hay que buscarlos en otro distribuidor,
+// a diferencia de los que sí tienen candidatos pero vos todavía no confirmaste.
+window.copiarListaSinBobinar = function() {
+  const sinDatos = sospechosos.filter(r => (candidatosPorId[r.id]||[]).length === 0);
+  if (!sinDatos.length) { alert('No hay repuestos sin ningún dato en Bobinar en la categoría actual — Bobinar tiene candidatos para todos.'); return; }
+  const header = ['Código','Título','Categoría','Precio costo actual','Precio venta actual'];
+  const filas = sinDatos.map(r => [r.codigo, r.titulo, r.categoria, r.costoActual||0, r.ventaActual||0]);
+  const tsv = [header, ...filas].map(f => f.join('\t')).join('\n');
+  navigator.clipboard.writeText(tsv).then(() => {
+    alert(`✅ Copiados ${sinDatos.length} repuestos que Bobinar NO tiene (ni repuesto ni reparación). Pegalo en Excel y buscá el precio en otro distribuidor.`);
+  }).catch(() => {
+    alert('❌ No se pudo copiar automáticamente. Puede ser un permiso del navegador.');
+  });
+};
 
 // Copia (formato Excel, separado por tabulaciones) TODOS los repuestos que siguen
 // sin código Bobinar confirmado — para buscar el precio a mano por otro lado.
