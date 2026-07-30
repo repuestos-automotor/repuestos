@@ -84,8 +84,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Filtrar por categoría (opcional):</div>
       <select id="filtro-categoria" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;font-family:inherit;max-width:420px;width:100%">
         <option value="">Todos los repuestos</option>
-        <option value="Arranque Despiece|Porta Escobillas o Carbones Completo" selected>Arranque Despiece | Porta Escobillas o Carbones Completo</option>
-        <option value="Arranque Despiece|Impulsor Motor de Arranque">Arranque Despiece | Impulsor Motor de Arranque</option>
+        <option value="Arranque Despiece | Porta Escobillas o Carbones Completo" selected>Arranque Despiece | Porta Escobillas o Carbones Completo</option>
+        <option value="Arranque Despiece | Impulsor Motor de Arranque">Arranque Despiece | Impulsor Motor de Arranque</option>
         <option value="__ambas__">Ambas (Porta Escobillas + Impulsor de Arranque)</option>
       </select>
     </div>
@@ -190,6 +190,19 @@ let bobinarRows = [];   // { codigo, detalle, rubro, marca, costoFinal, precioPu
 let bobinarPorCodigo = new Map(); // codigoLimpio → fila de Bobinar (para búsqueda instantánea por patrón)
 let seleccion   = {};   // id -> { codigo, detalle, costoFinal, precioPublico } | 'NINGUNO' | null
 
+// Misma corrección de encoding que usa admin/index.html, por si algún repuesto
+// quedó con acentos rotos tipo "Ã³" al importarse.
+function fixEnc(s) {
+  if (!s || typeof s !== 'string') return s;
+  return s
+    .replace(/Ã¡/g,'á').replace(/Ã©/g,'é').replace(/Ã­/g,'í').replace(/Ã³/g,'ó').replace(/Ãº/g,'ú')
+    .replace(/Ã\x81/g,'Á').replace(/Ã\x89/g,'É').replace(/Ã\x8d/g,'Í').replace(/Ã\x93/g,'Ó').replace(/Ã\x9a/g,'Ú')
+    .replace(/Ã±/g,'ñ').replace(/Ã\x91/g,'Ñ')
+    .replace(/Ãƒâ€˜/g,'Ó').replace(/Ã‚/g,'').replace(/Ãƒ/g,'Ã')
+    .replace(/â€"/g,'–').replace(/â€"/g,'—').replace(/â€œ/g,'"').replace(/â€/g,'"')
+    .replace(/Â°/g,'°').replace(/Â¿/g,'¿').replace(/Â¡/g,'¡');
+}
+
 window.cargarRepuestos = async function() {
   const btn = document.getElementById('btn-cargar');
   btn.disabled = true;
@@ -198,17 +211,17 @@ window.cargarRepuestos = async function() {
     const snap = await getDocs(collection(db,'repuestos'));
     let all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    // Filtro por categoría/subcategoría (select de arriba)
+    // El campo "categoria" guarda el string COMPLETO ("Arranque Despiece | Porta Escobillas...")
+    // como un solo valor — no son dos campos separados. fixEnc corrige acentos rotos por si acaso.
+    const NORM = (s) => fixEnc(String(s||'')).trim();
+    const CAT_PORTACARBONES = 'Arranque Despiece | Porta Escobillas o Carbones Completo';
+    const CAT_IMPULSOR      = 'Arranque Despiece | Impulsor Motor de Arranque';
+
     const filtroVal = document.getElementById('filtro-categoria').value;
     if (filtroVal === '__ambas__') {
-      const opciones = [
-        ['Arranque Despiece','Porta Escobillas o Carbones Completo'],
-        ['Arranque Despiece','Impulsor Motor de Arranque']
-      ];
-      all = all.filter(r => opciones.some(([cat,sub]) => r.categoria===cat && r.subcategoria===sub));
+      all = all.filter(r => [CAT_PORTACARBONES, CAT_IMPULSOR].includes(NORM(r.categoria)));
     } else if (filtroVal) {
-      const [cat, sub] = filtroVal.split('|');
-      all = all.filter(r => r.categoria===cat && r.subcategoria===sub);
+      all = all.filter(r => NORM(r.categoria) === filtroVal);
     }
     const totalEnCategoria = all.length;
 
@@ -219,8 +232,7 @@ window.cargarRepuestos = async function() {
       id: r.id,
       codigo: r.codigo || '',
       titulo: r.titulo_repuesto || '',
-      categoria: r.categoria || '',
-      subcategoria: r.subcategoria || '',
+      categoria: NORM(r.categoria),
       codigos_proveedores: r.codigos_proveedores || [],
       costoActual: r.precio_costo || 0,
       ventaActual: r.precio_venta_iva || 0
@@ -561,8 +573,8 @@ window.filtrarLista = function(v) { renderLista(v); };
 window.copiarListaSinCodigo = function() {
   const pendientes = sospechosos.filter(r => !seleccion[r.id] || seleccion[r.id] === 'NINGUNO');
   if (!pendientes.length) { alert('No hay repuestos pendientes sin código Bobinar en la lista actual.'); return; }
-  const header = ['Código','Título','Categoría','Subcategoría','Precio costo actual','Precio venta actual'];
-  const filas = pendientes.map(r => [r.codigo, r.titulo, r.categoria, r.subcategoria||'', r.costoActual||0, r.ventaActual||0]);
+  const header = ['Código','Título','Categoría','Precio costo actual','Precio venta actual'];
+  const filas = pendientes.map(r => [r.codigo, r.titulo, r.categoria, r.costoActual||0, r.ventaActual||0]);
   const tsv = [header, ...filas].map(f => f.join('\t')).join('\n');
   navigator.clipboard.writeText(tsv).then(() => {
     alert(`✅ Copiados ${pendientes.length} repuestos sin código Bobinar. Pegalo en Excel (Ctrl+V).`);
