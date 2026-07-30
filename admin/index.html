@@ -1693,13 +1693,18 @@ tbody tr:hover td:last-child{background:var(--bg3)}
           <div class="form-group" style="margin:0"><label class="form-label">Precio mínimo</label><input type="number" class="form-input" id="bav-precio-min" placeholder="$ 0" min="0" onkeydown="if(event.key==='Enter')ejecutarBuscador()"></div>
           <div class="form-group" style="margin:0"><label class="form-label">Precio máximo</label><input type="number" class="form-input" id="bav-precio-max" placeholder="$ ∞" min="0" onkeydown="if(event.key==='Enter')ejecutarBuscador()"></div>
           <div class="form-group" style="margin:0"><label class="form-label" style="display:flex;align-items:center;gap:6px;cursor:pointer" title="Agrupa los resultados que comparten exactamente el mismo precio de venta"><input type="checkbox" id="bav-agrupar-precio" style="accent-color:var(--blue)" onchange="ejecutarBuscador()"> Agrupar por precio idéntico</label></div>
+          <div class="form-group" style="margin:0"><label class="form-label">Cotización USD (opcional)</label><input type="number" class="form-input usd-rate-input" placeholder="Ej: 1250" min="0" oninput="setUsdRate(this.value, ()=>window._bavResultados&&renderBavResults())"></div>
         </div>
         <div style="margin-top:16px;display:flex;gap:10px">
           <button class="btn btn-primary" onclick="ejecutarBuscador()">🔍 Buscar</button>
           <button class="btn btn-ghost" onclick="limpiarBuscador()">✖ Limpiar</button>
         </div>
       </div>
-      <div id="bav-result-info" style="font-size:13px;color:var(--text-muted);margin-bottom:10px"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
+        <div id="bav-result-info" style="font-size:13px;color:var(--text-muted)"></div>
+        <div style="flex:1"></div>
+        <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="bavCopiarExcel()">📋 Copiar para Excel</button>
+      </div>
       <div id="bav-results" style="overflow-x:auto"></div>
     </div>
 
@@ -1726,6 +1731,7 @@ tbody tr:hover td:last-child{background:var(--bg3)}
             <div class="form-group" style="margin:0"><label class="form-label">Condición</label><select class="form-select" id="lote-cond"><option value="">Cualquiera</option><option value="nuevo">NUEVO</option><option value="reacondicionado">REACONDICIONADO</option></select></div>
             <div class="form-group" style="margin:0"><label class="form-label">Texto adicional</label><input type="text" class="form-input" id="lote-texto" placeholder="Ej: bosch"></div>
             <div class="form-group" style="margin:0"><label class="form-label">Solo con stock</label><label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text2);cursor:pointer;height:36px"><input type="checkbox" id="lote-solo-stock" checked style="accent-color:var(--blue)"> Excluir stock 0</label></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Cotización USD (opcional)</label><input type="number" class="form-input usd-rate-input" placeholder="Ej: 1250" min="0" oninput="setUsdRate(this.value, ()=>window._loteResultados&&window._loteResultados.length&&lotesRenderTabla())"></div>
           </div>
           <div style="margin-top:16px;display:flex;gap:10px">
             <button class="btn btn-primary" onclick="lotesGenerar()">⚙ Generar lote</button>
@@ -1743,7 +1749,8 @@ tbody tr:hover td:last-child{background:var(--bg3)}
           <div class="lote-summary-item"><span class="lbl">Valor 1 unidad c/u</span><span class="val" id="lote-sum-unitario" style="color:var(--blue)">$ 0</span></div>
           <div style="flex:1"></div>
           <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarTexto()">📋 Copiar lista</button>
-          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesExportarCSV()">📊 Exportar CSV</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarExcel()">📊 Copiar para Excel</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesExportarCSV()">💾 Exportar CSV</button>
           <button class="btn btn-primary" style="font-size:11.5px;padding:8px 14px" onclick="lotesImprimir()">🖨 Imprimir / PDF</button>
         </div>
       </div>
@@ -1774,13 +1781,18 @@ tbody tr:hover td:last-child{background:var(--bg3)}
               </select>
             </div>
             <div class="form-group" style="margin:0"><label class="form-label">Solo con stock</label><label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text2);cursor:pointer;height:36px"><input type="checkbox" id="lp-solo-stock" onchange="lotesAgruparPorPrecio()" style="accent-color:var(--blue)"> Excluir stock 0</label></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Cotización USD (opcional)</label><input type="number" class="form-input usd-rate-input" placeholder="Ej: 1250" min="0" oninput="setUsdRate(this.value, ()=>lotesAgruparPorPrecio())"></div>
           </div>
           <div style="margin-top:16px;display:flex;gap:10px">
             <button class="btn btn-primary" onclick="lotesAgruparPorPrecio()">🔍 Buscar</button>
             <button class="btn btn-ghost" onclick="lotesLimpiarPrecio()">✖ Limpiar</button>
           </div>
         </div>
-        <div id="lote-precio-info" style="font-size:13px;color:var(--text-muted);margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap">
+          <div id="lote-precio-info" style="font-size:13px;color:var(--text-muted)"></div>
+          <div style="flex:1"></div>
+          <button class="btn btn-ghost" style="font-size:11px;padding:6px 12px" onclick="lpCopiarExcel()">📋 Copiar para Excel</button>
+        </div>
         <div id="lote-precio-results"></div>
       </div>
     </div>
@@ -4439,9 +4451,15 @@ window.cargarRepuestos = async function() {
   return window._repsAll;
 };
 
-// Lista de categorías reales (nombre + cuántos repuestos tienen exactamente ese texto), ordenada alfabéticamente.
-window.getCategoriasReales = function() {
+// Lista de categorías: une la colección maestra "categorias" (para no perder ninguna, aunque tenga 0 productos)
+// con el conteo real derivado de los repuestos (para que el número sea siempre exacto).
+window.getCategoriasReales = async function() {
+  if (!window._catsMaestro) {
+    const snap = await getDocs(collection(db,'categorias'));
+    window._catsMaestro = [...new Set(snap.docs.map(d=>normCat(d.data().nombre)).filter(Boolean))];
+  }
   const map = new Map();
+  window._catsMaestro.forEach(n=>map.set(n, 0));
   (window._repsAll||[]).forEach(r=>{
     const nombre = normCat(r.categoria);
     if (!nombre) return;
@@ -4450,13 +4468,73 @@ window.getCategoriasReales = function() {
   return [...map.entries()].map(([nombre,count])=>({nombre,count})).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'));
 };
 
+// ── COTIZACIÓN USD (se guarda en el navegador, se usa en Buscador y Lotes) ──
+window.getUsdRate = function() {
+  const v = parseFloat(localStorage.getItem('cotizacion_usd'));
+  return (v && v>0) ? v : null;
+};
+window.setUsdRate = function(val, redrawFn) {
+  const v = parseFloat(val);
+  if (v>0) localStorage.setItem('cotizacion_usd', v); else localStorage.removeItem('cotizacion_usd');
+  document.querySelectorAll('.usd-rate-input').forEach(el=>{ if(document.activeElement!==el) el.value = v>0?v:''; });
+  if (redrawFn) redrawFn();
+};
+window.fmtUSD = function(precioArs) {
+  const rate = getUsdRate();
+  if (!rate) return '—';
+  return 'US$ ' + new Intl.NumberFormat('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}).format((precioArs||0)/rate);
+};
+
+// ── ORDEN GENÉRICO DE TABLAS (Buscador / Lotes) ───────
+function sortReps(arr, sortState) {
+  const {col,dir} = sortState;
+  if (!col) return arr;
+  return arr.slice().sort((a,b)=>{
+    let va, vb;
+    if (col==='ubicacion') {
+      va=[getNombreEstanteria(a),getNombreEstante(a)].filter(x=>x&&x!=='—').join(' ');
+      vb=[getNombreEstanteria(b),getNombreEstante(b)].filter(x=>x&&x!=='—').join(' ');
+    } else if (col==='subtotal') {
+      va=(a.precio_venta_iva||0)*(a.cant_artic||0); vb=(b.precio_venta_iva||0)*(b.cant_artic||0);
+    } else if (col==='precio_usd') {
+      const rate=getUsdRate()||0; va=rate?(a.precio_venta_iva||0)/rate:0; vb=rate?(b.precio_venta_iva||0)/rate:0;
+    } else if (col==='cant_artic' || col==='precio_venta_iva') {
+      va=Number(a[col])||0; vb=Number(b[col])||0;
+    } else {
+      va=(a[col]||'').toString().toLowerCase(); vb=(b[col]||'').toString().toLowerCase();
+    }
+    if (va<vb) return dir==='asc'?-1:1;
+    if (va>vb) return dir==='asc'?1:-1;
+    return 0;
+  });
+}
+function updateSortArrows(prefix, state) {
+  document.querySelectorAll(`[id^="${prefix}-sort-"]`).forEach(el=>el.textContent='');
+  if (state.col) { const el=document.getElementById(`${prefix}-sort-${state.col}`); if (el) el.textContent = state.dir==='asc'?'▲':'▼'; }
+}
+
+// ── COPIAR PARA EXCEL (tab-separado, sin imágenes, para pegar directo en una planilla) ──
+window.copiarTSV = function(rows, headers) {
+  if (!rows.length) { toast('No hay productos para copiar','error'); return; }
+  let txt = headers.join('\t') + '\n';
+  rows.forEach(r=>{ txt += r.map(v=>String(v ?? '').replace(/\t/g,' ').replace(/\n/g,' ')).join('\t') + '\n'; });
+  navigator.clipboard.writeText(txt).then(()=>toast('✅ Copiado — pegalo directo en Excel')).catch(()=>toast('No se pudo copiar','error'));
+};
+function filaExcel(r) {
+  const ub=[getNombreEstanteria(r),getNombreEstante(r)].filter(b=>b&&b!=='—').join(' - ')||'-';
+  const usd = getUsdRate() ? ((r.precio_venta_iva||0)/getUsdRate()).toFixed(2) : '';
+  return [r.codigo||'', r.titulo_repuesto||'', r.categoria||'', ub, r.cant_artic||0, r.precio_venta_iva||0, usd];
+}
+const HEADERS_EXCEL = ['Código','Producto','Categoría','Ubicación','Stock','Precio ARS','Precio USD'];
+
 // ── BUSCADOR AVANZADO ─────────────────────────────────
 window.initBuscador = async function() {
   await cargarRepuestos();
+  document.querySelectorAll('#page-buscador .usd-rate-input').forEach(el=>{ if(!el.value) el.value = getUsdRate()||''; });
   const catSel = document.getElementById('bav-cat');
   if (catSel.dataset.built !== '1') {
     catSel.dataset.built = '1';
-    getCategoriasReales().forEach(c=>{ const o=document.createElement('option'); o.value=c.nombre; o.textContent=`${c.nombre} (${c.count})`; catSel.appendChild(o); });
+    (await getCategoriasReales()).forEach(c=>{ const o=document.createElement('option'); o.value=c.nombre; o.textContent=`${c.nombre} (${c.count})`; catSel.appendChild(o); });
   }
   const mvSel = document.getElementById('bav-mv');
   if (mvSel.dataset.built !== '1') {
@@ -4498,8 +4576,9 @@ window.ejecutarBuscador = async function() {
   if (pMin!==null) res = res.filter(r=>(r.precio_venta_iva||0)>=pMin);
   if (pMax!==null) res = res.filter(r=>(r.precio_venta_iva||0)<=pMax);
   document.getElementById('bav-result-info').textContent = `${res.length} resultado${res.length!==1?'s':''} encontrado${res.length!==1?'s':''}`;
-  if (!res.length) { document.getElementById('bav-results').innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados para esa búsqueda.</p>'; return; }
+  if (!res.length) { window._bavResultados=[]; document.getElementById('bav-results').innerHTML='<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados para esa búsqueda.</p>'; return; }
   if (agrupar) {
+    window._bavResultados = res;
     // Agrupar resultados por precio de venta exactamente idéntico
     const grupos = {};
     res.forEach(r=>{ const key = (r.precio_venta_iva||0).toFixed(2); (grupos[key]=grupos[key]||[]).push(r); });
@@ -4515,25 +4594,47 @@ window.ejecutarBuscador = async function() {
             <span style="color:var(--text-muted);font-size:12px">${items.length} producto${items.length!==1?'s':''} · ${items.reduce((a,r)=>a+(r.cant_artic||0),0)} unidades en stock</span>
           </div>
         </div>
-        <div class="lote-precio-group-body">${buscadorTablaHTML(items)}</div>
+        <div class="lote-precio-group-body">${buscadorTablaHTML(items,false)}</div>
       </div>`;
     }).join('');
     return;
   }
-  document.getElementById('bav-results').innerHTML = buscadorTablaHTML(res);
+  window._bavResultados = res;
+  window._bavSort = {col:null, dir:'asc'};
+  renderBavResults();
 };
 
-function buscadorTablaHTML(res) {
+function renderBavResults() {
+  const arr = sortReps(window._bavResultados||[], window._bavSort);
+  document.getElementById('bav-results').innerHTML = buscadorTablaHTML(arr, true);
+  updateSortArrows('bav', window._bavSort);
+}
+window.bavSortBy = function(col) {
+  const s = window._bavSort;
+  s.dir = (s.col===col && s.dir==='asc') ? 'desc' : 'asc';
+  s.col = col;
+  renderBavResults();
+};
+window.bavCopiarExcel = function() {
+  const rows = (window._bavResultados||[]).map(filaExcel);
+  copiarTSV(rows, HEADERS_EXCEL);
+};
+
+function buscadorTablaHTML(res, sortable) {
+  const th = (label, col, align) => sortable
+    ? `<th style="text-align:${align||'left'};padding:8px 10px;color:var(--text-muted);font-weight:500;cursor:pointer;user-select:none" onclick="bavSortBy('${col}')">${label} <span class="sort-arrow" id="bav-sort-${col}"></span></th>`
+    : `<th style="text-align:${align||'left'};padding:8px 10px;color:var(--text-muted);font-weight:500">${label}</th>`;
   return `<table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead><tr style="border-bottom:1px solid var(--border)">
       <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">ID</th>
       <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">IMG</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Producto</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Código</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Categoría</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Ubicación</th>
-      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Stock</th>
-      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Precio</th>
+      ${th('Producto','titulo_repuesto')}
+      ${th('Código','codigo')}
+      ${th('Categoría','categoria')}
+      ${th('Ubicación','ubicacion')}
+      ${th('Stock','cant_artic','right')}
+      ${th('Precio ARS','precio_venta_iva','right')}
+      ${th('Precio USD','precio_usd','right')}
     </tr></thead>
     <tbody>${res.map(r=>{const imgS=r.imagen_url||(r.imagenes&&r.imagenes[0])||'';const ub=[getNombreEstanteria(r),getNombreEstante(r)].filter(b=>b&&b!=='—').join(' · ')||'—';return`<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="editarRepuesto('${r.id}')">
       <td style="padding:8px 10px;color:#818cf8;font-family:JetBrains Mono,monospace;white-space:nowrap">${r.id_mysql?'#'+r.id_mysql:'—'}</td>
@@ -4544,6 +4645,7 @@ function buscadorTablaHTML(res) {
       <td style="padding:8px 10px;color:var(--text3);font-size:11px;font-family:monospace">${ub}</td>
       <td style="padding:8px 10px;text-align:right"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><div class="sem ${(r.cant_artic||0)===0?'sem-r':(r.cant_artic||0)===1?'sem-a':'sem-g'}"></div>${r.cant_artic||0}</div></td>
       <td style="padding:8px 10px;text-align:right;color:var(--green)">${fmt(r.precio_venta_iva)}</td>
+      <td style="padding:8px 10px;text-align:right;color:var(--text3)">${fmtUSD(r.precio_venta_iva)}</td>
     </tr>`}).join('')}</tbody>
   </table>`;
 }
@@ -4572,7 +4674,8 @@ window.lotesCambiarTab = function(tab) {
 
 window.initLotes = async function() {
   await cargarRepuestos();
-  window._catsAllLotes = getCategoriasReales(); // [{nombre, count}] — el índice del array actúa como id
+  document.querySelectorAll('#page-lotes .usd-rate-input').forEach(el=>{ if(!el.value) el.value = getUsdRate()||''; });
+  window._catsAllLotes = await getCategoriasReales(); // [{nombre, count}] — el índice del array actúa como id
   const cats = window._catsAllLotes;
 
   // Chips de categorías (multi-select) — usa el índice del array como id de DOM, y el nombre real para filtrar
@@ -4643,6 +4746,7 @@ window.lotesGenerar = function() {
   if (texto)       res = res.filter(r=>textoBusqueda(r).includes(texto));
   if (soloStock)    res = res.filter(r=>(r.cant_artic||0)>0);
   res = res.slice().sort((a,b)=>(a.titulo_repuesto||'').localeCompare(b.titulo_repuesto||''));
+  window._loteSort = {col:null, dir:'asc'};
 
   window._loteResultados = res;
   window._loteChecked = new Set(res.map(r=>r.id)); // todos marcados por defecto
@@ -4663,19 +4767,29 @@ window.lotesGenerar = function() {
   lotesRecalcularResumen();
 };
 
+window.loteSortBy = function(col) {
+  const s = window._loteSort;
+  s.dir = (s.col===col && s.dir==='asc') ? 'desc' : 'asc';
+  s.col = col;
+  window._loteResultados = sortReps(window._loteResultados, s);
+  lotesRenderTabla();
+};
+
 function lotesRenderTabla() {
   const res = window._loteResultados;
+  const th = (label, col, align) => `<th style="text-align:${align||'left'};padding:8px 10px;color:var(--text-muted);font-weight:500;cursor:pointer;user-select:none" onclick="loteSortBy('${col}')">${label} <span class="sort-arrow" id="lote-sort-${col}"></span></th>`;
   document.getElementById('lote-cat-results').innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead><tr style="border-bottom:1px solid var(--border)">
       <th style="padding:8px 6px;width:28px"></th>
       <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">IMG</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Producto</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Código</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Categoría</th>
-      <th style="text-align:left;padding:8px 10px;color:var(--text-muted);font-weight:500">Ubicación</th>
-      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Stock</th>
-      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Precio</th>
-      <th style="text-align:right;padding:8px 10px;color:var(--text-muted);font-weight:500">Subtotal</th>
+      ${th('Producto','titulo_repuesto')}
+      ${th('Código','codigo')}
+      ${th('Categoría','categoria')}
+      ${th('Ubicación','ubicacion')}
+      ${th('Stock','cant_artic','right')}
+      ${th('Precio ARS','precio_venta_iva','right')}
+      ${th('Precio USD','precio_usd','right')}
+      ${th('Subtotal','subtotal','right')}
     </tr></thead>
     <tbody>${res.map(r=>{
       const imgS=r.imagen_url||(r.imagenes&&r.imagenes[0])||'';
@@ -4691,9 +4805,11 @@ function lotesRenderTabla() {
       <td style="padding:8px 10px;color:var(--text3);font-size:11px;font-family:monospace">${ub}</td>
       <td style="padding:8px 10px;text-align:right"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><div class="sem ${(r.cant_artic||0)===0?'sem-r':(r.cant_artic||0)===1?'sem-a':'sem-g'}"></div>${r.cant_artic||0}</div></td>
       <td style="padding:8px 10px;text-align:right;color:var(--green)">${fmt(r.precio_venta_iva)}</td>
+      <td style="padding:8px 10px;text-align:right;color:var(--text3)">${fmtUSD(r.precio_venta_iva)}</td>
       <td style="padding:8px 10px;text-align:right;color:var(--text2)">${fmt(subtotal)}</td>
     </tr>`}).join('')}</tbody>
   </table>`;
+  updateSortArrows('lote', window._loteSort);
 }
 
 window.lotesToggleRow = function(id) {
@@ -4738,6 +4854,11 @@ window.lotesCopiarTexto = function() {
   const totalStock = sel.reduce((a,r)=>a+(r.precio_venta_iva||0)*(r.cant_artic||0),0);
   txt += `\n${sel.length} productos · ${unidades} unidades\n*TOTAL: ${fmt(totalStock)}*`;
   navigator.clipboard.writeText(txt).then(()=>toast('✅ Lista copiada al portapapeles')).catch(()=>toast('No se pudo copiar','error'));
+};
+
+window.lotesCopiarExcel = function() {
+  const sel = lotesSeleccionActual();
+  copiarTSV(sel.map(filaExcel), HEADERS_EXCEL);
 };
 
 window.lotesExportarCSV = function() {
@@ -4828,10 +4949,12 @@ window.lotesAgruparPorPrecio = function() {
   const info = document.getElementById('lote-precio-info');
   const cont = document.getElementById('lote-precio-results');
   if (!claves.length) {
+    window._lpFlatResultados = [];
     info.textContent = 'No se encontraron productos con precio para ese filtro.';
     cont.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin resultados.</p>';
     return;
   }
+  window._lpFlatResultados = claves.flatMap(k=>grupos[k]);
   const totalProductos = claves.reduce((a,k)=>a+grupos[k].length,0);
   const totalValor      = claves.reduce((a,k)=>a+grupos[k].reduce((s,r)=>s+(r.precio_venta_iva||0)*(r.cant_artic||0),0),0);
   const repetidos = claves.filter(k=>grupos[k].length>1).length;
@@ -4853,6 +4976,10 @@ window.lotesAgruparPorPrecio = function() {
       <div class="lote-precio-group-body">${buscadorTablaHTML(items)}</div>
     </div>`;
   }).join('');
+};
+
+window.lpCopiarExcel = function() {
+  copiarTSV((window._lpFlatResultados||[]).map(filaExcel), HEADERS_EXCEL);
 };
 
 window.lotesLimpiarPrecio = function() {
