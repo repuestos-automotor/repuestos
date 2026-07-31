@@ -166,7 +166,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .lote-summary-item{display:flex;flex-direction:column;gap:2px}
 .lote-summary-item .lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
 .lote-summary-item .val{font-size:15px;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace}
-.lote-desglose{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-top:10px}
+.lote-desglose{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-top:14px}
 .lote-desglose table{width:100%;border-collapse:collapse;font-size:12.5px}
 .lote-desglose th{text-align:left;padding:6px 10px;color:var(--text3);font-weight:500;text-transform:uppercase;font-size:10px;letter-spacing:.04em;border-bottom:1px solid var(--border)}
 .lote-desglose th.num,.lote-desglose td.num{text-align:right}
@@ -1750,20 +1750,6 @@ tbody tr:hover td:last-child{background:var(--bg3)}
         <div id="lote-cat-info" style="font-size:13px;color:var(--text-muted);margin-bottom:10px"></div>
         <div style="display:flex;gap:10px;margin-bottom:10px" id="lote-cat-toolbar"></div>
         <div id="lote-cat-results" style="overflow-x:auto"></div>
-        <div id="lote-cat-summary" class="lote-summary-bar" style="display:none">
-          <div class="lote-summary-item"><span class="lbl">Productos</span><span class="val" id="lote-sum-items">0</span></div>
-          <div class="lote-summary-item"><span class="lbl">Unidades en stock</span><span class="val" id="lote-sum-unidades">0</span></div>
-          <div class="lote-summary-item"><span class="lbl">Valor total (stock × precio)</span><span class="val" id="lote-sum-total" style="color:var(--green)">$ 0</span></div>
-          <div class="lote-summary-item"><span class="lbl">Valor total (stock × precio) USD</span><span class="val" id="lote-sum-total-usd" style="color:var(--text3)">—</span></div>
-          <div class="lote-summary-item"><span class="lbl">Valor 1 unidad c/u</span><span class="val" id="lote-sum-unitario" style="color:var(--blue)">$ 0</span></div>
-          <div style="flex:1"></div>
-          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesToggleDesglose()">📐 Desglose costo/IVA</button>
-          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarTexto()">📋 Copiar lista</button>
-          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarExcel()">📊 Copiar para Excel</button>
-          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesExportarCSV()">💾 Exportar CSV</button>
-          <button class="btn btn-primary" style="font-size:11.5px;padding:8px 14px" onclick="lotesImprimir()">🖨 Imprimir / PDF</button>
-        </div>
-
         <div id="lote-desglose" class="lote-desglose" style="display:none">
           <table>
             <thead><tr><th>Concepto</th><th class="num">$ ARS</th><th class="num">US$D</th></tr></thead>
@@ -1776,6 +1762,41 @@ tbody tr:hover td:last-child{background:var(--bg3)}
             </tbody>
           </table>
           <div class="ld-foot">% Ganancia promedio ponderada del lote: <span id="ld-pct" style="color:var(--text2);font-weight:600">0%</span> &nbsp;·&nbsp; Ganancia neta total: <span id="ld-gan-neta" style="color:var(--green);font-weight:600">$ 0</span></div>
+        </div>
+
+        <div id="lote-propuesta" class="lote-desglose" style="display:none">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">🤝 Condiciones de la propuesta</div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">
+            <div class="form-group" style="margin:0"><label class="form-label">Válida por (días)</label><input type="number" class="form-input" id="lp-cfg-dias" style="width:90px" min="1" value="3" oninput="lotesGuardarCfgPropuesta()"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Anular si el dólar baja más de (%)</label><input type="number" class="form-input" id="lp-cfg-pctbaja" style="width:90px" min="0" value="5" oninput="lotesGuardarCfgPropuesta()"></div>
+            <div class="form-group" style="margin:0"><label class="form-label">Formas de pago aceptadas</label>
+              <div style="display:flex;gap:14px;height:36px;align-items:center">
+                <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text2);cursor:pointer"><input type="checkbox" id="lp-cfg-efectivo" checked onchange="lotesGuardarCfgPropuesta()" style="accent-color:var(--blue)"> Efectivo</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text2);cursor:pointer"><input type="checkbox" id="lp-cfg-transferencia" checked onchange="lotesGuardarCfgPropuesta()" style="accent-color:var(--blue)"> Transferencia</label>
+                <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--text2);cursor:pointer"><input type="checkbox" id="lp-cfg-cuotas" onchange="lotesGuardarCfgPropuesta()" style="accent-color:var(--blue)"> Cuotas</label>
+              </div>
+            </div>
+          </div>
+          <div id="lote-propuesta-resumen" style="font-size:12.5px;color:var(--text2);line-height:1.9;white-space:pre-wrap;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px"></div>
+          <div style="margin-top:14px">
+            <button class="btn btn-primary" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarPropuesta()">📤 Copiar propuesta para el cliente</button>
+          </div>
+        </div>
+
+        <div id="lote-cat-summary" class="lote-summary-bar" style="display:none">
+          <div class="lote-summary-item"><span class="lbl">Productos</span><span class="val" id="lote-sum-items">0</span></div>
+          <div class="lote-summary-item"><span class="lbl">Unidades en stock</span><span class="val" id="lote-sum-unidades">0</span></div>
+          <div class="lote-summary-item"><span class="lbl">Valor total (stock × precio)</span><span class="val" id="lote-sum-total" style="color:var(--green)">$ 0</span></div>
+          <div class="lote-summary-item"><span class="lbl">Valor total (stock × precio) USD</span><span class="val" id="lote-sum-total-usd" style="color:var(--text3)">—</span></div>
+          <div class="lote-summary-item"><span class="lbl">Valor 1 unidad c/u</span><span class="val" id="lote-sum-unitario" style="color:var(--blue)">$ 0</span></div>
+          <div style="flex:1"></div>
+          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesToggleDesglose()">📐 Desglose costo/IVA</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesTogglePropuesta()">🤝 Propuesta comercial</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarTexto()">📋 Copiar lista</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarExcel()">📊 Copiar para Excel</button>
+          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesExportarCSV()">💾 Exportar CSV</button>
+          <button class="btn btn-primary" style="font-size:11.5px;padding:8px 14px" onclick="lotesImprimir()">🖨 Imprimir / PDF</button>
+        </div>
         </div>
       </div>
 
@@ -4741,6 +4762,7 @@ window.lotesLimpiarCat = function() {
   document.getElementById('lote-cat-results').innerHTML='';
   document.getElementById('lote-cat-summary').style.display='none';
   document.getElementById('lote-desglose').style.display='none';
+  document.getElementById('lote-propuesta').style.display='none';
   window._loteResultados=[]; window._loteChecked=new Set();
 };
 
@@ -4783,6 +4805,7 @@ window.lotesGenerar = function() {
     document.getElementById('lote-cat-results').innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin productos para ese filtro.</p>';
     document.getElementById('lote-cat-summary').style.display='none';
     document.getElementById('lote-desglose').style.display='none';
+    document.getElementById('lote-propuesta').style.display='none';
     return;
   }
   info.textContent = `${res.length} producto${res.length!==1?'s':''} encontrado${res.length!==1?'s':''}. Desmarcá los que no quieras incluir en el lote.`;
@@ -4860,7 +4883,12 @@ function lotesSeleccionActual() {
 function lotesRecalcularResumen() {
   const sel = lotesSeleccionActual();
   const bar = document.getElementById('lote-cat-summary');
-  if (!window._loteResultados.length) { bar.style.display='none'; document.getElementById('lote-desglose').style.display='none'; return; }
+  if (!window._loteResultados.length) {
+    bar.style.display='none';
+    document.getElementById('lote-desglose').style.display='none';
+    document.getElementById('lote-propuesta').style.display='none';
+    return;
+  }
   bar.style.display='flex';
   const unidades = sel.reduce((a,r)=>a+(r.cant_artic||0),0);
   const totalStock = sel.reduce((a,r)=>a+(r.precio_venta_iva||0)*(r.cant_artic||0),0);
@@ -4895,11 +4923,121 @@ function lotesRecalcularResumen() {
   document.getElementById('ld-desc-usd').textContent   = fmtUSD(totalDesc);
   document.getElementById('ld-pct').textContent        = pctGanancia.toFixed(1)+'%';
   document.getElementById('ld-gan-neta').textContent   = fmt(gananciaNeta);
+
+  lotesRecalcularPropuesta();
 }
 
 window.lotesToggleDesglose = function() {
   const el = document.getElementById('lote-desglose');
   el.style.display = (el.style.display==='none') ? 'block' : 'none';
+};
+
+// ── PROPUESTA COMERCIAL (condiciones + resumen para copiar al cliente) ──
+window.lotesGuardarCfgPropuesta = function() {
+  const cfg = {
+    dias: parseInt(document.getElementById('lp-cfg-dias').value)||3,
+    pctBaja: parseFloat(document.getElementById('lp-cfg-pctbaja').value)||5,
+    efectivo: document.getElementById('lp-cfg-efectivo').checked,
+    transferencia: document.getElementById('lp-cfg-transferencia').checked,
+    cuotas: document.getElementById('lp-cfg-cuotas').checked
+  };
+  localStorage.setItem('lote_propuesta_cfg', JSON.stringify(cfg));
+  lotesRecalcularPropuesta();
+};
+
+function lotesCargarCfgPropuestaEnInputs() {
+  let cfg = {};
+  try { cfg = JSON.parse(localStorage.getItem('lote_propuesta_cfg'))||{}; } catch(e) {}
+  document.getElementById('lp-cfg-dias').value = cfg.dias ?? 3;
+  document.getElementById('lp-cfg-pctbaja').value = cfg.pctBaja ?? 5;
+  document.getElementById('lp-cfg-efectivo').checked = cfg.efectivo !== undefined ? cfg.efectivo : true;
+  document.getElementById('lp-cfg-transferencia').checked = cfg.transferencia !== undefined ? cfg.transferencia : true;
+  document.getElementById('lp-cfg-cuotas').checked = cfg.cuotas !== undefined ? cfg.cuotas : false;
+}
+
+window.lotesTogglePropuesta = function() {
+  const el = document.getElementById('lote-propuesta');
+  const abrir = el.style.display==='none';
+  el.style.display = abrir ? 'block' : 'none';
+  if (abrir) { lotesCargarCfgPropuestaEnInputs(); lotesRecalcularPropuesta(); }
+};
+
+function lotesRecalcularPropuesta() {
+  const cont = document.getElementById('lote-propuesta-resumen');
+  if (!cont) return;
+  const sel = lotesSeleccionActual();
+  if (!sel.length) { cont.textContent = 'No hay productos seleccionados.'; return; }
+
+  let cfg = {};
+  try { cfg = JSON.parse(localStorage.getItem('lote_propuesta_cfg'))||{}; } catch(e) {}
+  const dias    = cfg.dias ?? 3;
+  const pctBaja = cfg.pctBaja ?? 5;
+  const pagos = [];
+  if (cfg.efectivo !== false)      pagos.push('Efectivo');
+  if (cfg.transferencia !== false) pagos.push('Transferencia');
+  if (cfg.cuotas)                  pagos.push('Cuotas');
+
+  const precios = sel.map(r=>r.precio_venta_iva||0).filter(p=>p>0);
+  const minP = precios.length ? Math.min(...precios) : 0;
+  const maxP = precios.length ? Math.max(...precios) : 0;
+
+  const unidades   = sel.reduce((a,r)=>a+(r.cant_artic||0),0);
+  const totalVenta = sel.reduce((a,r)=>a+(r.precio_venta_iva||0)*(r.cant_artic||0),0);
+
+  // Por categoría
+  const catMap = new Map();
+  sel.forEach(r=>{
+    const cat = r.categoria || 'Sin categoría';
+    const cur = catMap.get(cat) || {productos:0, unidades:0};
+    cur.productos++; cur.unidades += (r.cant_artic||0);
+    catMap.set(cat, cur);
+  });
+  const catArr = [...catMap.entries()].sort((a,b)=>b[1].unidades-a[1].unidades);
+
+  // Nuevo (caja original) vs Reacondicionado
+  let nuevosProd=0, nuevosUds=0, reacondProd=0, reacondUds=0;
+  sel.forEach(r=>{
+    const c = (r.condicion||'NUEVO').toUpperCase();
+    if (c==='REACONDICIONADO') { reacondProd++; reacondUds += (r.cant_artic||0); }
+    else { nuevosProd++; nuevosUds += (r.cant_artic||0); }
+  });
+
+  const rate = getUsdRate();
+  const hoy = new Date();
+  const limite = new Date(hoy.getTime() + dias*86400000);
+  const df = d => d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  const t5  = totalVenta*0.95, t10 = totalVenta*0.90, t15 = totalVenta*0.85;
+  const usdTxt = v => rate ? ' · '+fmtUSD(v) : '';
+
+  cont.textContent =
+`📅 Cotización: ${rate ? ('$ '+fmtN(rate)) : '— (sin cargar arriba)'} (${df(hoy)}) · Válida hasta el ${df(limite)}
+⚠️ Sujeta a variación: si el dólar baja más de ${pctBaja}%, la propuesta queda sin efecto hasta nueva cotización.
+
+📦 ${sel.length} productos · ${fmtN(unidades)} unidades en stock
+💲 Rango de precios: ${fmt(minP)} — ${fmt(maxP)} por unidad
+
+🗂 Por categoría:
+${catArr.map(([cat,v])=>`  • ${cat}: ${v.productos} prod. / ${fmtN(v.unidades)} un.`).join('\n')}
+
+🔧 Estado del stock:
+  • Nuevos (caja original): ${nuevosProd} productos / ${fmtN(nuevosUds)} un.
+  • Reacondicionados: ${reacondProd} productos / ${fmtN(reacondUds)} un.
+
+💰 Escala de descuento por volumen:
+  • Precio de lista: ${fmt(totalVenta)}${usdTxt(totalVenta)}
+  • Con 5% desc.: ${fmt(t5)}${usdTxt(t5)}
+  • Con 10% desc.: ${fmt(t10)}${usdTxt(t10)}
+  • Con 15% desc.: ${fmt(t15)}${usdTxt(t15)}
+
+💳 Formas de pago aceptadas: ${pagos.length ? pagos.join(', ') : '—'}`;
+}
+
+window.lotesCopiarPropuesta = function() {
+  const cont = document.getElementById('lote-propuesta-resumen');
+  if (!cont || !cont.textContent || cont.textContent.startsWith('No hay')) { toast('No hay productos seleccionados','error'); return; }
+  const texto = `*PROPUESTA COMERCIAL — LOTE DE REPUESTOS*\n\n${cont.textContent}`;
+  navigator.clipboard.writeText(texto).then(()=>toast('✅ Propuesta copiada al portapapeles')).catch(()=>toast('No se pudo copiar','error'));
 };
 
 window.lotesCopiarTexto = function() {
