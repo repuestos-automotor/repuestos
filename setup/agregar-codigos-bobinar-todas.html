@@ -390,9 +390,14 @@ const COLOR_A_SUFIJO_BOBINAR = {
 // Bobinar. Devuelve los códigos posibles (01 y 02) para que después se chequee cuál de los
 // dos existe de verdad en el Excel — si existen los dos, no se fuerza nada (queda ambiguo
 // a propósito, para no arriesgar a elegir mal entre la unidad suelta y el juego).
-function codigosBobinarPredichos(codigo, titulo) {
+function codigosBobinarPredichos(codigo, titulo, categoria) {
   const t = quitarAcentos(String(titulo||'')).toUpperCase();
-  const esFaroRigido = t.includes('FARO') && !t.includes('FLEXIBLE') && !t.includes('LENTE');
+  const cat = quitarAcentos(String(categoria||'')).toUpperCase();
+  // Solo aplica el patrón BAI01/BAI02 si el repuesto es realmente de la marca BAIML
+  // (categoría "Faros BAIML" / "Faros | Lente BAIML"). Si no, se deja afuera para no
+  // taparle el match real a faros de otras marcas (GAMA, Faros y Lentes Marcas, etc.)
+  const esBAIML = cat.includes('BAIML');
+  const esFaroRigido = esBAIML && t.includes('FARO') && !t.includes('FLEXIBLE') && !t.includes('LENTE');
   if (!esFaroRigido) return null;
   const m = codigoBase(codigo).toUpperCase().match(/^(\d+)\.?([A-Z]{1,3})$/);
   if (!m) return null;
@@ -408,8 +413,10 @@ function codigosBobinarPredichos(codigo, titulo) {
 // El código Bobinar correspondiente es siempre "BAI10" + el mismo número (sin la barra "/") + "L"
 // + el sufijo de color que usa Bobinar (ej: BAI10750LR, BAI10600602LC→en realidad BAI10600/602LR).
 // A diferencia de FAROS, acá no hay ambigüedad individual/juego: un solo código posible.
-function codigosBobinarPredichoLente(codigo, titulo) {
+function codigosBobinarPredichoLente(codigo, titulo, categoria) {
   const t = quitarAcentos(String(titulo||'')).toUpperCase();
+  const cat = quitarAcentos(String(categoria||'')).toUpperCase();
+  if (!cat.includes('BAIML')) return null; // ídem faros: solo lentes de BAIML, no de otras marcas
   if (!t.includes('LENTE')) return null;
   const base = codigoBase(codigo).replace(/\s+COLOR\s+.*$/i, '').trim();
   const m = base.toUpperCase().match(/^(\d+(?:\s*\/\s*\d+)?)\s*L\.?\s*([A-Z]{1,3})?$/);
@@ -528,10 +535,10 @@ async function calcularCandidatos() {
       const tRep = new Set([...tokenizar(rep.titulo), ...tokenizar(rep.categoria)]);
       const repColor = extraerColor(rep.titulo + ' ' + rep.categoria + ' ' + rep.codigo);
       const repColorCodigo = extraerColorSufijoCodigo(rep.codigo);
-      const predichos = codigosBobinarPredichos(rep.codigo, rep.titulo);
+      const predichos = codigosBobinarPredichos(rep.codigo, rep.titulo, rep.categoria);
       let repPredicho = elegirPredichoFinal(predichos, rep.titulo, bobinarPorCodigo);
       if (!repPredicho) {
-        const predichoLente = codigosBobinarPredichoLente(rep.codigo, rep.titulo);
+        const predichoLente = codigosBobinarPredichoLente(rep.codigo, rep.titulo, rep.categoria);
         if (predichoLente && bobinarPorCodigo.has(predichoLente)) repPredicho = predichoLente;
       }
       let scored = bobinarRows
