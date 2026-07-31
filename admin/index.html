@@ -1767,6 +1767,7 @@ tbody tr:hover td:last-child{background:var(--bg3)}
         <div id="lote-propuesta" class="lote-desglose" style="display:none">
           <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">🤝 Condiciones de la propuesta</div>
           <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px">
+            <div class="form-group" style="margin:0"><label class="form-label">Cotización USD</label><input type="number" class="form-input usd-rate-input" id="lp-cfg-cotizacion" style="width:100px" placeholder="Ej: 1250" min="0" oninput="setUsdRate(this.value, ()=>{ lotesRenderTabla(); lotesRecalcularResumen(); })"></div>
             <div class="form-group" style="margin:0"><label class="form-label">Válida por (días)</label><input type="number" class="form-input" id="lp-cfg-dias" style="width:90px" min="1" value="3" oninput="lotesGuardarCfgPropuesta()"></div>
             <div class="form-group" style="margin:0"><label class="form-label">Anular si el dólar baja más de (%)</label><input type="number" class="form-input" id="lp-cfg-pctbaja" style="width:90px" min="0" value="5" oninput="lotesGuardarCfgPropuesta()"></div>
             <div class="form-group" style="margin:0"><label class="form-label">Formas de pago aceptadas</label>
@@ -4948,6 +4949,8 @@ window.lotesGuardarCfgPropuesta = function() {
 function lotesCargarCfgPropuestaEnInputs() {
   let cfg = {};
   try { cfg = JSON.parse(localStorage.getItem('lote_propuesta_cfg'))||{}; } catch(e) {}
+  const cotEl = document.getElementById('lp-cfg-cotizacion');
+  if (cotEl && !cotEl.value) cotEl.value = getUsdRate()||'';
   document.getElementById('lp-cfg-dias').value = cfg.dias ?? 3;
   document.getElementById('lp-cfg-pctbaja').value = cfg.pctBaja ?? 5;
   document.getElementById('lp-cfg-efectivo').checked = cfg.efectivo !== undefined ? cfg.efectivo : true;
@@ -4983,6 +4986,7 @@ function lotesRecalcularPropuesta() {
 
   const unidades   = sel.reduce((a,r)=>a+(r.cant_artic||0),0);
   const totalVenta = sel.reduce((a,r)=>a+(r.precio_venta_iva||0)*(r.cant_artic||0),0);
+  const totalCosto = sel.reduce((a,r)=>a+(r.precio_costo||0)*(r.cant_artic||0),0);
 
   // Por categoría
   const catMap = new Map();
@@ -5025,6 +5029,7 @@ ${catArr.map(([cat,v])=>`  • ${cat}: ${v.productos} prod. / ${fmtN(v.unidades)
   • Reacondicionados: ${reacondProd} productos / ${fmtN(reacondUds)} un.
 
 💰 Escala de descuento por volumen:
+  • Precio de costo (lo que pagué): ${fmt(totalCosto)}${usdTxt(totalCosto)}
   • Precio de lista: ${fmt(totalVenta)}${usdTxt(totalVenta)}
   • Con 5% desc.: ${fmt(t5)}${usdTxt(t5)}
   • Con 10% desc.: ${fmt(t10)}${usdTxt(t10)}
