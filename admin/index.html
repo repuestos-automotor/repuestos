@@ -166,6 +166,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
 .lote-summary-item{display:flex;flex-direction:column;gap:2px}
 .lote-summary-item .lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
 .lote-summary-item .val{font-size:15px;font-weight:600;color:var(--text);font-family:'JetBrains Mono',monospace}
+.lote-desglose{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-top:10px}
+.lote-desglose table{width:100%;border-collapse:collapse;font-size:12.5px}
+.lote-desglose th{text-align:left;padding:6px 10px;color:var(--text3);font-weight:500;text-transform:uppercase;font-size:10px;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+.lote-desglose th.num,.lote-desglose td.num{text-align:right}
+.lote-desglose td{padding:8px 10px;color:var(--text);font-family:'JetBrains Mono',monospace;border-bottom:1px solid var(--border)}
+.lote-desglose td:first-child{font-family:inherit;color:var(--text2)}
+.lote-desglose tr:last-child td{border-bottom:none}
+.lote-desglose .ld-foot{margin-top:10px;font-size:11.5px;color:var(--text3)}
 .lote-precio-group{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
 .lote-precio-group-head{padding:10px 14px;background:var(--bg3);display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px;flex-wrap:wrap}
 .lote-precio-group-body{display:none;padding:0 4px}
@@ -1749,10 +1757,25 @@ tbody tr:hover td:last-child{background:var(--bg3)}
           <div class="lote-summary-item"><span class="lbl">Valor total (stock × precio) USD</span><span class="val" id="lote-sum-total-usd" style="color:var(--text3)">—</span></div>
           <div class="lote-summary-item"><span class="lbl">Valor 1 unidad c/u</span><span class="val" id="lote-sum-unitario" style="color:var(--blue)">$ 0</span></div>
           <div style="flex:1"></div>
+          <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesToggleDesglose()">📐 Desglose costo/IVA</button>
           <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarTexto()">📋 Copiar lista</button>
           <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesCopiarExcel()">📊 Copiar para Excel</button>
           <button class="btn btn-ghost" style="font-size:11.5px;padding:8px 14px" onclick="lotesExportarCSV()">💾 Exportar CSV</button>
           <button class="btn btn-primary" style="font-size:11.5px;padding:8px 14px" onclick="lotesImprimir()">🖨 Imprimir / PDF</button>
+        </div>
+
+        <div id="lote-desglose" class="lote-desglose" style="display:none">
+          <table>
+            <thead><tr><th>Concepto</th><th class="num">$ ARS</th><th class="num">US$D</th></tr></thead>
+            <tbody>
+              <tr><td>Precio de costo (lo que pagué)</td><td class="num" id="ld-costo-ars">$ 0</td><td class="num" id="ld-costo-usd">—</td></tr>
+              <tr><td>Sin IVA + ganancia</td><td class="num" id="ld-siniva-ars" style="color:var(--blue)">$ 0</td><td class="num" id="ld-siniva-usd">—</td></tr>
+              <tr><td>IVA 21%</td><td class="num" id="ld-iva-ars">$ 0</td><td class="num" id="ld-iva-usd">—</td></tr>
+              <tr><td>Precio venta con IVA ✅</td><td class="num" id="ld-venta-ars" style="color:var(--green)">$ 0</td><td class="num" id="ld-venta-usd">—</td></tr>
+              <tr><td>Con 10% descuento</td><td class="num" id="ld-desc-ars" style="color:var(--amber)">$ 0</td><td class="num" id="ld-desc-usd">—</td></tr>
+            </tbody>
+          </table>
+          <div class="ld-foot">% Ganancia promedio ponderada del lote: <span id="ld-pct" style="color:var(--text2);font-weight:600">0%</span> &nbsp;·&nbsp; Ganancia neta total: <span id="ld-gan-neta" style="color:var(--green);font-weight:600">$ 0</span></div>
         </div>
       </div>
 
@@ -4717,6 +4740,7 @@ window.lotesLimpiarCat = function() {
   document.getElementById('lote-cat-toolbar').innerHTML='';
   document.getElementById('lote-cat-results').innerHTML='';
   document.getElementById('lote-cat-summary').style.display='none';
+  document.getElementById('lote-desglose').style.display='none';
   window._loteResultados=[]; window._loteChecked=new Set();
 };
 
@@ -4758,6 +4782,7 @@ window.lotesGenerar = function() {
     document.getElementById('lote-cat-toolbar').innerHTML='';
     document.getElementById('lote-cat-results').innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;padding:30px">Sin productos para ese filtro.</p>';
     document.getElementById('lote-cat-summary').style.display='none';
+    document.getElementById('lote-desglose').style.display='none';
     return;
   }
   info.textContent = `${res.length} producto${res.length!==1?'s':''} encontrado${res.length!==1?'s':''}. Desmarcá los que no quieras incluir en el lote.`;
@@ -4835,7 +4860,7 @@ function lotesSeleccionActual() {
 function lotesRecalcularResumen() {
   const sel = lotesSeleccionActual();
   const bar = document.getElementById('lote-cat-summary');
-  if (!window._loteResultados.length) { bar.style.display='none'; return; }
+  if (!window._loteResultados.length) { bar.style.display='none'; document.getElementById('lote-desglose').style.display='none'; return; }
   bar.style.display='flex';
   const unidades = sel.reduce((a,r)=>a+(r.cant_artic||0),0);
   const totalStock = sel.reduce((a,r)=>a+(r.precio_venta_iva||0)*(r.cant_artic||0),0);
@@ -4845,7 +4870,37 @@ function lotesRecalcularResumen() {
   document.getElementById('lote-sum-total').textContent = fmt(totalStock);
   document.getElementById('lote-sum-total-usd').textContent = fmtUSD(totalStock);
   document.getElementById('lote-sum-unitario').textContent = fmt(totalUnitario);
+
+  // ── Desglose costo / IVA / descuento (ARS y USD) ──
+  // El "precio venta con IVA" (totalStock) ya es la fuente de verdad que usás en todos lados;
+  // de ahí se despeja "sin IVA" (÷1.21) e "IVA" (la diferencia), para que los números
+  // siempre cierren exacto con el total que ya ves arriba.
+  const totalCosto  = sel.reduce((a,r)=>a+(r.precio_costo||0)*(r.cant_artic||0),0);
+  const totalVenta  = totalStock;
+  const totalSinIva = totalVenta / 1.21;
+  const totalIva    = totalVenta - totalSinIva;
+  const totalDesc   = totalVenta * 0.9;
+  const gananciaNeta = totalSinIva - totalCosto;
+  const pctGanancia  = totalCosto>0 ? (gananciaNeta/totalCosto*100) : 0;
+
+  document.getElementById('ld-costo-ars').textContent  = fmt(totalCosto);
+  document.getElementById('ld-costo-usd').textContent  = fmtUSD(totalCosto);
+  document.getElementById('ld-siniva-ars').textContent = fmt(totalSinIva);
+  document.getElementById('ld-siniva-usd').textContent = fmtUSD(totalSinIva);
+  document.getElementById('ld-iva-ars').textContent    = fmt(totalIva);
+  document.getElementById('ld-iva-usd').textContent    = fmtUSD(totalIva);
+  document.getElementById('ld-venta-ars').textContent  = fmt(totalVenta);
+  document.getElementById('ld-venta-usd').textContent  = fmtUSD(totalVenta);
+  document.getElementById('ld-desc-ars').textContent   = fmt(totalDesc);
+  document.getElementById('ld-desc-usd').textContent   = fmtUSD(totalDesc);
+  document.getElementById('ld-pct').textContent        = pctGanancia.toFixed(1)+'%';
+  document.getElementById('ld-gan-neta').textContent   = fmt(gananciaNeta);
 }
+
+window.lotesToggleDesglose = function() {
+  const el = document.getElementById('lote-desglose');
+  el.style.display = (el.style.display==='none') ? 'block' : 'none';
+};
 
 window.lotesCopiarTexto = function() {
   const sel = lotesSeleccionActual();
