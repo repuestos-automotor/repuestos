@@ -5013,6 +5013,11 @@ function lotesRecalcularPropuesta() {
 
   const t5  = totalVenta*0.95, t10 = totalVenta*0.90, t15 = totalVenta*0.85;
   const usdTxt = v => rate ? ' · '+fmtUSD(v) : '';
+  const ganTxt = v => {
+    const g = v - totalCosto;
+    const pct = totalCosto>0 ? (g/totalCosto*100) : 0;
+    return ` → ganancia sobre costo: ${fmt(g)}${usdTxt(g)} (${pct>=0?'+':''}${pct.toFixed(1)}%)`;
+  };
 
   cont.textContent =
 `📅 Cotización: ${rate ? ('$ '+fmtN(rate)) : '— (sin cargar arriba)'} (${df(hoy)}) · Válida hasta el ${df(limite)}
@@ -5030,10 +5035,10 @@ ${catArr.map(([cat,v])=>`  • ${cat}: ${v.productos} prod. / ${fmtN(v.unidades)
 
 💰 Escala de descuento por volumen:
   • Precio de costo (lo que pagué): ${fmt(totalCosto)}${usdTxt(totalCosto)}
-  • Precio de lista: ${fmt(totalVenta)}${usdTxt(totalVenta)}
-  • Con 5% desc.: ${fmt(t5)}${usdTxt(t5)}
-  • Con 10% desc.: ${fmt(t10)}${usdTxt(t10)}
-  • Con 15% desc.: ${fmt(t15)}${usdTxt(t15)}
+  • Precio de lista: ${fmt(totalVenta)}${usdTxt(totalVenta)}${ganTxt(totalVenta)}
+  • Con 5% desc.: ${fmt(t5)}${usdTxt(t5)}${ganTxt(t5)}
+  • Con 10% desc.: ${fmt(t10)}${usdTxt(t10)}${ganTxt(t10)}
+  • Con 15% desc.: ${fmt(t15)}${usdTxt(t15)}${ganTxt(t15)}
 
 💳 Formas de pago aceptadas: ${pagos.length ? pagos.join(', ') : '—'}`;
 }
