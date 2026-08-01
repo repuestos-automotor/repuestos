@@ -193,14 +193,19 @@ async function obtenerTodosLosRepuestos() {
   return todosLosRepuestosCache;
 }
 
-// Arma el combo de categorías con TODAS las que existan de verdad en tu catálogo (no una
-// lista fija) — así esta herramienta sirve para cualquier categoría, no solo dos.
+// Arma el combo de categorías uniendo la colección maestra "categorias" (para no perder
+// ninguna, aunque tenga 0 repuestos todavía) con las que realmente usan tus repuestos —
+// misma lógica que ya usa admin/index.html (getCategoriasReales), para que este combo
+// muestre siempre las mismas categorías que ves en el panel "Categorías" (384).
 async function cargarCategoriasDisponibles() {
   const sel = document.getElementById('filtro-categoria');
   try {
     const all = await obtenerTodosLosRepuestos();
-    const NORM = (s) => fixEnc(String(s||'')).trim();
-    const categorias = [...new Set(all.map(r => NORM(r.categoria)).filter(Boolean))].sort((a,b) => a.localeCompare(b,'es'));
+    const catSnap = await getDocs(collection(db, 'categorias'));
+    const catsMaestro = [...new Set(catSnap.docs.map(d => normCat(d.data().nombre)).filter(Boolean))];
+    const set = new Set(catsMaestro);
+    all.forEach(r => { const n = normCat(r.categoria); if (n) set.add(n); });
+    const categorias = [...set].sort((a,b) => a.localeCompare(b,'es'));
     sel.innerHTML = '<option value="">Todas las categorías (' + all.length + ' repuestos)</option>'
       + categorias.map(c => `<option value="${c.replace(/"/g,'&quot;')}">${c}</option>`).join('');
   } catch(e) {
@@ -217,8 +222,9 @@ let bobinarPorMarca  = new Map(); // MARCA (ZEN, BZM, INDIEL, HDS...) → filas 
 let seleccion   = {};   // id -> { codigo, detalle, costoFinal, precioPublico } | 'NINGUNO' | null
 let todosLosRepuestosCache = null; // evita pedirle a Firestore la colección completa dos veces (una para categorías, otra para cargar)
 
-// Misma corrección de encoding que usa admin/index.html, por si algún repuesto
-// quedó con acentos rotos tipo "Ã³" al importarse.
+// Misma corrección de encoding que usa admin/index.html (incluye entidades HTML tipo
+// "&aacute;", que la versión vieja de este archivo no decodificaba), por si algún
+// repuesto quedó con acentos rotos al importarse.
 function fixEnc(s) {
   if (!s || typeof s !== 'string') return s;
   return s
@@ -227,8 +233,14 @@ function fixEnc(s) {
     .replace(/Ã±/g,'ñ').replace(/Ã\x91/g,'Ñ')
     .replace(/Ãƒâ€˜/g,'Ó').replace(/Ã‚/g,'').replace(/Ãƒ/g,'Ã')
     .replace(/â€"/g,'–').replace(/â€"/g,'—').replace(/â€œ/g,'"').replace(/â€/g,'"')
-    .replace(/Â°/g,'°').replace(/Â¿/g,'¿').replace(/Â¡/g,'¡');
+    .replace(/Â°/g,'°').replace(/Â¿/g,'¿').replace(/Â¡/g,'¡')
+    .replace(/&aacute;/gi,'á').replace(/&eacute;/gi,'é').replace(/&iacute;/gi,'í').replace(/&oacute;/gi,'ó').replace(/&uacute;/gi,'ú')
+    .replace(/&Aacute;/g,'Á').replace(/&Eacute;/g,'É').replace(/&Iacute;/g,'Í').replace(/&Oacute;/g,'Ó').replace(/&Uacute;/g,'Ú')
+    .replace(/&ntilde;/gi,'ñ').replace(/&Ntilde;/g,'Ñ');
 }
+// Igual que normCat de admin/index.html: fixEnc + colapsa espacios dobles/mal copiados,
+// para que "Faros  BAIML" y "Faros BAIML" (con doble espacio) se traten como la misma categoría.
+function normCat(s) { return fixEnc(s||'').replace(/\s+/g,' ').trim(); }
 
 window.cargarRepuestos = async function() {
   const btn = document.getElementById('btn-cargar');
@@ -238,8 +250,8 @@ window.cargarRepuestos = async function() {
     let all = await obtenerTodosLosRepuestos();
 
     // El campo "categoria" guarda el string COMPLETO ("Arranque Despiece | Porta Escobillas...")
-    // como un solo valor. fixEnc corrige acentos rotos por si acaso.
-    const NORM = (s) => fixEnc(String(s||'')).trim();
+    // como un solo valor. normCat corrige acentos rotos y espacios de más.
+    const NORM = normCat;
 
     const filtroVal = document.getElementById('filtro-categoria').value;
     if (filtroVal) {
