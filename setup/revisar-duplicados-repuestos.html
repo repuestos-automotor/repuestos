@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Revisar duplicados de repuestos</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#161b27;--bg4:#1a2035;
+  --border:#1e2433;--border2:#263047;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --blue:#3b82f6;--blue2:#2563eb;
+  --green:#22c55e;--green-dim:rgba(34,197,94,.12);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,.12);
+  --indigo:#6366f1;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.topbar-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--blue2),var(--indigo));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.main{padding:24px;max-width:1100px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.alert{background:var(--amber-dim);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--text2);margin-bottom:16px;display:flex;gap:10px;line-height:1.5}
+.btn{border:none;border-radius:9px;padding:11px 20px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--blue2),var(--indigo));color:#fff}
+.btn-danger{background:linear-gradient(135deg,#b91c1c,#ef4444);color:#fff}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn:disabled{opacity:.45;cursor:default}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.search-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;width:280px;outline:none;font-family:inherit}
+.stat-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.stat{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:10px 16px;min-width:110px}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--green)}
+.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.grupo{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.grupo-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.grupo-title{font-size:13.5px;font-weight:600;color:var(--text)}
+.grupo-code{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.grupo-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;background:var(--amber-dim);color:var(--amber)}
+.item{display:flex;align-items:flex-start;gap:10px;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.item.marcado{border-color:var(--red);background:var(--red-dim)}
+.item input{margin-top:3px;accent-color:var(--red)}
+.item-body{flex:1;font-size:12px;color:var(--text2);line-height:1.6}
+.item-title{font-size:12.5px;font-weight:600;color:var(--text)}
+.item-tag{display:inline-block;font-size:9.5px;padding:1px 7px;border-radius:20px;font-weight:600;margin-left:6px;vertical-align:middle}
+.tag-old{background:rgba(99,102,241,.15);color:#a5b4fc}
+.tag-new{background:var(--green-dim);color:var(--green)}
+.id-mono{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text3)}
+#panel-resultados{display:none}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-icon">🧬</div>
+  <div>
+    <div class="topbar-title">Revisar duplicados de repuestos</div>
+    <div class="topbar-sub">Detecta repuestos repetidos (mismo código o mismo título+categoría+vehículo) para que elijas cuáles borrar</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="alert">
+    <span>💡</span>
+    <div>Esta herramienta NO borra nada sola. Agrupa los repuestos que parecen duplicados, vos tildás los que sobran y recién ahí se eliminan. El más viejo de cada grupo queda tildado como sugerencia de "original" y no se marca por defecto.</div>
+  </div>
+
+  <div class="card">
+    <div id="status-auth" style="font-size:12.5px;color:var(--text3);margin-bottom:10px">Verificando sesión...</div>
+    <button class="btn btn-primary" id="btn-cargar" onclick="analizar()" disabled>
+      <span>🔍</span> Analizar repuestos duplicados
+    </button>
+    <div class="stat-row" id="stats1" style="display:none">
+      <div class="stat"><div class="stat-num" id="st-total">—</div><div class="stat-lbl">Repuestos totales</div></div>
+      <div class="stat"><div class="stat-num" id="st-grupos" style="color:var(--amber)">—</div><div class="stat-lbl">Grupos duplicados</div></div>
+      <div class="stat"><div class="stat-num" id="st-sobrantes" style="color:var(--red)">—</div><div class="stat-lbl">Repuestos "de más"</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="panel-resultados">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <input class="search-input" type="text" placeholder="Buscar por código o título..." oninput="renderGrupos(this.value)">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="marcarSugeridos()">Tildar sugeridos (todos menos el más viejo)</button>
+        <button class="btn btn-ghost" onclick="desmarcarTodos()">Destildar todos</button>
+        <button class="btn btn-danger" id="btn-borrar" onclick="borrarSeleccionados()">🗑️ Borrar tildados</button>
+      </div>
+    </div>
+    <div id="lista-grupos"></div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, (user) => {
+  const btn = document.getElementById('btn-cargar');
+  const st  = document.getElementById('status-auth');
+  if (user) {
+    btn.disabled = false;
+    st.textContent = 'Sesión activa ✅';
+    st.style.color = 'var(--green)';
+  } else {
+    btn.disabled = true;
+    st.innerHTML = '🔒 No hay sesión activa. Abrí <b>admin/index.html</b> en esta misma pestaña e iniciá sesión primero.';
+  }
+});
+
+let grupos = [];       // [{ clave, tipo, items:[{id,...datos}] }]
+let marcados = {};     // id -> true/false
+
+const norm = (s) => (s||'').toString().trim().toUpperCase().replace(/[.\-\s]+/g,'');
+
+function fechaOrden(r) {
+  // Preferimos creado_en (Firestore Timestamp) si existe; si no, id_mysql (más chico = más viejo); si no, 0
+  if (r.creado_en && typeof r.creado_en.toMillis === 'function') return r.creado_en.toMillis();
+  if (r.creado_en && r.creado_en.seconds) return r.creado_en.seconds * 1000;
+  if (r.id_mysql) return Number(r.id_mysql) || 0;
+  return 0;
+}
+
+function fechaTexto(r) {
+  try {
+    if (r.creado_en && typeof r.creado_en.toDate === 'function') return r.creado_en.toDate().toLocaleString('es-AR');
+    if (r.creado_en && r.creado_en.seconds) return new Date(r.creado_en.seconds*1000).toLocaleString('es-AR');
+  } catch(e){}
+  return '—';
+}
+
+window.analizar = async function() {
+  const btn = document.getElementById('btn-cargar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analizando...';
+  try {
+    const snap = await getDocs(collection(db,'repuestos'));
+    const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // 1) Agrupar por código (fuerte: mismo código exacto normalizado)
+    const porCodigo = {};
+    all.forEach(r => {
+      const c = norm(r.codigo);
+      if (!c) return;
+      (porCodigo[c] = porCodigo[c] || []).push(r);
+    });
+
+    // 2) Para los que no tienen código, agrupar por título+categoría+vehículo
+    const porNombre = {};
+    all.forEach(r => {
+      if (norm(r.codigo)) return; // ya cubiertos arriba
+      const clave = norm(r.titulo_repuesto) + '|' + norm(r.categoria) + '|' + norm(r.marca_vehiculo_1 || (r.marcas_vehiculo||[])[0]);
+      if (!norm(r.titulo_repuesto)) return;
+      (porNombre[clave] = porNombre[clave] || []).push(r);
+    });
+
+    grupos = [];
+    Object.entries(porCodigo).forEach(([clave, items]) => {
+      if (items.length > 1) grupos.push({ clave, tipo: 'código', items: items.sort((a,b)=>fechaOrden(a)-fechaOrden(b)) });
+    });
+    Object.entries(porNombre).forEach(([clave, items]) => {
+      if (items.length > 1) grupos.push({ clave, tipo: 'título+categoría+vehículo', items: items.sort((a,b)=>fechaOrden(a)-fechaOrden(b)) });
+    });
+    // Grupos con más sobrantes primero
+    grupos.sort((a,b) => b.items.length - a.items.length);
+
+    marcados = {};
+    const sobrantes = grupos.reduce((acc,g) => acc + (g.items.length - 1), 0);
+    document.getElementById('st-total').textContent = all.length;
+    document.getElementById('st-grupos').textContent = grupos.length;
+    document.getElementById('st-sobrantes').textContent = sobrantes;
+    document.getElementById('stats1').style.display = 'flex';
+    document.getElementById('panel-resultados').style.display = grupos.length ? 'block' : 'none';
+    if (!grupos.length) { if(window.toast) toast('No se encontraron duplicados 🎉','success'); else alert('No se encontraron duplicados 🎉'); }
+    renderGrupos('');
+  } catch(e) {
+    console.error(e);
+    alert('Error al analizar: '+e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔍</span> Analizar repuestos duplicados';
+  }
+};
+
+window.renderGrupos = function(filtro) {
+  const f = norm(filtro);
+  const cont = document.getElementById('lista-grupos');
+  const lista = grupos.filter(g => !f || norm(g.items.map(i=>i.titulo_repuesto+' '+i.codigo).join(' ')).includes(f));
+  cont.innerHTML = lista.map((g, gi) => {
+    const items = g.items.map((r, idx) => {
+      const esMasViejo = idx === 0;
+      const marcado = !!marcados[r.id];
+      const precio = r.precio_venta_iva ? '$ '+Number(r.precio_venta_iva).toLocaleString('es-AR') : '—';
+      return `
+      <div class="item ${marcado?'marcado':''}">
+        <input type="checkbox" ${marcado?'checked':''} onchange="toggleMarcado('${r.id}', this.checked)">
+        <div class="item-body">
+          <span class="item-title">${(r.titulo_repuesto||'(sin título)')}</span>
+          <span class="item-tag ${esMasViejo?'tag-old':'tag-new'}">${esMasViejo?'más viejo · sugerido original':'más nuevo'}</span><br>
+          Código: <b>${r.codigo||'—'}</b> · Categoría: ${r.categoria||'—'} · Stock: ${r.cant_artic??'—'} · Precio: ${precio}<br>
+          Creado: ${fechaTexto(r)} ${r.id_mysql?(' · ID MySQL: #'+r.id_mysql):''}<br>
+          <span class="id-mono">id: ${r.id}</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `
+    <div class="grupo">
+      <div class="grupo-head">
+        <div class="grupo-title">Grupo ${gi+1} <span class="grupo-badge">${g.items.length} repuestos</span></div>
+        <div class="grupo-code">${g.tipo==='código' ? ('código '+g.items[0].codigo) : 'match por título'}</div>
+      </div>
+      ${items}
+    </div>`;
+  }).join('') || '<div style="color:var(--text3);font-size:12.5px">Sin resultados para ese filtro.</div>';
+};
+
+window.toggleMarcado = function(id, checked) {
+  marcados[id] = checked;
+};
+
+window.marcarSugeridos = function() {
+  grupos.forEach(g => { g.items.forEach((r, idx) => { marcados[r.id] = idx !== 0; }); });
+  renderGrupos(document.querySelector('.search-input')?.value || '');
+};
+
+window.desmarcarTodos = function() {
+  marcados = {};
+  renderGrupos(document.querySelector('.search-input')?.value || '');
+};
+
+window.borrarSeleccionados = async function() {
+  const ids = Object.keys(marcados).filter(id => marcados[id]);
+  if (!ids.length) { alert('No tildaste ningún repuesto para borrar.'); return; }
+  if (!confirm(`Vas a borrar ${ids.length} repuesto(s). Esto NO se puede deshacer. ¿Confirmás?`)) return;
+  const btn = document.getElementById('btn-borrar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Borrando...';
+  let ok = 0, err = 0;
+  for (const id of ids) {
+    try { await deleteDoc(doc(db,'repuestos',id)); ok++; }
+    catch(e) { console.error('Error borrando', id, e); err++; }
+  }
+  alert(`Listo. Borrados: ${ok}. Errores: ${err}.`);
+  btn.disabled = false;
+  btn.innerHTML = '🗑️ Borrar tildados';
+  window.analizar();
+};
+</script>
+</body>
+</html>
