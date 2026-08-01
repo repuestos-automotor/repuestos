@@ -25,11 +25,12 @@ p{font-size:13px;color:#94a3b8;margin-bottom:16px;line-height:1.5}
   ℹ️ Antes de agregar cada una, revisa si ya existe (comparando el nombre). Si ya está, la salta.
   Si falta, la agrega. <strong>Es seguro apretarlo las veces que quieras</strong> — nunca duplica ni borra nada.
 </div>
-<div class="log" id="log"><span class="info">Listo. Presioná el botón para revisar y restaurar.</span></div>
-<button class="btn" id="btn" onclick="restaurar()">Revisar y restaurar</button>
+<div class="log" id="log"><span class="info">Verificando sesión...</span></div>
+<button class="btn" id="btn" onclick="restaurar()" disabled>Revisar y restaurar</button>
 
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, getDocs, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -40,14 +41,26 @@ const firebaseConfig = {
   messagingSenderId: "952203469999",
   appId:             "1:952203469999:web:9d5ec956f834482172a05a"
 };
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
 const log = (msg, type='info') => {
   const el = document.getElementById('log');
   el.innerHTML += `<div class="${type}">${msg}</div>`;
   el.scrollTop = el.scrollHeight;
 };
+
+onAuthStateChanged(auth, (user) => {
+  const btn = document.getElementById('btn');
+  if (user) {
+    log(`✅ Sesión admin activa (${user.email||user.uid})`, 'ok');
+    btn.disabled = false;
+  } else {
+    log('❌ No hay sesión activa. Abrí admin/index.html en otra pestaña, iniciá sesión ahí, y volvé a cargar esta página.', 'err');
+    btn.disabled = true;
+  }
+});
 const norm = s => String(s||'').trim().toLowerCase();
 
 // Lista correcta, la misma que ya tenías en setup/init-db.html
