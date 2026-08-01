@@ -93,6 +93,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, updateDoc, doc, serverTimestamp, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -103,8 +104,9 @@ const firebaseConfig = {
   messagingSenderId: "952203469999",
   appId:             "1:952203469999:web:9d5ec956f834482172a05a"
 };
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
 function toast(msg, type='ok') {
   const w = document.getElementById('toast-wrap');
@@ -117,19 +119,23 @@ function toast(msg, type='ok') {
 
 // ── ESTANTERÍAS ───────────────────────────────────────
 async function cargarEstanterias() {
-  const snap = await getDocs(query(collection(db,'estanterias'), orderBy('orden')));
-  const items = snap.docs.map(d=>({id:d.id,...d.data()}));
   const el = document.getElementById('lista-estanterias');
-  if (!items.length) { el.innerHTML = '<div class="empty">Sin estanterías aún</div>'; return; }
-  el.innerHTML = items.map(item=>`
-    <div class="item-row" id="est-${item.id}">
-      <span class="badge-orden">${item.orden||0}</span>
-      <span class="item-name" id="name-est-${item.id}">${item.nombre}</span>
-      <div class="item-actions">
-        <button class="btn btn-edit btn-sm" onclick="editarEstanteria('${item.id}','${item.nombre.replace(/'/g,"\\'")}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="borrarEstanteria('${item.id}')">🗑️</button>
-      </div>
-    </div>`).join('');
+  try {
+    const snap = await getDocs(query(collection(db,'estanterias'), orderBy('orden')));
+    const items = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (!items.length) { el.innerHTML = '<div class="empty">Sin estanterías aún</div>'; return; }
+    el.innerHTML = items.map(item=>`
+      <div class="item-row" id="est-${item.id}">
+        <span class="badge-orden">${item.orden||0}</span>
+        <span class="item-name" id="name-est-${item.id}">${item.nombre}</span>
+        <div class="item-actions">
+          <button class="btn btn-edit btn-sm" onclick="editarEstanteria('${item.id}','${item.nombre.replace(/'/g,"\\'")}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="borrarEstanteria('${item.id}')">🗑️</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    el.innerHTML = `<div class="empty" style="color:var(--red)">❌ Error: ${e.message}</div>`;
+  }
 }
 
 window.agregarEstanteria = async () => {
@@ -160,19 +166,23 @@ window.borrarEstanteria = async (id) => {
 
 // ── ESTANTES ──────────────────────────────────────────
 async function cargarEstantes() {
-  const snap = await getDocs(query(collection(db,'estantes'), orderBy('numero')));
-  const items = snap.docs.map(d=>({id:d.id,...d.data()}));
   const el = document.getElementById('lista-estantes');
-  if (!items.length) { el.innerHTML = '<div class="empty">Sin estantes aún</div>'; return; }
-  el.innerHTML = items.map(item=>`
-    <div class="item-row" id="estan-${item.id}">
-      <span class="badge-orden">${item.numero||0}</span>
-      <span class="item-name">${item.nombre}</span>
-      <div class="item-actions">
-        <button class="btn btn-edit btn-sm" onclick="editarEstante('${item.id}','${item.nombre.replace(/'/g,"\\'")}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="borrarEstante('${item.id}')">🗑️</button>
-      </div>
-    </div>`).join('');
+  try {
+    const snap = await getDocs(query(collection(db,'estantes'), orderBy('numero')));
+    const items = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if (!items.length) { el.innerHTML = '<div class="empty">Sin estantes aún</div>'; return; }
+    el.innerHTML = items.map(item=>`
+      <div class="item-row" id="estan-${item.id}">
+        <span class="badge-orden">${item.numero||0}</span>
+        <span class="item-name">${item.nombre}</span>
+        <div class="item-actions">
+          <button class="btn btn-edit btn-sm" onclick="editarEstante('${item.id}','${item.nombre.replace(/'/g,"\\'")}')">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="borrarEstante('${item.id}')">🗑️</button>
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    el.innerHTML = `<div class="empty" style="color:var(--red)">❌ Error: ${e.message}</div>`;
+  }
 }
 
 window.agregarEstante = async () => {
@@ -258,8 +268,15 @@ window.restaurarDesdeBackup = async (file) => {
   }
 };
 
-cargarEstanterias();
-cargarEstantes();
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    cargarEstanterias();
+    cargarEstantes();
+  } else {
+    document.getElementById('lista-estanterias').innerHTML = '<div class="empty" style="color:var(--red)">❌ No hay sesión activa. Iniciá sesión en admin/index.html primero.</div>';
+    document.getElementById('lista-estantes').innerHTML = '<div class="empty" style="color:var(--red)">❌ No hay sesión activa. Iniciá sesión en admin/index.html primero.</div>';
+  }
+});
 </script>
 </body>
 </html>
