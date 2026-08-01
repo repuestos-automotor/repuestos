@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Restaurar Estanterías y Estantes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080b12;color:#e2e8f0;font-family:'Inter',sans-serif;padding:30px;min-height:100vh;max-width:720px;margin:0 auto}
+h1{font-size:18px;color:#60a5fa;margin-bottom:8px}
+p{font-size:13px;color:#94a3b8;margin-bottom:16px;line-height:1.5}
+.info-box{background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:12.5px;color:#93c5fd;line-height:1.6}
+.log{background:#0f1117;border:1px solid #1e2433;border-radius:10px;padding:16px;font-size:12px;font-family:monospace;line-height:2;max-height:420px;overflow-y:auto;margin-bottom:16px}
+.log .ok{color:#22c55e}.log .err{color:#ef4444}.log .info{color:#60a5fa}.log .warn{color:#f59e0b}
+.btn{background:#2563eb;color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500}
+.btn:hover{background:#1d4ed8}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+</style>
+</head>
+<body>
+<h1>🔧 Restaurar Estanterías y Estantes</h1>
+<p>Solo toca las colecciones <strong>estanterias</strong> y <strong>estantes</strong>. No toca categorías, marcas, ni ningún otro dato.</p>
+<div class="info-box">
+  ℹ️ Antes de agregar cada una, revisa si ya existe (comparando el nombre). Si ya está, la salta.
+  Si falta, la agrega. <strong>Es seguro apretarlo las veces que quieras</strong> — nunca duplica ni borra nada.
+</div>
+<div class="log" id="log"><span class="info">Listo. Presioná el botón para revisar y restaurar.</span></div>
+<button class="btn" id="btn" onclick="restaurar()">Revisar y restaurar</button>
+
+<script type="module">
+import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+const log = (msg, type='info') => {
+  const el = document.getElementById('log');
+  el.innerHTML += `<div class="${type}">${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+};
+const norm = s => String(s||'').trim().toLowerCase();
+
+// Lista correcta, la misma que ya tenías en setup/init-db.html
+const ESTANTERIAS = [
+  '1ra - Frente','1ra - Dorso','2da - Frente','2da - Dorso',
+  '3ra - Frente Izquierda','3ra - Frente Derecha','3ra - Dorso Izquierda','3ra - Dorso Derecha',
+  '4ta - Frente Izquierda','4ta - Frente Derecha','4ta - Dorso Izquierda','4ta - Dorso Derecha',
+  '5ta - Frente Izquierda','5ta - Frente Derecha','5ta - Dorso Izquierda','5ta - Dorso Derecha',
+  'Acomodar'
+];
+const ESTANTES = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','Acomodar'];
+
+window.restaurar = async function() {
+  const btn = document.getElementById('btn');
+  btn.disabled = true;
+  btn.textContent = 'Restaurando...';
+  document.getElementById('log').innerHTML = '';
+
+  try {
+    // ── ESTANTERÍAS ──
+    log('→ Revisando estanterías existentes...', 'info');
+    const snapEst = await getDocs(collection(db,'estanterias'));
+    const existentesEst = new Set(snapEst.docs.map(d => norm(d.data().nombre)));
+    log(`  Ya hay ${snapEst.size} estanterías cargadas`, 'info');
+
+    let agregadasEst = 0;
+    for (let i = 0; i < ESTANTERIAS.length; i++) {
+      const nombre = ESTANTERIAS[i];
+      if (existentesEst.has(norm(nombre))) {
+        log(`  = "${nombre}" ya existe, se salta`, 'ok');
+        continue;
+      }
+      await addDoc(collection(db,'estanterias'), { nombre, activo:true, orden:i });
+      log(`  + "${nombre}" agregada`, 'warn');
+      agregadasEst++;
+    }
+    log(`✓ Estanterías: ${agregadasEst} agregadas, ${ESTANTERIAS.length - agregadasEst} ya existían`, 'ok');
+
+    // ── ESTANTES ──
+    log('→ Revisando estantes existentes...', 'info');
+    const snapEstan = await getDocs(collection(db,'estantes'));
+    const existentesEstan = new Set(snapEstan.docs.map(d => norm(d.data().nombre)));
+    log(`  Ya hay ${snapEstan.size} estantes cargados`, 'info');
+
+    let agregadosEstan = 0;
+    for (const nombre of ESTANTES) {
+      if (existentesEstan.has(norm(nombre))) {
+        log(`  = "${nombre}" ya existe, se salta`, 'ok');
+        continue;
+      }
+      const numero = nombre === 'Acomodar' ? 99 : parseInt(nombre);
+      await addDoc(collection(db,'estantes'), { nombre, numero, activo:true });
+      log(`  + "${nombre}" agregado`, 'warn');
+      agregadosEstan++;
+    }
+    log(`✓ Estantes: ${agregadosEstan} agregados, ${ESTANTES.length - agregadosEstan} ya existían`, 'ok');
+
+    log('\n════════════════════════════════', 'ok');
+    log('✅ Listo. Andá a estanterias.html para verlas.', 'ok');
+    btn.textContent = '✅ Restauración completa';
+  } catch(e) {
+    log(`❌ Error: ${e.message}`, 'err');
+    btn.disabled = false;
+    btn.textContent = 'Revisar y restaurar';
+  }
+};
+</script>
+</body>
+</html>
