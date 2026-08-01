@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arreglar caracteres (encoding)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#161b27;--bg4:#1a2035;
+  --border:#1e2433;--border2:#263047;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --blue:#3b82f6;--blue2:#2563eb;
+  --green:#22c55e;--green-dim:rgba(34,197,94,.12);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,.12);
+  --indigo:#6366f1;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.topbar-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--blue2),var(--indigo));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.main{padding:24px;max-width:1100px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.alert{background:var(--amber-dim);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--text2);margin-bottom:16px;display:flex;gap:10px;line-height:1.5}
+.btn{border:none;border-radius:9px;padding:11px 20px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--blue2),var(--indigo));color:#fff}
+.btn-success{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn:disabled{opacity:.45;cursor:default}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.search-input{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;width:280px;outline:none;font-family:inherit}
+.stat-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.stat{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:10px 16px;min-width:110px}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--green)}
+.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.item{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.item-head{font-size:11px;color:var(--text3);margin-bottom:8px;display:flex;justify-content:space-between}
+.item-col{font-family:'JetBrains Mono',monospace;color:var(--blue);font-size:10.5px}
+.campo{display:grid;grid-template-columns:110px 1fr;gap:8px;font-size:12.5px;padding:4px 0;border-top:1px dashed var(--border2)}
+.campo:first-of-type{border-top:none}
+.campo-nombre{color:var(--text3)}
+.campo-antes{color:var(--red)}
+.campo-despues{color:var(--green)}
+.progress-bar-bg{background:var(--bg3);border-radius:6px;height:8px;overflow:hidden;margin-top:10px}
+.progress-bar-fill{background:linear-gradient(90deg,var(--blue2),var(--indigo));height:100%;width:0%;transition:width .2s}
+#panel-resultados{display:none}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-icon">🔤</div>
+  <div>
+    <div class="topbar-title">Arreglar caracteres (encoding)</div>
+    <div class="topbar-sub">Corrige texto roto tipo "POSICIÃ“N" que quedó de la exportación desde XAMPP/MySQL</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="alert">
+    <span>💡</span>
+    <div>Esta herramienta busca en <b>repuestos, categorías, marcas de vehículo, marcas de repuesto, proveedores y catálogos</b> y arregla el texto que quedó mal codificado (tildes y "Ñ" convertidas en símbolos raros). Solo corrige un campo si detecta con certeza que es ese tipo de error — si un texto ya está bien, no lo toca. Podés revisar la lista de antes → después antes de aplicar nada.</div>
+  </div>
+
+  <div class="card">
+    <div id="status-auth" style="font-size:12.5px;color:var(--text3);margin-bottom:10px">Verificando sesión...</div>
+    <button class="btn btn-primary" id="btn-analizar" onclick="analizar()" disabled>
+      <span>🔍</span> Analizar caracteres rotos
+    </button>
+    <div class="stat-row" id="stats1" style="display:none">
+      <div class="stat"><div class="stat-num" id="st-docs">—</div><div class="stat-lbl">Documentos revisados</div></div>
+      <div class="stat"><div class="stat-num" id="st-afectados" style="color:var(--amber)">—</div><div class="stat-lbl">Documentos con errores</div></div>
+      <div class="stat"><div class="stat-num" id="st-campos" style="color:var(--red)">—</div><div class="stat-lbl">Campos a corregir</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="panel-resultados">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <input class="search-input" type="text" placeholder="Buscar en la lista..." oninput="renderLista(this.value)">
+      <button class="btn btn-success" id="btn-corregir" onclick="corregirTodos()">✅ Corregir todos los documentos listados</button>
+    </div>
+    <div id="progress-wrap" style="display:none">
+      <div style="font-size:12.5px;color:var(--text2)" id="progress-text">Corrigiendo...</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    </div>
+    <div id="lista-items"></div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, (user) => {
+  const btn = document.getElementById('btn-analizar');
+  const st  = document.getElementById('status-auth');
+  if (user) {
+    btn.disabled = false;
+    st.textContent = 'Sesión activa ✅';
+    st.style.color = 'var(--green)';
+  } else {
+    btn.disabled = true;
+    st.innerHTML = '🔒 No hay sesión activa. Abrí <b>admin/index.html</b> en esta misma pestaña e iniciá sesión primero.';
+  }
+});
+
+// ── Reversor de mojibake UTF-8 → Windows-1252 → UTF-8 ─────────────
+// Mapa de los bytes 0x80–0x9F de Windows-1252 (difieren de Latin-1)
+const CP1252_A_UNICODE = {
+  0x80:0x20AC,0x81:0x0081,0x82:0x201A,0x83:0x0192,0x84:0x201E,0x85:0x2026,0x86:0x2020,0x87:0x2021,
+  0x88:0x02C6,0x89:0x2030,0x8A:0x0160,0x8B:0x2039,0x8C:0x0152,0x8D:0x008D,0x8E:0x017D,0x8F:0x008F,
+  0x90:0x0090,0x91:0x2018,0x92:0x2019,0x93:0x201C,0x94:0x201D,0x95:0x2022,0x96:0x2013,0x97:0x2014,
+  0x98:0x02DC,0x99:0x2122,0x9A:0x0161,0x9B:0x203A,0x9C:0x0153,0x9D:0x009D,0x9E:0x017E,0x9F:0x0178
+};
+const UNICODE_A_BYTE = {};
+Object.entries(CP1252_A_UNICODE).forEach(([b,u]) => { UNICODE_A_BYTE[u] = parseInt(b); });
+
+function arreglarTexto(str) {
+  if (!str || typeof str !== 'string') return str;
+  // Solo nos interesa si el string tiene algún candidato de mojibake (Ã, Â, o los caracteres de control invisibles que corresponden a Á/Í/Ï)
+  if (!/[ÃÂ\u0081\u008D\u008F\u0090\u009D]/.test(str)) return str;
+  const bytes = [];
+  for (const ch of str) {
+    const cp = ch.codePointAt(0);
+    if (cp < 0x80 || (cp >= 0xA0 && cp <= 0xFF)) { bytes.push(cp); continue; }
+    if (UNICODE_A_BYTE[cp] !== undefined) { bytes.push(UNICODE_A_BYTE[cp]); continue; }
+    return str; // carácter que no se puede mapear a un byte → no tocar
+  }
+  try {
+    const decoded = new TextDecoder('utf-8', { fatal: true }).decode(new Uint8Array(bytes));
+    // Si el resultado es igual al original, o no mejora nada, no lo usamos
+    if (decoded === str) return str;
+    return decoded;
+  } catch(e) {
+    return str; // no era una secuencia UTF-8 válida → texto original, no tocar
+  }
+}
+
+// Colecciones y campos de texto a revisar
+const COLECCIONES = [
+  { nombre:'repuestos', campos:['titulo_repuesto','descripcion','notas','notas_internas','aplicacion','importante','categoria','modelo_repuesto','modelo_vehiculo','fabricante','material','marca_vehiculo_1'],
+    campoArray:['marcas_vehiculo','marcas_repuesto'] },
+  { nombre:'categorias', campos:['nombre'] },
+  { nombre:'marcas_vehiculo', campos:['nombre'] },
+  { nombre:'marcas_repuesto', campos:['nombre'] },
+  { nombre:'proveedores', campos:['nombre','contacto'] },
+  { nombre:'catalogos', campos:['nombre','editorial','notas'] }
+];
+
+let resultados = []; // [{ coleccion, id, cambios:[{campo,antes,despues}], dataCorregida }]
+
+window.analizar = async function() {
+  const btn = document.getElementById('btn-analizar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analizando...';
+  resultados = [];
+  let totalDocs = 0;
+  try {
+    for (const col of COLECCIONES) {
+      const snap = await getDocs(collection(db, col.nombre));
+      totalDocs += snap.size;
+      snap.forEach(d => {
+        const data = d.data();
+        const cambios = [];
+        const dataCorregida = {};
+        (col.campos||[]).forEach(campo => {
+          const val = data[campo];
+          if (typeof val === 'string') {
+            const fixed = arreglarTexto(val);
+            if (fixed !== val) { cambios.push({ campo, antes: val, despues: fixed }); dataCorregida[campo] = fixed; }
+          }
+        });
+        (col.campoArray||[]).forEach(campo => {
+          const arr = data[campo];
+          if (Array.isArray(arr)) {
+            let huboCambio = false;
+            const nuevoArr = arr.map(v => {
+              if (typeof v === 'string') {
+                const fixed = arreglarTexto(v);
+                if (fixed !== v) huboCambio = true;
+                return fixed;
+              }
+              return v;
+            });
+            if (huboCambio) { cambios.push({ campo, antes: arr.join(', '), despues: nuevoArr.join(', ') }); dataCorregida[campo] = nuevoArr; }
+          }
+        });
+        if (cambios.length) {
+          resultados.push({ coleccion: col.nombre, id: d.id, cambios, dataCorregida });
+        }
+      });
+    }
+
+    const totalCampos = resultados.reduce((acc,r) => acc + r.cambios.length, 0);
+    document.getElementById('st-docs').textContent = totalDocs;
+    document.getElementById('st-afectados').textContent = resultados.length;
+    document.getElementById('st-campos').textContent = totalCampos;
+    document.getElementById('stats1').style.display = 'flex';
+    document.getElementById('panel-resultados').style.display = resultados.length ? 'block' : 'none';
+    if (!resultados.length) alert('No se encontraron caracteres rotos 🎉');
+    renderLista('');
+  } catch(e) {
+    console.error(e);
+    alert('Error al analizar: '+e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔍</span> Analizar caracteres rotos';
+  }
+};
+
+window.renderLista = function(filtro) {
+  const f = (filtro||'').toLowerCase();
+  const cont = document.getElementById('lista-items');
+  const lista = resultados.filter(r => !f || r.cambios.some(c => (c.antes+' '+c.despues).toLowerCase().includes(f)));
+  cont.innerHTML = lista.map(r => `
+    <div class="item">
+      <div class="item-head"><span class="item-col">${r.coleccion}</span><span class="item-col">id: ${r.id}</span></div>
+      ${r.cambios.map(c => `
+        <div class="campo">
+          <div class="campo-nombre">${c.campo}</div>
+          <div><div class="campo-antes">${escapeHtml(c.antes)}</div><div class="campo-despues">→ ${escapeHtml(c.despues)}</div></div>
+        </div>`).join('')}
+    </div>`).join('') || '<div style="color:var(--text3);font-size:12.5px">Sin resultados para ese filtro.</div>';
+};
+
+function escapeHtml(s) {
+  return (s||'').toString().replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+window.corregirTodos = async function() {
+  if (!resultados.length) { alert('No hay nada para corregir. Analizá primero.'); return; }
+  if (!confirm(`Se van a corregir ${resultados.length} documento(s). ¿Confirmás?`)) return;
+  const btn = document.getElementById('btn-corregir');
+  btn.disabled = true;
+  const wrap = document.getElementById('progress-wrap');
+  wrap.style.display = 'block';
+  let ok = 0, err = 0;
+  for (let i = 0; i < resultados.length; i++) {
+    const r = resultados[i];
+    document.getElementById('progress-text').textContent = `Corrigiendo ${i+1} / ${resultados.length}...`;
+    document.getElementById('progress-fill').style.width = Math.round(((i+1)/resultados.length)*100)+'%';
+    try {
+      await updateDoc(doc(db, r.coleccion, r.id), r.dataCorregida);
+      ok++;
+    } catch(e) { console.error('Error corrigiendo', r.coleccion, r.id, e); err++; }
+  }
+  alert(`Listo. Corregidos: ${ok}. Errores: ${err}.`);
+  btn.disabled = false;
+  wrap.style.display = 'none';
+  window.analizar();
+};
+</script>
+</body>
+</html>
