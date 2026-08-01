@@ -1063,6 +1063,7 @@ tbody tr:hover td:last-child{background:var(--bg3)}
         <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600">Todos los repuestos</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <input type="text" class="form-input" style="width:180px" placeholder="Buscar..." id="rep-search" oninput="filterRepuestos()">
+          <input type="text" class="form-input" style="width:170px" placeholder="🔎 Buscar por código exacto" id="rep-code-search" oninput="filterRepuestos()">
           <select class="form-select" style="width:160px" id="rep-cat-filter" onchange="filterRepuestos()"><option value="">Todas las categorías</option></select>
           <button class="btn btn-ghost" id="btn-toggle-vista" onclick="toggleVistaAdmin()" title="Cambiar vista" style="padding:0 10px;height:36px;font-size:18px">⊞</button>
           <button class="btn btn-primary" onclick="nuevoRepuesto()">
@@ -2878,12 +2879,21 @@ function textoBusqueda(r) {
   return r._searchBlob;
 }
 
+function normCodigo(s) {
+  return (s||'').toString().toUpperCase().replace(/[.\-\s]+/g,'');
+}
+
 window.filterRepuestos = function() {
   if (!window._repsAll) return;
-  const q   = document.getElementById('rep-search').value.toLowerCase().trim();
-  const cat = document.getElementById('rep-cat-filter').value;
+  const q     = document.getElementById('rep-search').value.toLowerCase().trim();
+  const cod   = normCodigo(document.getElementById('rep-code-search')?.value || '');
+  const cat   = document.getElementById('rep-cat-filter').value;
   let res = window._repsAll;
   if (q)   res = res.filter(r=>textoBusqueda(r).includes(q));
+  if (cod) res = res.filter(r => {
+    if (normCodigo(r.codigo).includes(cod)) return true;
+    return (r.codigos_proveedores||[]).some(c => normCodigo(c.codigo).includes(cod));
+  });
   if (cat) res = res.filter(r=>r.categoria===cat || r.categoria_id===cat);
   res = sortedReps(res);
   renderRepuestos(res);
@@ -2898,9 +2908,11 @@ window.toggleVistaAdmin = function() {
   document.getElementById('btn-toggle-vista').textContent = _vistaAdmin === 'tabla' ? '⊞' : '☰';
   if (_vistaAdmin === 'grilla' && window._repsAll) {
     const q = document.getElementById('rep-search').value.toLowerCase();
+    const cod = normCodigo(document.getElementById('rep-code-search')?.value || '');
     const cat = document.getElementById('rep-cat-filter').value;
     let res = window._repsAll;
     if (q) res = res.filter(r=>(r.titulo_repuesto||'').toLowerCase().includes(q)||(r.codigo||'').toLowerCase().includes(q));
+    if (cod) res = res.filter(r => normCodigo(r.codigo).includes(cod) || (r.codigos_proveedores||[]).some(c => normCodigo(c.codigo).includes(cod)));
     if (cat) res = res.filter(r=>r.categoria===cat || r.categoria_id===cat);
     renderAdminGrid(res);
   }
