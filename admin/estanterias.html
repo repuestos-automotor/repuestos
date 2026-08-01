@@ -43,6 +43,15 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 <body>
 <div class="page-title">⚡ Gestión de Estanterías y Estantes</div>
 
+<div class="panel" style="margin-bottom:14px">
+  <div class="panel-body" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="descargarBackup()">💾 Descargar backup (.json)</button>
+    <button class="btn btn-edit" onclick="document.getElementById('input-restaurar').click()">📤 Restaurar desde backup</button>
+    <input type="file" id="input-restaurar" accept=".json" style="display:none" onchange="restaurarDesdeBackup(this.files[0])">
+    <span style="font-size:11px;color:var(--text3)">Guardá el .json en tu PC o Drive. Si algún día esto vuelve a vaciarse, lo restaurás con "Restaurar desde backup" — nunca duplica.</span>
+  </div>
+</div>
+
 <div class="grid2">
   <!-- ESTANTERÍAS -->
   <div>
@@ -72,6 +81,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
           <label class="form-label">Nombre / número del estante</label>
           <input type="text" class="form-input" id="new-estante" placeholder="Ej: 15, Sótano, Depósito">
         </div>
+
         <button class="btn btn-primary" style="width:100%" onclick="agregarEstante()">+ Agregar estante</button>
         <div style="margin-top:14px" id="lista-estantes"><div class="spinner"></div></div>
       </div>
@@ -83,8 +93,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;paddi
 
 <script type="module">
 import { initializeApp }    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, updateDoc, doc, serverTimestamp, orderBy, query, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, addDoc, deleteDoc, updateDoc, doc, serverTimestamp, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
@@ -94,9 +103,8 @@ const firebaseConfig = {
   messagingSenderId: "952203469999",
   appId:             "1:952203469999:web:9d5ec956f834482172a05a"
 };
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
 function toast(msg, type='ok') {
   const w = document.getElementById('toast-wrap');
@@ -109,24 +117,19 @@ function toast(msg, type='ok') {
 
 // ── ESTANTERÍAS ───────────────────────────────────────
 async function cargarEstanterias() {
+  const snap = await getDocs(query(collection(db,'estanterias'), orderBy('orden')));
+  const items = snap.docs.map(d=>({id:d.id,...d.data()}));
   const el = document.getElementById('lista-estanterias');
-  try {
-    const snap = await getDocs(query(collection(db,'estanterias'), orderBy('orden')));
-    const items = snap.docs.map(d=>({id:d.id,...d.data()}));
-    if (!items.length) { el.innerHTML = '<div class="empty">Sin estanterías aún</div>'; return; }
-    el.innerHTML = items.map(item=>`
-      <div class="item-row" id="est-${item.id}">
-        <span class="badge-orden">${item.orden||0}</span>
-        <span class="item-name" id="name-est-${item.id}">${item.nombre}</span>
-        <div class="item-actions">
-          <button class="btn btn-edit btn-sm" onclick="editarEstanteria('${item.id}','${item.nombre.replace(/'/g,"\\'")}')">✏️</button>
-          <button class="btn btn-danger btn-sm" onclick="borrarEstanteria('${item.id}')">🗑️</button>
-        </div>
-      </div>`).join('');
-  } catch (err) {
-    console.error('cargarEstanterias:', err);
-    el.innerHTML = '<div class="empty">No se pudo cargar (sesión vencida o sin permisos). Recargá la página.</div>';
-  }
+  if (!items.length) { el.innerHTML = '<div class="empty">Sin estanterías aún</div>'; return; }
+  el.innerHTML = items.map(item=>`
+    <div class="item-row" id="est-${item.id}">
+      <span class="badge-orden">${item.orden||0}</span>
+      <span class="item-name" id="name-est-${item.id}">${item.nombre}</span>
+      <div class="item-actions">
+        <button class="btn btn-edit btn-sm" onclick="editarEstanteria('${item.id}','${item.nombre.replace(/'/g,"\\'")}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="borrarEstanteria('${item.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
 }
 
 window.agregarEstanteria = async () => {
@@ -157,24 +160,19 @@ window.borrarEstanteria = async (id) => {
 
 // ── ESTANTES ──────────────────────────────────────────
 async function cargarEstantes() {
+  const snap = await getDocs(query(collection(db,'estantes'), orderBy('numero')));
+  const items = snap.docs.map(d=>({id:d.id,...d.data()}));
   const el = document.getElementById('lista-estantes');
-  try {
-    const snap = await getDocs(query(collection(db,'estantes'), orderBy('numero')));
-    const items = snap.docs.map(d=>({id:d.id,...d.data()}));
-    if (!items.length) { el.innerHTML = '<div class="empty">Sin estantes aún</div>'; return; }
-    el.innerHTML = items.map(item=>`
-      <div class="item-row" id="estan-${item.id}">
-        <span class="badge-orden">${item.numero||0}</span>
-        <span class="item-name">${item.nombre}</span>
-        <div class="item-actions">
-          <button class="btn btn-edit btn-sm" onclick="editarEstante('${item.id}','${item.nombre.replace(/'/g,"\\'")}')">✏️</button>
-          <button class="btn btn-danger btn-sm" onclick="borrarEstante('${item.id}')">🗑️</button>
-        </div>
-      </div>`).join('');
-  } catch (err) {
-    console.error('cargarEstantes:', err);
-    el.innerHTML = '<div class="empty">No se pudo cargar (sesión vencida o sin permisos). Recargá la página.</div>';
-  }
+  if (!items.length) { el.innerHTML = '<div class="empty">Sin estantes aún</div>'; return; }
+  el.innerHTML = items.map(item=>`
+    <div class="item-row" id="estan-${item.id}">
+      <span class="badge-orden">${item.numero||0}</span>
+      <span class="item-name">${item.nombre}</span>
+      <div class="item-actions">
+        <button class="btn btn-edit btn-sm" onclick="editarEstante('${item.id}','${item.nombre.replace(/'/g,"\\'")}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="borrarEstante('${item.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
 }
 
 window.agregarEstante = async () => {
@@ -203,21 +201,65 @@ window.borrarEstante = async (id) => {
   cargarEstantes();
 };
 
-// ── SESIÓN AISLADA POR PESTAÑA (igual que el resto del panel) ──
-// Esta pantalla antes consultaba Firestore sin fijarse si había sesión
-// iniciada en esa pestaña/ventana — por eso quedaba en loop cuando se
-// abría en una ventana/incógnito distinta a la del login. Ahora espera
-// la sesión, y si no hay, manda al login en vez de quedarse girando.
-await setPersistence(auth, browserSessionPersistence);
-onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '../index.html'; return; }
-  const snap = await getDoc(doc(db, 'usuarios', user.uid));
-  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
-    window.location.href = '../index.html'; return;
+// ── BACKUP ────────────────────────────────────────────
+window.descargarBackup = async () => {
+  const [snapEst, snapEstan] = await Promise.all([
+    getDocs(collection(db,'estanterias')),
+    getDocs(collection(db,'estantes'))
+  ]);
+  const backup = {
+    fecha: new Date().toISOString(),
+    estanterias: snapEst.docs.map(d => d.data()),
+    estantes: snapEstan.docs.map(d => d.data())
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup-estanterias-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('💾 Backup descargado');
+};
+
+// Restaura desde un .json descargado con "Descargar backup". Solo AGREGA lo que falte
+// (comparando por nombre) — nunca borra ni duplica lo que ya está.
+window.restaurarDesdeBackup = async (file) => {
+  if (!file) return;
+  try {
+    const backup = JSON.parse(await file.text());
+    const norm = s => String(s||'').trim().toLowerCase();
+
+    const [snapEst, snapEstan] = await Promise.all([
+      getDocs(collection(db,'estanterias')),
+      getDocs(collection(db,'estantes'))
+    ]);
+    const existentesEst = new Set(snapEst.docs.map(d => norm(d.data().nombre)));
+    const existentesEstan = new Set(snapEstan.docs.map(d => norm(d.data().nombre)));
+
+    let agregadas = 0, agregados = 0;
+    for (const item of (backup.estanterias||[])) {
+      if (existentesEst.has(norm(item.nombre))) continue;
+      await addDoc(collection(db,'estanterias'), item);
+      agregadas++;
+    }
+    for (const item of (backup.estantes||[])) {
+      if (existentesEstan.has(norm(item.nombre))) continue;
+      await addDoc(collection(db,'estantes'), item);
+      agregados++;
+    }
+    toast(`✅ Restauradas ${agregadas} estanterías y ${agregados} estantes que faltaban`);
+    cargarEstanterias();
+    cargarEstantes();
+  } catch(e) {
+    toast('❌ Error leyendo el backup: ' + e.message, 'err');
+  } finally {
+    document.getElementById('input-restaurar').value = '';
   }
-  cargarEstanterias();
-  cargarEstantes();
-});
+};
+
+cargarEstanterias();
+cargarEstantes();
 </script>
 </body>
 </html>
