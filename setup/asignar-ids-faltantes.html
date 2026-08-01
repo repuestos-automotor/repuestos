@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Asignar IDs faltantes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#161b27;--bg4:#1a2035;
+  --border:#1e2433;--border2:#263047;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --blue:#3b82f6;--blue2:#2563eb;
+  --green:#22c55e;--green-dim:rgba(34,197,94,.12);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,.12);
+  --indigo:#6366f1;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.topbar-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--blue2),var(--indigo));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.main{padding:24px;max-width:1000px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.alert{background:var(--amber-dim);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--text2);margin-bottom:16px;display:flex;gap:10px;line-height:1.5}
+.btn{border:none;border-radius:9px;padding:11px 20px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--blue2),var(--indigo));color:#fff}
+.btn-success{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stat-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+.stat{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:10px 16px;min-width:110px}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--green)}
+.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+th{text-align:left;font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;border-bottom:1px solid var(--border2)}
+td{padding:8px 10px;font-size:12.5px;border-bottom:1px solid var(--border);color:var(--text2)}
+.id-nuevo{font-family:'JetBrains Mono',monospace;color:var(--green);font-weight:600}
+.id-mono{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text3)}
+.progress-bar-bg{background:var(--bg3);border-radius:6px;height:8px;overflow:hidden;margin-top:10px}
+.progress-bar-fill{background:linear-gradient(90deg,var(--blue2),var(--indigo));height:100%;width:0%;transition:width .2s}
+#panel-resultados{display:none}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-icon">🔢</div>
+  <div>
+    <div class="topbar-title">Asignar IDs faltantes</div>
+    <div class="topbar-sub">Le pone número (#) a los repuestos que hoy muestran "—" en la columna ID</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="alert">
+    <span>💡</span>
+    <div>Los repuestos importados de tu base vieja de MySQL ya tienen su número (id_mysql). Los que cargaste después desde la app no lo tenían, por eso aparecen con "—". Esta herramienta les asigna el siguiente número disponible, en orden de fecha de creación (el más viejo se lleva el número más bajo). No borra ni cambia ningún otro dato del repuesto.</div>
+  </div>
+
+  <div class="card">
+    <div id="status-auth" style="font-size:12.5px;color:var(--text3);margin-bottom:10px">Verificando sesión...</div>
+    <button class="btn btn-primary" id="btn-analizar" onclick="analizar()" disabled>
+      <span>🔍</span> Buscar repuestos sin ID
+    </button>
+    <div class="stat-row" id="stats1" style="display:none">
+      <div class="stat"><div class="stat-num" id="st-total">—</div><div class="stat-lbl">Repuestos totales</div></div>
+      <div class="stat"><div class="stat-num" id="st-sin-id" style="color:var(--amber)">—</div><div class="stat-lbl">Sin ID</div></div>
+      <div class="stat"><div class="stat-num" id="st-max" style="color:var(--blue)">—</div><div class="stat-lbl">Último ID existente</div></div>
+    </div>
+  </div>
+
+  <div class="card" id="panel-resultados">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600">Vista previa de los IDs a asignar</div>
+      <button class="btn btn-success" id="btn-asignar" onclick="asignarTodos()">✅ Asignar todos los IDs</button>
+    </div>
+    <div id="progress-wrap" style="display:none">
+      <div style="font-size:12.5px;color:var(--text2)" id="progress-text">Asignando...</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    </div>
+    <table>
+      <thead><tr><th>Nuevo ID</th><th>Título</th><th>Código</th><th>Creado</th><th>Firestore id</th></tr></thead>
+      <tbody id="tabla-body"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, (user) => {
+  const btn = document.getElementById('btn-analizar');
+  const st  = document.getElementById('status-auth');
+  if (user) {
+    btn.disabled = false;
+    st.textContent = 'Sesión activa ✅';
+    st.style.color = 'var(--green)';
+  } else {
+    btn.disabled = true;
+    st.innerHTML = '🔒 No hay sesión activa. Abrí <b>admin/index.html</b> en esta misma pestaña e iniciá sesión primero.';
+  }
+});
+
+function fechaOrden(r) {
+  if (r.creado_en && typeof r.creado_en.toMillis === 'function') return r.creado_en.toMillis();
+  if (r.creado_en && r.creado_en.seconds) return r.creado_en.seconds * 1000;
+  return 0;
+}
+function fechaTexto(r) {
+  try {
+    if (r.creado_en && typeof r.creado_en.toDate === 'function') return r.creado_en.toDate().toLocaleString('es-AR');
+    if (r.creado_en && r.creado_en.seconds) return new Date(r.creado_en.seconds*1000).toLocaleString('es-AR');
+  } catch(e){}
+  return '—';
+}
+
+let asignaciones = []; // [{id, nuevoId, titulo, codigo, fechaTxt}]
+
+window.analizar = async function() {
+  const btn = document.getElementById('btn-analizar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Buscando...';
+  try {
+    const snap = await getDocs(collection(db,'repuestos'));
+    const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    let max = 0;
+    all.forEach(r => { const v = parseInt(r.id_mysql); if (!isNaN(v) && v > max) max = v; });
+    const sinId = all.filter(r => !r.id_mysql).sort((a,b) => fechaOrden(a) - fechaOrden(b));
+
+    asignaciones = sinId.map((r, idx) => ({
+      id: r.id,
+      nuevoId: max + idx + 1,
+      titulo: r.titulo_repuesto || '(sin título)',
+      codigo: r.codigo || '—',
+      fechaTxt: fechaTexto(r)
+    }));
+
+    document.getElementById('st-total').textContent = all.length;
+    document.getElementById('st-sin-id').textContent = sinId.length;
+    document.getElementById('st-max').textContent = max || '—';
+    document.getElementById('stats1').style.display = 'flex';
+    document.getElementById('panel-resultados').style.display = asignaciones.length ? 'block' : 'none';
+    if (!asignaciones.length) alert('Todos los repuestos ya tienen ID 🎉');
+    renderTabla();
+  } catch(e) {
+    console.error(e);
+    alert('Error al analizar: '+e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔍</span> Buscar repuestos sin ID';
+  }
+};
+
+function renderTabla() {
+  document.getElementById('tabla-body').innerHTML = asignaciones.map(a => `
+    <tr>
+      <td class="id-nuevo">#${a.nuevoId}</td>
+      <td>${a.titulo}</td>
+      <td>${a.codigo}</td>
+      <td>${a.fechaTxt}</td>
+      <td class="id-mono">${a.id}</td>
+    </tr>`).join('');
+}
+
+window.asignarTodos = async function() {
+  if (!asignaciones.length) { alert('No hay nada para asignar. Analizá primero.'); return; }
+  if (!confirm(`Se les va a asignar ID a ${asignaciones.length} repuesto(s). ¿Confirmás?`)) return;
+  const btn = document.getElementById('btn-asignar');
+  btn.disabled = true;
+  const wrap = document.getElementById('progress-wrap');
+  wrap.style.display = 'block';
+  let ok = 0, err = 0;
+  for (let i = 0; i < asignaciones.length; i++) {
+    const a = asignaciones[i];
+    document.getElementById('progress-text').textContent = `Asignando ${i+1} / ${asignaciones.length}...`;
+    document.getElementById('progress-fill').style.width = Math.round(((i+1)/asignaciones.length)*100)+'%';
+    try {
+      await updateDoc(doc(db,'repuestos',a.id), { id_mysql: String(a.nuevoId) });
+      ok++;
+    } catch(e) { console.error('Error asignando id a', a.id, e); err++; }
+  }
+  alert(`Listo. IDs asignados: ${ok}. Errores: ${err}.`);
+  btn.disabled = false;
+  wrap.style.display = 'none';
+  window.analizar();
+};
+</script>
+</body>
+</html>
