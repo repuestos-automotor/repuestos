@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Importar Catálogo — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;--text4:#374151;
+  --blue:#3b82f6;--blue2:#2563eb;--blue-dim:#1e3a5f;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:20px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.card h2{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;margin-bottom:10px}
+.drop{border:2px dashed var(--border2);border-radius:10px;padding:28px;text-align:center;color:var(--text2);cursor:pointer;transition:.15s}
+.drop:hover, .drop.drag{border-color:var(--blue);color:var(--blue)}
+input[type=file]{display:none}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)}
+.btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.item-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.item-head .tit{font-weight:600}
+.item-head .tit .cod{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.item-body{padding:14px 16px}
+.modo{display:flex;align-items:center;gap:14px;margin-bottom:10px;font-size:12px;color:var(--text2)}
+.modo label{display:flex;align-items:center;gap:5px;cursor:pointer}
+/* ── clon exacto del .rich-editor de form-repuesto.html ── */
+.rich-editor-preview{background:#141720;border:1px solid #2a3347;border-radius:8px;min-height:60px;padding:10px 12px;color:#e2e8f0;font-size:12.5px;line-height:1.6;font-family:'Inter',sans-serif}
+.rich-editor-preview table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px}
+.rich-editor-preview td,.rich-editor-preview th{border:1px solid #2a3347;padding:5px 8px;text-align:left}
+.rich-editor-preview th{background:#1a1f2e;color:#3b82f6;font-weight:600;width:34%}
+.rich-editor-preview tr:nth-child(even) td{background:#171b26}
+.rich-editor-preview .sep{color:#4b5563;font-size:11px;margin:10px 0 6px;border-top:1px dashed #2a3347;padding-top:8px}
+.rich-editor-preview p{margin-bottom:6px}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99}
+.toast.show{display:block}
+.no-match-list{font-size:12px;color:var(--text2);line-height:1.8}
+.no-match-list b{color:var(--red);font-family:'JetBrains Mono',monospace}
+.summary{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;text-align:center}
+.summary .box .n{font-size:22px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:11px;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Importar Catálogo</h1>
+<div class="sub">Subí el archivo de catálogo (.json) que te preparo yo a partir del PDF del fabricante. Va a buscar cada código en tu base y te muestra cómo va a quedar en <b>Descripción completa</b> antes de guardar nada.</div>
+
+<div class="card">
+  <h2>1. Subí el archivo</h2>
+  <div class="drop" id="drop">
+    📄 Arrastrá el archivo .json acá, o hacé clic para elegirlo
+    <input type="file" id="file-input" accept=".json">
+  </div>
+</div>
+
+<div id="resultado" style="display:none">
+  <div class="summary" id="summary"></div>
+  <div class="card" id="no-match-card" style="display:none">
+    <h2 style="color:var(--red)">No encontrados en tu base (<span id="no-match-count">0</span>)</h2>
+    <div class="no-match-list" id="no-match-list"></div>
+  </div>
+  <div id="items"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// Arma la tabla HTML con el MISMO estilo inline que .rich-editor,
+// para que se vea igual en la vista previa y una vez guardada en Firestore.
+function armarTablaHTML(entry) {
+  const filas = (etq, arr) => arr.map(([ref, label, val]) =>
+    `<tr><td style="border:1px solid #2a3347;padding:5px 8px;font-family:'JetBrains Mono',monospace;color:#94a3b8;width:34px">${ref}</td>` +
+    `<td style="border:1px solid #2a3347;padding:5px 8px">${label}</td>` +
+    `<td style="border:1px solid #2a3347;padding:5px 8px;font-family:'JetBrains Mono',monospace">${val === '------------' ? '—' : val}</td></tr>`
+  ).join('');
+
+  let html = `<p style="color:#4b5563;font-size:11px;margin:10px 0 6px;border-top:1px dashed #2a3347;padding-top:8px">— Datos de catálogo (${entry.catalogo || 'catálogo importado'}) —</p>`;
+  html += `<p><b>Tipo:</b> ${entry.tipo || '—'} &nbsp; <b>Aplicación:</b> ${entry.aplicacion || '—'}</p>`;
+  if (entry.equivalencias) html += `<p><b>Equivalencias:</b> ${entry.equivalencias}</p>`;
+  if (entry.nota) html += `<p style="color:#f59e0b">⚠ ${entry.nota}</p>`;
+
+  if (entry.medidas && entry.medidas.length) {
+    html += `<p style="margin-top:8px"><b>Medidas</b></p><table style="border-collapse:collapse;width:100%;margin:4px 0;font-size:12px">${filas('m', entry.medidas)}</table>`;
+  }
+  if (entry.kit && entry.kit.length) {
+    html += `<p style="margin-top:8px"><b>Kit de repuestos</b></p><table style="border-collapse:collapse;width:100%;margin:4px 0;font-size:12px">${filas('k', entry.kit)}</table>`;
+  }
+  return html;
+}
+
+let repuestosCache = null;
+async function cargarRepuestos() {
+  if (repuestosCache) return repuestosCache;
+  const snap = await getDocs(collection(db, 'repuestos'));
+  repuestosCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return repuestosCache;
+}
+
+function buscarRepuesto(reps, codigo) {
+  const norm = s => (s || '').toString().trim().toUpperCase();
+  // Un campo "codigo" puede traer varios códigos juntos (ej. "35258690 | 35258690"
+  // o separados por coma o barra) — los partimos y comparamos uno por uno.
+  const partes = s => norm(s).split(/[|,/]/).map(x => x.trim()).filter(Boolean);
+  const c = norm(codigo);
+  return reps.find(r =>
+    partes(r.codigo).includes(c) ||
+    (r.codigos_proveedores || []).some(cp => partes(cp.codigo).includes(c))
+  );
+}
+
+document.getElementById('drop').addEventListener('click', () => document.getElementById('file-input').click());
+document.getElementById('drop').addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.classList.add('drag'); });
+document.getElementById('drop').addEventListener('dragleave', e => e.currentTarget.classList.remove('drag'));
+document.getElementById('drop').addEventListener('drop', e => {
+  e.preventDefault(); e.currentTarget.classList.remove('drag');
+  if (e.dataTransfer.files[0]) procesarArchivo(e.dataTransfer.files[0]);
+});
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) procesarArchivo(e.target.files[0]);
+});
+
+async function procesarArchivo(file) {
+  const text = await file.text();
+  let data;
+  try { data = JSON.parse(text); } catch (err) { toast('El archivo no es un JSON válido'); return; }
+  const items = data.items || [];
+  const reps = await cargarRepuestos();
+
+  const matched = [];
+  const noMatch = [];
+  items.forEach(entry => {
+    entry.catalogo = data.catalogo || entry.catalogo;
+    const candidatos = [entry.codigo, ...(entry.alias || [])];
+    const encontrados = [];
+    reps.forEach(r => {
+      if (candidatos.some(cod => buscarRepuesto([r], cod))) encontrados.push(r);
+    });
+    if (encontrados.length) encontrados.forEach(r => matched.push({ entry, r }));
+    else noMatch.push(entry);
+  });
+
+  document.getElementById('resultado').style.display = 'block';
+  document.getElementById('summary').innerHTML = `
+    <div class="box"><div class="n" style="color:var(--green)">${matched.length}</div><div class="l">encontrados en tu base</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${noMatch.length}</div><div class="l">sin coincidencia</div></div>
+    <div class="box"><div class="n">${items.length}</div><div class="l">total en el archivo</div></div>
+  `;
+
+  const noMatchCard = document.getElementById('no-match-card');
+  if (noMatch.length) {
+    noMatchCard.style.display = 'block';
+    document.getElementById('no-match-count').textContent = noMatch.length;
+    document.getElementById('no-match-list').innerHTML = noMatch.map(e =>
+      `<div><b>${e.codigo}</b> — ${e.tipo || 'sin tipo'} — no hay ningún repuesto en tu base con ese código</div>`
+    ).join('');
+  } else { noMatchCard.style.display = 'none'; }
+
+  const itemsDiv = document.getElementById('items');
+  itemsDiv.innerHTML = '';
+  matched.forEach(({ entry, r }, idx) => {
+    const tablaHTML = armarTablaHTML(entry);
+    const box = document.createElement('div');
+    box.className = 'item';
+    box.innerHTML = `
+      <div class="item-head">
+        <div class="tit">${r.titulo_repuesto || r.categoria || 'Repuesto'} — <span class="cod">${entry.codigo}</span> <span style="color:var(--text3)">(tu ítem: ${r.codigo || r.id})</span></div>
+        <span class="badge ok">encontrado</span>
+      </div>
+      <div class="item-body">
+        <div class="modo">
+          <label><input type="radio" name="modo-${idx}" value="agregar" checked> Agregar al final de lo que ya tiene</label>
+          <label><input type="radio" name="modo-${idx}" value="reemplazar"> Reemplazar toda la Descripción completa</label>
+        </div>
+        <div class="rich-editor-preview" id="preview-${idx}"></div>
+        <div class="actions">
+          <button class="btn green" data-idx="${idx}">✓ Adjuntar a este repuesto</button>
+        </div>
+      </div>
+    `;
+    itemsDiv.appendChild(box);
+    document.getElementById(`preview-${idx}`).innerHTML = tablaHTML;
+
+    box.querySelector('button.btn.green').addEventListener('click', async (ev) => {
+      const modo = box.querySelector(`input[name="modo-${idx}"]:checked`).value;
+      const btn = ev.currentTarget;
+      btn.disabled = true; btn.textContent = 'Guardando...';
+      try {
+        const nuevoHTML = modo === 'reemplazar'
+          ? tablaHTML
+          : (r.descripcion || '') + tablaHTML;
+        await updateDoc(doc(db, 'repuestos', r.id), { descripcion: nuevoHTML });
+        r.descripcion = nuevoHTML; // por si lo adjunta dos veces en la misma sesión
+        btn.textContent = '✓ Guardado en Descripción completa';
+        toast(`Guardado en "${r.titulo_repuesto || r.codigo}"`);
+      } catch (err) {
+        btn.disabled = false; btn.textContent = '✓ Adjuntar a este repuesto';
+        toast('Error al guardar: ' + err.message);
+      }
+    });
+  });
+
+  // Botón cargar todos
+  if (matched.length) {
+    const bulk = document.createElement('div');
+    bulk.className = 'card';
+    bulk.innerHTML = `<button class="btn" id="btn-todos">⚡ Adjuntar a los ${matched.length} encontrados de una sola vez (modo "agregar")</button>`;
+    itemsDiv.prepend(bulk);
+    document.getElementById('btn-todos').addEventListener('click', () => {
+      itemsDiv.querySelectorAll('.item .btn.green').forEach(b => b.click());
+    });
+  }
+}
+</script>
+</body>
+</html>
