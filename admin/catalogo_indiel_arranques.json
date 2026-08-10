@@ -1,0 +1,131 @@
+{
+  "catalogo": "Indiel/Prestolite — Motores de Arranque 2006",
+  "items": [
+    {
+      "codigo": "35258740",
+      "tipo": "M74R 12V",
+      "aplicacion": "VW Gol 1.6/1.9 Diesel, Quantum AP827 1.8/2.0, Santana AP827 1.8/2.0, Saveiro 1.6/1.9 Diesel, Senda 1.6/1.9 Diesel",
+      "equivalencias": "BOSCH 9 000 452 003 · VOLKSWAGEN 377 911 023.RA",
+      "medidas": [
+        ["A","Ángulo A","118°"], ["B","Ángulo B","90°"], ["C","Ángulo C","90°"],
+        ["D","Diámetro/rosca fijación","M8(3X)"], ["E","Medida E","52,5"], ["F","Medida F","14,5"],
+        ["G","Medida G","28"], ["H","Medida H","82,5"], ["J","Dientes/módulo piñón","9_2.117"], ["K","Medida K","10,48"]
+      ],
+      "kit": [
+        ["A","Cj. Solenoide","K01230"], ["B","Cj. Impulsor","22.0270"], ["C","Cj. Cubreimpulsor","35258554"],
+        ["D","Kit Rep. Cubreimpulsor","------------"], ["E","Cj. Carcaza","35258851"], ["F","Cj. Devanado","------------"],
+        ["G","Cj. Tapa Ext. Colector","35258471"], ["H","Cj. Inducido","35258683"], ["J","Jgo. Escobillas","TAB158"],
+        ["K","Placa Portaescobillas","35258917"], ["L","Cj. Portaescob. y Resortes","------------"], ["M","Cj. Reductor","K21152"],
+        ["N","Cj. Engranajes","K01591"], ["P","Kit Juntas Reductor y Amortiguador","35258189"], ["Q","Cj. Palanca","K01331"],
+        ["R","Cj. Reparación Bujes","K01326"], ["S","Cj. Reparación Tornillería","K01332"], ["T","Cj. Retén de Piñón","K01581"],
+        ["U","Junta de Cierre","35258381"], ["V","Cj. Devanado y Placa Portaescob.","------------"], ["W","Cj. Tapa Intermedia","------------"],
+        ["X","Tubo de Drenaje","35258678"], ["Y","Junta de Cierre Cubreimpulsor","------------"], ["Z","Anillo de Cierre Inducido","35258385"],
+        ["AA","Cj. Zuncho","------------"]
+      ]
+    },
+    {
+      "codigo": "35259060",
+      "tipo": "M74R 12V",
+      "aplicacion": "Ford Escort Coupe/Orion-Verona AP827 1.6/1.8, VW Caddy 1.6/1.9, Pointer/Polo Audi 1.6/1.8, Polo Diesel Nacional 1.9D, Seat Inca 1.6/1.9D",
+      "equivalencias": "BOSCH 9 000 081 001 · VOLKSWAGEN 547 911 023.RA",
+      "nota": "El código Bosch 9000081001 (tu ítem #982) cruza directo a este mismo repuesto — son el mismo arranque.",
+      "medidas": [
+        ["A","Ángulo A","(-) 44°"], ["B","Ángulo B","184°"], ["C","Ángulo C","-----"],
+        ["D","Diámetro/rosca fijación","Ø11(2X)"], ["E","Medida E","55,73"], ["F","Medida F","52,5"],
+        ["G","Medida G","66"], ["H","Medida H","76,2"], ["J","Dientes/módulo piñón","10_2.117"], ["K","Medida K","10,48"]
+      ],
+      "kit": [
+        ["A","Cj. Solenoide","K01338"], ["B","Cj. Impulsor","22.8396"], ["C","Cj. Cubreimpulsor","35258349"],
+        ["D","Kit Rep. Cubreimpulsor","------------"], ["E","Cj. Carcaza","35258848"], ["F","Cj. Devanado","------------"],
+        ["G","Cj. Tapa Ext. Colector","35258304"], ["H","Cj. Inducido","35258683"], ["J","Jgo. Escobillas","TAB158"],
+        ["K","Placa Portaescobillas","35258566"], ["L","Cj. Portaescob. y Resortes","------------"], ["M","Cj. Reductor","K21150"],
+        ["N","Cj. Engranajes","K01591"], ["P","Kit Juntas Reductor y Amortiguador","35258189"], ["Q","Cj. Palanca","K01331"],
+        ["R","Cj. Reparación Bujes","K01326"], ["S","Cj. Reparación Tornillería","K01332"], ["T","Cj. Retén de Piñón","K01581"],
+        ["U","Junta de Cierre","35258381"], ["V","Cj. Devanado y Placa Portaescob.","------------"], ["W","Cj. Tapa Intermedia","------------"],
+        ["X","Tubo de Drenaje","35258328"], ["Y","Junta de Cierre Cubreimpulsor","------------"], ["Z","Anillo de Cierre Inducido","35258385"],
+        ["AA","Cj. Zuncho","------------"]
+      ]
+    },
+    {
+      "codigo": "35258270",
+      "tipo": "M74R 12V",
+      "aplicacion": "No figura vehículo puntual en la Tabla de Aplicaciones (marca de referencia en kits: Ford/VW)",
+      "equivalencias": "No figuran equivalencias de fábrica en las páginas de Cross Reference de este catálogo",
+      "nota": "DISCONTINUADO por Indiel — reemplazado por el código 35259060 según la tabla \"Uses de Motores de Arranque\".",
+      "kit": [
+        ["A","Cj. Solenoide","K01333"], ["B","Cj. Impulsor","22.8396"], ["C","Cj. Cubreimpulsor","35258349"],
+        ["D","Kit Rep. Cubreimpulsor","------------"], ["E","Cj. Carcaza","35258848"], ["F","Cj. Devanado","------------"],
+        ["G","Cj. Tapa Ext. Colector","35258304"], ["H","Cj. Inducido","35258683"], ["J","Jgo. Escobillas","TAB158"],
+        ["K","Placa Portaescobillas","35258566"], ["L","Cj. Portaescob. y Resortes","------------"], ["M","Cj. Reductor","K21150"],
+        ["N","Cj. Engranajes","K01591"], ["P","Kit Juntas Reductor y Amortiguador","35258189"], ["Q","Cj. Palanca","K01331"],
+        ["R","Cj. Reparación Bujes","K01326"], ["S","Cj. Reparación Tornillería","K01332"], ["T","Cj. Retén de Piñón","K01581"],
+        ["U","Junta de Cierre","35258381"], ["V","Cj. Devanado y Placa Portaescob.","------------"], ["W","Cj. Tapa Intermedia","------------"],
+        ["X","Tubo de Drenaje","35258328"], ["Y","Junta de Cierre Cubreimpulsor","------------"], ["Z","Anillo de Cierre Inducido","35258385"],
+        ["AA","Cj. Zuncho","------------"]
+      ]
+    },
+    {
+      "codigo": "35258420",
+      "tipo": "M74R 12V",
+      "aplicacion": "Fiat Duna 1.7 Diesel, Fiorino 1.7 Diesel, Uno 1.7 Diesel",
+      "equivalencias": "FIAT 0007716766 · BOSCH 0 001 110 025 / 0 001 110 082 / 9 000 082 062 / 9 000 082 071 · HELLA CS 1059 / CS 327 · LUCAS LRS 655 · DELCO 1998338 · FORD 2C35-11001-AA / 2U1L 11000 BA · JOHN DEERE AJ60123",
+      "medidas": [
+        ["A","Ángulo A","(-) 58°"], ["B","Ángulo B","91°"], ["C","Ángulo C","86°"],
+        ["D","Diámetro/rosca fijación","M8(3X)"], ["E","Medida E","57(2X)"], ["F","Medida F","23,3"],
+        ["G","Medida G","26"], ["H","Medida H","82"], ["J","Dientes/módulo piñón","10_2.117"], ["K","Medida K","10,48"]
+      ],
+      "kit": [
+        ["A","Cj. Solenoide","K01229"], ["B","Cj. Impulsor","22.0210"], ["C","Cj. Cubreimpulsor","35258485"],
+        ["D","Kit Rep. Cubreimpulsor","------------"], ["E","Cj. Carcaza","35258851"], ["F","Cj. Devanado","------------"],
+        ["G","Cj. Tapa Ext. Colector","35258471"], ["H","Cj. Inducido","35258683"], ["J","Jgo. Escobillas","TAB158"],
+        ["K","Placa Portaescobillas","35258566"], ["L","Cj. Portaescob. y Resortes","------------"], ["M","Cj. Reductor","K21152"],
+        ["N","Cj. Engranajes","K01591"], ["P","Kit Juntas Reductor y Amortiguador","35258189"], ["Q","Cj. Palanca","K01331"],
+        ["R","Cj. Reparación Bujes","K01328"], ["S","Cj. Reparación Tornillería","K01332"], ["T","Cj. Retén de Piñón","K01581"],
+        ["U","Junta de Cierre","35258381"], ["V","Cj. Devanado y Placa Portaescob.","------------"], ["W","Cj. Tapa Intermedia","------------"],
+        ["X","Tubo de Drenaje","35258678"], ["Y","Junta de Cierre Cubreimpulsor","------------"], ["Z","Anillo de Cierre Inducido","35258385"],
+        ["AA","Cj. Zuncho","------------"]
+      ]
+    },
+    {
+      "codigo": "35259680",
+      "tipo": "M93R 12V",
+      "aplicacion": "Mercedes Benz Omnibus 6 cil.",
+      "equivalencias": "BOSCH 0 986 013 480 · BOSCH 9 000 083 054",
+      "nota": "Reemplazó al código discontinuado 35258880 — el 35259680 es la versión vigente.",
+      "medidas": [
+        ["A","Ángulo A","30°"], ["B","Ángulo B","90°"], ["C","Ángulo C","90°"],
+        ["D","Diámetro/rosca fijación","Ø10.5(3X)"], ["E","Medida E","63,5"], ["F","Medida F","47,5"],
+        ["G","Medida G","64"], ["H","Medida H","88,8"], ["J","Dientes/módulo piñón","9_3"], ["K","Medida K","14,33"]
+      ],
+      "kit": [
+        ["A","Cj. Solenoide","K01248"], ["B","Cj. Impulsor","22.9938"], ["C","Cj. Cubreimpulsor","35259942"],
+        ["D","Kit Rep. Cubreimpulsor","------------"], ["E","Cj. Carcaza","35258609"], ["F","Cj. Devanado","K01475"],
+        ["G","Cj. Tapa Ext. Colector","35258978"], ["H","Cj. Inducido","K01237"], ["J","Jgo. Escobillas","TAB847"],
+        ["K","Placa Portaescobillas","K01238"], ["L","Cj. Portaescob. y Resortes","K01239"], ["M","Cj. Reductor","K01212"],
+        ["N","Cj. Engranajes","K01265"], ["P","Kit Juntas Reductor y Amortiguador","K01263"], ["Q","Cj. Palanca","K01401"],
+        ["R","Cj. Reparación Bujes","K01242"], ["S","Cj. Reparación Tornillería","K01241"], ["T","Cj. Retén de Piñón","K01264"],
+        ["U","Junta de Cierre","35258642"], ["V","Cj. Devanado y Placa Portaescob.","K01585"], ["W","Cj. Tapa Intermedia","------------"],
+        ["X","Tubo de Drenaje","35258678"], ["Y","Junta de Cierre Cubreimpulsor","------------"], ["Z","Anillo de Cierre Inducido","------------"],
+        ["AA","Cj. Zuncho","------------"]
+      ]
+    },
+    {
+      "codigo": "35258690",
+      "tipo": "M93R 12V",
+      "aplicacion": "No figura vehículo puntual en la Tabla de Aplicaciones (marca de referencia en kits: Peugeot)",
+      "equivalencias": "No figuran equivalencias de fábrica en las páginas de Cross Reference de este catálogo",
+      "nota": "DISCONTINUADO por Indiel — reemplazado por el código 35259710 (no incluido en este catálogo).",
+      "kit": [
+        ["A","Cj. Solenoide","K01247"], ["B","Cj. Impulsor","35259037"], ["C","Cj. Cubreimpulsor","35258633"],
+        ["D","Kit Rep. Cubreimpulsor","------------"], ["E","Cj. Carcaza","35258609"], ["F","Cj. Devanado","K01475"],
+        ["G","Cj. Tapa Ext. Colector","35258763"], ["H","Cj. Inducido","K01237"], ["J","Jgo. Escobillas","TAB847"],
+        ["K","Placa Portaescobillas","K01238"], ["L","Cj. Portaescob. y Resortes","K01239"], ["M","Cj. Reductor","K21147"],
+        ["N","Cj. Engranajes","K01265"], ["P","Kit Juntas Reductor y Amortiguador","K01263"], ["Q","Cj. Palanca","K01401"],
+        ["R","Cj. Reparación Bujes","K01243"], ["S","Cj. Reparación Tornillería","K01241"], ["T","Cj. Retén de Piñón","K01581"],
+        ["U","Junta de Cierre","35258642"], ["V","Cj. Devanado y Placa Portaescob.","K01585"], ["W","Cj. Tapa Intermedia","------------"],
+        ["X","Tubo de Drenaje","35258678"], ["Y","Junta de Cierre Cubreimpulsor","------------"], ["Z","Anillo de Cierre Inducido","------------"],
+        ["AA","Cj. Zuncho","------------"]
+      ]
+    }
+  ]
+}
