@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Descripciones — repuestos-automotor</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 24px; }
+  h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .sub { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+  .card { background: #1e2130; border: 1px solid #2d3347; border-radius: 12px; padding: 22px; margin-bottom: 18px; }
+  .card h2 { font-size: 15px; font-weight: 600; color: #94a3b8; margin-bottom: 14px; }
+  .drop-zone { border: 2px dashed #334155; border-radius: 8px; padding: 36px; text-align: center; cursor: pointer; transition: all .2s; }
+  .drop-zone:hover, .drop-zone.over { border-color: #3b82f6; background: rgba(59,130,246,.06); }
+  .drop-zone p { color: #64748b; font-size: 14px; margin-top: 8px; }
+  input[type=file] { display:none; }
+  .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn:disabled { opacity:.4; cursor:not-allowed; }
+  .btn-blue { background:#3b82f6; color:#fff; }
+  .btn-green { background:#22c55e; color:#fff; }
+  .btn-gray { background:#334155; color:#e2e8f0; }
+  .btn:not(:disabled):hover { opacity:.85; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; margin-top:14px; }
+  .stat { background:#151822; border-radius:8px; padding:14px; text-align:center; }
+  .stat .n { font-size:24px; font-weight:700; color:#3b82f6; }
+  .stat .l { font-size:11px; color:#64748b; margin-top:3px; }
+  .info-box { background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.3); border-radius:8px; padding:14px; font-size:13px; color:#93c5fd; margin-bottom:14px; }
+  table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+  th { text-align:left; padding:8px; color:#64748b; font-weight:600; border-bottom:1px solid #2d3347; position:sticky; top:0; background:#1e2130; }
+  td { padding:8px; border-bottom:1px solid #1a1f2e; vertical-align:top; }
+  .row-wrap { max-height:520px; overflow-y:auto; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:100px; font-size:11px; font-weight:600; }
+  .badge-red { background:rgba(239,68,68,.15); color:#ef4444; }
+  .badge-warn { background:rgba(245,158,11,.15); color:#f59e0b; }
+  .badge-ok { background:rgba(34,197,94,.15); color:#22c55e; }
+  .log { background:#0d1117; border-radius:8px; padding:14px; max-height:260px; overflow-y:auto; font-family:monospace; font-size:12px; line-height:1.7; margin-top:10px; }
+  .log .ok { color:#22c55e; } .log .err { color:#ef4444; } .log .inf { color:#94a3b8; } .log .warn { color:#f59e0b; }
+  .flex-gap { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .titulo-cell { max-width:220px; }
+  .preview-btn { color:#3b82f6; cursor:pointer; font-size:11px; text-decoration:underline; }
+  #modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:50; align-items:center; justify-content:center; }
+  #modal { background:#1e2130; border:1px solid #2d3347; border-radius:12px; padding:20px; max-width:800px; max-height:80vh; overflow-y:auto; width:90%; }
+  #modal h3 { margin-bottom:10px; color:#fff; }
+  #modal .col { margin-bottom:16px; }
+  #modal .col-title { font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:6px; }
+  #modal .col-body { background:#151822; border-radius:6px; padding:10px; font-size:12px; white-space:pre-wrap; word-break:break-word; max-height:220px; overflow-y:auto; }
+</style>
+</head>
+<body>
+
+<h1>🔍 Diagnóstico de Descripciones — repuestos-automotor</h1>
+<p class="sub">Compara el campo <code>descripcion</code> de cada repuesto en Firestore contra lo que dice el SQL original de XAMPP. No toca ningún otro campo.</p>
+
+<div id="auth-gate" class="card"><div class="log"><span class="inf">Verificando sesión…</span></div></div>
+
+<div id="app" style="display:none;">
+
+  <div class="card">
+    <h2>1. Cargá el SQL exportado de XAMPP (repuestos_pa.sql)</h2>
+    <div class="drop-zone" id="dropZone">
+      <strong>📂 Arrastrá el .sql aquí</strong>
+      <p>o hacé clic para elegirlo</p>
+    </div>
+    <input type="file" id="fileInput" accept=".sql,.txt">
+    <div id="parse-stats" class="stats" style="display:none;"></div>
+  </div>
+
+  <div class="card" id="card-compare" style="display:none;">
+    <h2>2. Comparar contra Firestore</h2>
+    <div class="flex-gap">
+      <button class="btn btn-blue" id="btn-compare">🔎 Comparar descripciones</button>
+      <span id="compare-status" style="font-size:13px;color:#64748b;"></span>
+    </div>
+    <div class="stats" id="compare-stats" style="display:none;"></div>
+  </div>
+
+  <div class="card" id="card-results" style="display:none;">
+    <h2>3. Repuestos con descripción faltante o incompleta</h2>
+    <div class="info-box">
+      Se compara la <strong>longitud de texto</strong> de la descripción actual en Firestore contra la que generaría el SQL (misma lógica que usa el importador: <code>descripcion_ok || descripcion</code>, HTML saneado). Marcados como problema los que están vacíos en Firestore o tienen bastante menos contenido que el SQL.
+    </div>
+    <div class="flex-gap" style="margin-bottom:10px;">
+      <button class="btn btn-gray" id="btn-select-all">Seleccionar todos</button>
+      <button class="btn btn-gray" id="btn-select-none">Deseleccionar todos</button>
+      <button class="btn btn-green" id="btn-fix" disabled>✅ Actualizar SOLO el campo Descripción de los seleccionados</button>
+    </div>
+    <div class="row-wrap">
+      <table id="results-table">
+        <thead><tr>
+          <th></th><th>id_mysql</th><th>Código</th><th>Título</th><th>Firestore (caract.)</th><th>SQL (caract.)</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+    </div>
+    <div class="log" id="fix-log" style="display:none;"></div>
+  </div>
+
+</div>
+
+<div id="modal-bg"><div id="modal">
+  <h3>Comparación de contenido</h3>
+  <div class="col"><div class="col-title">Descripción actual en Firestore</div><div class="col-body" id="modal-fs"></div></div>
+  <div class="col"><div class="col-title">Descripción que tiene el SQL</div><div class="col-body" id="modal-sql"></div></div>
+  <button class="btn btn-gray" onclick="document.getElementById('modal-bg').style.display='none'">Cerrar</button>
+</div></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+await setPersistence(auth, browserSessionPersistence);
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  document.getElementById('auth-gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// MISMAS FUNCIONES QUE EL IMPORTADOR (importar-mysql-v32.html) — para que
+// la comparación sea 1:1 contra lo que el importador hubiera generado.
+// ══════════════════════════════════════════════════════════════════════
+function fixEncoding(str) {
+  if (!str || typeof str !== 'string') return str;
+  return str
+    .replace(/Ã¡/g,'á').replace(/Ã©/g,'é').replace(/Ã­/g,'í').replace(/Ã³/g,'ó').replace(/Ãº/g,'ú')
+    .replace(/Ã\x81/g,'Á').replace(/Ã\x89/g,'É').replace(/Ã\x8d/g,'Í').replace(/Ã\x93/g,'Ó').replace(/Ã\x9a/g,'Ú')
+    .replace(/Ã±/g,'ñ').replace(/Ã\x91/g,'Ñ')
+    .replace(/Ã¼/g,'ü').replace(/Ã¶/g,'ö').replace(/Ã¤/g,'ä')
+    .replace(/â€"/g,'–').replace(/â€"/g,'—').replace(/â€œ/g,'"').replace(/â€/g,'"')
+    .replace(/Â°/g,'°').replace(/Â¿/g,'¿').replace(/Â¡/g,'¡').replace(/Â·/g,'·')
+    .replace(/Ã\x80/g,'À').replace(/Ã\x88/g,'È').replace(/Ã\x8c/g,'Ì').replace(/Ã\x92/g,'Ò').replace(/Ã\x99/g,'Ù')
+    .replace(/Ã\xa0/g,'à').replace(/Ã\xa8/g,'è').replace(/Ã\xac/g,'ì').replace(/Ã\xb2/g,'ò').replace(/Ã\xb9/g,'ù');
+}
+function fixEscapes(s) {
+  return s.replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\r/g,'\n')
+           .replace(/\\"/g,'"').replace(/\\'/g,"'").replace(/\\\\/g,'\\');
+}
+function fixHtmlEntities(s) {
+  return s.replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&lt;/gi,'<').replace(/&gt;/gi,'>')
+          .replace(/&quot;/gi,'"').replace(/&#39;/gi,"'")
+          .replace(/&aacute;/gi,'á').replace(/&eacute;/gi,'é').replace(/&iacute;/gi,'í')
+          .replace(/&oacute;/gi,'ó').replace(/&uacute;/gi,'ú').replace(/&ntilde;/gi,'ñ')
+          .replace(/&Aacute;/gi,'Á').replace(/&Eacute;/gi,'É').replace(/&Iacute;/gi,'Í')
+          .replace(/&Oacute;/gi,'Ó').replace(/&Uacute;/gi,'Ú').replace(/&Ntilde;/gi,'Ñ')
+          .replace(/&#\d+;/gi,'');
+}
+function sanitizeHTML(str) {
+  if (!str || typeof str !== 'string') return '';
+  let s = fixEscapes(str);
+  s = fixHtmlEntities(s);
+  s = s.replace(/<script[\s\S]*?<\/script>/gi,'');
+  s = s.replace(/<style[\s\S]*?<\/style>/gi,'');
+  s = s.replace(/<iframe[\s\S]*?<\/iframe>/gi,'');
+  s = s.replace(/<img[^>]*>/gi,'');
+  s = s.replace(/\s+on\w+="[^"]*"/gi,'');
+  s = s.replace(/\s+style="[^"]*"/gi,'');
+  s = s.replace(/\s+class="[^"]*"/gi,'');
+  s = s.replace(/(<p>\s*<\/p>\s*)+/gi,'');
+  s = s.replace(/(<p>&nbsp;<\/p>\s*)+/gi,'');
+  s = s.replace(/<a\s+/gi, '<a target="_blank" rel="noopener" ');
+  s = s.replace(/target="_blank"\s+target="_blank"/gi, 'target="_blank"');
+  return s.trim();
+}
+function processHTML(str) {
+  if (!str) return '';
+  let s = String(str);
+  s = fixEncoding(s);
+  s = sanitizeHTML(s);
+  return s;
+}
+function textLen(html) {
+  // longitud "de texto" aproximada, sin tags, para comparar contenido real
+  return (html || '').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim().length;
+}
+
+function splitValues(str) {
+  const parts = [];
+  let depth = 0, inStr = false, cur = '', i = 0;
+  while (i < str.length) {
+    const ch = str[i];
+    if (ch === "'" && !inStr) { inStr = true; cur += ch; }
+    else if (ch === "'" && inStr) {
+      if (str[i+1] === "'") { cur += "'"; i++; }
+      else { inStr = false; cur += ch; }
+    }
+    else if (ch === '\\' && inStr) {
+      i++;
+      const nc = str[i] || '';
+      if (nc === 'n') cur += '\n';
+      else if (nc === 'r') cur += '\r';
+      else if (nc === 't') cur += '\t';
+      else if (nc === "'") cur += "'";
+      else if (nc === '\\') cur += '\\';
+      else if (nc === '"') cur += '"';
+      else cur += nc;
+    }
+    else if (!inStr && ch === '(') { depth++; cur += ch; }
+    else if (!inStr && ch === ')') { depth--; cur += ch; }
+    else if (!inStr && ch === ',' && depth === 0) { parts.push(cur.trim()); cur = ''; }
+    else cur += ch;
+    i++;
+  }
+  if (cur.trim()) parts.push(cur.trim());
+  return parts;
+}
+function extractTable(sql, tableName) {
+  const rows = [];
+  const blockRe = new RegExp(
+    `INSERT INTO \`${tableName}\` \\(([^)]+)\\) VALUES\\s*\\n?([\\s\\S]*?);[ \\t]*(?=\\n|$)`,
+    'g'
+  );
+  let m;
+  while ((m = blockRe.exec(sql)) !== null) {
+    const cols = m[1].split(',').map(c => c.trim().replace(/`/g,''));
+    const valsPart = m[2].trim();
+    const rawRows = valsPart.split(/\n\(/);
+    rawRows.forEach(rawRow => {
+      let rowStr = rawRow.replace(/^\(/, '').replace(/[),;\s]+$/, '');
+      const vals = splitValues(rowStr);
+      if (vals.length < 1) return;
+      const obj = {};
+      cols.forEach((c, i) => {
+        let v = (vals[i] || '').trim();
+        if (v === 'NULL' || v === '') v = null;
+        else if (v.startsWith("'") && v.endsWith("'")) v = v.slice(1,-1);
+        else if (!isNaN(v) && v !== '') v = Number(v);
+        obj[c] = v;
+      });
+      if (Object.values(obj).some(v => v !== null && v !== '')) {
+        rows.push(obj);
+      }
+    });
+  }
+  return rows;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+
+let sqlRows = [];      // filas repuestos_pa parseadas del SQL
+let fsDocs  = new Map(); // id_mysql -> {ref, data}
+let problems = [];      // filas a mostrar/reparar
+
+function log(el, msg, cls='inf') {
+  el.style.display = 'block';
+  const d = document.createElement('div');
+  d.className = cls; d.textContent = msg;
+  el.appendChild(d); el.scrollTop = el.scrollHeight;
+}
+
+// ── PASO 1: cargar SQL ──────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e=>{ e.preventDefault(); dropZone.classList.remove('over'); handleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e=>handleFile(e.target.files[0]));
+
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const sql = ev.target.result;
+    sqlRows = extractTable(sql, 'repuestos_pa');
+    const statsEl = document.getElementById('parse-stats');
+    statsEl.style.display = 'grid';
+    statsEl.innerHTML = `
+      <div class="stat"><div class="n">${sqlRows.length}</div><div class="l">Repuestos leídos del SQL</div></div>
+      <div class="stat"><div class="n">${sqlRows.filter(r => processHTML(r.descripcion_ok || r.descripcion || '')).length}</div><div class="l">Con descripción en SQL</div></div>
+    `;
+    document.getElementById('card-compare').style.display = 'block';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ── PASO 2: comparar contra Firestore ──────────────────
+document.getElementById('btn-compare').onclick = async () => {
+  const statusEl = document.getElementById('compare-status');
+  statusEl.textContent = 'Descargando repuestos de Firestore…';
+  const snap = await getDocs(collection(db, 'repuestos'));
+  fsDocs = new Map();
+  snap.forEach(d => {
+    const data = d.data();
+    const idm = String(data.id_mysql || '');
+    if (idm) fsDocs.set(idm, { ref: d.ref, data });
+  });
+  statusEl.textContent = `${fsDocs.size} repuestos en Firestore. Comparando…`;
+
+  problems = [];
+  let sinMatch = 0;
+  for (const r of sqlRows) {
+    const idm = String(r.id || '');
+    const sqlDescHtml = processHTML(r.descripcion_ok || r.descripcion || '');
+    const sqlLen = textLen(sqlDescHtml);
+    if (sqlLen === 0) continue; // el SQL no tiene nada para este producto, no es un caso a revisar
+
+    const match = fsDocs.get(idm);
+    if (!match) { sinMatch++; continue; }
+
+    const fsDescHtml = match.data.descripcion || '';
+    const fsLen = textLen(fsDescHtml);
+
+    let estado = null;
+    if (fsLen === 0) estado = 'vacío';
+    else if (fsLen < sqlLen * 0.7) estado = 'incompleto';
+
+    if (estado) {
+      const codigo = match.data.codigo || (r.codigo_sin || r.codigo_bosch || r.codigo_indiel || '') || '';
+      const titulo = match.data.titulo_repuesto || r.titulo_repuesto || r.titulo_principal || '';
+      problems.push({ idm, codigo: String(codigo||''), titulo: String(titulo||''), fsLen, sqlLen, estado, fsDescHtml, sqlDescHtml, ref: match.ref });
+    }
+  }
+
+  const compStats = document.getElementById('compare-stats');
+  compStats.style.display = 'grid';
+  compStats.innerHTML = `
+    <div class="stat"><div class="n">${fsDocs.size}</div><div class="l">En Firestore</div></div>
+    <div class="stat"><div class="n">${sinMatch}</div><div class="l">Del SQL sin match en Firestore</div></div>
+    <div class="stat"><div class="n" style="color:${problems.length? '#ef4444':'#22c55e'}">${problems.length}</div><div class="l">Con descripción faltante/incompleta</div></div>
+  `;
+  statusEl.textContent = '✅ Comparación completa';
+  renderResults();
+};
+
+function renderResults() {
+  const card = document.getElementById('card-results');
+  const tbody = document.getElementById('results-tbody');
+  tbody.innerHTML = '';
+  if (problems.length === 0) {
+    card.style.display = 'block';
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#22c55e;padding:20px;">🎉 No se encontraron descripciones faltantes o incompletas.</td></tr>`;
+    return;
+  }
+  card.style.display = 'block';
+  problems.forEach((p, i) => {
+    const tr = document.createElement('tr');
+    const badge = p.estado === 'vacío' ? '<span class="badge badge-red">vacío</span>' : '<span class="badge badge-warn">incompleto</span>';
+    tr.innerHTML = `
+      <td><input type="checkbox" class="chk-fix" data-i="${i}" checked></td>
+      <td>${p.idm}</td>
+      <td>${escapeHtml(p.codigo)}</td>
+      <td class="titulo-cell">${escapeHtml(p.titulo)}</td>
+      <td>${p.fsLen}</td>
+      <td>${p.sqlLen}</td>
+      <td>${badge}</td>
+      <td><span class="preview-btn" data-i="${i}">ver</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('btn-fix').disabled = false;
+
+  tbody.querySelectorAll('.preview-btn').forEach(el => {
+    el.onclick = () => {
+      const p = problems[el.dataset.i];
+      document.getElementById('modal-fs').textContent = p.fsDescHtml || '(vacío)';
+      document.getElementById('modal-sql').textContent = p.sqlDescHtml || '(vacío)';
+      document.getElementById('modal-bg').style.display = 'flex';
+    };
+  });
+}
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.getElementById('btn-select-all').onclick = () => {
+  document.querySelectorAll('.chk-fix').forEach(c => c.checked = true);
+};
+document.getElementById('btn-select-none').onclick = () => {
+  document.querySelectorAll('.chk-fix').forEach(c => c.checked = false);
+};
+
+// ── PASO 3: reparar SOLO el campo descripcion de los elegidos ──────────
+document.getElementById('btn-fix').onclick = async () => {
+  const logEl = document.getElementById('fix-log');
+  logEl.innerHTML = '';
+  const checks = [...document.querySelectorAll('.chk-fix:checked')];
+  if (checks.length === 0) { log(logEl, 'No hay ninguno seleccionado.', 'warn'); return; }
+  if (!confirm(`Vas a actualizar el campo "descripcion" de ${checks.length} repuesto(s), sin tocar ningún otro campo. ¿Confirmás?`)) return;
+
+  let ok = 0, err = 0;
+  for (const chk of checks) {
+    const p = problems[chk.dataset.i];
+    try {
+      await updateDoc(p.ref, { descripcion: p.sqlDescHtml });
+      log(logEl, `✅ id_mysql=${p.idm} (${p.codigo || p.titulo}) — descripción actualizada`, 'ok');
+      ok++;
+    } catch(e) {
+      log(logEl, `❌ id_mysql=${p.idm}: ${e.message}`, 'err');
+      err++;
+    }
+  }
+  log(logEl, `\n🎉 Listo: ${ok} actualizados, ${err} con error.`, ok===checks.length ? 'ok' : 'warn');
+};
+</script>
+</body>
+</html>
