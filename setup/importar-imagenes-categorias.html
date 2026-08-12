@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Importador de Imágenes de Categorías → Cloudinary</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #0f0f0f; color: #e0e0e0; padding: 20px; }
+  h1 { color: #f90; margin-bottom: 6px; font-size: 22px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 24px; }
+  .card { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 15px; color: #f90; margin-bottom: 14px; }
+  input[type=file] { font-size: 12px; color: #ccc; }
+  .badge { font-size: 11px; background: #222; border: 1px solid #444; padding: 2px 8px; border-radius: 20px; color: #aaa; white-space: nowrap; margin-left: 10px; }
+  .badge.ok { border-color: #2a7; color: #2a7; }
+  .btn { padding: 12px 28px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
+  .btn-start { background: #f90; color: #000; width: 100%; }
+  .btn-start:disabled { background: #555; color: #888; cursor: not-allowed; }
+  .btn-small { background: #333; color: #ccc; font-size: 12px; padding: 6px 12px; border-radius: 4px; border: 1px solid #444; cursor: pointer; }
+  .warning { background: #2a1f00; border: 1px solid #f90; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #fc0; margin-bottom: 16px; }
+  .info-box { background: #101820; border: 1px solid #246; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #68d; margin-bottom: 14px; }
+  .stats { display:flex; gap:20px; margin: 14px 0; flex-wrap:wrap; }
+  .stat { background:#111; border:1px solid #333; border-radius:8px; padding:10px 16px; text-align:center; min-width:100px; }
+  .stat b { display:block; font-size:22px; color:#f90; }
+  .stat span { font-size:11px; color:#888; }
+  table { width:100%; border-collapse: collapse; font-size:12px; }
+  th { text-align:left; color:#f90; padding:8px 6px; border-bottom:1px solid #333; position:sticky; top:0; background:#1a1a1a; }
+  td { padding:6px; border-bottom:1px solid #222; vertical-align: middle; }
+  #tabla-wrap { max-height: 520px; overflow-y:auto; border:1px solid #333; border-radius:8px; }
+  img.thumb { width:34px; height:34px; object-fit:contain; background:#000; border-radius:4px; border:1px solid #333; }
+  .row-ok { color:#2a7; }
+  .row-warn { color:#e55; }
+  select.pick { background:#111; border:1px solid #444; color:#ccc; font-size:11px; padding:3px 4px; border-radius:4px; max-width:220px; }
+  #log { background: #111; border: 1px solid #222; border-radius: 6px; padding: 10px; height: 220px; overflow-y: auto; font-size: 11px; font-family: monospace; margin-top:12px; }
+  .log-ok   { color: #2a7; }
+  .log-skip { color: #666; }
+  .log-err  { color: #e55; }
+  .log-info { color: #68d; }
+  .barra-wrap { background: #111; border-radius: 20px; height: 12px; overflow: hidden; margin: 10px 0; }
+  .barra { height: 100%; background: linear-gradient(90deg, #f90, #fc0); border-radius: 20px; width: 0%; transition: width 0.3s; }
+  .spinner { display:inline-block; width:14px; height:14px; border:2px solid #444; border-top-color:#f90; border-radius:50%; animation: spin .7s linear infinite; vertical-align:middle; margin-right:8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #estado-analisis { font-size:12px; color:#68d; margin-top:10px; display:none; }
+  .err-box { background:#2a0f0f; border:1px solid #a33; border-radius:6px; padding:10px 14px; font-size:12px; color:#f77; margin-top:10px; display:none; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+
+<h1>🖼️ Importador de Imágenes de Categorías → Cloudinary</h1>
+<p class="sub">Sube las imágenes de <code>img_cat_chica</code> a Cloudinary y actualiza el logo (<code>logo_url</code>) de cada categoría en Firestore</p>
+
+<div class="warning">
+  ⚠️ Seleccioná el <strong>contenido</strong> de la carpeta <code>img_cat_chica</code> (todos los archivos adentro), no la carpeta en sí.
+</div>
+
+<div class="card">
+  <h2>🔐 Paso 0 — Iniciar sesión de admin</h2>
+  <p style="font-size:12px;color:#888;margin-bottom:12px">Mismo usuario y contraseña con el que entrás al panel admin.</p>
+  <div id="login-box">
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+      <input type="email" id="login-email" placeholder="Email" style="background:#111;border:1px solid #444;color:#ccc;padding:8px 10px;border-radius:6px;font-size:13px;min-width:220px">
+      <input type="password" id="login-pass" placeholder="Contraseña" style="background:#111;border:1px solid #444;color:#ccc;padding:8px 10px;border-radius:6px;font-size:13px;min-width:180px">
+      <button class="btn-small" id="btn-login" onclick="doLogin()">Ingresar</button>
+    </div>
+    <div id="login-err" style="color:#f77;font-size:12px;margin-top:8px;display:none"></div>
+  </div>
+  <div id="login-ok" style="display:none;color:#2a7;font-size:13px">
+    ✔ Sesión iniciada como <b id="login-user"></b>
+    <button class="btn-small" style="margin-left:10px" onclick="doLogout()">Cerrar sesión</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>📁 Paso 1 — Seleccioná las imágenes de img_cat_chica</h2>
+  <input type="file" id="f-chica" multiple accept="image/*" webkitdirectory>
+  <span class="badge" id="b-chica">sin seleccionar</span>
+</div>
+
+<div class="card">
+  <h2>🔎 Paso 2 — Analizar y hacer coincidir con las categorías</h2>
+  <p style="font-size:12px;color:#888;margin-bottom:12px">
+    Cada imagen se cruza por nombre de archivo contra la base vieja de XAMPP, y el nombre de categoría resultante se busca en Firestore. Las que no matcheen automático se pueden asignar a mano con el desplegable.
+  </p>
+  <button class="btn-small" id="btn-analizar" onclick="analizar()" disabled>🔎 Analizar</button>
+  <div id="estado-analisis"><span class="spinner"></span><span id="estado-analisis-txt">Conectando con Firestore...</span></div>
+  <div class="err-box" id="err-box"></div>
+  <div class="stats" id="stats" style="display:none">
+    <div class="stat"><b id="s-total">0</b><span>Imágenes</span></div>
+    <div class="stat"><b id="s-match" style="color:#2a7">0</b><span>Matcheadas</span></div>
+    <div class="stat"><b id="s-nomatch" style="color:#e55">0</b><span>Sin match</span></div>
+  </div>
+  <div id="tabla-wrap" style="display:none">
+    <table>
+      <thead><tr><th></th><th>Archivo</th><th>Nombre esperado (XAMPP)</th><th>Categoría en Firestore</th><th>Incluir</th></tr></thead>
+      <tbody id="tabla-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>🚀 Paso 3 — Subir imágenes y actualizar Firestore</h2>
+  <div class="info-box">
+    Se sube a Cloudinary (carpeta <code>repuestos/img_categoria</code>) y se actualiza el campo <code>logo_url</code> de cada categoría, igual que si lo hicieras a mano desde el panel.
+  </div>
+  <button class="btn btn-start" id="btn-iniciar" onclick="iniciar()" disabled>▶ Subir imágenes seleccionadas</button>
+  <div class="barra-wrap" id="barra-wrap" style="display:none"><div class="barra" id="barra"></div></div>
+  <div id="log" style="display:none"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const CLOUD  = 'dljdwhnu7';
+const PRESET = 'repuestos';
+const CARPETA_CLOUDINARY = 'repuestos/img_categoria';
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+let _logueado = false;
+
+onAuthStateChanged(auth, (user) => {
+  _logueado = !!user;
+  document.getElementById('login-box').style.display = user ? 'none' : 'block';
+  document.getElementById('login-ok').style.display = user ? 'block' : 'none';
+  if (user) document.getElementById('login-user').textContent = user.email;
+  actualizarBotonAnalizar();
+});
+
+window.doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent = 'Completá email y contraseña.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    errEl.textContent = 'No se pudo iniciar sesión: ' + (e.code || e.message);
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Ingresar';
+  }
+};
+window.doLogout = async function() { await signOut(auth); };
+
+// ── Mapeo archivo → nombre de categoría, extraído de la base vieja de XAMPP (repuestos_cat) ──
+const MAPA = [{"id":"1","nombre":"Alternador Completo","archivo":"alternador.jpg"},{"id":"2","nombre":"Arranque | Motor de Arranque","archivo":"arranque.jpg"},{"id":"4","nombre":"Bateria | Carga de Baterías","archivo":"bateria.jpg"},{"id":"5","nombre":"Arranque Despiece | Inducidos de Arranque - Bobina de Arranque","archivo":"5-ch-inducidos.jpg"},{"id":"6","nombre":"Bujes","archivo":"buje.jpg"},{"id":"7","nombre":"Bujías de Encendido","archivo":"bujia.jpg"},{"id":"8","nombre":"Cables","archivo":"rollo_cable.jpg"},{"id":"9","nombre":"Carbones o Escobillas de arranque y Alternador","archivo":"carbones.jpg"},{"id":"10","nombre":"Ficha | Terminales","archivo":"conectores.jpg"},{"id":"11","nombre":"Cerraduras","archivo":"11-ch-cerradura.jpg"},{"id":"13","nombre":"Luces | Destelladores","archivo":"13-ch-destelladores.jpg"},{"id":"14","nombre":"Dínamo","archivo":"14-ch-dinamo.jpg"},{"id":"15","nombre":"Electroventiladores, y Paletas","archivo":"15-ch-Electroventiladores y paletas.jpg"},{"id":"16","nombre":"Estaño y  Estañolín","archivo":"16-ch-estaÃ±o y estaÃ±olin.jpg"},{"id":"17","nombre":"Faros y Lentes Marcas","archivo":"17-ch-seat_085825.jpg"},{"id":"18","nombre":"Lámpara | Portalámparas Metálicos","archivo":"18-ch-portalamparas metÃ¡licos varios modelos.jpg"},{"id":"19","nombre":"Ficha | Fusibles","archivo":"19-ch-FUSIBLES.jpg"},{"id":"20","nombre":"Arranque Despiece | Impulsor Motor de Arranque","archivo":"20-ch-20.jpg"},{"id":"21","nombre":"Cable | Instalaciones Eléctricas, Elementos para","archivo":"21-ch-instalacines elÃ©ctricas.jpg"},{"id":"22","nombre":"Flotantes","archivo":"22-ch-flotante.jpg"},{"id":"23","nombre":"Bulbos | Interruptores, Bulbos","archivo":"23-ch-bulbos_interruptores.jpg"},{"id":"24","nombre":"Opticas | Libianos | Pesados | Deportivos | Publico","archivo":"24-ch-opticas.jpg"},{"id":"25","nombre":"Distribuidor Despiece | Platinos","archivo":"25-ch-platinos.jpg"},{"id":"26","nombre":"Aternador Despiece | Poleas","archivo":"26-ch-poleas.jpg"},{"id":"27","nombre":"Alternador Despiece | Plaqueta Porta DIODOS | RECTIFICADORAS | Conjunto Puente Rectificador","archivo":"27-ch-CATEGORIA.jpg"},{"id":"28","nombre":"Bocinas","archivo":"28-ch-bocinas.jpg"},{"id":"29","nombre":"Alternador Despiece | Reluladores de voltaje","archivo":"29-ch-REGULADOR DE VOLTAJE.jpg"},{"id":"30","nombre":"Ruleman | Alternador - Arranque - Otros","archivo":"30-ch-rulemanes.jpg"},{"id":"31","nombre":"Soldador de Estaño","archivo":"31-ch-Solador estaÃ±o.jpg"},{"id":"32","nombre":"Arranque Despiece | Solenoide  o Automático - Bendix - Relé de Engrane - Relé de Arranque - Chanchito","archivo":"32-ch-Dscn9708.png"},{"id":"33","nombre":"Distribuidor Despiece | Captor","archivo":"33-ch-captor de distribuidor.jpg"},{"id":"34","nombre":"Distribuidor Despiece | Cables de Bujías","archivo":"34-ch-cable bujias.jpg"},{"id":"35","nombre":"Teclas","archivo":"35-ch-Teclas.jpg"},{"id":"36","nombre":"Temporizadores","archivo":"36-ch-temporizador.jpg"},{"id":"37","nombre":"Ficha | Terminales de Instalación para Cables","archivo":"37-ch-terminales.jpg"},{"id":"38","nombre":"Instrumental Relojes","archivo":"38-ch-instrumental.jpg"},{"id":"116","nombre":"Arranque Despiece | Collares y Seguros","archivo":"116-ch-C1062.jpg"},{"id":"46","nombre":"Arranque Despiece | Barrilito","archivo":"46-ch-barrilito.jpg"},{"id":"47","nombre":"Bobina de Ignición","archivo":"47-ch-bobina_de_ignicion.jpg"},{"id":"48","nombre":"Bomba de Combustible Mec�nica y El�ctrica","archivo":"48-ch-bomba_de_combustible.jpg"},{"id":"49","nombre":"Buías de Pre-Calentamiento","archivo":"49-ch-bujia_precalentamiento.jpg"},{"id":"50","nombre":"Bujía Post-Calentamiento","archivo":"50-ch-bujia_post_calentamiento.jpg"},{"id":"51","nombre":"Bulbo de Temperatura","archivo":"51-ch-bulbo_de_temperatura.jpg"},{"id":"52","nombre":"Bulbo de Aceite","archivo":"52-ch-bulbo_de_aceite.jpg"},{"id":"53","nombre":"Bulbo de Electroventilador","archivo":"53-ch-bulvo_de_electroventilador.jpg"},{"id":"54","nombre":"Distribuidor Despiece | Cable de Bujía","archivo":"54-ch-Cable_de_bujia.jpg"},{"id":"55","nombre":"Luces | Cambio de Luz de Piso","archivo":"55-ch-cambio_de_luz_de_piso.jpg"},{"id":"56","nombre":"Arranque Despiece | Campos de Arranque","archivo":"56-ch-campos_para_arranque.jpg"},{"id":"57","nombre":"Arranque Despiece | Carbones de Arranque","archivo":"57-ch-Carbones_de_arranque.jpg"},{"id":"58","nombre":"Alternador Despiece | Carbones de Alternador","archivo":"58-ch-carbones_de_alternador.jpg"},{"id":"59","nombre":"Cinta Aislante","archivo":"59-ch-CINTA AISLANTE.jpg"},{"id":"60","nombre":"Arranque Despiece | Colectores Bobina de Arranque","archivo":"60-ch-Colector Arranque.jpg"},{"id":"61","nombre":"Distribuidor Despiece | Condensadores","archivo":"61-ch-condensadores.jpg"},{"id":"62","nombre":"Alternador Despiece | Conjunto Electrónico Puente Rectificador","archivo":"62-ch-Conjunto_puente_rectificador.jpg"},{"id":"63","nombre":"Conmutador de Luces, Giros y Limpiaparabrisas","archivo":"63-ch-conmutador_de_luces_giros_limpiaparabrisas.jpg"},{"id":"64","nombre":"Llave | Cortacorriente","archivo":"64-ch-corta_corriente.jpg"},{"id":"66","nombre":"Distribuidor Despiece | Captor","archivo":"66-ch-Captor.jpg"},{"id":"67","nombre":"Alternador Despiece","archivo":"67-ch-Alternador_despiece.jpg"},{"id":"68","nombre":"Arranque Despiece","archivo":"68-ch-arranque_despiece.jpg"},{"id":"71","nombre":"Bateria | Clips de Baterias","archivo":"71-ch-clips baterÃ­as.jpg"},{"id":"72","nombre":"Distribuidor | Despiece","archivo":"72-ch-distribuidor despiece.jpg"},{"id":"73","nombre":"Contactores","archivo":"73-ch-contactor.jpg"},{"id":"74","nombre":"Alternador Despiece | Diodos Positivos + - Diodos Negativos -","archivo":"74-ch-diodos_positivos_y negativos.jpg"},{"id":"75","nombre":"Distribuidor |  Completo","archivo":"75-ch-distribuidor.jpg"},{"id":"76","nombre":"Ficha | Enchufes de Acoplados, Motorhome.","archivo":"76-ch-enchufe_acomplados.jpg"},{"id":"77","nombre":"Arranuqe Despiece | Engranajes","archivo":"77-ch-emgranajes.jpg"},{"id":"78","nombre":"Escobillas","archivo":"78-ch-escobillas limpia parabrisas.jpg"},{"id":"79","nombre":"Cable | Espaguettis","archivo":"79-ch-espaguetti plÃ¡stico.jpg"},{"id":"80","nombre":"Termostatos","archivo":"80-ch-termostato.jpg"},{"id":"81","nombre":"Tecla o Interruptores","archivo":"81-ch-INTERRUPTORES.jpg"},{"id":"83","nombre":"Arranque | Horquilla de Mando Sola","archivo":"83-ch-HORQUILLA DE MANDO ARRANQUE SOLA.jpg"},{"id":"84","nombre":"Arranque Despiece | Traba Inducido","archivo":"84-ch-Traba Inducido_2.jpg"},{"id":"85","nombre":"Relay | Minis Relays | Micro Relay DE ENCENDIDO","archivo":"85-ch-relay.jpg"},{"id":"86","nombre":"Arranque Despiece | Tope Impulsor","archivo":"86-ch-TOPE IMPULSOR.jpg"},{"id":"87","nombre":"Arranque Despiece | Seguro Traba Inducido","archivo":"87-ch-Seguro Traba Inducido.jpg"},{"id":"88","nombre":"Distribuidor Despiece | Placa Electrónica con Captor Hall","archivo":"88-ch-placa electronica con captador hall.jpg"},{"id":"89","nombre":"Arranque Despiece | Arandela Cónica de Hierro Freno","archivo":"89-ch-ARANDELA CONICA DE FRENO.jpg"},{"id":"90","nombre":"Llave | Llave de Contacto","archivo":"90-ch-llave de contacto.jpg"},{"id":"91","nombre":"Lámpara | Lamparitas para Tableros","archivo":"91-ch-lamparitas para tablero.jpg"},{"id":"92","nombre":"Llave | Llave de Luces Volante","archivo":"92-ch-llave de luces volante.jpg"},{"id":"93","nombre":"Luces | Portátiles","archivo":"93-ch-lamparas portÃ¡til.jpg"},{"id":"94","nombre":"Arranque | Reparaciones","archivo":"94-ch-REPARACIONES.jpg"},{"id":"95","nombre":"Electroventilador | Resistencia","archivo":"95-ch-RESISTENCIA ELECTROVENTILADOR_2.jpg"},{"id":"96","nombre":"Bobina de Ignisión o Resistores","archivo":"96-ch-bobina de ignicion o resistor.jpg"},{"id":"97","nombre":"Sensores","archivo":"97-ch-sensores.jpg"},{"id":"98","nombre":"Varios","archivo":"98-ch-varios.jpg"},{"id":"99","nombre":"Acoples","archivo":"99-ch-acople.jpg"},{"id":"100","nombre":"Bulones Tuercas Arandelas","archivo":"100-ch-bulon_tuerca_arandela.jpg"},{"id":"103","nombre":"Arranque Despiece | Porta Escobillas o Carbones Completo","archivo":"103-ch-P2237C.jpg"},{"id":"105","nombre":"Poleas","archivo":"105-ch-poleas.jpg"},{"id":"106","nombre":"Lámpara | Lámparas","archivo":"106-ch-lamparas.jpg"},{"id":"117","nombre":"Encendedor de Cigarrillos automático","archivo":"117-ch-encendedor de cigarrillos automÃ¡tico.jpg"},{"id":"118","nombre":"Arranque Despiece | Relé o Solenoide","archivo":"118-ch-RELAY-SOLENOIDE_235401.jpg"},{"id":"119","nombre":"Arranuqe Despiece | Goma Aislación Planetario","archivo":"119-ch-goma planetario.jpg"},{"id":"120","nombre":"Faros BAIML","archivo":"120-ch-faros_baiml.jpg"},{"id":"121","nombre":"Faros GAMA","archivo":"121-ch-faros_gama_.jpg"},{"id":"122","nombre":"Arranque Despiece | BAKELITA Porta escobilla","archivo":"122-ch-Baquelita_portacarbon_P4122.jpg"},{"id":"123","nombre":"Faros | Lente BAIML","archivo":"123-ch-1450L_Baiml.jpg"},{"id":"124","nombre":"Alternador Despiece | Rotor Alternador","archivo":"124-ch-rotor_de_alternador.jpg"},{"id":"126","nombre":"Alternador Despiece | Estator (Alternador)","archivo":"126-ch-estator de alternador.jpg"},{"id":"127","nombre":"Batería | Bornes","archivo":"127-ch-bornes_bateria.jpg"},{"id":"128","nombre":"Cable | Espaguetti Termocontraible","archivo":"128-ch-Espaguetti termocontraible.jpg"},{"id":"129","nombre":"Lámpara | Portalámparas Plásticos","archivo":"129-ch-portalamparas plasticos.jpg"},{"id":"130","nombre":"Fichas para portalámparas","archivo":"130-ch-Ficha zocalos porta lamparas.jpg"},{"id":"131","nombre":"Ficha | Terminales de Instalación de Bronce","archivo":"131-ch-terminales de bronce.jpg"},{"id":"132","nombre":"Teclas | Teclas y Módulos","archivo":"132-ch-modulos de teclas.jpg"},{"id":"133","nombre":"Tecla o Llave de Punto","archivo":"133-ch-llave de punto.jpg"},{"id":"134","nombre":"Tecla Llave un Punto Metal","archivo":"134-ch-llave de punto_metal.jpg"},{"id":"135","nombre":"Arranuqe Despiece | Planetario de Arranque","archivo":"135-ch-planetario de arranque con engranajes.jpg"},{"id":"136","nombre":"Correa","archivo":"136-ch-CORREAS.jpg"},{"id":"137","nombre":"Luces | Volante | Plaqueta de Giro | Interruptor Direccional","archivo":"137-ch-CATEGORIA PLAQUETA DE GIRO.jpg"},{"id":"138","nombre":"Arranque Despiece | Tapa Porta Carbon de Arranque","archivo":"138-ch-TAPA PORTA CARBON DE ARRANQUE.jpg"},{"id":"139","nombre":"Arranque Despiece | Contactor de Arranque","archivo":"139-ch-CONTACTOR DE ARRANQUE.jpg"},{"id":"140","nombre":"Arandelas de Hierro","archivo":"140-ch-Arandela de Hierro - Dipra.jpg"},{"id":"141","nombre":"Arranque Despiece | Tornillo Sujeta Solenoide","archivo":"141-ch-Tornillo Sujeta Solenoide.jpg"},{"id":"142","nombre":"Arranque Despiece | Suplementos de Arranque","archivo":"142-ch-SUPLEMENTO DE ARRANQUE.jpg"},{"id":"143","nombre":"Arranque Despiece | Cinta para Campos","archivo":"143-ch-CINTA AISLANTE PARA CAMPOS.jpg"},{"id":"144","nombre":"Arranque Despiece | Solenoide | Contacto Solenoide","archivo":"144-ch-CONTACTO SOLENOIDE.jpg"},{"id":"145","nombre":"Arranque | Pivote Plástico de Horquilla","archivo":"145-ch-PIVOTE DE HORQUILLA_2.jpg"},{"id":"146","nombre":"Arranque Despiece | Tapa de Solenoide","archivo":"146-ch-tapa de solenoide.jpg"},{"id":"147","nombre":"Buje Centrador","archivo":"147-ch-BUJE CENTRADOR.jpg"},{"id":"148","nombre":"Arranque Despiece | Juego de Arandelas y Frenos","archivo":"148-ch-FRENO ARRANQUE.jpg"},{"id":"149","nombre":"Arranque Despiece | Salidas y Mallas de Arranque","archivo":"149-ch-SALIDAS Y MALLAS DE ARRANQUE.jpg"},{"id":"150","nombre":"Arranque | Perno y Trabas de Horquilla de Mando","archivo":"150-ch-PERNO HORQUILLA DE ARRANQUE.jpg"},{"id":"151","nombre":"Arranque Despiece | BNG","archivo":"151-ch-DESPIECE ARRANQUE BNG.jpg"},{"id":"152","nombre":"Aro Bocina","archivo":"152-ch-ARO BOCINA.jpg"},{"id":"153","nombre":"Arranque Despiece | Porta Escobillas o Carbones Supresor de Ruido","archivo":"153-ch-PORTA ESCOBILLAS ARRANQUE.jpg"},{"id":"154","nombre":"Arranuqe Despiece | Engranaje de Planetarios","archivo":"154-ch-ENGRANAJE DE PLANETARIOS.jpg"},{"id":"155","nombre":"Alternador Despiece | Tapa de Alternadores","archivo":"155-ch-TAPA DE ALTERNADORES.jpg"},{"id":"156","nombre":"Arranque Despiece | CubreImpulsor de Arranque o Tapa de Arranque","archivo":"156-ch-CUBRE IMPULSOR DE ARRANQUE.jpg"},{"id":"157","nombre":"Arranque | Horquilla de Mnado Arranque","archivo":"157-ch-HORQUILLA DE MANDO ARRANQUE.jpg"},{"id":"158","nombre":"Arranque Despiece | Tapa Intermedia","archivo":"158-ch-TAPA INTERMEDIA ARRANQUE.jpg"},{"id":"159","nombre":"Arranque Despiece | Carcasa de Arranque","archivo":"159-ch-CARCASA DE ARRANQUE.jpg"},{"id":"160","nombre":"Alternador Despiece | Colector de Arranque","archivo":"160-ch-Colector.jpg"},{"id":"161","nombre":"Electroventilador | Resistencia Electroventilador","archivo":"161-ch-RESISTENCIA ELECTROVENTILADOR.jpg"},{"id":"162","nombre":"Lámpara | Portalampara de Tablero","archivo":"162-ch-PORTALAMPARA DE TABLERO.jpg"},{"id":"163","nombre":"Bobma de Inyección | Solenoide de Pare","archivo":"163-ch-SOLENOIDE DE PARE.jpg"},{"id":"164","nombre":"Módulo | Módulos de Ignición","archivo":"164-ch-MODULO DE IGNICION.jpg"},{"id":"165","nombre":"Parrilla | Insignia Parrilla o Logo","archivo":"165-ch-INSIGNIA PARRILLA.jpg"},{"id":"166","nombre":"Parrilla","archivo":"166-ch-PARRILLA.jpg"},{"id":"167","nombre":"Aros Opticas","archivo":"167-ch-AROS OPTICAS.jpg"},{"id":"168","nombre":"Ficha | Caja Fusibleras","archivo":"168-ch-CAJA FUSILERA.jpg"},{"id":"169","nombre":"Llave | Llave Anti Robo","archivo":"169-ch-LLAVE ANTIROBO.jpg"},{"id":"170","nombre":"Llave | Llave Conmutador Interruptor Comando Luces","archivo":"170-ch-LLAVE LUZ CARVIC.jpg"},{"id":"171","nombre":"Bulbo Marcha Atrás","archivo":"171-ch-BULBO TEMPERATURA.jpg"},{"id":"172","nombre":"Ficha | Tablero - Mazos de Conexión","archivo":"172-ch-FICHA TABLERO.jpg"},{"id":"173","nombre":"Ficha | Porta Fusibles","archivo":"173-ch-PORTA FUSIBLES.jpg"},{"id":"174","nombre":"Ficha | Conectores Inyectados","archivo":"174-ch-CONECTORES INTECTADOS.jpg"},{"id":"175","nombre":"Ficha | Conectores Linea Pesada","archivo":"175-ch-CONECTOR LINEA PESADA.jpg"},{"id":"176","nombre":"Ficha | Conectores para Armar","archivo":"176-ch-CONECTORES PARA ARMAR.jpg"},{"id":"177","nombre":"Ficha | Conectores para Trailers","archivo":"177-ch-CONECTORES TRAILER.jpg"},{"id":"178","nombre":"Ficha | Contactores Inyección Electrónica","archivo":"178-ch-CONTACTOR INYECCIÃ“N ELECTRÃ“NICA.jpg"},{"id":"179","nombre":"Ficha | Ramal Bomba Combustible","archivo":"179-ch-RAMAL BOMBA COMBUSTIBLE.jpg"},{"id":"180","nombre":"Faros | Circuito Impreso","archivo":"180-ch-CIRCUITO IMPRESO.jpg"},{"id":"181","nombre":"Llave | Llave Limpia Parabrizas","archivo":"181-ch-LLAVE LIMPIA PARABRIZAS.jpg"},{"id":"182","nombre":"Barreros | Goma para Barro","archivo":"182-ch-GOMA PARA BARRO.jpg"},{"id":"183","nombre":"Hélices","archivo":"183-ch-HÃ‰LICES.jpg"},{"id":"184","nombre":"Electroventilador","archivo":"184-ch-ELECTROVENTILADOR.jpg"},{"id":"185","nombre":"Electroventilador | Soporte","archivo":"185-ch-electroventilador soporte.jpg"},{"id":"186","nombre":"Lámpara | Lámpara Portátil","archivo":"186-ch-LAMPARA PORTATIL.jpg"},{"id":"187","nombre":"Bateria | Pinza Puente","archivo":"187-ch-PINZA PUENTE BATERIA.jpg"},{"id":"188","nombre":"Resorte | Resorte de Acelerador","archivo":"188-ch-RESORTE DE ACELERADOR.jpg"},{"id":"189","nombre":"Capuchón Tapa Goma Óptica","archivo":"189-ch-CAPUCHON TAPA GOMA Ã“PTICA.jpg"},{"id":"190","nombre":"Resorte | Resorte Bulbo de Freno","archivo":"190-ch-RESORTE BULBO DE FRENO.jpg"},{"id":"191","nombre":"Resorte | Resorte de Ópticas","archivo":"191-ch-RESORTE DE Ã“PTICAS.jpg"},{"id":"192","nombre":"Arranque Despiece | Seguros de Bobina de Arranque","archivo":"192-ch-SEGURO DE BOBINA ARRANQUE.jpg"},{"id":"193","nombre":"Arranque Despiece | Tornillo Pasante de Arranque","archivo":"193-ch-TORNILLO LARGUERO ARRANQUE.jpg"},{"id":"194","nombre":"Arranque Despiece | Resorte Porta Escobilla o Carbón","archivo":"194-ch-RESORTE PORTA CARBÃ“N.jpg"},{"id":"195","nombre":"Arranque Despiece | Tacos de Goma Salida de Campos","archivo":"195-ch-TACOS DE GOMA.jpg"},{"id":"196","nombre":"Arranque Despiece | Suncho Arranque","archivo":"196-ch-ZUNCHO ARRANQUE.jpg"},{"id":"197","nombre":"Arranque Despiece | Arandela Micarta Lado Colector","archivo":"197-ch-ARANDELA MICARLA TADO COLECTOR.jpg"},{"id":"198","nombre":"Arranque Despiece | Arandela de Freno","archivo":"198-ch-ARANDELA DE FRENO.jpg"},{"id":"199","nombre":"Precinto Plástico","archivo":"199-ch-PRECINTO PLÃSTICO.jpg"},{"id":"200","nombre":"Llave | Llave Contacto y Luces Universal","archivo":"200-ch-LLAVE CONTACTO Y LUCES UNIVERSAL_2.jpg"},{"id":"201","nombre":"Llave | Llave un Punto Tablero","archivo":"201-ch-LLAVE TABLERO UN PUNTO.jpg"},{"id":"202","nombre":"Llave | Llave de Precalentamiento y Arranque Universal","archivo":"202-ch-LLAVE DE PRECALENTAMIENTO Y ARRANQUE UNIVERSAL_2.jpg"},{"id":"203","nombre":"Llave | Llave Inversora Tablero","archivo":"203-ch-LLAVE INVERSORA TABLERO.jpg"},{"id":"204","nombre":"Llave | Llave Cromada","archivo":"204-ch-LLAVE CROMADA VEYPA.jpg"},{"id":"205","nombre":"Terminal de Cobre para Cable","archivo":"205-ch-TERMINAL COBRE PARA CABLE_2.jpg"},{"id":"206","nombre":"Terminal de Cobre Reforzado Estaño para Cable","archivo":"206-ch-TERMINAL COBRE reforzado estaÃ±oPARA CABLE.jpg"},{"id":"207","nombre":"Bateria | Borne 1700 Bronce","archivo":"207-ch-BORNE BATERIA 1700.jpg"},{"id":"208","nombre":"Bateria | Borne 1500 Bronce","archivo":"208-ch-BORNE BATERIA LÃ­nea 1500.jpg"},{"id":"209","nombre":"Bateria | Borne 1800 Bronce","archivo":"209-ch-BORNE BATERIA 1800.jpg"},{"id":"210","nombre":"Bateria | Borne 2005 Bronce","archivo":"210-ch-BORNE BATERIA 2005.jpg"},{"id":"211","nombre":"Bateria | Borne 2006 Bronce","archivo":"211-ch-BORNE BATERIA 2006.jpg"},{"id":"212","nombre":"Bateria | Borne 2100 Bronce","archivo":"212-ch-BORNE BATERIA 2100.jpg"},{"id":"213","nombre":"Bateria | Corta Corriente","archivo":"213-ch-CORTACORRIENTE.jpg"},{"id":"214","nombre":"Bateria | Borne 1056 Plomo Antimonioso","archivo":"214-ch-BORNE BATERIA 1056.jpg"},{"id":"215","nombre":"Bateria | Borne 1856 Plomo Antimonioso","archivo":"215-ch-BORNE BATERIA 1856.jpg"},{"id":"216","nombre":"Bateria | Borne 1900 Plomo Antimonioso","archivo":"216-ch-BORNE BATERIA 1900.jpg"},{"id":"217","nombre":"Bateria | Borne 2056 Plomo Antimonioso","archivo":"217-ch-BORNE BATERIA 2056.jpg"},{"id":"218","nombre":"Bateria | Corta Corriente Sobre Batería","archivo":"218-ch-CORTA CORRIENTE sobre BATERIA.jpg"},{"id":"220","nombre":"Distribuidor Despiece | Tapa","archivo":"220-ch-TAPA DE DISTRIBUIDOR.jpg"},{"id":"221","nombre":"Distribuidor Despiece | Rotor","archivo":"221-ch-ROTOR DISTRIBUIDOR.jpg"},{"id":"222","nombre":"Ficha | Fusibles | Desnudo","archivo":"222-ch-FUSIBLES DESNUDOS.jpg"},{"id":"223","nombre":"Ficha | Fusibles | Mega 100 Amper","archivo":"223-ch-FUSIBLE MEGA AMPERE 100.jpg"},{"id":"224","nombre":"Ficha | Fusibles | Mega 150 Amper","archivo":"224-ch-FUSIBLE MEGA AMPERE 150.jpg"},{"id":"225","nombre":"Ficha | Fusibles | Mega 175 Amper","archivo":"225-ch-FUSIBLE MEGA AMPERE 175.jpg"},{"id":"226","nombre":"Ficha | Fusibles | Mega 200 Amper","archivo":"226-ch-FUSIBLE MEGA AMPERE 200.jpg"},{"id":"227","nombre":"Ficha | Fusibles | Mega 225 Amper","archivo":"227-ch-FUSIBLE MEGA AMPERE 225.jpg"},{"id":"228","nombre":"Ficha | Fusibles | Mega 250 Amper","archivo":"228-ch-FUSIBLE MEGA AMPERE 250.jpg"},{"id":"229","nombre":"Ficha | Fusibles | Mega 300 Amper","archivo":"229-ch-FUSIBLE MEGA AMPERE 300.jpg"},{"id":"230","nombre":"Ficha | Fusibles | Mega 100 Amper","archivo":"230-ch-FUSIBLE MEGA AMPERE 350.jpg"},{"id":"231","nombre":"Ficha | Fusibles | Mega 400 Amper","archivo":"231-ch-FUSIBLE MEGA AMPERE 400.jpg"},{"id":"232","nombre":"Ficha | Fusibles | Mega 350 Amper","archivo":"232-ch-FUSIBLE MEGA AMPERE 350.jpg"},{"id":"233","nombre":"Ficha | Fusibles | Mini 2 Amper","archivo":"233-ch-FUSIBLE MINI AMPERE 2.jpg"},{"id":"234","nombre":"Ficha | Fusibles | Mini 3 Amper","archivo":"234-ch-FUSIBLE MINI AMPERE 3.jpg"},{"id":"235","nombre":"Ficha | Fusibles | Mini 4 Amper","archivo":"235-ch-FUSIBLE MINI AMPERE 4.jpg"},{"id":"236","nombre":"Ficha | Fusibles | Mini 5 Amper","archivo":"236-ch-FUSIBLE MINI AMPERE 5.jpg"},{"id":"237","nombre":"Ficha | Fusibles | Mini 7.5 Amper","archivo":"237-ch-FUSIBLE MINI AMPERE 7_5.jpg"},{"id":"238","nombre":"Ficha | Fusibles | Mini 10 Amper","archivo":"238-ch-FUSIBLE MINI AMPERE 10.jpg"},{"id":"239","nombre":"Ficha | Fusibles | Mini 15 Amper","archivo":"239-ch-FUSIBLE MINI AMPERE 15.jpg"},{"id":"240","nombre":"Ficha | Fusibles | Mini 20 Amper","archivo":"240-ch-FUSIBLE MINI AMPERE 20.jpg"},{"id":"241","nombre":"Ficha | Fusibles | Mini 25 Amper","archivo":"241-ch-FUSIBLE MINI AMPERE 25.jpg"},{"id":"242","nombre":"Ficha | Fusibles | Mini 30 Amper","archivo":"242-ch-FUSIBLE MINI AMPERE 30.jpg"},{"id":"243","nombre":"Ficha | Fusibles | Mini 35 Amper","archivo":"243-ch-FUSIBLE MINI AMPERE 35.jpg"},{"id":"244","nombre":"Ficha | Fusible | Maxi 20 Amper","archivo":"244-ch-FUSIBLE MAXI 20.jpg"},{"id":"245","nombre":"Ficha | Fusible | Maxi 30 Amper","archivo":"245-ch-FUSIBLE MAXI 30.jpg"},{"id":"246","nombre":"Ficha | Fusible | Maxi 40 Amper","archivo":"246-ch-FUSIBLE MAXI 40.jpg"},{"id":"247","nombre":"Ficha | Fusible | Maxi 50 Amper","archivo":"247-ch-FUSIBLE MAXI 50.jpg"},{"id":"248","nombre":"Ficha | Fusible | Maxi 60 Amper","archivo":"248-ch-FUSIBLE MAXI 60.jpg"},{"id":"249","nombre":"Ficha | Fusible | Maxi 70 Amper","archivo":"249-ch-FUSIBLE MAXI 70.jpg"},{"id":"250","nombre":"Ficha | Fusible | Maxi 80 Amper","archivo":"250-ch-FUSIBLE MAXI 80.jpg"},{"id":"251","nombre":"Ficha | Fusible | Maxi 100 Amper","archivo":"251-ch-FUSIBLE MAXI 100.jpg"},{"id":"252","nombre":"Ficha | Fusible | 1 Amper","archivo":"252-ch-FUSIBLE FICHA 1 AMP.jpg"},{"id":"253","nombre":"Ficha | Fusible | 2 Amper","archivo":"253-ch-FUSIBLE FICHA 2 AMP.jpg"},{"id":"254","nombre":"Ficha | Fusible | 4 Amper","archivo":"254-ch-FUSIBLE FICHA 4 AMP.jpg"},{"id":"255","nombre":"Ficha | Fusible | 5 Amper","archivo":"255-ch-FUSIBLE FICHA 5 AMP.jpg"},{"id":"256","nombre":"Abrazadera","archivo":"256-ch-Abrazaderas.jpg"},{"id":"257","nombre":"Ficha | Fusible | Muela Macho 100 Amper","archivo":"257-ch-FUSIBLE MUELA MACHO 100 AMPER.jpg"},{"id":"258","nombre":"Ficha | Fusible | Muela Macho 80 Amper","archivo":"258-ch-FUSIBLE MUELA MACHO 80 AMPER.jpg"},{"id":"259","nombre":"Ficha | Fusible | Muela Macho 60 Amper","archivo":"259-ch-FUSIBLE MUELA MACHO 60 AMPER.jpg"},{"id":"260","nombre":"Ficha | Fusible | Muela Macho 50 Amper","archivo":"260-ch-FUSIBLE MUELA MACHO 50 AMPER.jpg"},{"id":"261","nombre":"Ficha | Fusible | Muela Macho 40 Amper","archivo":"261-ch-FUSIBLE MUELA MACHO 40 AMPER.jpg"},{"id":"262","nombre":"Ficha | Fusible | Muela Macho 30 Amper","archivo":"262-ch-FUSIBLE MUELA MACHO 30 AMPER.jpg"},{"id":"263","nombre":"Ficha | Fusibles | Fusible Ficha","archivo":"263-ch-Fusible Ficha.jpg"},{"id":"264","nombre":"Ficha | Fusibles | Cónico Europeo","archivo":"264-ch-FUSIBLE CONICO EUROPEO.jpg"},{"id":"265","nombre":"Ficha | Fusibles | VIdrio","archivo":"265-ch-FUSIBLE VIDRIO.jpg"},{"id":"266","nombre":"Ficha | Fusibles | Pal Hembra","archivo":"266-ch-FUSIBLE PAL HEMBRA.jpg"},{"id":"267","nombre":"Ficha | Fusibles | Pal Hembra Mini","archivo":"267-ch-FUSIBLE PAL HEMBRA MINI.jpg"},{"id":"268","nombre":"Ficha | Fusibles | Pal Hembra Mini Perfil Bajo","archivo":"268-ch-FUSIBLE PAL HEMBRA MINI PERFIL BAJO.jpg"},{"id":"269","nombre":"Ficha | Fusibles | Pal Macho","archivo":"269-ch-FUSIBLE PAL MACHO.jpg"},{"id":"270","nombre":"Ficha | Fusibles | Pal Macho 48","archivo":"270-ch-FUSIBLE PAL MACHO 48.jpg"},{"id":"271","nombre":"Ficha | Fusibles | Pal Macho 62","archivo":"271-ch-FUSIBLE PAL MACHO 62.jpg"},{"id":"272","nombre":"Ficha | Fusibles | Pal Clip","archivo":"272-ch-FUSIBLE PAL CLIP.jpg"},{"id":"273","nombre":"Ficha | Fusibles | Pal Clip Mini","archivo":"273-ch-FUSIBLE PAL CLIP MINI.jpg"},{"id":"274","nombre":"Ficha | Fusibles | Pal Hembra Micro","archivo":"274-ch-FUSIBLE PAL HEMBRA MICRO.jpg"},{"id":"275","nombre":"Ficha | Fusibles | Mega Mini","archivo":"275-ch-FUSIBLE MEGA MINI.jpg"},{"id":"276","nombre":"Emuladores","archivo":"276-ch-EMULADOR.jpg"},{"id":"277","nombre":"Lámpara | Porta Lampara Metal","archivo":"277-ch-PORTALAMPARA DE METAL.jpg"},{"id":"278","nombre":"Lámpara | Porta Lampara Plastico","archivo":"278-ch-PORTALAMPARA DE PLASTICO.jpg"},{"id":"279","nombre":"Lámpara | Portalampara | Chicote","archivo":"279-ch-PORTALAMPARA CHICOTE.jpg"},{"id":"280","nombre":"Lámpara | Lampara Tablero","archivo":"280-ch-LAMPARA TABLERO.jpg"},{"id":"281","nombre":"Lámpara | Lampara Tablero | LED","archivo":"281-ch-LAMPARA TABLERO LED.jpg"},{"id":"282","nombre":"Luces | Luz Piloto Testigo","archivo":"282-ch-LUZ PILOTO TESTIGO.jpg"},{"id":"283","nombre":"Luces | Luz Led Piloto Indicador Testigo","archivo":"283-ch-LUZ LED PILOTO INDICADOR TESTIGO.jpg"},{"id":"284","nombre":"Luces | Luz Piloto | LED","archivo":"284-ch-LUZ PILOTO LED.jpg"},{"id":"285","nombre":"Arranque Despiece | Solenoide de Arranque Tipo Bosch","archivo":"285-ch-SOLENOIDE DE ARRANQUE TIPO BOSCH.jpg"},{"id":"286","nombre":"Distribuidor Despiece | Avance Al Vacio","archivo":"286-ch-AVANCE AL VACIO RO-FIL.jpg"},{"id":"287","nombre":"Módulo | Precalentador","archivo":"287-ch-PRECALENTADOR.jpg"},{"id":"288","nombre":"Módulo | Modulo de Encendido","archivo":"288-ch-MODULO DE ENCENDIDO.jpg"},{"id":"289","nombre":"Cerradura","archivo":"289-ch-Cerradura.jpg"},{"id":"290","nombre":"Arranque Despiece | Anillo Seguer Seguro de Bobina","archivo":"290-ch-ANILLO SEGUER ARRANQUE.jpg"},{"id":"291","nombre":"Arranque Despiece | Suplemento de Arranque","archivo":"291-ch-suplementod e arranque.jpg"},{"id":"293","nombre":"Arranque Despiece | Masa Polar","archivo":"293-ch-masa polar arranque.jpg"},{"id":"294","nombre":"Arranque Despiece | Carcaza","archivo":"294-ch-carcaza arranque.jpg"},{"id":"295","nombre":"Arranque Despiece | Tornillo de Masa Polar","archivo":"295-ch-Tornillo de Masa Polar arranque.jpg"},{"id":"296","nombre":"Arranque Despiece | Goma de Cierre","archivo":"296-ch-goma de cierre arranque.jpg"},{"id":"297","nombre":"Arranque Despiece | ORing de Cierre Tapa Intermedia","archivo":"297-ch-oring de cierre tapa intermedia.jpg"},{"id":"298","nombre":"Arranque Despiece | Capuchón Goma Salida de Campo","archivo":"298-ch-capuchon goma salida de campo.jpg"},{"id":"299","nombre":"Arranque Despiece | Gomas Aislación Salida de Campo","archivo":"299-ch-Goma AislaciÃ³n Salida de Campo.jpg"},{"id":"300","nombre":"Arranque Despiece | Junta Tapa Guardapolvo","archivo":"300-ch-JUNTA TAPA GUARDAPOLVO ARRANQUE.jpg"},{"id":"301","nombre":"Arranque Despiece | Juego Juntas Cierre Tapa","archivo":"301-ch-juegoj untas cierre tapa de goma.jpg"},{"id":"302","nombre":"Arranque Despiece | Aislante de Carcaza","archivo":"302-ch-aislante de carcasa.jpg"},{"id":"303","nombre":"Arranque Despiece | Goma de Salida de Campo","archivo":"303-ch-Goma de salida de campo_1.jpg"},{"id":"304","nombre":"Arranque Despiece | Goma Planetario","archivo":"304-ch-GOMA PLANETARIO.jpg"},{"id":"305","nombre":"Arranque Despiece | Juego de Buje Salida de Arranque","archivo":"305-ch-Juego de Buje Salida de Arranque.jpg"},{"id":"306","nombre":"Arranque Despiece | Goma Salida de Campo","archivo":"306-ch-goma salida de campo.jpg"},{"id":"307","nombre":"Arranque Despiece | Juego de Goma Planetario","archivo":"307-ch-Juego de Goma Planetario.jpg"},{"id":"308","nombre":"Arranque Despiece | Juego Retenes de Goma Tornillos Pasantes","archivo":"308-ch-juego retenes tornillos pasantes.jpg"},{"id":"309","nombre":"Arranque Despiece | Retén Tapa Intermedia","archivo":"309-ch-reten tapa intermedia.jpg"},{"id":"310","nombre":"Arranque Despiece | Junta Tapa Solenoide","archivo":"310-ch-junta tapa solenoide.jpg"},{"id":"311","nombre":"Arranque Despiece | Juego de Goma Planetario","archivo":"311-ch-JUEGO DE GOMAS DE PLANETARIO.jpg"},{"id":"312","nombre":"Arranque Despiece | Juego de Retén de Piñon","archivo":"312-ch-juego de reten de piÃ±on.jpg"},{"id":"313","nombre":"Arranque Despiece | Juego de Aislación Carcaza","archivo":"313-ch-JUEGO AISLACIONES CARCAZA.jpg"},{"id":"314","nombre":"Arranque Despiece | Aislante Carcaza","archivo":"314-ch-AISLANTES DE CARCAZA.jpg"},{"id":"315","nombre":"Arranque Despiece | Juego de Aislaciones Carcaza","archivo":"315-ch-JUEGO AISLACIONES CARCAZA_2.jpg"},{"id":"316","nombre":"Arranque Despiece | Tapa Retén Piñon Arranque","archivo":"316-ch-TAPA RETEN PIÃ‘ON, ARRANQUE.jpg"},{"id":"317","nombre":"Arranque Despiece | Tapa Portaescobillas","archivo":"317-ch-Tapa Portaescobillas.jpg"},{"id":"318","nombre":"Arranque Despiece | Tuerca y Seguro de Eje Tensor","archivo":"318-ch-tuerca y seguro de eje tensor.jpg"},{"id":"319","nombre":"Arranque Despiece | Tuerca Bonina","archivo":"319-ch-tuerca bobina arranque.jpg"},{"id":"320","nombre":"Arranque Despiece | Espina Tuerca Tope Impulsor","archivo":"320-ch-espina tuewrca tope impulsor.jpg"},{"id":"321","nombre":"Arranque Despiece | Porta Escobilla o Carbones Solo","archivo":"321-ch-Porta Escobilla Solo.jpg"},{"id":"322","nombre":"Arranque Despiece | Juego para Reparar Tapa Porta Escobillas o Carbones","archivo":"322-ch-juego para reparar tapa porta escobillas o carbones.jpg"},{"id":"323","nombre":"Arranuqe Despiece | Capuchón Porta Escobilla o Carbón","archivo":"323-ch-PORTA ESCOBILLAS DE ARRANQUE.jpg"},{"id":"324","nombre":"Arranuqe Despiece | Resortes Verios Porta Escobillas o Carbones","archivo":"324-ch-Resortes Verios Porta Escobillas o Carbones.jpg"},{"id":"325","nombre":"Arranque Despiece | Planetario","archivo":"325-ch-Planetario.jpg"},{"id":"326","nombre":"Arranque Despiece | Planetario con Eje Reductor y Engranajes","archivo":"326-ch-Planetario con Eje y Engranajes.jpg"},{"id":"327","nombre":"Arranque Despiece | Goma Antivibradora Planetario","archivo":"327-ch-Goma Antivibradora Planetario.jpg"},{"id":"328","nombre":"Bateria | Cargadores de Baterías","archivo":"328-ch-CARGADOR DE BATERIA.jpg"},{"id":"329","nombre":"Bateria | Servicio de Carga de Bateria","archivo":"329-ch-Servicio de carga de bateria.jpg"},{"id":"330","nombre":"Bateria | Nuevas","archivo":"330-ch-baterias nuevas.jpg"},{"id":"343","nombre":"Arranque Despiece | Arandela Traba Impulsor de Arranque","archivo":"343-ch-Arandela Traba Impulsor de Arranque.jpg"},{"id":"331","nombre":"Arranque | Patines Horquilla de Mando","archivo":"331-ch-PATIN HORQUILLAARRANQUE.jpg"},{"id":"332","nombre":"Arranque | Porta Patines de Horquilla de Mando","archivo":"332-ch-PORTA PATIN HORQUILLA ARRANQUE.jpg"},{"id":"333","nombre":"Arranque | Patines de Horquilla de Mando","archivo":"333-ch-PATINES HORQUILLA ARRANQUE.jpg"},{"id":"334","nombre":"Arranque | Trabas y Pivote y de Metal de Horquilla","archivo":"334-ch-pivotes y trabas.jpg"},{"id":"335","nombre":"Arranque Despiece | Arandela Freno Baquelita","archivo":"335-ch-ARANDELA DE BAQUELITA.jpg"},{"id":"336","nombre":"Arranque Despiece | Arandela de Freno Picadillo","archivo":"336-ch-ARANDELA FIAT 1500- 1600 DE FRENO.jpg"},{"id":"337","nombre":"Arranque Despiece | Arandela Hierro Doble pestaña de Freno","archivo":"337-ch-ARANDELA Hierro Doble pestaÃ±a DE FRENO.jpg"},{"id":"338","nombre":"Arranque Despiece | Tornillo Freno Arranque con Rosca Giro Izquierdo","archivo":"338-ch-TORNILLO FRENO ARRANQUE CON ROSCA GIRO IZQUIERDO.jpg"},{"id":"339","nombre":"Arranque Despiece | Arandela Hierro EJD Bosch","archivo":"339-ch-ARANDELA Hierro FRENO EJD BOSCH BRASIL.jpg"},{"id":"340","nombre":"Arranque Despiece | Arandela Fibra Freno EJD Bosch Brasil","archivo":"340-ch-ARANDELA FRENO EJD BOSCH BRASIL.jpg"},{"id":"341","nombre":"Arranque Despiece | Arandela Hierro Freno Lado Colector Bosch JF","archivo":"341-ch-ARANDELA HIERRO FRENO LADO COLECTOR BOSCH JF.jpg"},{"id":"342","nombre":"Arranque Despice | Seguro Tipo U Freno","archivo":"342-ch-Seguro Tipo U.jpg"},{"id":"344","nombre":"Arranque Despiece | Arandela de Plástico para Impulsor de Arranque","archivo":"344-ch-arandela de plÃ¡stico para impulsor de arranque.jpg"},{"id":"345","nombre":"Arranque Despiece | Resorte Barrilito","archivo":"345-ch-Resorte Barrilito.jpg"},{"id":"346","nombre":"Resorte | Resorte Impulsor","archivo":"346-ch-Resorte Impulsor Ford.jpg"},{"id":"347","nombre":"Arranque Despiece | Chaveta Campana IMpulsor","archivo":"347-ch-ESPINA CHAVETA IMPULSOR.jpg"},{"id":"348","nombre":"Arranque Despiece | Barrilito Impulsor de Arranque","archivo":"348-ch-BArrilito ika IMPULSOR.jpg"},{"id":"349","nombre":"Arranque Despiece | Chavetas Varias","archivo":"349-ch-chaveta surtida.jpg"},{"id":"350","nombre":"Arranque Despiece | Solenoide | Puente Cobre de Solenoide","archivo":"350-ch-Puente Cobre de Solenoide.jpg"},{"id":"351","nombre":"Arranque Despiece | Solenoide | Pistón de Solenoide","archivo":"351-ch-PistÃ³n de Solenoide.jpg"},{"id":"352","nombre":"Arranque Despiece | Solenoide | Registros de Solenoide","archivo":"352-ch-Registros de Solenoide.jpg"},{"id":"353","nombre":"Arranque Despiece | Solenoide | Tapón Registro de solenoide arranque","archivo":"353-ch-TapÃ³n Registro de solenoide arranque.jpg"},{"id":"354","nombre":"Arranque Despiece | Solenoide | Tornillo Registro de solenoide de Arranque","archivo":"354-ch-Tornillo Registro de solenoide arranque.jpg"},{"id":"355","nombre":"Arranque Despiece | Borne de Maza de la Tapa del Solenoide","archivo":"355-ch-Borne de Maza.jpg"},{"id":"356","nombre":"Arranque Despiece BNG | Borne Potencia Curvo","archivo":"356-ch-Borne Potencia Curvo.jpg"},{"id":"357","nombre":"Arranque BNG | Arandela de bronce","archivo":"357-ch-Arandela de bronce.jpg"},{"id":"358","nombre":"Arranque FKB | Arandela de Tope","archivo":"358-ch-Arandela de tope.jpg"},{"id":"359","nombre":"Arranque FKB | Arandela Deflectora de Piñón","archivo":"359-ch-Arandela deflectora de piÃ±on.jpg"},{"id":"360","nombre":"Arranqur FKB | Chaveta Plana Eje Lado Piñón","archivo":"360-ch-Chaveta Plana Eje del lado piÃ±Ã³n.jpg"},{"id":"361","nombre":"Arranque FKB | Eje Tensor Largo Corto Mediano","archivo":"361-ch-Eje tensor largo_corto_mediano.jpg"},{"id":"362","nombre":"Arranque FKB -","archivo":"362-ch-arranque FKB_ no tengo creo.jpg"},{"id":"363","nombre":"Arandela Hierro","archivo":"363-ch-Arandela Hierro.jpg"},{"id":"364","nombre":"Arandela Aluminio","archivo":"364-ch-Arandela Aluminio.jpg"},{"id":"365","nombre":"Arandela de Plástico Nylon","archivo":"365-ch-ARANDELAS DE PLASTICO NYLON.jpg"},{"id":"366","nombre":"Alternador con Refrigeración Líquida","archivo":"366-ch-Alternador con RefrigeraciÃ³n LÃ­quida.jpg"},{"id":"367","nombre":"Alternador Completo | Monoblock","archivo":"367-ch-Alternador Monoblock.jpg"},{"id":"368","nombre":"Alternador Despiece | Seguro del Rotor de Alternador","archivo":"368-ch-Seguro del Rotor de Alternador.jpg"},{"id":"369","nombre":"Alternador Despiece | Arandela de la Tuerca del Rotor","archivo":"369-ch-Arandela de la tuerca del rotor.jpg"},{"id":"370","nombre":"Alternador Despiece | Tuerca del rotor","archivo":"370-ch-Tuerca del rotor.jpg"},{"id":"371","nombre":"Alternador Completo | Trifásico","archivo":"371-ch-alternador trifasico.jpg"},{"id":"372","nombre":"Alternador Despiece | Polea en V","archivo":"372-ch-Polea en V.jpg"},{"id":"373","nombre":"Alternador Despiece | Polea Multivia","archivo":"373-ch-Polea Multivia.jpg"},{"id":"374","nombre":"Alternador Despiece | Espaciador","archivo":"374-ch-Espaciador Alternador.jpg"},{"id":"375","nombre":"Alternador Despiece | Tapa de Alternador Delantera","archivo":"375-ch-Tapa de Alternador Delantera.jpg"},{"id":"376","nombre":"Alternador Despiece | Retén Sujeta Rulemán","archivo":"376-ch-RETEN SUJETA RULEMAN.jpg"},{"id":"377","nombre":"Alternador Despiece | Tornillo Rentén","archivo":"377-ch-Tornillo RentÃ©n.jpg"},{"id":"378","nombre":"Alternador Despiece | Retén Alternador","archivo":"378-ch-RetÃ©n Alternador.jpg"},{"id":"379","nombre":"Alternador Despiece | Retén Alternador 2","archivo":"379-ch-RetÃ©n Alternador_2.jpg"},{"id":"380","nombre":"Alternador Despiece | Retén Sujeta Rulemán 2","archivo":"380-ch-RetÃ©n Sujeta RulemÃ¡n_2.jpg"},{"id":"381","nombre":"Alternador Despiece | Chaveta Medialuna","archivo":"381-ch-chaveta Medialuna Alternador.jpg"},{"id":"382","nombre":"Alternador Despiece | Aislación del Rotor","archivo":"382-ch-AISLACIONES ROTOR.jpg"},{"id":"383","nombre":"Alternador Despiece | Tapa Alternador Trasera Entremo Colector","archivo":"383-ch-Tapa Alternador Trasera.jpg"},{"id":"384","nombre":"Alternador Despiece | Tornillos Armados para Alternador","archivo":"384-ch-Tornillos Armados para Alternador.jpg"},{"id":"385","nombre":"Alternador Despiece | Conjunto Tornillos Armado Alternador","archivo":"385-ch-Conjunto Tornillos Armado Alternador.jpg"},{"id":"386","nombre":"Alternador Despiece | Aislaciones para Alternador","archivo":"386-ch-Aislaciones para Alternador.jpg"},{"id":"387","nombre":"Alternador Despiece | Plaqueta Circuito Impreso","archivo":"387-ch-PLAQUETA CIRCUITO IMPRESO.jpg"},{"id":"388","nombre":"Alternador Despiece | Rulemán para Alternador","archivo":"388-ch-RulemÃ¡n para Alternador.jpg"},{"id":"389","nombre":"Alternador Despiece | Bujes de Plástico para Rulemanes","archivo":"389-ch-Bujes de PlÃ¡stico para Rulemanes.jpg"},{"id":"390","nombre":"Alternador Despiece | Porta Escobilla de Alternador","archivo":"390-ch-PORTA ESCOBILLAS DE ALTERNADOR.jpg"},{"id":"391","nombre":"Alternador Despiece | Junta Porta Escobillas Alternador","archivo":"391-ch-Junta Porta Escobillas Alternador.jpg"},{"id":"392","nombre":"Alternador Despiece | Traba Porta Escobillas Alternador","archivo":"392-ch-Traba Porta Escobillas Alternador.jpg"},{"id":"393","nombre":"Alternador Despiece | Tapa Porta Escobillas Alternador","archivo":"393-ch-TAPA PORTA ESCOBILLAS DE ALTERNADOR.jpg"},{"id":"394","nombre":"Alternador Despiece | Tornillos Pasante Alternador","archivo":"394-ch-TORNILLOS PASANTES ALTERNADOR.jpg"},{"id":"395","nombre":"Alternador Despiece | Tornillo Autoroscante Alternador","archivo":"395-ch-Tornillo Autoroscante Alternador.jpg"},{"id":"396","nombre":"Alternador Despiece | Tornillo Alternador","archivo":"396-ch-Tornillo Alternador.jpg"},{"id":"397","nombre":"Alternador Despiece | Bujes Partido de Alternador","archivo":"397-ch-Bujes Partido de Alternador.jpg"},{"id":"398","nombre":"Alternador Despiece | Buje Soporta Alternador","archivo":"398-ch-Buje Soporta Alternador.jpg"},{"id":"399","nombre":"Alternador Despiece | Soporte Alternador","archivo":"399-ch-Soporte Alternador.jpg"},{"id":"400","nombre":"Alternador Despiece | Tornillo Sujeta Alternador","archivo":"400-ch-TORNILLO SUJETA ALTERNADOR.jpg"},{"id":"401","nombre":"Alternador Despiece | Arandela Ondulada Alternador","archivo":"401-ch-Arandela Ondulada Alternador.jpg"},{"id":"402","nombre":"Alternador Despiece | Tapa Soporte Rodamiento oTapa Retén Ruleman","archivo":"402-ch-Tapa Soporte Rodamiento oTapa RetÃ©n Ruleman.jpg"},{"id":"403","nombre":"Alternador Despiece | Separador de Alternador","archivo":"403-ch-Separadores de Alternador.jpg"},{"id":"404","nombre":"Alternador Despiece | Rodamiento TEI y TEC de alternador","archivo":"404-ch-Rodamiento TEI y TEC de alternador.jpg"},{"id":"405","nombre":"Alternador Despiece | Retén o Goma Tope Rulemán","archivo":"405-ch-RetÃ©n o Goma Tope RulemÃ¡n.jpg"},{"id":"406","nombre":"Alternador Despiece | Aislante Borne B+ Positivo Alternador","archivo":"406-ch-Aislante Borne B+ Positivo Alternador.jpg"},{"id":"408","nombre":"Alternador Despiece | Tuerca - Tornillo - Arandela Aislante - Aislante - Terminal de Conexion - Tornillo Borne w","archivo":"408-ch-Tuerca - Tornillo - Arandela Aislante - Aislante - Terminal de Conexion - Tornillo Borne w.jpg"},{"id":"409","nombre":"Alternador Completo | Reparaciones","archivo":"409-ch-REPARACIONES_ alternador.jpg"},{"id":"410","nombre":"Alternador Despiece | Borne Positivo y Negativo de Alternador","archivo":"410-ch-Borne Positivo y Negativo de Alternador.jpg"},{"id":"411","nombre":"Alternador Completo | Bosch","archivo":"411-ch-Bosch Alternador.jpg"},{"id":"412","nombre":"Alternador Completo | Denso","archivo":"412-ch-Denso Alternador.jpg"}];
+
+function normaliza(s) {
+  return (s || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function normalizaArchivo(s) {
+  return normaliza(s.replace(/\.[^.]+$/, ''));
+}
+
+// índice por nombre de archivo (sin extensión, normalizado)
+const MAPA_POR_ARCHIVO = {};
+MAPA.forEach(e => { MAPA_POR_ARCHIVO[normalizaArchivo(e.archivo)] = e; });
+
+let _cats = [];        // categorías de Firestore [{id,nombre,logo_url}]
+let _catsPorNombre = {}; // normalizado -> cat
+let _filas = [];       // resultado del análisis
+
+document.getElementById('f-chica').addEventListener('change', function() {
+  const b = document.getElementById('b-chica');
+  if (this.files.length) {
+    b.textContent = this.files.length + ' archivos';
+    b.className = 'badge ok';
+  } else {
+    b.textContent = 'sin seleccionar';
+    b.className = 'badge';
+  }
+  actualizarBotonAnalizar();
+});
+
+function actualizarBotonAnalizar() {
+  const hayArchivos = document.getElementById('f-chica').files.length > 0;
+  document.getElementById('btn-analizar').disabled = !(_logueado && hayArchivos);
+}
+
+window.analizar = async function() {
+  if (!_logueado) { alert('Iniciá sesión primero (Paso 0).'); return; }
+  const btn = document.getElementById('btn-analizar');
+  const estado = document.getElementById('estado-analisis');
+  const estadoTxt = document.getElementById('estado-analisis-txt');
+  const errBox = document.getElementById('err-box');
+  errBox.style.display = 'none';
+  btn.disabled = true;
+  estado.style.display = 'block';
+
+  // watchdog: si a los 10s sigue sin responder, avisamos que puede ser un problema de conexión/reglas
+  let avisoLento = setTimeout(() => {
+    estadoTxt.textContent = 'Esto está tardando más de lo normal (10s+). Puede ser la conexión a Firestore o las reglas de seguridad. Esperando...';
+  }, 10000);
+
+  try {
+    estadoTxt.textContent = 'Conectando con Firestore y trayendo categorías...';
+    const snap = await getDocs(collection(db, 'categorias'));
+    clearTimeout(avisoLento);
+
+    _cats = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    _catsPorNombre = {};
+    _cats.forEach(c => { _catsPorNombre[normaliza(c.nombre)] = c; });
+    estadoTxt.textContent = `${_cats.length} categorías cargadas de Firestore. Cruzando con los archivos...`;
+
+    const files = Array.from(document.getElementById('f-chica').files);
+    _filas = files.map(file => {
+      const claveArchivo = normalizaArchivo(file.name);
+      const entrada = MAPA_POR_ARCHIVO[claveArchivo];
+      const nombreEsperado = entrada ? entrada.nombre : null;
+      let cat = nombreEsperado ? _catsPorNombre[normaliza(nombreEsperado)] : null;
+      return { file, nombreEsperado, cat, incluir: !!cat };
+    });
+
+    renderTabla();
+    estado.style.display = 'none';
+  } catch (err) {
+    clearTimeout(avisoLento);
+    estado.style.display = 'none';
+    errBox.style.display = 'block';
+    errBox.textContent = '✘ Error al analizar: ' + (err.message || err) +
+      '\n\nRevisá: 1) que la página esté abierta desde https://repuestos-automotor.github.io (no desde file://), ' +
+      '2) la consola del navegador (F12) para más detalle, 3) las reglas de Firestore permiten leer "categorias" sin login.';
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+function renderTabla() {
+  const tbody = document.getElementById('tabla-body');
+  const catOptions = _cats
+    .slice()
+    .sort((a,b) => (a.nombre||'').localeCompare(b.nombre||'', 'es'))
+    .map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+
+  tbody.innerHTML = _filas.map((f, i) => {
+    const url = URL.createObjectURL(f.file);
+    const okClass = f.cat ? 'row-ok' : 'row-warn';
+    return `<tr>
+      <td><img class="thumb" src="${url}"></td>
+      <td>${f.file.name}</td>
+      <td class="${okClass}">${f.nombreEsperado || '(sin match en XAMPP)'}</td>
+      <td>
+        <select class="pick" onchange="asignarManual(${i}, this.value)">
+          <option value="">${f.cat ? '' : '-- elegir categoría --'}</option>
+          ${catOptions}
+        </select>
+      </td>
+      <td><input type="checkbox" ${f.incluir ? 'checked' : ''} onchange="_filas[${i}].incluir=this.checked"></td>
+    </tr>`;
+  }).join('');
+
+  // preseleccionar el <select> de las que matchearon
+  _filas.forEach((f, i) => {
+    if (f.cat) {
+      const sel = tbody.rows[i].querySelector('select');
+      sel.value = f.cat.id;
+    }
+  });
+
+  document.getElementById('s-total').textContent = _filas.length;
+  document.getElementById('s-match').textContent = _filas.filter(f => f.cat).length;
+  document.getElementById('s-nomatch').textContent = _filas.filter(f => !f.cat).length;
+  document.getElementById('stats').style.display = 'flex';
+  document.getElementById('tabla-wrap').style.display = 'block';
+  document.getElementById('btn-iniciar').disabled = _filas.filter(f => f.incluir).length === 0;
+}
+
+window.asignarManual = function(i, catId) {
+  const cat = _cats.find(c => c.id === catId);
+  _filas[i].cat = cat || null;
+  _filas[i].incluir = !!cat;
+  document.getElementById('btn-iniciar').disabled = _filas.filter(f => f.incluir).length === 0;
+};
+
+// ── Log ──
+const logLines = [];
+function log(msg, tipo='ok') {
+  const el = document.getElementById('log');
+  el.style.display = 'block';
+  const line = document.createElement('div');
+  line.className = 'log-' + tipo;
+  line.textContent = msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+  logLines.push('[' + tipo.toUpperCase() + '] ' + msg);
+}
+
+async function subirCloudinary(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', PRESET);
+  fd.append('folder', CARPETA_CLOUDINARY);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, { method: 'POST', body: fd });
+  const json = await res.json();
+  if (!json.secure_url) throw new Error(json.error?.message || 'Error subiendo a Cloudinary');
+  return json.secure_url;
+}
+
+window.iniciar = async function() {
+  const filas = _filas.filter(f => f.incluir && f.cat);
+  const total = filas.length;
+  let hecho = 0, okCount = 0, errCount = 0;
+
+  document.getElementById('btn-iniciar').disabled = true;
+  document.getElementById('barra-wrap').style.display = 'block';
+
+  for (const f of filas) {
+    try {
+      const url = await subirCloudinary(f.file);
+      await updateDoc(doc(db, 'categorias', f.cat.id), { logo_url: url });
+      okCount++;
+      log(`✔ ${f.cat.nombre} ← ${f.file.name}`, 'ok');
+    } catch (err) {
+      errCount++;
+      log(`✘ ${f.file.name}: ${err.message}`, 'err');
+    }
+    hecho++;
+    document.getElementById('barra').style.width = Math.round(hecho / total * 100) + '%';
+  }
+
+  log(`── Listo: ${okCount} subidas OK, ${errCount} errores ──`, 'info');
+};
+</script>
+</body>
+</html>
