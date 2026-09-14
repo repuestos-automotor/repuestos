@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Corregir carga de Stock (cuadernos) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--blue-dim:#1e3a5f;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h2{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;margin-bottom:8px}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.amber{background:var(--amber);color:#1a1200} .btn.amber:hover{background:#d99209}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.grupo{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;padding:14px 16px}
+.grupo .tit{font-weight:600;font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:4px}
+.grupo .meta{color:var(--text3);font-size:11.5px;margin-bottom:10px}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;margin-right:4px}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.indigo{background:rgba(99,102,241,.18);color:var(--indigo)}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+.progreso{font-size:12px;color:var(--text2);margin-left:6px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Corregir carga de Stock (cuadernos)</h1>
+<div class="sub">Esta herramienta SOLO toca los repuestos que subió el <b>Agregador de Stock (cuadernos)</b> (quedaron marcados internamente). Tus otros productos no se tocan.</div>
+
+<div id="carga-inicial" class="loading">Buscando lo que se cargó con el agregador…</div>
+
+<div id="app" style="display:none">
+  <div class="card" id="accion-global">
+    <h2>Acción rápida: publicar todo lo que quedó como borrador</h2>
+    <div class="controles">
+      <span id="txt-borrador">—</span>
+      <button class="btn green" id="btn-publicar-todo">✅ Publicar TODOS los que están en borrador</button>
+      <span class="progreso" id="prog-global"></span>
+    </div>
+  </div>
+
+  <h2 style="font-family:'Rajdhani',sans-serif;font-size:18px;margin:18px 0 10px">Por hoja de origen — corregir categoría o publicación</h2>
+  <div id="grupos-container"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function extraerHoja(notas) {
+  const m = (notas || '').match(/Hoja de origen<\/th><td[^>]*>([^<]*)<\/td>/);
+  return m ? m[1] : '(sin dato)';
+}
+
+let categoriasCache = [];
+let docsImportados = []; // {id, ...data}
+
+async function iniciar() {
+  const [catSnap, repSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')),
+    getDocs(query(collection(db, 'repuestos'), where('origen_import', '==', 'stock-cuadernos'))),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  docsImportados = repSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderGlobal();
+  renderGrupos();
+}
+
+function renderGlobal() {
+  const borrador = docsImportados.filter(d => !d.alta);
+  document.getElementById('txt-borrador').innerHTML =
+    `<b style="color:var(--amber)">${borrador.length}</b> de <b>${docsImportados.length}</b> repuestos importados están como borrador (no visibles en la tienda).`;
+  document.getElementById('btn-publicar-todo').disabled = borrador.length === 0;
+}
+
+document.getElementById('btn-publicar-todo').addEventListener('click', async () => {
+  const borrador = docsImportados.filter(d => !d.alta);
+  if (!borrador.length) return;
+  if (!confirm(`Vas a publicar ${borrador.length} repuestos importados que estaban en borrador. ¿Seguro?`)) return;
+  const btn = document.getElementById('btn-publicar-todo');
+  const prog = document.getElementById('prog-global');
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const d of borrador) {
+      batch.update(doc(db, 'repuestos', d.id), { alta: true });
+      d.alta = true;
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${borrador.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} publicados`;
+    toast(`✅ ${total} repuestos pasados a publicado`);
+    renderGlobal(); renderGrupos();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  } finally { btn.disabled = false; }
+});
+
+function optionsCategorias() {
+  let html = `<option value="">— no cambiar —</option>`;
+  categoriasCache.forEach(c => { html += `<option value="${c.id}">${c.nombre}</option>`; });
+  html += `<option value="__libre__">— usar texto libre —</option>`;
+  return html;
+}
+
+function renderGrupos() {
+  const cont = document.getElementById('grupos-container');
+  cont.innerHTML = '';
+  const grupos = {};
+  docsImportados.forEach(d => {
+    const hoja = extraerHoja(d.notas_internas);
+    (grupos[hoja] ||= []).push(d);
+  });
+
+  Object.keys(grupos).sort().forEach(hoja => {
+    const docsGrupo = grupos[hoja];
+    const catCounts = {};
+    docsGrupo.forEach(d => { catCounts[d.categoria || '(sin categoría)'] = (catCounts[d.categoria || '(sin categoría)'] || 0) + 1; });
+    const catResumen = Object.entries(catCounts).sort((a, b) => b[1] - a[1]).map(([n, c]) => `${n} (${c})`).join(', ');
+    const borradorN = docsGrupo.filter(d => !d.alta).length;
+    const publicadoN = docsGrupo.length - borradorN;
+
+    const div = document.createElement('div');
+    div.className = 'grupo';
+    div.innerHTML = `
+      <div class="tit">${hoja} <span class="badge indigo">${docsGrupo.length} ítems</span></div>
+      <div class="meta">Categoría actual: ${catResumen} &nbsp;|&nbsp; <span class="badge ok">${publicadoN} publicados</span><span class="badge warn">${borradorN} borrador</span></div>
+      <div class="controles">
+        <label>Buscar dentro de esta hoja (para corregir por subgrupo si mezcla rubros)
+          <input class="txt filtro-items" placeholder="ej: LLAVE, CIRCUITO, BULBO, ÓPTICA…" style="min-width:260px">
+        </label>
+        <button class="btn ghost small btn-sel-visibles">Tildar visibles</button>
+        <button class="btn ghost small btn-desel-visibles">Destildar visibles</button>
+        <button class="btn ghost small btn-ver-items">Ver / ocultar ítems</button>
+      </div>
+      <div class="controles" style="margin-top:8px">
+        <label>Corregir categoría a
+          <select class="sel-categoria">${optionsCategorias()}</select>
+        </label>
+        <label>Si es texto libre, nombre:
+          <input class="txt txt-categoria-libre" placeholder="ej: VARIOS">
+        </label>
+        <label>Publicación
+          <select class="sel-alta">
+            <option value="">— no cambiar —</option>
+            <option value="1">Publicar seleccionados</option>
+            <option value="0">Pasar a borrador seleccionados</option>
+          </select>
+        </label>
+        <button class="btn amber btn-aplicar">Aplicar a los seleccionados (${docsGrupo.length})</button>
+        <span class="progreso"></span>
+      </div>
+      <div class="scroll-tabla-corrector" style="display:none;max-height:360px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-top:10px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr>
+            <th style="padding:6px 8px;text-align:left;position:sticky;top:0;background:var(--bg2)"></th>
+            <th style="padding:6px 8px;text-align:left;position:sticky;top:0;background:var(--bg2)">Código</th>
+            <th style="padding:6px 8px;text-align:left;position:sticky;top:0;background:var(--bg2)">Título actual</th>
+            <th style="padding:6px 8px;text-align:left;position:sticky;top:0;background:var(--bg2)">Categoría</th>
+            <th style="padding:6px 8px;text-align:left;position:sticky;top:0;background:var(--bg2)">Estado</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    `;
+    cont.appendChild(div);
+
+    const tbody = div.querySelector('tbody');
+    tbody.innerHTML = docsGrupo.map((d, dIdx) => {
+      const buscar = [d.codigo, d.titulo_repuesto, d.categoria].filter(Boolean).join(' ').toUpperCase();
+      return `<tr data-idx="${dIdx}" data-buscar="${buscar}">
+        <td style="padding:5px 8px"><input type="checkbox" class="chk-item" checked></td>
+        <td style="padding:5px 8px" class="mono">${d.codigo || '—'}</td>
+        <td style="padding:5px 8px">${d.titulo_repuesto || '—'}</td>
+        <td style="padding:5px 8px">${d.categoria || '—'}</td>
+        <td style="padding:5px 8px">${d.alta ? '<span class="badge ok">publicado</span>' : '<span class="badge warn">borrador</span>'}</td>
+      </tr>`;
+    }).join('');
+
+    function actualizarBotonAplicar() {
+      const n = [...tbody.querySelectorAll('tr')]
+        .filter(tr => tr.style.display !== 'none')
+        .filter(tr => tr.querySelector('.chk-item').checked).length;
+      div.querySelector('.btn-aplicar').textContent = `Aplicar a los seleccionados (${n})`;
+    }
+    tbody.querySelectorAll('.chk-item').forEach(c => c.addEventListener('change', actualizarBotonAplicar));
+
+    div.querySelector('.btn-ver-items').addEventListener('click', () => {
+      const t = div.querySelector('.scroll-tabla-corrector');
+      t.style.display = t.style.display === 'none' ? 'block' : 'none';
+    });
+    div.querySelector('.filtro-items').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toUpperCase();
+      tbody.querySelectorAll('tr').forEach(tr => { tr.style.display = !q || tr.dataset.buscar.includes(q) ? '' : 'none'; });
+      actualizarBotonAplicar();
+    });
+    div.querySelector('.btn-sel-visibles').addEventListener('click', () => {
+      tbody.querySelectorAll('tr').forEach(tr => { if (tr.style.display !== 'none') tr.querySelector('.chk-item').checked = true; });
+      actualizarBotonAplicar();
+    });
+    div.querySelector('.btn-desel-visibles').addEventListener('click', () => {
+      tbody.querySelectorAll('tr').forEach(tr => { if (tr.style.display !== 'none') tr.querySelector('.chk-item').checked = false; });
+      actualizarBotonAplicar();
+    });
+    div.querySelector('.btn-aplicar').addEventListener('click', () => aplicarCambios(div, docsGrupo, hoja, tbody));
+  });
+}
+
+async function aplicarCambios(div, docsGrupo, hoja, tbody) {
+  const selCat = div.querySelector('.sel-categoria').value;
+  const libre = div.querySelector('.txt-categoria-libre').value.trim();
+  const selAlta = div.querySelector('.sel-alta').value;
+  const prog = div.querySelector('.progreso');
+  const btn = div.querySelector('.btn-aplicar');
+
+  if (!selCat && selAlta === '') { toast('Elegí al menos un cambio para aplicar (categoría o publicación).'); return; }
+
+  let cambios = {};
+  if (selCat === '__libre__') {
+    if (!libre) { toast('Escribí el nombre de la categoría libre.'); return; }
+    cambios.categoria = libre; cambios.categoria_id = '';
+  } else if (selCat) {
+    const c = categoriasCache.find(c => c.id === selCat);
+    if (c) { cambios.categoria = c.nombre; cambios.categoria_id = c.id; }
+  }
+  if (selAlta !== '') cambios.alta = selAlta === '1';
+
+  const seleccionados = [...tbody.querySelectorAll('tr')]
+    .filter(tr => tr.querySelector('.chk-item').checked)
+    .map(tr => docsGrupo[parseInt(tr.dataset.idx)]);
+
+  if (!seleccionados.length) { toast('No hay ítems tildados (revisá el filtro o los checkboxes).'); return; }
+  if (!confirm(`Vas a aplicar ${JSON.stringify(cambios)} a ${seleccionados.length} repuestos de "${hoja}". ¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const d of seleccionados) {
+      batch.update(doc(db, 'repuestos', d.id), cambios);
+      Object.assign(d, cambios);
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionados.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} actualizados`;
+    toast(`✅ "${hoja}": ${total} repuestos actualizados`);
+    renderGlobal();
+    renderGrupos();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  } finally { btn.disabled = false; }
+}
+</script>
+</body>
+</html>
