@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargar Precios de Rulemanes (desde lista pegada) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1200px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h2{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;margin-bottom:8px}
+textarea#pegado{width:100%;min-height:180px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.controles{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:12px;font-size:12.5px;color:var(--text2)}
+.controles label{display:flex;align-items:center;gap:6px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.summary{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+table.tabla{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+.scroll-tabla{max-height:480px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+h3{font-family:'Rajdhani',sans-serif;font-size:15px;margin:16px 0 8px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Cargar Precios de Rulemanes (lista pegada)</h1>
+<div class="sub">Pegá abajo las filas copiadas directo de tu Excel de precios (columnas: Código, Aplicación, S/IVA, C/IVA — como el de BOBINAR/NTN). No hace falta subir el archivo: seleccioná las celdas en Excel, copiá (Ctrl+C) y pegá acá (Ctrl+V).</div>
+
+<div class="card">
+  <h2>1. Pegá el listado</h2>
+  <textarea id="pegado" placeholder="NTN01 607	RULEMÁN NTN 607	40.11	48.53
+NTN01 608	RULEMÁN NTN 608	43.50	52.63
+NTN01 6205	RULEMÁN NTN 6205	98.83	119.59
+..."></textarea>
+  <div class="controles">
+    <label>Usar como <b>costo</b>:
+      <select id="sel-costo"><option value="sin">S/IVA</option><option value="con">C/IVA</option><option value="">— no cargar costo —</option></select>
+    </label>
+    <label>Usar como <b>venta</b>:
+      <select id="sel-venta"><option value="con" selected>C/IVA</option><option value="sin">S/IVA</option><option value="">— no cargar venta —</option></select>
+    </label>
+    <label><input type="checkbox" id="chk-solo-marca"> Aplicar solo si la marca del código pegado (NTN, NSK, etc.) coincide con la marca del repuesto ya cargado</label>
+    <button class="btn" id="btn-procesar">Procesar listado</button>
+  </div>
+</div>
+
+<div id="resultado" style="display:none">
+  <div class="summary" id="resumen"></div>
+
+  <h3>✅ Coincidencias encontradas — se les va a cargar precio</h3>
+  <div class="scroll-tabla"><table class="tabla" id="tabla-match">
+    <thead><tr><th></th><th>Código</th><th>Título actual</th><th>Marca pegada</th><th>Precio actual (costo/venta)</th><th>Precio nuevo (costo/venta)</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h3>⚠ Rulemanes cargados en tu base que NO aparecen en este listado (para cargar precio a mano o buscar otro catálogo)</h3>
+  <div class="scroll-tabla"><table class="tabla" id="tabla-sin-precio">
+    <thead><tr><th>Código</th><th>Título actual</th><th>Precio actual (costo/venta)</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h3>❓ Filas del listado pegado que no matchearon con ningún rulemán cargado</h3>
+  <div class="scroll-tabla"><table class="tabla" id="tabla-sin-match">
+    <thead><tr><th>Código pegado</th><th>Aplicación</th><th>S/IVA</th><th>C/IVA</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <div class="controles" style="margin-top:16px">
+    <button class="btn green" id="btn-aplicar">✅ Aplicar precios a los tildados</button>
+    <span class="progreso" id="progreso"></span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-cuadernos';
+const HOJA = 'RULEMANES';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await cargarRulemanes();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function extraerHojaDeNotas(notas) {
+  const m = (notas || '').match(/Hoja de origen<\/th><td[^>]*>([^<]*)<\/td>/);
+  return m ? m[1] : '';
+}
+function normCodigo(s) { return (s || '').toString().trim().toUpperCase().replace(/\s+/g, ''); }
+
+let rulemanesCache = [];
+let matches = [];       // { rul, precioNuevoCosto, precioNuevoVenta, marcaPegada, codigoPegado }
+let sinPrecio = [];      // rulemanes sin match
+let sinMatch = [];       // filas pegadas sin match
+
+async function cargarRulemanes() {
+  const snap = await getDocs(query(collection(db, 'repuestos'), where('origen_import', '==', ORIGEN)));
+  rulemanesCache = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(r => ((r.origen_hoja || extraerHojaDeNotas(r.notas_internas) || '')).toUpperCase() === HOJA);
+  document.getElementById('btn-procesar').disabled = false;
+}
+
+// Marcas conocidas que suelen ir pegadas al código (prefijo o como palabra en "aplicación")
+const MARCAS_CONOCIDAS = ['NTN01', 'NTN', 'NSK', 'SKF', 'TNT', 'DBH', 'FAG', 'TIMKEN', 'KOYO'];
+
+function parsearLineaPegada(linea) {
+  const cols = linea.split('\t').map(c => c.trim());
+  if (cols.length < 3) return null; // necesitamos al menos codigo + algo + 1 precio
+  const [colCodigo, colAplicacion, colSinIva, colConIva] = cols;
+  if (!colCodigo) return null;
+
+  let marca = '';
+  let codigo = colCodigo;
+  for (const m of MARCAS_CONOCIDAS) {
+    if (colCodigo.toUpperCase().startsWith(m + ' ') || colCodigo.toUpperCase() === m) {
+      marca = m.replace(/01$/, '');
+      codigo = colCodigo.slice(m.length).trim();
+      break;
+    }
+  }
+  // fallback: si no reconocimos marca por prefijo, buscarla en la palabra de "aplicación" (ej. "RULEMÁN NTN 6205")
+  if (!marca && colAplicacion) {
+    for (const m of MARCAS_CONOCIDAS) {
+      if (new RegExp('\\b' + m.replace(/01$/, '') + '\\b', 'i').test(colAplicacion)) { marca = m.replace(/01$/, ''); break; }
+    }
+  }
+
+  const parsePrecio = (s) => {
+    if (!s) return null;
+    const limpio = s.replace(/\$/g, '').replace(/\./g, '').replace(',', '.').trim();
+    if (/^#+$/.test(s.trim())) return null; // celda ilegible tipo ####
+    const n = parseFloat(limpio);
+    return isNaN(n) ? null : n;
+  };
+
+  return {
+    codigoOriginal: colCodigo,
+    codigo,
+    marca,
+    aplicacion: colAplicacion || '',
+    sinIva: parsePrecio(colSinIva),
+    conIva: parsePrecio(colConIva),
+  };
+}
+
+document.getElementById('btn-procesar').addEventListener('click', procesar);
+
+function procesar() {
+  const texto = document.getElementById('pegado').value;
+  const lineas = texto.split('\n').map(l => l.trim()).filter(Boolean);
+  const filas = lineas.map(parsearLineaPegada).filter(Boolean);
+
+  const usarCostoDe = document.getElementById('sel-costo').value; // 'sin' | 'con' | ''
+  const usarVentaDe = document.getElementById('sel-venta').value;
+  const soloMarca = document.getElementById('chk-solo-marca').checked;
+
+  matches = [];
+  sinMatch = [];
+  const codigosMatcheados = new Set();
+
+  filas.forEach(f => {
+    const cNorm = normCodigo(f.codigo);
+    const candidatos = rulemanesCache.filter(r => normCodigo(r.codigo) === cNorm);
+    const rul = soloMarca
+      ? candidatos.find(r => (r.marcas_repuesto || []).some(m => m.toUpperCase() === f.marca.toUpperCase()))
+      : candidatos[0];
+    if (!rul) { sinMatch.push(f); return; }
+
+    const precioNuevoCosto = usarCostoDe === 'sin' ? f.sinIva : usarCostoDe === 'con' ? f.conIva : null;
+    const precioNuevoVenta = usarVentaDe === 'sin' ? f.sinIva : usarVentaDe === 'con' ? f.conIva : null;
+    if (precioNuevoCosto == null && precioNuevoVenta == null) return;
+
+    codigosMatcheados.add(rul.id);
+    matches.push({ rul, precioNuevoCosto, precioNuevoVenta, marcaPegada: f.marca, codigoPegado: f.codigoOriginal });
+  });
+
+  sinPrecio = rulemanesCache.filter(r => !codigosMatcheados.has(r.id));
+
+  renderResultado();
+  document.getElementById('resultado').style.display = 'block';
+}
+
+function renderResultado() {
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${rulemanesCache.length}</div><div class="l">rulemanes cargados en tu base</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${matches.length}</div><div class="l">con precio encontrado en el listado</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${sinPrecio.length}</div><div class="l">sin precio (no están en este listado)</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${sinMatch.length}</div><div class="l">filas pegadas que no matchearon</div></div>
+  `;
+
+  document.querySelector('#tabla-match tbody').innerHTML = matches.map((m, i) => `
+    <tr data-idx="${i}">
+      <td><input type="checkbox" class="chk-match" checked></td>
+      <td class="mono">${m.rul.codigo}</td>
+      <td>${m.rul.titulo_repuesto || ''}</td>
+      <td>${m.marcaPegada || '—'}</td>
+      <td>$${m.rul.precio_costo ?? 0} / $${m.rul.precio_venta ?? 0}</td>
+      <td>${m.precioNuevoCosto != null ? '$' + m.precioNuevoCosto : '—'} / ${m.precioNuevoVenta != null ? '$' + m.precioNuevoVenta : '—'}</td>
+    </tr>`).join('');
+
+  document.querySelector('#tabla-sin-precio tbody').innerHTML = sinPrecio.map(r => `
+    <tr><td class="mono">${r.codigo}</td><td>${r.titulo_repuesto || ''}</td><td>$${r.precio_costo ?? 0} / $${r.precio_venta ?? 0}</td></tr>`).join('');
+
+  document.querySelector('#tabla-sin-match tbody').innerHTML = sinMatch.map(f => `
+    <tr><td class="mono">${f.codigoOriginal}</td><td>${f.aplicacion}</td><td>${f.sinIva ?? '—'}</td><td>${f.conIva ?? '—'}</td></tr>`).join('');
+}
+
+document.getElementById('btn-aplicar').addEventListener('click', aplicar);
+
+async function aplicar() {
+  const filas = [...document.querySelectorAll('#tabla-match tbody tr')];
+  const seleccionados = filas.filter(tr => tr.querySelector('.chk-match').checked).map(tr => matches[parseInt(tr.dataset.idx)]);
+  if (!seleccionados.length) { toast('No hay filas tildadas para aplicar.'); return; }
+  if (!confirm(`Vas a actualizar el precio de ${seleccionados.length} rulemanes. ¿Confirmás?`)) return;
+
+  const btn = document.getElementById('btn-aplicar');
+  const prog = document.getElementById('progreso');
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const m of seleccionados) {
+      const cambios = {};
+      if (m.precioNuevoCosto != null) cambios.precio_costo = m.precioNuevoCosto;
+      if (m.precioNuevoVenta != null) {
+        cambios.precio_venta = m.precioNuevoVenta;
+        cambios.precio_venta_iva = m.precioNuevoVenta; // ya viene con IVA si se eligió C/IVA
+      }
+      batch.update(doc(db, 'repuestos', m.rul.id), cambios);
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionados.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} actualizados`;
+    toast(`✅ ${total} rulemanes con precio cargado`);
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
