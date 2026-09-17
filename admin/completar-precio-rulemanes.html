@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Precios y Títulos Rulemanes — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1200px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.top-actions{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.filtro{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12.5px}
+.num-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12.5px;width:70px}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px}
+.panel .lbl{font-size:11.5px;color:var(--text2);margin-bottom:6px}
+textarea#lista-precios{width:100%;min-height:140px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:10px;font-size:12px;font-family:'JetBrains Mono',monospace;resize:vertical}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th{background:var(--bg3);color:var(--blue);text-align:left;padding:6px 8px;border:1px solid var(--border2);position:sticky;top:0}
+td{padding:6px 8px;border:1px solid var(--border2);vertical-align:top}
+tr.fila-sin-precio{opacity:.55}
+.tit-old{color:var(--text3);text-decoration:line-through;font-size:11px}
+.tit-new{color:var(--text);font-weight:600}
+.mono{font-family:'JetBrains Mono',monospace}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+.avisos{margin-top:10px;font-size:11.5px;color:var(--amber)}
+.tabla-wrap{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:10px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Precios y Títulos — Rulemanes</h1>
+<div class="sub">
+  Corrige el título de los rulemanes cargados (queda como <b>RULEMAN &lt;código&gt;</b>, sin "SIN NOMBRE" ni el numeral) y carga el <b>precio de costo</b> pegando la lista de precios. El precio de venta se calcula solo con el % de ganancia que pongas abajo, igual que en el formulario de carga.
+</div>
+
+<div id="carga-inicial" class="loading">Buscando los rulemanes ya cargados en Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+
+  <div class="panel">
+    <div class="lbl">Pegá acá la lista de precios (Código, Detalle, Costo Final — separado por tabulaciones, como se copia de una planilla). Ya viene precargada con la última lista que me pasaste; podés reemplazarla o agregar filas.</div>
+    <textarea id="lista-precios"></textarea>
+    <div class="top-actions" style="margin-top:10px">
+      <button class="btn" id="btn-comparar">🔄 Comparar con lo cargado</button>
+      <label style="display:flex;align-items:center;gap:6px">% Ganancia <input type="number" class="num-input" id="f-pct" value="40" step="1"></label>
+      <span class="progreso" id="progreso"></span>
+    </div>
+    <div class="avisos" id="avisos"></div>
+  </div>
+
+  <div class="top-actions">
+    <input class="filtro" id="filtro" placeholder="Buscar por código…" style="min-width:220px">
+    <button class="btn ghost small" id="btn-marcar-todo">Tildar todas las filas con cambios</button>
+    <button class="btn ghost small" id="btn-desmarcar-todo">Destildar todas</button>
+    <button class="btn green" id="btn-aplicar">✅ Aplicar cambios tildados</button>
+  </div>
+
+  <div class="tabla-wrap">
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th></th><th>Código</th><th>Título</th><th>Precio costo</th><th>Venta s/IVA</th><th>Venta c/IVA</th><th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-cuadernos';
+const HOJA = 'RULEMANES';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function extraerHojaDeNotas(notas) {
+  const m = (notas || '').match(/Hoja de origen<\/th><td[^>]*>([^<]*)<\/td>/);
+  return m ? m[1] : '';
+}
+
+function round2(n){ return Math.round(n*100)/100; }
+
+// ── Lista de precios inicial (la que pasaste) ──
+const PRECIOS_INICIALES = [
+  ['B17-99','RULEMAN','24542.64'],
+  ['6903','RULEMAN 17X30X7','7341.12'],
+  ['62304/17','RULEMAN 17X52X21','56048.4'],
+  ['6000','RULEMAN 6000 10X26X8','5552.64'],
+  ['6001','RULEMAN 6001 12X28X8','6045.84'],
+  ['6002','RULEMAN 6002 15X32X9','6207.84'],
+  ['6003','RULEMAN 6003 17X35X10','6354'],
+  ['6004','RULEMAN 6004 20X42X12','7075.44'],
+  ['6005','RULEMAN 6005 25X47X12','9130.32'],
+  ['607','RULEMAN 607 7X19X6','4093.92'],
+  ['608','RULEMAN 608 8X22X7','4380.48'],
+  ['609','RULEMAN 609 9X24X7','10079.28'],
+  ['6200','RULEMAN 6200 10X30X9','4318.56'],
+  ['6201','RULEMAN 6201 12X32X10','4605.84'],
+  ['6202','RULEMAN 6202 15X35X11','5120.64'],
+  ['6203','RULEMAN 6203 17X40X12','6045.84'],
+  ['6204','RULEMAN 6204 20X47X14','8143.2'],
+  ['6205','RULEMAN 6205 25X52X15','10346.4'],
+  ['6206','RULEMAN 6206 NTN 30x62x16','15361.2'],
+  ['62200','RULEMAN 62200 NKE','16521.12'],
+  ['62201','RULEMAN 62201 12X32X14','28808.64'],
+  ['NACHI62201','RULEMAN 62201 12X32X14','17256.24'],
+  ['62202','RULEMAN 62202 15X35X14','23480.64'],
+  ['627','RULEMAN 627 7X22X7','5807.52'],
+  ['629','RULEMAN 629 9X26X8','6675.12'],
+  ['63001','RULEMAN 63001 12X28X12','42082.56'],
+  ['63001','RULEMAN 63001 NSK','24017.04'],
+  ['6301','RULEMAN 6301 12X37X12','7187.76'],
+  ['6302','RULEMAN 6302 15X42X13','7403.04'],
+  ['6303','RULEMAN 6303 17X47X14','9623.52'],
+  ['6304','RULEMAN 6304 20X52X15','46514.16'],
+  ['6305','RULEMAN 6305 20X62X17','16101.36'],
+  ['6306','RULEMAN 6306 30X72X19','21036.24'],
+  ['6403','RULEMAN 6403 17X62X17','52102.08'],
+  ['6901','RULEMAN 6901 12X24X6','6835.68'],
+  ['6902','RULEMAN 6902 15X28X7','7440.48'],
+  ['6904','RULEMAN 6904 20X37X9','7009.2'],
+  ['SCO352','RULEMAN B17-99 17X52X17','34570.08'],
+  ['B10-50T','RULEMAN EC1A06 10X27X11','22999.68'],
+  ['ROHF5-8','RULEMAN FKB','35966.88'],
+  ['B15-86','RULEMAN NSK','25731.36'],
+  ['B17-116','RULEMAN NSK B17-116','38388.96'],
+  ['B17-127D','RULEMAN NTN','23491.44'],
+  ['626','RULEMAN NTN 626 (INTERIOR 6 EXTERIOR 19 )','4898.16'],
+  ['638ZZ2AS','RULEMAN NTN 638 8X28X9','19394.64'],
+  ['SC8','RULEMAN NTN EC1A05 8x23,2x14','26295.84'],
+  ['B17-126','RULEMAN SXO344 17X62X17,5','72484.56'],
+];
+
+let rulemanesCache = [];
+let filas = [];
+const seleccion = new Set();
+
+async function iniciar() {
+  const snap = await getDocs(query(collection(db, 'repuestos'), where('origen_import', '==', ORIGEN)));
+  rulemanesCache = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(r => ((r.origen_hoja || extraerHojaDeNotas(r.notas_internas) || '')).toUpperCase() === HOJA);
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  document.getElementById('lista-precios').value = PRECIOS_INICIALES.map(r => r.join('\t')).join('\n');
+
+  document.getElementById('btn-comparar').addEventListener('click', comparar);
+  document.getElementById('filtro').addEventListener('input', render);
+  document.getElementById('f-pct').addEventListener('input', () => { recalcularPrecios(); render(); });
+  document.getElementById('btn-marcar-todo').addEventListener('click', () => {
+    filas.forEach(f => { if (f.tieneCambios) seleccion.add(f.id); });
+    render();
+  });
+  document.getElementById('btn-desmarcar-todo').addEventListener('click', () => { seleccion.clear(); render(); });
+  document.getElementById('btn-aplicar').addEventListener('click', aplicar);
+
+  comparar();
+}
+
+function parsearPrecios(texto) {
+  const lineas = texto.split('\n').map(l => l.replace(/\r$/, '')).filter(l => l.trim());
+  const out = [];
+  for (const linea of lineas) {
+    let partes = linea.split('\t').map(p => p.trim()).filter(p => p !== '');
+    if (partes.length < 2) partes = linea.split(/\s{2,}/).map(p => p.trim()).filter(p => p !== '');
+    if (partes.length < 2) continue;
+    const codigo = partes[0];
+    if (/^c[oó]digo$/i.test(codigo)) continue; // saltea encabezado
+    let costoStr = partes[partes.length - 1].replace(/\$/g, '').replace(/\s/g, '');
+    if (costoStr.includes(',') && costoStr.includes('.')) {
+      if (costoStr.lastIndexOf(',') > costoStr.lastIndexOf('.')) costoStr = costoStr.replace(/\./g, '').replace(',', '.');
+      else costoStr = costoStr.replace(/,/g, '');
+    } else if (costoStr.includes(',')) {
+      costoStr = costoStr.replace(',', '.');
+    }
+    const costo = parseFloat(costoStr);
+    if (isNaN(costo)) continue;
+    out.push({ codigo, costo });
+  }
+  return out;
+}
+
+let ultimosAvisos = [];
+
+function comparar() {
+  const parsed = parsearPrecios(document.getElementById('lista-precios').value);
+  const mapaPrecios = new Map();
+  const duplicados = new Set();
+  parsed.forEach(p => {
+    const k = p.codigo.trim().toUpperCase();
+    if (mapaPrecios.has(k)) duplicados.add(k);
+    mapaPrecios.set(k, p.costo); // el último gana
+  });
+
+  const codigosCargados = new Set(rulemanesCache.map(r => (r.codigo || '').trim().toUpperCase()));
+  const noEncontrados = [...mapaPrecios.keys()].filter(k => !codigosCargados.has(k));
+
+  filas = rulemanesCache.map(r => {
+    const cod = (r.codigo || '').trim();
+    const codU = cod.toUpperCase();
+    const costo = mapaPrecios.has(codU) ? mapaPrecios.get(codU) : null;
+    const nuevoTitulo = 'RULEMAN ' + cod.replace(/^#/, '');
+    const tituloCambia = (r.titulo_repuesto || '').trim() !== nuevoTitulo;
+    return { id: r.id, r, codigo: cod, costo, nuevoTitulo, tituloCambia, tieneCambios: tituloCambia || costo !== null };
+  });
+
+  seleccion.clear();
+  filas.forEach(f => { if (f.tieneCambios) seleccion.add(f.id); });
+
+  ultimosAvisos = [];
+  if (duplicados.size) ultimosAvisos.push('⚠ Código repetido en la lista pegada (se usó el último precio): ' + [...duplicados].join(', '));
+  if (noEncontrados.length) ultimosAvisos.push('⚠ Estos códigos de la lista no están entre tus rulemanes cargados (revisá si están bien escritos): ' + noEncontrados.join(', '));
+
+  recalcularPrecios();
+  renderResumen();
+  render();
+}
+
+function recalcularPrecios() {
+  const pct = parseFloat(document.getElementById('f-pct').value) || 0;
+  filas.forEach(f => {
+    if (f.costo !== null) {
+      f.venta = round2(f.costo * (1 + pct / 100));
+      f.ventaIva = round2(f.venta * 1.21);
+    } else {
+      f.venta = null; f.ventaIva = null;
+    }
+  });
+}
+
+function renderResumen() {
+  const total = filas.length;
+  const conPrecio = filas.filter(f => f.costo !== null).length;
+  const tituloACorregir = filas.filter(f => f.tituloCambia).length;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${total}</div><div class="l">rulemanes cargados</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${conPrecio}</div><div class="l">con precio encontrado</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${total - conPrecio}</div><div class="l">sin precio en la lista</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${tituloACorregir}</div><div class="l">títulos a corregir</div></div>
+  `;
+  document.getElementById('avisos').innerHTML = ultimosAvisos.map(a => `<div>${a}</div>`).join('');
+}
+
+function fmt(n){ return n === null ? '—' : '$ ' + n.toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+function render() {
+  const q = document.getElementById('filtro').value.trim().toUpperCase();
+  const tbody = document.getElementById('tbody');
+  const items = filas.filter(f => !q || f.codigo.toUpperCase().includes(q));
+  tbody.innerHTML = items.map(f => {
+    const checked = seleccion.has(f.id) ? 'checked' : '';
+    let estado = '<span class="badge no">sin precio en la lista</span>';
+    if (f.costo !== null && f.tituloCambia) estado = '<span class="badge ok">precio + título</span>';
+    else if (f.costo !== null) estado = '<span class="badge ok">precio ok</span>';
+    else if (f.tituloCambia) estado = '<span class="badge warn">solo título</span>';
+    else estado = '<span class="badge done">sin cambios</span>';
+    const tituloHtml = f.tituloCambia
+      ? `<div class="tit-old">${f.r.titulo_repuesto || '(sin título)'}</div><div class="tit-new">${f.nuevoTitulo}</div>`
+      : `<div>${f.nuevoTitulo}</div>`;
+    return `<tr class="${f.costo === null ? 'fila-sin-precio' : ''}" data-id="${f.id}">
+      <td><input type="checkbox" class="chk-fila" ${checked} ${f.tieneCambios ? '' : 'disabled'}></td>
+      <td class="mono">${f.codigo}</td>
+      <td>${tituloHtml}</td>
+      <td class="mono">${fmt(f.costo)}</td>
+      <td class="mono">${fmt(f.venta)}</td>
+      <td class="mono">${fmt(f.ventaIva)}</td>
+      <td>${estado}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('.chk-fila').forEach(chk => {
+    chk.addEventListener('change', (e) => {
+      const id = e.target.closest('tr').dataset.id;
+      if (e.target.checked) seleccion.add(id); else seleccion.delete(id);
+    });
+  });
+}
+
+async function aplicar() {
+  const seleccionadas = filas.filter(f => seleccion.has(f.id) && f.tieneCambios);
+  if (!seleccionadas.length) { toast('No hay filas tildadas con cambios.'); return; }
+  if (!confirm(`Vas a actualizar ${seleccionadas.length} rulemanes (título y/o precio). ¿Confirmás?`)) return;
+
+  const btn = document.getElementById('btn-aplicar');
+  const prog = document.getElementById('progreso');
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const f of seleccionadas) {
+      const update = {};
+      if (f.tituloCambia) update.titulo_repuesto = f.nuevoTitulo;
+      if (f.costo !== null) {
+        update.precio_costo = f.costo;
+        update.precio_venta = f.venta;
+        update.precio_venta_iva = f.ventaIva;
+      }
+      batch.update(doc(db, 'repuestos', f.id), update);
+      f.r.titulo_repuesto = update.titulo_repuesto ?? f.r.titulo_repuesto;
+      if (f.costo !== null) { f.r.precio_costo = f.costo; f.r.precio_venta = f.venta; f.r.precio_venta_iva = f.ventaIva; }
+      f.tituloCambia = false;
+      f.tieneCambios = false;
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionadas.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} actualizados`;
+    toast(`✅ ${total} rulemanes actualizados`);
+    seleccion.clear();
+    renderResumen();
+    render();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
