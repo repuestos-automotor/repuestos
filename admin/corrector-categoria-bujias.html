@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Corrector de Categoría — Bujías Galponcito</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1300px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:980px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.scroll-tabla{max-height:600px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.ok-row td{opacity:.5}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.cat-actual{color:var(--text3)}
+.cat-nueva{color:var(--green);font-weight:600}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Corrector de Categoría — Bujías Galponcito</h1>
+<div class="sub">Corrige la <b>categoría</b> de los repuestos cargados por <span class="mono">admin/cargador-bujias-galponcito.html</span> (import <span class="mono">stock-galponcito-bujias</span>). Recalcula el tipo correcto de cada bujía igual que el cargador (cruzando contra las listas de precio de Bobinar) y compara contra la categoría que quedó guardada en Firestore. Las filas donde no coinciden salen tildadas por defecto — solo esas se tocan al confirmar. No toca nada de otros imports.</div>
+
+<div id="carga-inicial" class="loading">Cargando repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+
+  <div class="card">
+    <h2 style="font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px">Categoría correcta destino</h2>
+    <div class="controles">
+      <label>Categoría para NAFTERAS (encendido)
+        <select id="sel-categoria-naf"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-naf-libre" value="Bujías Nafteras">
+      </label>
+      <label>Categoría para INCANDESCENTES (precalentamiento)
+        <select id="sel-categoria-inc"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-inc-libre" value="Bujías Incandescentes">
+      </label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <button class="btn ghost small" id="btn-sel-desajustadas">Tildar solo desajustadas</button>
+      <button class="btn ghost small" id="btn-sel-todas">Tildar todas</button>
+      <button class="btn ghost small" id="btn-desel-todas">Destildar todas</button>
+      <button class="btn green" id="btn-corregir">✔ Corregir seleccionadas</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <div class="scroll-tabla"><table class="tabla-items">
+    <thead><tr><th></th><th>N°</th><th>Tipo correcto</th><th>Código principal</th><th>Categoría actual</th><th>Categoría nueva</th><th>Estado</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-bujias';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── DATOS Y CRUCE DE PRECIOS (idéntico al cargador, para recalcular el tipo correcto) ──
+const BUJIAS_DATA = [{"numero": 1, "cantidad": 10, "aplicacion": "RENAULT Clio II 1.9 D (F8Q 630) (F8Q 630) [03.1998 - 10.2007] | RENAULT Kangoo 1.9 D  / D 55 / D 65 (F8Q 630) | RENAULT Rodeo 1.9 D | RENAULT Trafic 1.9 D (F8Q 600) [11.1997 -  05.2001] | RENAULT Trafic 1.9 D (F8Q 606) [02.1998 - 11.2003] | OPEL Opel ARENA Combi 1.9 D [03.1998 -> 08.2001] | Vauxhall ARENA Combi", "codigos": {"BOSCH": "0 250 202 035", "KESSEL": "C9402", "BERU": "GN 963", "CHAMPION": "CH 217", "VALEO": "345909", "MARELLI": "UC-21A", "EYQUEM": "S 205", "HESCHER": "HU 148", "NGK": "Y-506-J", "INDIEL": "HDS602DF", "WEGA (Génesis)": "GX 94", "WEGA (Monofilamento)": "SX 94", "HIT/MAX": "4420", "DE ESPIGA": "DE ESPIGA"}, "tipo": "NAFTERAS", "tipo_dudoso": true}, {"numero": 2, "cantidad": 1, "aplicacion": "VOLKSWAGEN Senda | VOLKSWAGEN Saveiro | VOLKSWAGEN Polo 1.9 | VOLKSWAGEN Golf 1.9", "codigos": {"BOSCH": "0 250 201 032", "KESSEL": "C 9116", "BERU": "GN 857", "CHAMPION": "CH 260,\nCH 160", "VALEO": "345902", "MARELLI": "TIX-1A, UX-1A, UX-8A", "EYQUEM": "S 56", "NGK": "Y-204-TS1, Y-204-V,\nY-207-T, Y-207-TS,\nY-901-R, Y-918-J, Y-918-R"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 3, "cantidad": 3, "aplicacion": "Volkswaguen Senda | Saveiro | Polo 1.9 | Golf 1.9", "codigos": {"BOSCH": "0 250 201 032", "KESSEL": "C 9116", "BERU": "GN 857"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 4, "cantidad": 3, "aplicacion": "Fiat Ducato 2.8D |", "codigos": {"BOSCH": "0 250 202 002", "KESSEL": "C 9420", "BERU": "GN 012"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 5, "cantidad": 1, "aplicacion": "Fiat Ducato 2.8D |", "codigos": {"BOSCH": "0 250 202 002", "KESSEL": "C 9420", "BERU": "GN 012"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 6, "cantidad": 5, "aplicacion": "Ford Fiesta 1.8 RTD  | ALEKO D1.8", "codigos": {"BOSCH": "0 250 202 001", "KESSEL": "C 9136", "BERU": "GN 927"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 7, "cantidad": 8, "aplicacion": "Ford Fiesta 1.8 RTD  | ALEKO D1.8", "codigos": {"BOSCH": "0 250 202 001", "KESSEL": "C 9136", "BERU": "GN 927"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 8, "cantidad": 4, "aplicacion": "Peugeot 206 XRD", "codigos": {"BOSCH": "0 250 202 032", "KESSEL": "C 9795", "BERU": "GN 027"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 9, "cantidad": 5, "aplicacion": "Peugeot 206 XRD", "codigos": {"BOSCH": "0 250 202 032-710", "KESSEL": "C 9795", "BERU": "GN 027"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 10, "cantidad": 5, "aplicacion": "Volkswaguen Passat 1.9 TDI", "codigos": {"BOSCH": "0 250 202 022", "KESSEL": "C 9104", "BERU": "GN 855"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 11, "cantidad": 2, "aplicacion": "Mercedes Benz Sprinter  c/motor maxion OM 014 A - Ford Ranger 100 motor 2.5 D 97", "codigos": {"BOSCH": "0 250 202 040", "KESSEL": "C 9791"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 12, "cantidad": 5, "aplicacion": "Renault Express c/motor F8Q 640  > 01/90", "codigos": {"BOSCH": "0 250 202 024", "KESSEL": "C 9157", "BERU": "0 100 226 299"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 13, "cantidad": 5, "aplicacion": "Renault Express c/motor F8Q 640  > 01/90", "codigos": {"BOSCH": "0 250 202 024-380", "KESSEL": "C 9157", "BERU": "0 100 226 299"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 14, "cantidad": 2, "aplicacion": "Renault Express c/motor F8Q 640  > 01/90", "codigos": {"BOSCH": "0 250 202 038", "KESSEL": "C 9157", "BERU": "0 100 226 299"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 15, "cantidad": 4, "aplicacion": "Renault Clio 1.9 | Kangoo 1.9 | Express 1.9", "codigos": {"BOSCH": "0 250 202 129", "KESSEL": "C 9211", "BERU": "GN 019"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 16, "cantidad": 5, "aplicacion": "Mercedes Benz Sprinter 29.31", "codigos": {"BOSCH": "0 250 202 026-380", "KESSEL": "C 9781", "BERU": "0 100 226 250"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 17, "cantidad": 2, "aplicacion": "Nissan 1.7D", "codigos": {"BOSCH": "0 250 202 005-000", "KESSEL": "C 9414", "BERU": "GV 685"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 18, "cantidad": 1, "aplicacion": "Deutz Tractor AGL - FGL   SA- Rastrogero 42HP", "codigos": {"BOSCH": "0 250 200 021", "KESSEL": "C 9153"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 19, "cantidad": 1, "aplicacion": "Isuzu 1.5D 2.3D", "codigos": {"BOSCH": "0 250 202 008-000", "KESSEL": "C 9412", "BERU": "GV 749"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 20, "cantidad": 1, "aplicacion": "Toyota Hilux 2.4/D4/WD4", "codigos": {"BOSCH": "0 250 202 006-000", "KESSEL": "C 9728", "BERU": "GV 688"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 21, "cantidad": 1, "aplicacion": "Toyota Hilux 2.4/D4/WD", "codigos": {"BOSCH": "0 250 202 096-000", "KESSEL": "C 9728", "BERU": "GV 688"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 22, "cantidad": 1, "aplicacion": "Renault Laguna 2.2 Rover 620 TDI", "codigos": {"BOSCH": "0 250 202 025", "KESSEL": "C 9110", "BERU": "GV 905"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 23, "cantidad": 1, "aplicacion": "Peugeot 306 | 405 |504 | 605 | 806 | Citröen xamtial 1.9 Fiat 147 Duna Uno", "codigos": {"BOSCH": "0 250 201 039", "KESSEL": "C 9119", "BERU": "GV 636"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 24, "cantidad": 2, "aplicacion": "Borward c/motor VM.RZ0 A012", "codigos": {"BOSCH": "0 250 201 034", "KESSEL": "C 9385", "BERU": "GV 657"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 25, "cantidad": 8, "aplicacion": "Audi A3, A1, A6, 1.9DI, A6T DI, AUDI 80| Ford GALAXI 1.9 TDI |Volkswagen GOLF 1.9 SDI/TDI, POLO 1.9 SDI", "codigos": {"KESSEL": "C 9104"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 26, "cantidad": 7, "aplicacion": "Escort Fiesta Mondeo 1.8 c/motor Endurance", "codigos": {"BOSCH": "0 250 201 049", "KESSEL": "C 9155", "BERU": "GV 022"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 27, "cantidad": 5, "aplicacion": "Escort Fiesta Mondeo 1.8 c/motor Endurance", "codigos": {"BOSCH": "0 250 201 049", "KESSEL": "C 9155", "BERU": "GV 022"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 28, "cantidad": 3, "aplicacion": "Escort Fiesta Mondeo 1.8 c/motor Endurance", "codigos": {"BOSCH": "0 250 201 049", "KESSEL": "C 9155", "BERU": "GV 022"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 29, "cantidad": 4, "aplicacion": "Escort Fiesta Mondeo 1.8 c/motor Endurance", "codigos": {"BOSCH": "0 250 201 049", "KESSEL": "C 9155", "BERU": "GV 022"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 30, "cantidad": 1, "aplicacion": "Escort Fiesta Mondeo 1.8 c/motor Endurance", "codigos": {"BOSCH": "0 250 201 049-710", "KESSEL": "C 9155", "BERU": "GV 022"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 31, "cantidad": 5, "aplicacion": "Volkswagen Polo Gol Golf Seat", "codigos": {"INDIEL": "HDS 343 DF"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 32, "cantidad": 1, "aplicacion": "Mercedes Benz 170, 200, 220, mot.312, 321, 1112 | Rastrojero D 42 HP | Peugeot mpt. Bodward 42 HP", "codigos": {"KESSEL": "C 9535"}, "tipo": "NAFTERAS", "tipo_dudoso": false}, {"numero": 33, "cantidad": 3, "aplicacion": "???", "codigos": {"WEGA (Génesis)": "P09", "KNOERI": "P09"}, "tipo": "INCANDESCENTES", "tipo_dudoso": true}, {"numero": 34, "cantidad": 5, "aplicacion": "???", "codigos": {"ALF FRANCE": "BPO-703"}, "tipo": "INCANDESCENTES", "tipo_dudoso": false}, {"numero": 35, "cantidad": 2, "aplicacion": "???", "codigos": {"F.C.H.": "F.C.H."}, "tipo": "INCANDESCENTES", "tipo_dudoso": false}, {"numero": 36, "cantidad": 2, "aplicacion": "???", "codigos": {"G ITALY": "G italy"}, "tipo": "INCANDESCENTES", "tipo_dudoso": false}, {"numero": 37, "cantidad": 5, "aplicacion": "???", "codigos": {"ULTRA": "ultra"}, "tipo": "INCANDESCENTES", "tipo_dudoso": false}, {"numero": 38, "cantidad": 0, "aplicacion": "???", "codigos": {"GLUHKERZEN": "GLU-1074"}, "tipo": "INCANDESCENTES", "tipo_dudoso": false}, {"numero": 39, "cantidad": 1, "aplicacion": "???", "codigos": {"SUPAGLO": "SUPAGLO"}, "tipo": "INCANDESCENTES", "tipo_dudoso": false}, {"numero": 40, "cantidad": 1, "aplicacion": "Volkswagen Todos los modelos | Renaul R19 turbo. Mot. CR | Nissan Santana 1.6 Trade 2.0", "codigos": {"HIT/MAX": "4297"}, "tipo": "INCANDESCENTES", "tipo_dudoso": false}, {"numero": 41, "cantidad": 1, "aplicacion": "???                     Precalentador", "codigos": {"VALEO": "2666108", "PERTRAK S.A.": "2666108", "DE ESPIGA": "2666108"}, "tipo": "INCANDESCENTES", "tipo_dudoso": true}];
+
+// ── LISTAS DE PRECIOS BOBINAR (código exacto por marca) ──
+const PRECIOS_NAFTERA = [{"marca": "BERU", "codigo": "BER0212KR-4 MIPS", "detalle": "BUJIA BERU NAFTA IRIDIUM CHEVROLET CRUZE Z376", "pub": 38511.72, "siva": 35659, "costo": 25674.48}, {"marca": "BERU", "codigo": "BER0212VR-7 SPUX", "detalle": "BUJIA BERU NAFTA Nissan Renault Motor M4R / Z325", "pub": 30724.92, "siva": 28449, "costo": 20483.28}, {"marca": "VARIOS", "codigo": "MOP46480362", "detalle": "BUJIA DE ENCENDIDO MOPAR", "pub": 7571.88, "siva": 7011, "costo": 5047.92}, {"marca": "VARIOS", "codigo": "MOP7086105", "detalle": "BUJIA DE ENCENDIDO MOPAR CORSA 1.8", "pub": 7388.28, "siva": 6841, "costo": 4925.52}, {"marca": "BERU", "codigo": "BERKM14-175", "detalle": "BUJIA ENCENDIDO ISOLATOR MOTOSIERRAS", "pub": 5388.12, "siva": 4989, "costo": 3592.08}, {"marca": "NGK", "codigo": "NGK01BKR6EK", "detalle": "BUJIA NAFTERA FIAT-CHEVROLET", "pub": 15506.64, "siva": 14358, "costo": 10337.76}, {"marca": "NGK", "codigo": "NGK01LMAR8A9", "detalle": "BUJIA NAFTERA FIAT CRONOS 1.3 8V", "pub": 11376.72, "siva": 10534, "costo": 7584.48}, {"marca": "NGK", "codigo": "NGK01ILZKR7B11", "detalle": "BUJIA NAFTERA IRIDIUM LINEA HONDA", "pub": 68348.88, "siva": 63286, "costo": 45565.92}, {"marca": "BERU", "codigo": "BER0212FR6 LUX", "detalle": "BUJIA NAFTERA LINEA ALFA ROMEO - FIAT / Z293", "pub": 10982.52, "siva": 10169, "costo": 7321.68}, {"marca": "NGK", "codigo": "NGK01BKR5EZ", "detalle": "BUJIA NAFTERA LINEA FIAT", "pub": 8630.28, "siva": 7991, "costo": 5753.52}, {"marca": "NGK", "codigo": "NGK01BP6ES", "detalle": "BUJIA NAFTERA LINEA FIAT-PEUG-RENAULT", "pub": 6274.8, "siva": 5810, "costo": 4183.2}, {"marca": "VARIOS", "codigo": "MOP55260260", "detalle": "BUJIA NAFTERA LINEA FIAT CRONOS MOT 1.3CC", "pub": 41050.8, "siva": 38010, "costo": 27367.2}, {"marca": "VARIOS", "codigo": "MOP55267995", "detalle": "BUJIA NAFTERA LINEA FIAT CRONOS MOT 1.3CC IRIDIUM", "pub": 61368.84, "siva": 56823, "costo": 40912.56}, {"marca": "KESSEL", "codigo": "KES0110-K7RTA", "detalle": "BUJIA NAFTERA LINEA VW UP 1.0", "pub": 8258.76, "siva": 7647, "costo": 5505.84}, {"marca": "NGK", "codigo": "NGK01ZFR6F11", "detalle": "BUJIA NAFTERA NGK", "pub": 11483.64, "siva": 10633, "costo": 7655.76}, {"marca": "NGK", "codigo": "NGK01LFR5A-11", "detalle": "BUJIA NAFTERA NGK", "pub": 9372.24, "siva": 8678, "costo": 6248.16}, {"marca": "NGK", "codigo": "NGK01B8HS", "detalle": "BUJIA NAFTERA NGK", "pub": 6809.4, "siva": 6305, "costo": 4539.6}, {"marca": "NGK", "codigo": "NGK01BKR7E", "detalle": "BUJIA NAFTERA NGK", "pub": 7416.36, "siva": 6867, "costo": 4944.24}, {"marca": "NGK", "codigo": "NGK01BKR6EZ", "detalle": "BUJIA NAFTERA NGK", "pub": 8630.28, "siva": 7991, "costo": 5753.52}, {"marca": "NGK", "codigo": "NGK01LFR5B", "detalle": "BUJIA NAFTERA NGK LINEA CITROEN-PEUGEOT", "pub": 9372.24, "siva": 8678, "costo": 6248.16}, {"marca": "NGK", "codigo": "NGK01BKR6E", "detalle": "BUJIA NAFTERA NGK LINEA FIAT", "pub": 6472.44, "siva": 5993, "costo": 4314.96}, {"marca": "NGK", "codigo": "NGK01ZFR6F", "detalle": "BUJIA NAFTERA NGK LINEA FIAT", "pub": 10653.12, "siva": 9864, "costo": 7102.08}, {"marca": "NGK", "codigo": "NGK01BKR6E-11", "detalle": "BUJIA NAFTERA NGK LINEA FIAT-CHEVROLET", "pub": 7416.36, "siva": 6867, "costo": 4944.24}, {"marca": "NGK", "codigo": "NGK01BKR6EKC", "detalle": "BUJIA NAFTERA NGK LINEA FIAT-CHEVROLET", "pub": 15506.64, "siva": 14358, "costo": 10337.76}, {"marca": "NGK", "codigo": "NGK01BKR5EKC", "detalle": "BUJIA NAFTERA NGK LINEA FIAT-CHEVROLET", "pub": 15506.64, "siva": 14358, "costo": 10337.76}, {"marca": "NGK", "codigo": "NGK01ZKR7B10", "detalle": "BUJIA NAFTERA NGK LINEA FIAT MOT. EVO", "pub": 13753.8, "siva": 12735, "costo": 9169.2}, {"marca": "NGK", "codigo": "NGK01DCPR8E-N", "detalle": "BUJIA NAFTERA NGK LINEA FIAT SIENA 1.3 FIRE 16V", "pub": 11327.04, "siva": 10488, "costo": 7551.36}, {"marca": "NGK", "codigo": "NGK01AP6FS", "detalle": "BUJIA NAFTERA NGK LINEA FORD", "pub": 9034.2, "siva": 8365, "costo": 6022.8}, {"marca": "NGK", "codigo": "NGK01BPR6EFS", "detalle": "BUJIA NAFTERA NGK LINEA FORD", "pub": 7416.36, "siva": 6867, "costo": 4944.24}, {"marca": "NGK", "codigo": "NGK01AP5FS", "detalle": "BUJIA NAFTERA NGK LINEA FORD", "pub": 8360.28, "siva": 7741, "costo": 5573.52}, {"marca": "NGK", "codigo": "NGK01BPR5EFS", "detalle": "BUJIA NAFTERA NGK LINEA FORD", "pub": 6877.44, "siva": 6368, "costo": 4584.96}, {"marca": "NGK", "codigo": "NGK01LTR7A10", "detalle": "BUJIA NAFTERA NGK LINEA FORD FIESTA kinetic 1.6 16V", "pub": 9304.2, "siva": 8615, "costo": 6202.8}, {"marca": "NGK", "codigo": "NGK01ILZTR6A8G", "detalle": "BUJIA NAFTERA NGK LINEA FORD KUGA 1.6 16V", "pub": 48879.72, "siva": 45259, "costo": 32586.48}, {"marca": "NGK", "codigo": "NGK01TR6AP13", "detalle": "BUJIA NAFTERA NGK LINEA FORD SMAX 2.0", "pub": 22249.08, "siva": 20601, "costo": 14832.72}, {"marca": "NGK", "codigo": "NGK01TR6AP13J", "detalle": "BUJIA NAFTERA NGK LINEA FORD SMAX 2.0 ORIGEN JAPON", "pub": 26352, "siva": 24400, "costo": 17568}, {"marca": "NGK", "codigo": "NGK01TR6B10", "detalle": "BUJIA NAFTERA NGK LINEA FORD ZETEC ROCAM", "pub": 10720.08, "siva": 9926, "costo": 7146.72}, {"marca": "NGK", "codigo": "NGK01IZFR6K11S", "detalle": "BUJIA NAFTERA NGK LINEA HONDA", "pub": 45523.08, "siva": 42151, "costo": 30348.72}, {"marca": "NGK", "codigo": "NGK01ZFR6J11", "detalle": "BUJIA NAFTERA NGK LINEA HONDA FIT - CIVIC", "pub": 13686.84, "siva": 12673, "costo": 9124.56}, {"marca": "NGK", "codigo": "NGK01BPR6EY", "detalle": "BUJIA NAFTERA NGK LINEA MERIVA-CORSA-FIAT", "pub": 6877.44, "siva": 6368, "costo": 4584.96}, {"marca": "NGK", "codigo": "NGK01LFR6B", "detalle": "BUJIA NAFTERA NGK LINEA PEUGEOT - CITROEN", "pub": 9372.24, "siva": 8678, "costo": 6248.16}, {"marca": "NGK", "codigo": "NGK01BCPR5ES", "detalle": "BUJIA NAFTERA NGK LINEA PEUGEOT - FIAT", "pub": 7416.36, "siva": 6867, "costo": 4944.24}, {"marca": "NGK", "codigo": "NGK01BKR6ESZ1", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT", "pub": 12175.92, "siva": 11274, "costo": 8117.28}, {"marca": "NGK", "codigo": "NGK01BCPR5EY", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT", "pub": 7416.36, "siva": 6867, "costo": 4944.24}, {"marca": "NGK", "codigo": "NGK01BP6HS", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT", "pub": 6809.4, "siva": 6305, "costo": 4539.6}, {"marca": "NGK", "codigo": "NGK01BP6EY", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT", "pub": 6809.4, "siva": 6305, "costo": 4539.6}, {"marca": "NGK", "codigo": "NGK01BPR5EY", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT", "pub": 6877.44, "siva": 6368, "costo": 4584.96}, {"marca": "NGK", "codigo": "NGK01BP5EY", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT", "pub": 6809.4, "siva": 6305, "costo": 4539.6}, {"marca": "NGK", "codigo": "NGK01LZKAR7A", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT", "pub": 9911.16, "siva": 9177, "costo": 6607.44}, {"marca": "NGK", "codigo": "NGK01BPR5ES", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT-FIAT", "pub": 6833.16, "siva": 6327, "costo": 4555.44}, {"marca": "NGK", "codigo": "NGK01BCPR6ES", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT-FIAT", "pub": 7416.36, "siva": 6867, "costo": 4944.24}, {"marca": "NGK", "codigo": "NGK01BKR5E", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT-FIAT", "pub": 6472.44, "siva": 5993, "costo": 4314.96}, {"marca": "NGK", "codigo": "NGK01BP6EFS", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT-FORD", "pub": 6809.4, "siva": 6305, "costo": 4539.6}, {"marca": "NGK", "codigo": "NGK01BP5EFS", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT-FORD", "pub": 6809.4, "siva": 6305, "costo": 4539.6}, {"marca": "NGK", "codigo": "NGK01BP5HS", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT - IKA", "pub": 6540.48, "siva": 6056, "costo": 4360.32}, {"marca": "NGK", "codigo": "NGK01DILKAR6A11", "detalle": "BUJIA NAFTERA NGK LINEA RENAULT KOLEOS", "pub": 93578.76, "siva": 86647, "costo": 62385.84}, {"marca": "NGK", "codigo": "NGK01BKR5EYA-11", "detalle": "BUJIA NAFTERA NGK LINEA TOYOTA", "pub": 8428.32, "siva": 7804, "costo": 5618.88}, {"marca": "NGK", "codigo": "NGK01BP5ES", "detalle": "BUJIA NAFTERA NGK LINEA VW", "pub": 6540.48, "siva": 6056, "costo": 4360.32}, {"marca": "NGK", "codigo": "NGK01BPR6ES", "detalle": "BUJIA NAFTERA NGK LINEA VW-CORSA-FIAT", "pub": 7416.36, "siva": 6867, "costo": 4944.24}, {"marca": "NGK", "codigo": "NGK01BKUR5ETC-10", "detalle": "BUJIA NAFTERA NGK LINEA VW 3 ELECTRODOS", "pub": 10990.08, "siva": 10176, "costo": 7326.72}, {"marca": "NGK", "codigo": "NGK01ZFR6PG", "detalle": "BUJIA NAFTERA NGK LINEA VW GOL 1.4", "pub": 9815.04, "siva": 9088, "costo": 6543.36}, {"marca": "NGK", "codigo": "NGK01BKUR6ET-10", "detalle": "BUJIA NAFTERA VW-AUDI", "pub": 16541.28, "siva": 15316, "costo": 11027.52}, {"marca": "NGK", "codigo": "NGK01CR9E", "detalle": "BUJIA NGK", "pub": 23394.96, "siva": 21662, "costo": 15596.64}, {"marca": "NGK", "codigo": "NGK01C7HSA", "detalle": "BUJIA NGK MOTOS", "pub": 6809.4, "siva": 6305, "costo": 4539.6}, {"marca": "NGK", "codigo": "NGK01PLKR7B8E", "detalle": "BUJIA NGK NAFTERA LINEA MERCEDES BENZ", "pub": 42339.24, "siva": 39203, "costo": 28226.16}, {"marca": "BERU", "codigo": "BER02UXF79", "detalle": "BUJIAS NAFTERAS BERU", "pub": 15007.68, "siva": 13896, "costo": 10005.12}, {"marca": "BERU", "codigo": "BER02UX79", "detalle": "BUJIAS NAFTERAS BERU", "pub": 15007.68, "siva": 13896, "costo": 10005.12}, {"marca": "BERU", "codigo": "BER02S6SILVER", "detalle": "BUJIAS NAFTERAS BERU", "pub": 25963.2, "siva": 24040, "costo": 17308.8}, {"marca": "BERU", "codigo": "BER0214.8DU", "detalle": "BUJIAS NAFTERAS BERU - Z1", "pub": 5388.12, "siva": 4989, "costo": 3592.08}, {"marca": "BERU", "codigo": "BER0214.7DU", "detalle": "BUJIAS NAFTERAS BERU - Z11", "pub": 5388.12, "siva": 4989, "costo": 3592.08}, {"marca": "BERU", "codigo": "BER0214.8BU", "detalle": "BUJIAS NAFTERAS BERU - Z118", "pub": 5927.04, "siva": 5488, "costo": 3951.36}, {"marca": "BERU", "codigo": "BER0214.F7LDUR4", "detalle": "BUJIAS NAFTERAS BERU - Z14", "pub": 22108.68, "siva": 20471, "costo": 14739.12}, {"marca": "BERU", "codigo": "BER0214.FR7DU", "detalle": "BUJIAS NAFTERAS BERU - Z15", "pub": 6653.88, "siva": 6161, "costo": 4435.92}, {"marca": "BERU", "codigo": "BER0214.10DU", "detalle": "BUJIAS NAFTERAS BERU - Z169", "pub": 5388.12, "siva": 4989, "costo": 3592.08}, {"marca": "BERU", "codigo": "BER0214.K7DU", "detalle": "BUJIAS NAFTERAS BERU - Z17", "pub": 5388.12, "siva": 4989, "costo": 3592.08}, {"marca": "BERU", "codigo": "BER0218.K9BU", "detalle": "BUJIAS NAFTERAS BERU - Z175", "pub": 9524.52, "siva": 8819, "costo": 6349.68}, {"marca": "BERU", "codigo": "BER0214.FR8MU", "detalle": "BUJIAS NAFTERAS BERU - Z183", "pub": 12830.4, "siva": 11880, "costo": 8553.6}, {"marca": "BERU", "codigo": "BER0214.FR7MU", "detalle": "BUJIAS NAFTERAS BERU - Z184", "pub": 12830.4, "siva": 11880, "costo": 8553.6}, {"marca": "BERU", "codigo": "BER0214.R7DU", "detalle": "BUJIAS NAFTERAS BERU - Z20", "pub": 6653.88, "siva": 6161, "costo": 4435.92}, {"marca": "BERU", "codigo": "BER0214.FR7DUW", "detalle": "BUJIAS NAFTERAS BERU - Z247", "pub": 6653.88, "siva": 6161, "costo": 4435.92}, {"marca": "BERU", "codigo": "BER0214.F7HURU", "detalle": "BUJIAS NAFTERAS BERU - Z272", "pub": 10722.24, "siva": 9928, "costo": 7148.16}, {"marca": "BERU", "codigo": "BER0212ZR-6 SPP2-1", "detalle": "BUJIAS NAFTERAS BERU - Z332 PEUGEOT MOTOR THP", "pub": 33366.6, "siva": 30895, "costo": 22244.4}, {"marca": "BERU", "codigo": "BER0214.F7HTUR", "detalle": "BUJIAS NAFTERAS BERU - Z344", "pub": 16728.12, "siva": 15489, "costo": 11152.08}, {"marca": "BERU", "codigo": "BER0214.F5MPUR2L", "detalle": "BUJIAS NAFTERAS BERU - Z348", "pub": 45795.24, "siva": 42403, "costo": 30530.16}, {"marca": "BERU", "codigo": "BER0214.F7DU", "detalle": "BUJIAS NAFTERAS BERU - Z63", "pub": 5388.12, "siva": 4989, "costo": 3592.08}, {"marca": "BERU", "codigo": "BER0214.KR7DUX", "detalle": "BUJIAS NAFTERAS BERU - Z67", "pub": 6653.88, "siva": 6161, "costo": 4435.92}, {"marca": "BERU", "codigo": "BER0214.R8DU", "detalle": "BUJIAS NAFTERAS BERU - Z8", "pub": 6653.88, "siva": 6161, "costo": 4435.92}, {"marca": "BERU", "codigo": "BER0214.R9DU", "detalle": "BUJIAS NAFTERAS BERU - Z82", "pub": 6653.88, "siva": 6161, "costo": 4435.92}, {"marca": "BERU", "codigo": "BER0214.KR7DU", "detalle": "BUJIAS NAFTERAS BERU - Z95", "pub": 6653.88, "siva": 6161, "costo": 4435.92}, {"marca": "BERU", "codigo": "BER0214KR-6MUU", "detalle": "BUJIAS NAFTERAS BERU -Z305", "pub": 11881.08, "siva": 11001, "costo": 7920.72}, {"marca": "BERU", "codigo": "BER0212VR-8 SE", "detalle": "BUJIAS NAFTERAS BERU  - Z243", "pub": 10036.44, "siva": 9293, "costo": 6690.96}, {"marca": "BERU", "codigo": "BER0214.KR6DPUV02", "detalle": "BUJIAS NAFTERAS BERU FOCUS 2.0 - Z209", "pub": 38439.36, "siva": 35592, "costo": 25626.24}, {"marca": "BERU", "codigo": "BER0218.K7BU", "detalle": "BUJIAS NAFTERAS BERU LINEA FORD", "pub": 8165.88, "siva": 7561, "costo": 5443.92}, {"marca": "VARIOS", "codigo": "MOP46348848", "detalle": "BUJIAS NAFTERAS FIAT CRONOS 1.8 16V - JEEP RENEGADE", "pub": 30019.68, "siva": 27796, "costo": 20013.12}];
+const PRECIOS_INCANDESCENTE = [{"marca": "BERU", "codigo": "HIDRIAH5247", "detalle": "BUJIA HIDRA 11V L200 Y MONTERO 2.5 Y 3.2DI-D", "pub": 61393.68, "siva": 56846, "costo": 40929.12}, {"marca": "BERU", "codigo": "HIDRIAH5240", "detalle": "BUJIA HIDRA 4,4V CAPTIVA 2.0 Y 2.2 CRUZE 2.0", "pub": 45295.2, "siva": 41940, "costo": 30196.8}, {"marca": "KESSEL", "codigo": "KES01C9711", "detalle": "BUJIA INCANDESCENTE", "pub": 19818, "siva": 18350, "costo": 13212}, {"marca": "KESSEL", "codigo": "KES01C9388", "detalle": "BUJIA INCANDESCENTE", "pub": 26814.24, "siva": 24828, "costo": 17876.16}, {"marca": "BERU", "codigo": "HIDRIH5015", "detalle": "BUJIA INCANDESCENTE", "pub": 43315.56, "siva": 40107, "costo": 28877.04}, {"marca": "BERU", "codigo": "BER01GK382", "detalle": "BUJIA INCANDESCENTE", "pub": 44862.12, "siva": 41539, "costo": 29908.08}, {"marca": "KESSEL", "codigo": "KES01C9107", "detalle": "BUJIA INCANDESCENTE ALFA CHRYSLER SEAT VW", "pub": 20359.08, "siva": 18851, "costo": 13572.72}, {"marca": "BERU", "codigo": "BER01GN007", "detalle": "BUJIA INCANDESCENTE ALFA CHRYSLER SEAT VW", "pub": 43733.52, "siva": 40494, "costo": 29155.68}, {"marca": "BERU", "codigo": "BER01GN046", "detalle": "BUJIA INCANDESCENTE ALFA CHRYSLER SEAT VW", "pub": 43733.52, "siva": 40494, "costo": 29155.68}, {"marca": "BERU", "codigo": "BER01GN017", "detalle": "BUJIA INCANDESCENTE ALFA ROMEO", "pub": 61008.12, "siva": 56489, "costo": 40672.08}, {"marca": "BERU", "codigo": "BER01GN041", "detalle": "BUJIA INCANDESCENTE ALFA ROMEO FIAT", "pub": 46733.76, "siva": 43272, "costo": 31155.84}, {"marca": "BERU", "codigo": "BER01GN020", "detalle": "BUJIA INCANDESCENTE ALFA ROMEO FIAT", "pub": 75827.88, "siva": 70211, "costo": 50551.92}, {"marca": "BERU", "codigo": "BER01GN059", "detalle": "BUJIA INCANDESCENTE ALFA ROMEO FIAT SAAB", "pub": 46551.24, "siva": 43103, "costo": 31034.16}, {"marca": "BERU", "codigo": "BER01GV657", "detalle": "BUJIA INCANDESCENTE ALFA ROMEO IME BORGWARD", "pub": 37369.08, "siva": 34601, "costo": 24912.72}, {"marca": "BERU", "codigo": "BER01GN928", "detalle": "BUJIA INCANDESCENTE AUDI", "pub": 141456.24, "siva": 130978, "costo": 94304.16}, {"marca": "BERU", "codigo": "BER01GN008", "detalle": "BUJIA INCANDESCENTE AUDI", "pub": 43551, "siva": 40325, "costo": 29034}, {"marca": "KESSEL", "codigo": "KES01C9116", "detalle": "BUJIA INCANDESCENTE AUDI NISSAN SEAT SKODA VOLVO VW", "pub": 10977.12, "siva": 10164, "costo": 7318.08}, {"marca": "BERU", "codigo": "BER01GN857", "detalle": "BUJIA INCANDESCENTE AUDI NISSAN SEAT SKODA VOLVO VW", "pub": 28821.96, "siva": 26687, "costo": 19214.64}, {"marca": "HIT", "codigo": "HIT014291", "detalle": "BUJIA INCANDESCENTE AUDI NISSAN SEAT SKODA VOLVO VW", "pub": 8380.8, "siva": 7760, "costo": 5587.2}, {"marca": "BERU", "codigo": "BER01GV689", "detalle": "BUJIA INCANDESCENTE AUDI NISSAN SEAT SKODA VOLVO VW", "pub": 28731.24, "siva": 26603, "costo": 19154.16}, {"marca": "BERU", "codigo": "BER01GE115", "detalle": "BUJIA INCANDESCENTE AUDI VW", "pub": 38005.2, "siva": 35190, "costo": 25336.8}, {"marca": "BERU", "codigo": "BER01GE100", "detalle": "BUJIA INCANDESCENTE AUDI VW SEAT", "pub": 33186.24, "siva": 30728, "costo": 22124.16}, {"marca": "BERU", "codigo": "BER01GE110", "detalle": "BUJIA INCANDESCENTE BERU RENAULT 1.5DCI", "pub": 44278.92, "siva": 40999, "costo": 29519.28}, {"marca": "BERU", "codigo": "BER01GN024", "detalle": "BUJIA INCANDESCENTE BMW LAND ROVER", "pub": 49370.04, "siva": 45713, "costo": 32913.36}, {"marca": "BERU", "codigo": "BER01GN047", "detalle": "BUJIA INCANDESCENTE CHEVROLET", "pub": 46279.08, "siva": 42851, "costo": 30852.72}, {"marca": "BERU", "codigo": "BER01GN104", "detalle": "BUJIA INCANDESCENTE CHEVROLET", "pub": 55279.8, "siva": 51185, "costo": 36853.2}, {"marca": "KESSEL", "codigo": "KES01C9917", "detalle": "BUJIA INCANDESCENTE CHEVROLET", "pub": 27583.2, "siva": 25540, "costo": 18388.8}, {"marca": "KESSEL", "codigo": "KES01C9576", "detalle": "BUJIA INCANDESCENTE CHEVROLET", "pub": 29490.48, "siva": 27306, "costo": 19660.32}, {"marca": "KESSEL", "codigo": "KES01C9221", "detalle": "BUJIA INCANDESCENTE CHEVROLET-ISUZU", "pub": 17129.88, "siva": 15861, "costo": 11419.92}, {"marca": "KESSEL", "codigo": "KES01Q9959", "detalle": "BUJIA INCANDESCENTE CHEVROLET CAPTIVA 2.0 2007-2012", "pub": 27232.2, "siva": 25215, "costo": 18154.8}, {"marca": "BERU", "codigo": "BER01GV920", "detalle": "BUJIA INCANDESCENTE CHEVROLET FIAT NISSAN", "pub": 52280.64, "siva": 48408, "costo": 34853.76}, {"marca": "BERU", "codigo": "BER01GV783", "detalle": "BUJIA INCANDESCENTE CHEVROLET FORD MB ROVER", "pub": 50279.4, "siva": 46555, "costo": 33519.6}, {"marca": "KESSEL", "codigo": "KES01C9791", "detalle": "BUJIA INCANDESCENTE CHEVROLET FORD MB ROVER", "pub": 20598.84, "siva": 19073, "costo": 13732.56}, {"marca": "KESSEL", "codigo": "KES01C9315", "detalle": "BUJIA INCANDESCENTE CHEVROLET ISUZU", "pub": 20383.92, "siva": 18874, "costo": 13589.28}, {"marca": "BERU", "codigo": "BER01GN103", "detalle": "BUJIA INCANDESCENTE CHEVROLET OPEL", "pub": 43342.56, "siva": 40132, "costo": 28895.04}, {"marca": "BERU", "codigo": "BER01GN033", "detalle": "BUJIA INCANDESCENTE CHEVROLET OPEL", "pub": 50824.8, "siva": 47060, "costo": 33883.2}, {"marca": "BERU", "codigo": "BER01GN992", "detalle": "BUJIA INCANDESCENTE CHEVROLET OPEL (USE GN033)", "pub": 50824.8, "siva": 47060, "costo": 33883.2}, {"marca": "BERU", "codigo": "BER01GV642", "detalle": "BUJIA INCANDESCENTE CHRYSLER", "pub": 50970.6, "siva": 47195, "costo": 33980.4}, {"marca": "BERU", "codigo": "BER01GN055", "detalle": "BUJIA INCANDESCENTE CHRYSLER JEEP", "pub": 85647.24, "siva": 79303, "costo": 57098.16}, {"marca": "KESSEL", "codigo": "KES01C9919", "detalle": "BUJIA INCANDESCENTE CITROEN FORD PEUGEOT", "pub": 31107.24, "siva": 28803, "costo": 20738.16}, {"marca": "BERU", "codigo": "BER01GN964", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT", "pub": 68645.88, "siva": 63561, "costo": 45763.92}, {"marca": "BERU", "codigo": "BER01GN012", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT FIAT RENAULT", "pub": 39097.08, "siva": 36201, "costo": 26064.72}, {"marca": "KESSEL", "codigo": "KES01C9420", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT FIAT RENAULT", "pub": 19038.24, "siva": 17628, "costo": 12692.16}, {"marca": "KESSEL", "codigo": "KES01C9192", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT FORD", "pub": 31107.24, "siva": 28803, "costo": 20738.16}, {"marca": "BERU", "codigo": "BER01GN056", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT FORD", "pub": 55734.48, "siva": 51606, "costo": 37156.32}, {"marca": "BERU", "codigo": "BER01GN027", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT FORD VOLVO", "pub": 40278.6, "siva": 37295, "costo": 26852.4}, {"marca": "BERU", "codigo": "BER01GN054", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT FORD VOLVO", "pub": 45733.68, "siva": 42346, "costo": 30489.12}, {"marca": "KESSEL", "codigo": "KES01C9795", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT FORD VOLVO", "pub": 21377.52, "siva": 19794, "costo": 14251.68}, {"marca": "KESSEL", "codigo": "KES01C9113", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT LADA NISSAN ROVER", "pub": 17980.92, "siva": 16649, "costo": 11987.28}, {"marca": "BERU", "codigo": "BER01GN912", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT LADA NISSAN ROVER", "pub": 53969.76, "siva": 49972, "costo": 35979.84}, {"marca": "BERU", "codigo": "BER01GN016", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT LADA NISSAN ROVER", "pub": 35095.68, "siva": 32496, "costo": 23397.12}, {"marca": "BERU", "codigo": "BER01GN045", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT VOLVO", "pub": 53826.12, "siva": 49839, "costo": 35884.08}, {"marca": "BERU", "codigo": "BER01GN909", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT VOLVO ALFA FIAT CHRYSLER MB", "pub": 38213.64, "siva": 35383, "costo": 25475.76}, {"marca": "BERU", "codigo": "BER01GN954", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT VOLVO ALFA FIAT CHRYSLER MB", "pub": 29822.04, "siva": 27613, "costo": 19881.36}, {"marca": "KESSEL", "codigo": "KES01C9119", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT VOLVO ALFA FIAT CHRYSLER MB", "pub": 10927.44, "siva": 10118, "costo": 7284.96}, {"marca": "BERU", "codigo": "BER01GN013", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT VOLVO ALFA FIAT CHRYSLER MB", "pub": 29760.48, "siva": 27556, "costo": 19840.32}, {"marca": "HIT", "codigo": "HIT014316", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT VOLVO ALFA FIAT CHRYSLER MB", "pub": 8344.08, "siva": 7726, "costo": 5562.72}, {"marca": "BERU", "codigo": "BER01GN908", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT VOLVO ALFA FIAT CHRYSLER MB", "pub": 38213.64, "siva": 35383, "costo": 25475.76}, {"marca": "BERU", "codigo": "BER01GN917", "detalle": "BUJIA INCANDESCENTE CITROEN PEUGEOT VOLVO ALFA FIAT CHRYSLER MB", "pub": 38213.64, "siva": 35383, "costo": 25475.76}, {"marca": "BERU", "codigo": "BER01GV895", "detalle": "BUJIA INCANDESCENTE DAIHATSU TOYOTA", "pub": 56870.64, "siva": 52658, "costo": 37913.76}, {"marca": "BERU", "codigo": "BER01GV678", "detalle": "BUJIA INCANDESCENTE DAIHATSU TOYOTA", "pub": 53711.64, "siva": 49733, "costo": 35807.76}, {"marca": "BERU", "codigo": "BER01GV886", "detalle": "BUJIA INCANDESCENTE DAIHATSU TOYOTA", "pub": 56868.48, "siva": 52656, "costo": 37912.32}, {"marca": "BERU", "codigo": "BER01GV191", "detalle": "BUJIA INCANDESCENTE DEUTZ", "pub": 80411.4, "siva": 74455, "costo": 53607.6}, {"marca": "BERU", "codigo": "BER01GV170", "detalle": "BUJIA INCANDESCENTE DEUTZ RASTOJERO IME", "pub": 73101.96, "siva": 67687, "costo": 48734.64}, {"marca": "BERU", "codigo": "BER01GV107", "detalle": "BUJIA INCANDESCENTE DEUTZ RASTOJERO IME PEUGEOT", "pub": 73101.96, "siva": 67687, "costo": 48734.64}, {"marca": "KESSEL", "codigo": "KES01C9534", "detalle": "BUJIA INCANDESCENTE DEUTZ RASTOJERO IME PEUGEOT", "pub": 13444.92, "siva": 12449, "costo": 8963.28}, {"marca": "HIT", "codigo": "HIT014313", "detalle": "BUJIA INCANDESCENTE DEUTZ RASTOJERO IME PEUGEOT", "pub": 9460.8, "siva": 8760, "costo": 6307.2}, {"marca": "KESSEL", "codigo": "KES01Q9961", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 27232.2, "siva": 25215, "costo": 18154.8}, {"marca": "BERU", "codigo": "BER01GV730", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 90467.28, "siva": 83766, "costo": 60311.52}, {"marca": "BERU", "codigo": "BER01GN970", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 52279.56, "siva": 48407, "costo": 34853.04}, {"marca": "BERU", "codigo": "BER01GV128", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 85465.8, "siva": 79135, "costo": 56977.2}, {"marca": "BERU", "codigo": "BER01GN053", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 37914.48, "siva": 35106, "costo": 25276.32}, {"marca": "BERU", "codigo": "BER01GV663", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 50970.6, "siva": 47195, "costo": 33980.4}, {"marca": "KESSEL", "codigo": "KES01C9138", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 29945.16, "siva": 27727, "costo": 19963.44}, {"marca": "BERU", "codigo": "BER01GN925", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 41642.64, "siva": 38558, "costo": 27761.76}, {"marca": "BERU", "codigo": "BER01GN030", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 40733.28, "siva": 37716, "costo": 27155.52}, {"marca": "BERU", "codigo": "BER01GV636", "detalle": "BUJIA INCANDESCENTE FIAT", "pub": 50970.6, "siva": 47195, "costo": 33980.4}, {"marca": "BERU", "codigo": "BER01GE114", "detalle": "BUJIA INCANDESCENTE FIAT JEEP ALFA ROMEO", "pub": 54462.24, "siva": 50428, "costo": 36308.16}, {"marca": "KESSEL", "codigo": "KES01C9176", "detalle": "BUJIA INCANDESCENTE FIAT MOTOR 1.3 MULTIJET", "pub": 37804.32, "siva": 35004, "costo": 25202.88}, {"marca": "BERU", "codigo": "BER01GE112", "detalle": "BUJIA INCANDESCENTE FIAT MOTOR 1.3 MULTIJET", "pub": 44460.36, "siva": 41167, "costo": 29640.24}, {"marca": "BERU", "codigo": "BER01GN037", "detalle": "BUJIA INCANDESCENTE FIAT PEUGEOT CITROEN", "pub": 69918.12, "siva": 64739, "costo": 46612.08}, {"marca": "KESSEL", "codigo": "KES01Q9962", "detalle": "BUJIA INCANDESCENTE FIAT TORO", "pub": 27232.2, "siva": 25215, "costo": 18154.8}, {"marca": "KESSEL", "codigo": "KES01C9790", "detalle": "BUJIA INCANDESCENTE FORD", "pub": 20818.08, "siva": 19276, "costo": 13878.72}, {"marca": "BERU", "codigo": "BER01GN993", "detalle": "BUJIA INCANDESCENTE FORD", "pub": 31368.6, "siva": 29045, "costo": 20912.4}, {"marca": "BERU", "codigo": "BER01GN939", "detalle": "BUJIA INCANDESCENTE FORD", "pub": 39459.96, "siva": 36537, "costo": 26306.64}, {"marca": "BERU", "codigo": "BER01GN022", "detalle": "BUJIA INCANDESCENTE FORD", "pub": 28731.24, "siva": 26603, "costo": 19154.16}, {"marca": "KESSEL", "codigo": "KES01C9155", "detalle": "BUJIA INCANDESCENTE FORD", "pub": 13990.32, "siva": 12954, "costo": 9326.88}, {"marca": "BERU", "codigo": "BER01GN927", "detalle": "BUJIA INCANDESCENTE FORD ALEKO CITROEN PEUGEOT ROVER FIAT", "pub": 24912.36, "siva": 23067, "costo": 16608.24}, {"marca": "BERU", "codigo": "BER01GV661", "detalle": "BUJIA INCANDESCENTE FORD ALEKO CITROEN PEUGEOT ROVER FIAT", "pub": 41369.4, "siva": 38305, "costo": 27579.6}, {"marca": "BERU", "codigo": "BER01GV666", "detalle": "BUJIA INCANDESCENTE FORD ALEKO CITROEN PEUGEOT ROVER FIAT", "pub": 37411.2, "siva": 34640, "costo": 24940.8}, {"marca": "KESSEL", "codigo": "KES01C9136", "detalle": "BUJIA INCANDESCENTE FORD ALEKO CITROEN PEUGEOT ROVER FIAT", "pub": 14371.56, "siva": 13307, "costo": 9581.04}, {"marca": "BERU", "codigo": "BER01GE122", "detalle": "BUJIA INCANDESCENTE FORD RANGER 3.2 -PEUGEOT CITROEN", "pub": 61098.84, "siva": 56573, "costo": 40732.56}, {"marca": "BERU", "codigo": "BER01GN854T", "detalle": "BUJIA INCANDESCENTE GALLOPER (USE GN955)", "pub": 46824.48, "siva": 43356, "costo": 31216.32}, {"marca": "BERU", "codigo": "BER01GN035", "detalle": "BUJIA INCANDESCENTE HYUNDAI", "pub": 49371.12, "siva": 45714, "costo": 32914.08}, {"marca": "KESSEL", "codigo": "KES01C9717", "detalle": "BUJIA INCANDESCENTE HYUNDAI", "pub": 20383.92, "siva": 18874, "costo": 13589.28}, {"marca": "BERU", "codigo": "BER01GN062", "detalle": "BUJIA INCANDESCENTE HYUNDAI KIA", "pub": 57917.16, "siva": 53627, "costo": 38611.44}, {"marca": "BERU", "codigo": "BER01GV673", "detalle": "BUJIA INCANDESCENTE HYUNDAI MITSUBISHI", "pub": 48097.8, "siva": 44535, "costo": 32065.2}, {"marca": "BERU", "codigo": "BER01GN955", "detalle": "BUJIA INCANDESCENTE HYUNDAI MITSUBISHI", "pub": 46824.48, "siva": 43356, "costo": 31216.32}, {"marca": "KESSEL", "codigo": "KES01C9741", "detalle": "BUJIA INCANDESCENTE HYUNDAI MITSUBISHI", "pub": 18652.68, "siva": 17271, "costo": 12435.12}, {"marca": "KESSEL", "codigo": "KES01C9600", "detalle": "BUJIA INCANDESCENTE HYUNDAI MITSUBISHI KIA", "pub": 17985.24, "siva": 16653, "costo": 11990.16}, {"marca": "BERU", "codigo": "BER01GN028", "detalle": "BUJIA INCANDESCENTE HYUNDAI MITSUBISHI KIA", "pub": 50007.24, "siva": 46303, "costo": 33338.16}, {"marca": "BERU", "codigo": "BER01GN997", "detalle": "BUJIA INCANDESCENTE ISUZU", "pub": 72100.8, "siva": 66760, "costo": 48067.2}, {"marca": "BERU", "codigo": "BER01GV749", "detalle": "BUJIA INCANDESCENTE ISUZU", "pub": 78454.44, "siva": 72643, "costo": 52302.96}, {"marca": "KESSEL", "codigo": "KES01C9375", "detalle": "BUJIA INCANDESCENTE ISUZU", "pub": 24717.96, "siva": 22887, "costo": 16478.64}, {"marca": "BERU", "codigo": "BER01GV945", "detalle": "BUJIA INCANDESCENTE ISUZU", "pub": 48331.08, "siva": 44751, "costo": 32220.72}, {"marca": "BERU", "codigo": "BER01GV946", "detalle": "BUJIA INCANDESCENTE ISUZU DAEWO HYUNDAI", "pub": 44188.2, "siva": 40915, "costo": 29458.8}, {"marca": "BERU", "codigo": "BER01GN944", "detalle": "BUJIA INCANDESCENTE ISUZU OPEL", "pub": 57007.8, "siva": 52785, "costo": 38005.2}, {"marca": "BERU", "codigo": "BER01GN1010", "detalle": "BUJIA INCANDESCENTE JEEP-FIAT-RAM 2.2TD", "pub": 99469.08, "siva": 92101, "costo": 66312.72}, {"marca": "BERU", "codigo": "BER01GN003", "detalle": "BUJIA INCANDESCENTE JEEP MB", "pub": 30095.28, "siva": 27866, "costo": 20063.52}, {"marca": "KESSEL", "codigo": "KES01C9108", "detalle": "BUJIA INCANDESCENTE KESSEL", "pub": 23316.12, "siva": 21589, "costo": 15544.08}, {"marca": "KESSEL", "codigo": "KES01C9676", "detalle": "BUJIA INCANDESCENTE KESSEL TOYOTA", "pub": 32377.32, "siva": 29979, "costo": 21584.88}, {"marca": "BERU", "codigo": "BER01GN005", "detalle": "BUJIA INCANDESCENTE KIA MAZDA", "pub": 50007.24, "siva": 46303, "costo": 33338.16}, {"marca": "KESSEL", "codigo": "KES01C9703", "detalle": "BUJIA INCANDESCENTE KIA MAZDA", "pub": 19903.32, "siva": 18429, "costo": 13268.88}, {"marca": "BERU", "codigo": "BER01GN853", "detalle": "BUJIA INCANDESCENTE KIA NISSAN", "pub": 48552.48, "siva": 44956, "costo": 32368.32}, {"marca": "KESSEL", "codigo": "KES01C9580", "detalle": "BUJIA INCANDESCENTE KUBOTA", "pub": 26814.24, "siva": 24828, "costo": 17876.16}, {"marca": "BERU", "codigo": "BER01GN985", "detalle": "BUJIA INCANDESCENTE LAND ROVER", "pub": 60918.48, "siva": 56406, "costo": 40612.32}, {"marca": "BERU", "codigo": "BER01GV719", "detalle": "BUJIA INCANDESCENTE LAND ROVER BMW", "pub": 50970.6, "siva": 47195, "costo": 33980.4}, {"marca": "BERU", "codigo": "BER01GN854T1", "detalle": "BUJIA INCANDESCENTE LAYDON MAZDA", "pub": 80471.88, "siva": 74511, "costo": 53647.92}, {"marca": "BERU", "codigo": "BER01GV968", "detalle": "BUJIA INCANDESCENTE LAYDON TOYOTA", "pub": 44370.72, "siva": 41084, "costo": 29580.48}, {"marca": "KESSEL", "codigo": "KES01C9728", "detalle": "BUJIA INCANDESCENTE LAYDON TOYOTA", "pub": 21582.72, "siva": 19984, "costo": 14388.48}, {"marca": "BERU", "codigo": "BER01GV688", "detalle": "BUJIA INCANDESCENTE LAYDON TOYOTA", "pub": 40824, "siva": 37800, "costo": 27216}, {"marca": "BERU", "codigo": "BER01GV880", "detalle": "BUJIA INCANDESCENTE MAZDA", "pub": 75827.88, "siva": 70211, "costo": 50551.92}, {"marca": "BERU", "codigo": "BER01GV705", "detalle": "BUJIA INCANDESCENTE MAZDA", "pub": 55743.12, "siva": 51614, "costo": 37162.08}, {"marca": "BERU", "codigo": "BER01GN858", "detalle": "BUJIA INCANDESCENTE MB", "pub": 27459, "siva": 25425, "costo": 18306}, {"marca": "KESSEL", "codigo": "KES01C9692", "detalle": "BUJIA INCANDESCENTE MB", "pub": 31754.16, "siva": 29402, "costo": 21169.44}, {"marca": "BERU", "codigo": "BER01GN010", "detalle": "BUJIA INCANDESCENTE MB", "pub": 28821.96, "siva": 26687, "costo": 19214.64}, {"marca": "BERU", "codigo": "BER01GN961", "detalle": "BUJIA INCANDESCENTE MB", "pub": 51098.04, "siva": 47313, "costo": 34065.36}, {"marca": "BERU", "codigo": "BER01GV603", "detalle": "BUJIA INCANDESCENTE MB", "pub": 21185.28, "siva": 19616, "costo": 14123.52}, {"marca": "BERU", "codigo": "BER01GN015", "detalle": "BUJIA INCANDESCENTE MB", "pub": 51007.32, "siva": 47229, "costo": 34004.88}, {"marca": "BERU", "codigo": "BER01GN860", "detalle": "BUJIA INCANDESCENTE MB", "pub": 54554.04, "siva": 50513, "costo": 36369.36}, {"marca": "BERU", "codigo": "BER01GN948", "detalle": "BUJIA INCANDESCENTE MB", "pub": 44096.4, "siva": 40830, "costo": 29397.6}, {"marca": "BERU", "codigo": "BER01GV718", "detalle": "BUJIA INCANDESCENTE MB", "pub": 30561.84, "siva": 28298, "costo": 20374.56}, {"marca": "BERU", "codigo": "BER01GE105", "detalle": "BUJIA INCANDESCENTE MB JEEP", "pub": 35004.96, "siva": 32412, "costo": 23336.64}, {"marca": "BERU", "codigo": "BER01GV898", "detalle": "BUJIA INCANDESCENTE MITSUBISHI", "pub": 53735.4, "siva": 49755, "costo": 35823.6}, {"marca": "BERU", "codigo": "BER01GN959", "detalle": "BUJIA INCANDESCENTE MITSUBISHI VOLVO", "pub": 21276, "siva": 19700, "costo": 14184}, {"marca": "BERU", "codigo": "BER01GV835", "detalle": "BUJIA INCANDESCENTE NAVISTAR", "pub": 85055.4, "siva": 78755, "costo": 56703.6}, {"marca": "BERU", "codigo": "BER01GV823", "detalle": "BUJIA INCANDESCENTE NAVISTAR CHEVROLET HUMMER", "pub": 40914.72, "siva": 37884, "costo": 27276.48}, {"marca": "BERU", "codigo": "BER01GV004", "detalle": "BUJIA INCANDESCENTE NAVISTAR HUMMER", "pub": 52098.12, "siva": 48239, "costo": 34732.08}, {"marca": "BERU", "codigo": "BER01GV728", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 66463.2, "siva": 61540, "costo": 44308.8}, {"marca": "BERU", "codigo": "BER01GV890", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 40824, "siva": 37800, "costo": 27216}, {"marca": "BERU", "codigo": "BER01GV887", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 40824, "siva": 37800, "costo": 27216}, {"marca": "BERU", "codigo": "BER01GN994", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 48552.48, "siva": 44956, "costo": 32368.32}, {"marca": "KESSEL", "codigo": "KES01C9685", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 45314.64, "siva": 41958, "costo": 30209.76}, {"marca": "BERU", "codigo": "BER01GV685", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 56356.56, "siva": 52182, "costo": 37571.04}, {"marca": "KESSEL", "codigo": "KES01C9417", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 26814.24, "siva": 24828, "costo": 17876.16}, {"marca": "BERU", "codigo": "BER01GN039", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 48552.48, "siva": 44956, "costo": 32368.32}, {"marca": "BERU", "codigo": "BER01GV889", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 40824, "siva": 37800, "costo": 27216}, {"marca": "BERU", "codigo": "BER01GN044", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 63917.64, "siva": 59183, "costo": 42611.76}, {"marca": "BERU", "codigo": "BER01GV888", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 56868.48, "siva": 52656, "costo": 37912.32}, {"marca": "BERU", "codigo": "BER01GV892", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 81523.8, "siva": 75485, "costo": 54349.2}, {"marca": "BERU", "codigo": "BER01GV922", "detalle": "BUJIA INCANDESCENTE NISSAN", "pub": 55824.12, "siva": 51689, "costo": 37216.08}, {"marca": "BERU", "codigo": "BER01GN854", "detalle": "BUJIA INCANDESCENTE NISSAN (USE GN994)", "pub": 48550.32, "siva": 44954, "costo": 32366.88}, {"marca": "KESSEL", "codigo": "KES01C9492", "detalle": "BUJIA INCANDESCENTE NISSAN 24V", "pub": 28156.68, "siva": 26071, "costo": 18771.12}, {"marca": "BERU", "codigo": "BER01GV921", "detalle": "BUJIA INCANDESCENTE NISSAN HYUNDAI", "pub": 59644.08, "siva": 55226, "costo": 39762.72}, {"marca": "BERU", "codigo": "HIDRIAH5261", "detalle": "BUJIA INCANDESCENTE RANGER 2.0 4 Cilindros HIDRA", "pub": 53462.16, "siva": 49502, "costo": 35641.44}, {"marca": "BERU", "codigo": "HIDRIAH5326", "detalle": "BUJIA INCANDESCENTE RANGER 3.0 V6 HIDRA", "pub": 52280.64, "siva": 48408, "costo": 34853.76}, {"marca": "KESSEL", "codigo": "KES01C9211", "detalle": "BUJIA INCANDESCENTE RENAULT", "pub": 19541.52, "siva": 18094, "costo": 13027.68}, {"marca": "BERU", "codigo": "BER01GN019", "detalle": "BUJIA INCANDESCENTE RENAULT", "pub": 34731.72, "siva": 32159, "costo": 23154.48}, {"marca": "BERU", "codigo": "BER01GN026", "detalle": "BUJIA INCANDESCENTE RENAULT", "pub": 48007.08, "siva": 44451, "costo": 32004.72}, {"marca": "KESSEL", "codigo": "KES01C9402", "detalle": "BUJIA INCANDESCENTE RENAULT", "pub": 16190.28, "siva": 14991, "costo": 10793.52}, {"marca": "BERU", "codigo": "BER01GN991", "detalle": "BUJIA INCANDESCENTE RENAULT", "pub": 41642.64, "siva": 38558, "costo": 27761.76}, {"marca": "BERU", "codigo": "BER01GN963", "detalle": "BUJIA INCANDESCENTE RENAULT", "pub": 44369.64, "siva": 41083, "costo": 29579.76}, {"marca": "BERU", "codigo": "BER01GN905", "detalle": "BUJIA INCANDESCENTE RENAULT", "pub": 58072.68, "siva": 53771, "costo": 38715.12}, {"marca": "KESSEL", "codigo": "KES01C9157", "detalle": "BUJIA INCANDESCENTE RENAULT", "pub": 13329.36, "siva": 12342, "costo": 8886.24}, {"marca": "KESSEL", "codigo": "KES01C9104", "detalle": "BUJIA INCANDESCENTE RENAULT AUDI SEAT VOLVO VW", "pub": 18875.16, "siva": 17477, "costo": 12583.44}, {"marca": "BERU", "codigo": "BER01GN018", "detalle": "BUJIA INCANDESCENTE RENAULT AUDI SEAT VOLVO VW", "pub": 30822.12, "siva": 28539, "costo": 20548.08}, {"marca": "BERU", "codigo": "BER01GN855", "detalle": "BUJIA INCANDESCENTE RENAULT AUDI SEAT VOLVO VW", "pub": 29276.64, "siva": 27108, "costo": 19517.76}, {"marca": "BERU", "codigo": "BER01GV852", "detalle": "BUJIA INCANDESCENTE RENAULT CHRYSLER", "pub": 33202.44, "siva": 30743, "costo": 22134.96}, {"marca": "BERU", "codigo": "BER01GN999", "detalle": "BUJIA INCANDESCENTE RENAULT HONDA LAND ROVER", "pub": 41369.4, "siva": 38305, "costo": 27579.6}, {"marca": "KESSEL", "codigo": "KES01Q9975", "detalle": "BUJIA INCANDESCENTE S10 PICKUP / CHRYSLER 2.8", "pub": 27232.2, "siva": 25215, "costo": 18154.8}, {"marca": "BERU", "codigo": "BER01GV969", "detalle": "BUJIA INCANDESCENTE TOYOTA", "pub": 53735.4, "siva": 49755, "costo": 35823.6}, {"marca": "BERU", "codigo": "BER01GV896", "detalle": "BUJIA INCANDESCENTE TOYOTA", "pub": 53735.4, "siva": 49755, "costo": 35823.6}, {"marca": "BERU", "codigo": "BER01GV894", "detalle": "BUJIA INCANDESCENTE TOYOTA", "pub": 53711.64, "siva": 49733, "costo": 35807.76}, {"marca": "BERU", "codigo": "BER01GN042", "detalle": "BUJIA INCANDESCENTE TOYOTA", "pub": 54370.44, "siva": 50343, "costo": 36246.96}, {"marca": "BERU", "codigo": "BER01GN068", "detalle": "BUJIA INCANDESCENTE TOYOTA", "pub": 53735.4, "siva": 49755, "costo": 35823.6}, {"marca": "KESSEL", "codigo": "KES01C9440", "detalle": "BUJIA INCANDESCENTE TOYOTA", "pub": 23316.12, "siva": 21589, "costo": 15544.08}, {"marca": "BERU", "codigo": "BER01GV897", "detalle": "BUJIA INCANDESCENTE TOYOTA DAIHATSU", "pub": 50869.08, "siva": 47101, "costo": 33912.72}, {"marca": "BERU", "codigo": "BER01GN043", "detalle": "BUJIA INCANDESCENTE TOYOTA DAIHATSU", "pub": 45551.16, "siva": 42177, "costo": 30367.44}, {"marca": "BERU", "codigo": "BER01GV967", "detalle": "BUJIA INCANDESCENTE TOYOTA DAIHATSU", "pub": 36005.04, "siva": 33338, "costo": 24003.36}, {"marca": "KESSEL", "codigo": "KES01C9360", "detalle": "BUJIA INCANDESCENTE TOYOTA DAIHATSU", "pub": 20383.92, "siva": 18874, "costo": 13589.28}, {"marca": "BERU", "codigo": "BER01GV145", "detalle": "BUJIA INCANDESCENTE TRACTOR FIAT U25", "pub": 83920.32, "siva": 77704, "costo": 55946.88}, {"marca": "BERU", "codigo": "BER01GE123", "detalle": "BUJIA INCANDESCENTE VOLVO", "pub": 56644.92, "siva": 52449, "costo": 37763.28}, {"marca": "BERU", "codigo": "BER01GV844", "detalle": "BUJIA INCANDESCENTE VOLVO", "pub": 32085.72, "siva": 29709, "costo": 21390.48}, {"marca": "KESSEL", "codigo": "KES01Q9958", "detalle": "BUJIA INCANDESCENTE VW AMAROK 2.0 TDI", "pub": 27232.2, "siva": 25215, "costo": 18154.8}, {"marca": "BERU", "codigo": "HIDRIAH1 339", "detalle": "BUJIA INCANDESCENTE VW AMAROK HIDRA", "pub": 38016, "siva": 35200, "costo": 25344}, {"marca": "BERU", "codigo": "HIDRIAH70009", "detalle": "BUJIA PRECALENTAMIENTO HIDRA AUDI", "pub": 508707, "siva": 471025, "costo": 339138}, {"marca": "BERU", "codigo": "HIDRIA903", "detalle": "BUJIA PRECALENTAMIENTO MASTER/BOXER/DAILY", "pub": 153528.48, "siva": 142156, "costo": 102352.32}, {"marca": "BERU", "codigo": "BER01DT7P", "detalle": "BUJIAS INCANDESCENTES", "pub": 37382.04, "siva": 34613, "costo": 24921.36}, {"marca": "BERU", "codigo": "BER01GF154", "detalle": "TERMOARRANQUE PERKINS", "pub": 108924.48, "siva": 100856, "costo": 72616.32}, {"marca": "HIT", "codigo": "HIT014570", "detalle": "TERMOARRANQUE PERKINS", "pub": 19038.24, "siva": 17628, "costo": 12692.16}];
+
+function normCod2(s) { return (s || '').toString().toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+function marcaToken(m) {
+  m = (m || '').toUpperCase();
+  if (m.includes('WEGA')) return 'WEGA';
+  if (m.includes('HIT')) return 'HIT';
+  if (m.includes('PERTRAK')) return 'PERTRAK';
+  return m.trim();
+}
+function codigoMatch(stockCod, precioCod) {
+  const ns = normCod2(stockCod), np = normCod2(precioCod);
+  if (!ns) return false;
+  if (ns.length < 3) return ns === np;
+  return ns === np || np.endsWith(ns);
+}
+const PRIORIDAD_MARCA = ['KESSEL', 'BERU', 'NGK', 'HIT'];
+
+// Cruza los códigos por marca de una bujía contra las dos listas de precios de Bobinar.
+// Devuelve un objeto con matches, tipoReal, confianza y precioDefault
+function cruzarPrecios(it) {
+  const matches = [];
+  [['NAFTERAS', PRECIOS_NAFTERA], ['INCANDESCENTES', PRECIOS_INCANDESCENTE]].forEach(([lista, filas]) => {
+    Object.entries(it.codigos || {}).forEach(([marca, codigo]) => {
+      const mt = marcaToken(marca);
+      filas.forEach(r => {
+        if (r.marca === mt && codigoMatch(codigo, r.codigo)) {
+          matches.push({ lista, marca, codigo_stock: codigo, codigo_precio: r.codigo, pub: r.pub, siva: r.siva, costo: r.costo });
+        }
+      });
+    });
+  });
+  const listas = new Set(matches.map(m => m.lista));
+  let tipoReal = null, confianza = 'sin_precio';
+  if (listas.size === 1) { tipoReal = [...listas][0]; confianza = 'confirmado'; }
+  else if (listas.size === 2) { confianza = 'ambiguo'; }
+  let precioDefault = null;
+  for (const marca of PRIORIDAD_MARCA) {
+    const cand = matches.find(m => marcaToken(m.marca) === marca);
+    if (cand) { precioDefault = cand; break; }
+  }
+  return { matches, tipoReal, confianza, precioDefault };
+}
+
+
+
+let categoriasCache = [];
+let docsCache = []; // docs de Firestore con origen_import === ORIGEN
+
+async function iniciar() {
+  const [catSnap, repSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')),
+    getDocs(collection(db, 'repuestos')),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  docsCache = repSnap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(r => r.origen_import === ORIGEN);
+
+  BUJIAS_DATA.forEach((it, idx) => {
+    const cruce = cruzarPrecios(it);
+    it.tipoReal = cruce.tipoReal;
+    it.confianza = cruce.confianza;
+    it.tipoCorrecto = cruce.confianza === 'confirmado' ? cruce.tipoReal : it.tipo;
+  });
+
+  const opcionesCat = `<option value="">— elegir categoría —</option>` +
+    categoriasCache.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('') +
+    `<option value="__libre__" selected>— usar texto libre —</option>`;
+  document.getElementById('sel-categoria-naf').innerHTML = opcionesCat;
+  document.getElementById('sel-categoria-inc').innerHTML = opcionesCat;
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  render();
+
+  ['sel-categoria-naf','txt-categoria-naf-libre','sel-categoria-inc','txt-categoria-inc-libre'].forEach(id => {
+    document.getElementById(id).addEventListener('input', render);
+    document.getElementById(id).addEventListener('change', render);
+  });
+  document.getElementById('btn-sel-desajustadas').addEventListener('click', () => marcarSegun(tr => tr.dataset.desajustada === '1'));
+  document.getElementById('btn-sel-todas').addEventListener('click', () => marcarSegun(() => true));
+  document.getElementById('btn-desel-todas').addEventListener('click', () => marcarSegun(() => false));
+  document.getElementById('btn-corregir').addEventListener('click', corregirSeleccionadas);
+}
+
+function categoriaPara(selId, libreId, nombreDefault) {
+  const selCat = document.getElementById(selId);
+  const libre = document.getElementById(libreId).value.trim();
+  if (selCat.value === '__libre__' || !selCat.value) {
+    return { id: '', nombre: libre || nombreDefault };
+  }
+  return categoriasCache.find(c => c.id === selCat.value) || { id: '', nombre: libre || nombreDefault };
+}
+
+function render() {
+  const catNaf = categoriaPara('sel-categoria-naf', 'txt-categoria-naf-libre', 'Bujías Nafteras');
+  const catInc = categoriaPara('sel-categoria-inc', 'txt-categoria-inc-libre', 'Bujías Incandescentes');
+
+  let desajustadas = 0;
+  const filas = docsCache.map(r => {
+    const it = BUJIAS_DATA[r.origen_item_idx];
+    if (!it) return null;
+    const catObj = it.tipoCorrecto === 'NAFTERAS' ? catNaf : catInc;
+    const desajustada = (r.categoria || '') !== catObj.nombre;
+    if (desajustada) desajustadas++;
+    return { r, it, catObj, desajustada };
+  }).filter(Boolean);
+
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${docsCache.length}</div><div class="l">bujías cargadas (este import)</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${desajustadas}</div><div class="l">con categoría desajustada</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${docsCache.length - desajustadas}</div><div class="l">ya están correctas</div></div>
+  `;
+
+  const tbody = document.getElementById('tbody-items');
+  tbody.innerHTML = filas.map(({ r, it, catObj, desajustada }) => {
+    const estado = desajustada ? '<span class="badge warn">categoría desajustada</span>' : '<span class="badge ok">correcta</span>';
+    return `<tr data-id="${r.id}" data-desajustada="${desajustada ? '1' : '0'}" class="${desajustada ? '' : 'ok-row'}">
+      <td><input type="checkbox" class="chk-item" ${desajustada ? 'checked' : ''}></td>
+      <td class="mono">${it.numero ?? '—'}</td>
+      <td>${it.tipoCorrecto === 'NAFTERAS' ? 'Naftera' : 'Incandescente'} ${it.confianza === 'confirmado' ? '<span class="badge ok">✓ precio</span>' : '<span class="badge no">estimado</span>'}</td>
+      <td class="mono">${r.codigo || '—'}</td>
+      <td class="cat-actual">${r.categoria || '<i>(sin categoría)</i>'}</td>
+      <td class="cat-nueva">${catObj.nombre}</td>
+      <td>${estado}</td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.chk-item').forEach(c => c.addEventListener('change', actualizarBoton));
+  actualizarBoton();
+}
+
+function marcarSegun(criterio) {
+  document.querySelectorAll('#tbody-items tr').forEach(tr => {
+    const c = tr.querySelector('.chk-item');
+    if (c) c.checked = criterio(tr);
+  });
+  actualizarBoton();
+}
+function actualizarBoton() {
+  const n = [...document.querySelectorAll('#tbody-items tr')]
+    .filter(tr => { const c = tr.querySelector('.chk-item'); return c && c.checked; }).length;
+  document.getElementById('btn-corregir').textContent = `✔ Corregir seleccionadas (${n})`;
+}
+
+async function corregirSeleccionadas() {
+  const catNaf = categoriaPara('sel-categoria-naf', 'txt-categoria-naf-libre', 'Bujías Nafteras');
+  const catInc = categoriaPara('sel-categoria-inc', 'txt-categoria-inc-libre', 'Bujías Incandescentes');
+  const btn = document.getElementById('btn-corregir');
+  const prog = document.getElementById('progreso');
+
+  const filas = [...document.querySelectorAll('#tbody-items tr')];
+  const seleccionadas = filas.filter(tr => { const c = tr.querySelector('.chk-item'); return c && c.checked; });
+  if (!seleccionadas.length) { toast('No hay filas tildadas.'); return; }
+  if (!confirm(`Vas a corregir la categoría de ${seleccionadas.length} bujías en Firestore. ¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const tr of seleccionadas) {
+      const id = tr.dataset.id;
+      const rDoc = docsCache.find(d => d.id === id);
+      const it = BUJIAS_DATA[rDoc.origen_item_idx];
+      const catObj = it.tipoCorrecto === 'NAFTERAS' ? catNaf : catInc;
+      batch.update(doc(db, 'repuestos', id), { categoria: catObj.nombre, categoria_id: catObj.id || '' });
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionadas.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} corregidas`;
+    toast(`✅ ${total} bujías corregidas`);
+    // refrescar categoría en docsCache local para que el resumen quede al día
+    seleccionadas.forEach(tr => {
+      const id = tr.dataset.id;
+      const rDoc = docsCache.find(d => d.id === id);
+      const it = BUJIAS_DATA[rDoc.origen_item_idx];
+      const catObj = it.tipoCorrecto === 'NAFTERAS' ? catNaf : catInc;
+      rDoc.categoria = catObj.nombre; rDoc.categoria_id = catObj.id || '';
+    });
+    render();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
