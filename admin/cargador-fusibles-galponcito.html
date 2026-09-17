@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargador de Fusibles (Galponcito) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1350px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:980px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+input.precio-row{min-width:0;width:90px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+.precio-cell{display:flex;flex-direction:column;gap:3px}
+.precio-cell label{font-size:9.5px;color:var(--text3);display:flex;gap:4px;align-items:center}
+.precio-match{font-size:10px;color:var(--text3);margin-top:2px}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.scroll-tabla{max-height:600px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.dup td{opacity:.55}
+table.tabla-items tr.done td{opacity:.4}
+table.tabla-items tr.sinstock td{opacity:.5}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.swatch-cell{display:flex;align-items:center;gap:8px}
+.swatch{width:22px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.25);flex-shrink:0}
+.swatch.sin{background:repeating-linear-gradient(45deg,#2a3347,#2a3347 3px,#141720 3px,#141720 6px)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+.prev-tabla{border-collapse:collapse;font-size:11px;margin-top:4px}
+.prev-tabla th{background:var(--bg3);color:var(--blue);text-align:left;padding:3px 6px;border:1px solid var(--border2)}
+.prev-tabla td{padding:3px 6px;border:1px solid var(--border2)}
+input.cant-row{width:55px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Cargador de Fusibles (Galponcito)</h1>
+<div class="sub">Carga la hoja <b>FUSIBLES</b> de "Respuesto en Stock Galponcito.xlsx" (25 combinaciones de tipo/amperaje: FICHA, FICHA MINI y FICHA MAXI), cruzando cada uno por <b>tipo + amperaje</b> (no por código, porque tus códigos internos F3/FM5/FMX30 no existen en Bobinar) contra la lista de precios de fusibles. El color de cada fila es el color de celda exacto que tenía la planilla original. <span class="badge ok">✓ con precio</span> = encontró al menos una marca (GEN-ROD / RONBAY) con ese tipo y amperaje en Bobinar. <span class="badge no">sin precio en Bobinar</span> = no hay ninguna coincidencia, cargá el precio a mano. El costo sugerido es el de <b>GEN-ROD</b> por defecto (podés cambiarlo abajo de cada fila); el <b>Público c/IVA</b> queda vacío para que vos definas el margen — no lo inventé. Cantidad también editable por si hay que corregir el conteo. Todo queda en <span class="mono">codigos_proveedores</span>.</div>
+
+<div id="carga-inicial" class="loading">Cargando categorías y repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+
+  <div class="card">
+    <h2 style="font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px">Configuración de carga</h2>
+    <div class="controles">
+      <label>Categoría
+        <select id="sel-categoria"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-libre" value="Fusibles">
+      </label>
+      <label>Condición
+        <select id="sel-condicion">
+          <option selected>NUEVO</option>
+          <option>REACONDICIONADO</option><option>RECAMBIO</option><option>DESCONTINUADO</option><option>REEMPLAZO</option><option>OUTLET</option>
+        </select>
+      </label>
+      <label class="controles" style="flex-direction:row;align-items:center;gap:6px">
+        <input type="checkbox" id="chk-publicar"> publicar automáticamente (si no, queda como borrador)
+      </label>
+      <label class="controles" style="flex-direction:row;align-items:center;gap:6px">
+        <input type="checkbox" id="chk-ocultar-sin-stock"> ocultar los que tienen 0 unidades
+      </label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <label>Buscar por código, tipo o amperaje
+        <input class="txt" id="filtro-items" placeholder="ej: FICHA MINI, F20, 30A…" style="min-width:280px">
+      </label>
+      <button class="btn ghost small" id="btn-sel-visibles">Tildar visibles</button>
+      <button class="btn ghost small" id="btn-desel-visibles">Destildar visibles</button>
+      <button class="btn green" id="btn-cargar">⚡ Cargar seleccionados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <div class="scroll-tabla"><table class="tabla-items">
+    <thead><tr><th></th><th>Tipo</th><th>Amp</th><th>Código</th><th>Color</th><th>Cant.</th><th>Precio Bobinar</th><th>Estado</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-fusibles';
+const HOJA = 'FUSIBLES';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+function normCodigo(s) { return (s || '').toString().trim().toUpperCase(); }
+function partesCodigo(s) { return normCodigo(s).split(/[|,\n\/]/).map(x => x.trim()).filter(Boolean); }
+
+// ── DATOS PARSEADOS DE LA HOJA FUSIBLES (25 combinaciones tipo/amperaje, color = fill exacto de la celda) ──
+const FUSIBLES_DATA = [{"idx":0,"tipo":"FICHA","amperaje":3,"codigo":"F3","color_hex":"#FF0066","unidades_pack":100,"stock_pack":1,"stock_pack_texto":null,"cantidad":11},{"idx":1,"tipo":"FICHA","amperaje":4,"codigo":"F4","color_hex":"#FFCC66","unidades_pack":100,"stock_pack":null,"stock_pack_texto":"*","cantidad":1},{"idx":2,"tipo":"FICHA","amperaje":5,"codigo":"F5","color_hex":"#FF9933","unidades_pack":100,"stock_pack":null,"stock_pack_texto":"*","cantidad":4},{"idx":3,"tipo":"FICHA","amperaje":7.5,"codigo":"F7.5","color_hex":"#503300","unidades_pack":100,"stock_pack":null,"stock_pack_texto":"*","cantidad":2},{"idx":4,"tipo":"FICHA","amperaje":10,"codigo":"F10","color_hex":"#FF0000","unidades_pack":100,"stock_pack":null,"stock_pack_texto":"*","cantidad":2},{"idx":5,"tipo":"FICHA","amperaje":15,"codigo":"F15","color_hex":"#0070C0","unidades_pack":100,"stock_pack":6,"stock_pack_texto":null,"cantidad":36},{"idx":6,"tipo":"FICHA","amperaje":20,"codigo":"F20","color_hex":"#FFFF00","unidades_pack":100,"stock_pack":1,"stock_pack_texto":null,"cantidad":13},{"idx":7,"tipo":"FICHA","amperaje":25,"codigo":"F25","color_hex":null,"unidades_pack":100,"stock_pack":1,"stock_pack_texto":null,"cantidad":10},{"idx":8,"tipo":"FICHA","amperaje":30,"codigo":"F30","color_hex":"#00B050","unidades_pack":100,"stock_pack":null,"stock_pack_texto":null,"cantidad":4},{"idx":9,"tipo":"FICHA","amperaje":40,"codigo":"F40","color_hex":"#F55E01","unidades_pack":100,"stock_pack":null,"stock_pack_texto":"*","cantidad":1},{"idx":10,"tipo":"FICHA MINI","amperaje":3,"codigo":"FM3","color_hex":"#FF0066","unidades_pack":100,"stock_pack":null,"stock_pack_texto":null,"cantidad":0},{"idx":11,"tipo":"FICHA MINI","amperaje":5,"codigo":"FM5","color_hex":"#F55E01","unidades_pack":100,"stock_pack":2,"stock_pack_texto":null,"cantidad":17},{"idx":12,"tipo":"FICHA MINI","amperaje":7.5,"codigo":"FM7.5","color_hex":"#503300","unidades_pack":100,"stock_pack":null,"stock_pack_texto":null,"cantidad":0},{"idx":13,"tipo":"FICHA MINI","amperaje":10,"codigo":"FM10","color_hex":"#FF0000","unidades_pack":100,"stock_pack":null,"stock_pack_texto":"*","cantidad":3},{"idx":14,"tipo":"FICHA MINI","amperaje":15,"codigo":"FM15","color_hex":"#0070C0","unidades_pack":100,"stock_pack":null,"stock_pack_texto":null,"cantidad":1},{"idx":15,"tipo":"FICHA MINI","amperaje":20,"codigo":"FM20","color_hex":"#FFFF00","unidades_pack":100,"stock_pack":null,"stock_pack_texto":null,"cantidad":1},{"idx":16,"tipo":"FICHA MINI","amperaje":25,"codigo":"FM25","color_hex":null,"unidades_pack":100,"stock_pack":null,"stock_pack_texto":"*","cantidad":1},{"idx":17,"tipo":"FICHA MINI","amperaje":30,"codigo":"FM30","color_hex":"#00B050","unidades_pack":100,"stock_pack":null,"stock_pack_texto":"*","cantidad":3},{"idx":18,"tipo":"FICHA MAXI","amperaje":20,"codigo":"FMX20","color_hex":"#FFFF00","unidades_pack":20,"stock_pack":null,"stock_pack_texto":null,"cantidad":0},{"idx":19,"tipo":"FICHA MAXI","amperaje":30,"codigo":"FMX30","color_hex":"#00B050","unidades_pack":20,"stock_pack":1,"stock_pack_texto":null,"cantidad":1},{"idx":20,"tipo":"FICHA MAXI","amperaje":40,"codigo":"FMX40","color_hex":"#FF9933","unidades_pack":20,"stock_pack":null,"stock_pack_texto":null,"cantidad":0},{"idx":21,"tipo":"FICHA MAXI","amperaje":50,"codigo":"FMX50","color_hex":"#FF0000","unidades_pack":20,"stock_pack":null,"stock_pack_texto":null,"cantidad":0},{"idx":22,"tipo":"FICHA MAXI","amperaje":60,"codigo":"FMX60","color_hex":"#0070C0","unidades_pack":20,"stock_pack":null,"stock_pack_texto":null,"cantidad":0},{"idx":23,"tipo":"FICHA MAXI","amperaje":70,"codigo":"FMX70","color_hex":"#DCCFAE","unidades_pack":20,"stock_pack":null,"stock_pack_texto":null,"cantidad":0},{"idx":24,"tipo":"FICHA MAXI","amperaje":80,"codigo":"FMX80","color_hex":"#FBEBA7","unidades_pack":20,"stock_pack":null,"stock_pack_texto":"*","cantidad":2}];
+
+// ── LISTA DE PRECIOS BOBINAR — FUSIBLES (tipo + amperaje, sin distinguir "perfil bajo" que es otro físico) ──
+const PRECIOS_FUSIBLES = [{"tipo":"FICHA","amperaje":10,"marca":"GENROD","codigo":"GENR04010","detalle":"FUSIBLE FICHA 10AMP","costo":170.64},{"tipo":"FICHA","amperaje":10,"marca":"RONBAY","codigo":"RON0110A","detalle":"FUSIBLE FICHA 10AMP","costo":136.08},{"tipo":"FICHA","amperaje":15,"marca":"RONBAY","codigo":"RON0115A","detalle":"FUSIBLE FICHA 15AMP","costo":136.08},{"tipo":"FICHA","amperaje":15,"marca":"GENROD","codigo":"GENR04015","detalle":"FUSIBLE FICHA 15AMP","costo":170.64},{"tipo":"FICHA","amperaje":20,"marca":"RONBAY","codigo":"RON0120A","detalle":"FUSIBLE FICHA 20AMP","costo":136.08},{"tipo":"FICHA","amperaje":20,"marca":"GENROD","codigo":"GENR04020","detalle":"FUSIBLE FICHA 20AMP","costo":170.64},{"tipo":"FICHA","amperaje":25,"marca":"RONBAY","codigo":"RON0125A","detalle":"FUSIBLE FICHA 25AMP","costo":136.08},{"tipo":"FICHA","amperaje":25,"marca":"GENROD","codigo":"GENR04025","detalle":"FUSIBLE FICHA 25AMP","costo":170.64},{"tipo":"FICHA","amperaje":30,"marca":"RONBAY","codigo":"RON0130A","detalle":"FUSIBLE FICHA 30AMP","costo":136.08},{"tipo":"FICHA","amperaje":30,"marca":"GENROD","codigo":"GENR04030","detalle":"FUSIBLE FICHA 30AMP","costo":170.64},{"tipo":"FICHA","amperaje":3,"marca":"GENROD","codigo":"GENR04003","detalle":"FUSIBLE FICHA 3AMP","costo":170.64},{"tipo":"FICHA","amperaje":40,"marca":"GENROD","codigo":"GENR04040","detalle":"FUSIBLE FICHA 40AMP","costo":170.64},{"tipo":"FICHA","amperaje":40,"marca":"RONBAY","codigo":"RON0140A","detalle":"FUSIBLE FICHA 40AMP","costo":136.08},{"tipo":"FICHA","amperaje":4,"marca":"GENROD","codigo":"GENR04004","detalle":"FUSIBLE FICHA 4AMP","costo":170.64},{"tipo":"FICHA","amperaje":5,"marca":"RONBAY","codigo":"RON0105A","detalle":"FUSIBLE FICHA 5AMP","costo":136.08},{"tipo":"FICHA","amperaje":5,"marca":"GENROD","codigo":"GENR04005","detalle":"FUSIBLE FICHA 5AMP","costo":170.64},{"tipo":"FICHA","amperaje":7.5,"marca":"RONBAY","codigo":"RON0175A","detalle":"FUSIBLE FICHA 7,5AMP","costo":136.08},{"tipo":"FICHA","amperaje":7.5,"marca":"GENROD","codigo":"GENR04075","detalle":"FUSIBLE FICHA 7,5AMP","costo":170.64},{"tipo":"FICHA MAXI","amperaje":100,"marca":"RONBAY","codigo":"RON01MX100","detalle":"FUSIBLE FICHA MAXI 100AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":100,"marca":"GENROD","codigo":"GENR06100","detalle":"FUSIBLE FICHA MAXI 100AMP","costo":1392.48},{"tipo":"FICHA MAXI","amperaje":20,"marca":"RONBAY","codigo":"RON01MX20","detalle":"FUSIBLE FICHA MAXI 20AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":20,"marca":"GENROD","codigo":"GENR06020","detalle":"FUSIBLE FICHA MAXI 20AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":30,"marca":"RONBAY","codigo":"RON01MX30","detalle":"FUSIBLE FICHA MAXI 30AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":30,"marca":"GENROD","codigo":"GENR06030","detalle":"FUSIBLE FICHA MAXI 30AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":40,"marca":"GENROD","codigo":"GENR06040","detalle":"FUSIBLE FICHA MAXI 40AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":40,"marca":"RONBAY","codigo":"RON01MX40","detalle":"FUSIBLE FICHA MAXI 40AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":50,"marca":"RONBAY","codigo":"RON01MX50","detalle":"FUSIBLE FICHA MAXI 50AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":50,"marca":"GENROD","codigo":"GENR06050","detalle":"FUSIBLE FICHA MAXI 50AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":60,"marca":"RONBAY","codigo":"RON01MX60","detalle":"FUSIBLE FICHA MAXI 60AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":60,"marca":"GENROD","codigo":"GENR06060","detalle":"FUSIBLE FICHA MAXI 60AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":70,"marca":"GENROD","codigo":"GENR06070","detalle":"FUSIBLE FICHA MAXI 70AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":70,"marca":"RONBAY","codigo":"RON01MX70","detalle":"FUSIBLE FICHA MAXI 70AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":80,"marca":"GENROD","codigo":"GENR06080","detalle":"FUSIBLE FICHA MAXI 80AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":80,"marca":"RONBAY","codigo":"RON01MX80","detalle":"FUSIBLE FICHA MAXI 80AMP","costo":831.6},{"tipo":"FICHA MINI","amperaje":10,"marca":"GENROD","codigo":"GENR05010","detalle":"FUSIBLE FICHA MINI 10AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":10,"marca":"RONBAY","codigo":"RON01FMN010","detalle":"FUSIBLE FICHA MINI 10AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":15,"marca":"RONBAY","codigo":"RON01FMN015","detalle":"FUSIBLE FICHA MINI 15AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":15,"marca":"GENROD","codigo":"GENR05015","detalle":"FUSIBLE FICHA MINI 15AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":20,"marca":"GENROD","codigo":"GENR05020","detalle":"FUSIBLE FICHA MINI 20AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":20,"marca":"RONBAY","codigo":"RON01FMN020","detalle":"FUSIBLE FICHA MINI 20AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":25,"marca":"GENROD","codigo":"GENR05025","detalle":"FUSIBLE FICHA MINI 25AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":25,"marca":"RONBAY","codigo":"RON01FMN025","detalle":"FUSIBLE FICHA MINI 25AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":30,"marca":"GENROD","codigo":"GENR05030","detalle":"FUSIBLE FICHA MINI 30AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":30,"marca":"RONBAY","codigo":"RON01FMN030","detalle":"FUSIBLE FICHA MINI 30AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":40,"marca":"RONBAY","codigo":"RON01FMN040","detalle":"FUSIBLE FICHA MINI 40AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":40,"marca":"GENROD","codigo":"GENR05040","detalle":"FUSIBLE FICHA MINI 40AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":5,"marca":"RONBAY","codigo":"RON01FMN005","detalle":"FUSIBLE FICHA MINI 5AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":5,"marca":"GENROD","codigo":"GENR05005","detalle":"FUSIBLE FICHA MINI 5AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":7.5,"marca":"RONBAY","codigo":"RON01FMN075","detalle":"FUSIBLE FICHA MINI 7,5AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":7.5,"marca":"GENROD","codigo":"GENR05075","detalle":"FUSIBLE FICHA MINI 7,5AMP","costo":191.52}];
+
+const PRIORIDAD_MARCA = ['GENROD', 'RONBAY'];
+
+const NOMBRES_COLOR = {
+  '#FF0066':'Rosa/Violeta', '#FFCC66':'Beige', '#FF9933':'Naranja', '#503300':'Marrón',
+  '#FF0000':'Rojo', '#0070C0':'Azul', '#FFFF00':'Amarillo', '#00B050':'Verde',
+  '#F55E01':'Naranja oscuro', '#DCCFAE':'Beige/tostado', '#FBEBA7':'Amarillo claro',
+};
+function colorNombre(hex) { return hex ? (NOMBRES_COLOR[hex.toUpperCase()] || 'Color s/identificar') : 'Incoloro/natural'; }
+
+// Cruza tipo+amperaje contra PRECIOS_FUSIBLES. Acá SIEMPRE conocemos el tipo real (viene de la
+// estructura de la planilla, no hay ambigüedad como en bujías) — lo que puede faltar es el precio.
+function cruzarPrecios(it) {
+  const matches = PRECIOS_FUSIBLES.filter(p => p.tipo === it.tipo && p.amperaje === it.amperaje);
+  let precioDefault = null;
+  for (const marca of PRIORIDAD_MARCA) {
+    const cand = matches.find(m => m.marca === marca);
+    if (cand) { precioDefault = cand; break; }
+  }
+  if (!precioDefault && matches.length) precioDefault = matches[0];
+  return { matches, confianza: matches.length ? 'confirmado' : 'sin_precio', precioDefault };
+}
+
+let categoriasCache = [], repuestosCache = [], maxIdMysql = 0;
+let importadosExactos = new Set();
+let importadosPorCodigo = new Set();
+const precioElegido = {}; // idx -> { pub, costo }, arranca con el costo Bobinar sugerido (editable)
+const cantidadElegida = {}; // idx -> cantidad, arranca con el stock de la planilla (editable)
+
+async function iniciar() {
+  const [catSnap, repSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')),
+    getDocs(collection(db, 'repuestos')),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  repuestosCache = repSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  repuestosCache.forEach(r => { const v = parseInt(r.id_mysql); if (!isNaN(v) && v > maxIdMysql) maxIdMysql = v; });
+
+  repuestosCache.forEach(r => {
+    if (r.origen_import === ORIGEN) {
+      if (r.origen_item_idx != null) importadosExactos.add(r.origen_item_idx);
+      if (r.codigo) importadosPorCodigo.add(normCodigo(r.codigo));
+    }
+  });
+
+  FUSIBLES_DATA.forEach((it, idx) => {
+    const cruce = cruzarPrecios(it);
+    it.matches = cruce.matches;
+    it.confianza = cruce.confianza;
+    it.precioDefault = cruce.precioDefault;
+    precioElegido[idx] = {
+      pub: '',
+      costo: cruce.precioDefault ? cruce.precioDefault.costo : '',
+    };
+    cantidadElegida[idx] = it.cantidad;
+  });
+
+  const opcionesCat = `<option value="">— elegir categoría —</option>` +
+    categoriasCache.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('') +
+    `<option value="__libre__" selected>— usar texto libre —</option>`;
+  document.getElementById('sel-categoria').innerHTML = opcionesCat;
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderResumen();
+  renderTabla();
+
+  document.getElementById('filtro-items').addEventListener('input', aplicarFiltro);
+  document.getElementById('btn-sel-visibles').addEventListener('click', () => marcarVisibles(true));
+  document.getElementById('btn-desel-visibles').addEventListener('click', () => marcarVisibles(false));
+  document.getElementById('btn-cargar').addEventListener('click', cargarSeleccionados);
+  document.getElementById('chk-ocultar-sin-stock').addEventListener('change', renderTabla);
+}
+
+function yaImportado(idx, codigo) {
+  return importadosExactos.has(idx) || (codigo && importadosPorCodigo.has(normCodigo(codigo)));
+}
+function buscarDuplicadoBase(it) {
+  const c = normCodigo(it.codigo);
+  if (!c) return null;
+  return repuestosCache.find(r => {
+    if (r.origen_import === ORIGEN) return false;
+    return partesCodigo(r.codigo).includes(c) || (r.codigos_proveedores || []).some(cp => partesCodigo(cp.codigo).includes(c));
+  });
+}
+
+function renderResumen() {
+  const total = FUSIBLES_DATA.length;
+  const cargados = FUSIBLES_DATA.filter(it => yaImportado(it.idx, it.codigo)).length;
+  const conStock = FUSIBLES_DATA.filter(it => (cantidadElegida[it.idx] || 0) > 0).length;
+  const conPrecio = FUSIBLES_DATA.filter(it => it.confianza === 'confirmado').length;
+  const sinPrecio = FUSIBLES_DATA.filter(it => it.confianza === 'sin_precio').length;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${total}</div><div class="l">combinaciones tipo/amperaje</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${cargados}</div><div class="l">ya cargadas (según Firebase)</div></div>
+    <div class="box"><div class="n" style="color:var(--blue)">${conStock}</div><div class="l">con stock &gt; 0</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${conPrecio}</div><div class="l">con precio en Bobinar</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${sinPrecio}</div><div class="l">sin precio — cargar a mano</div></div>
+  `;
+}
+
+function renderTabla() {
+  const ocultarSinStock = document.getElementById('chk-ocultar-sin-stock').checked;
+  const tbody = document.getElementById('tbody-items');
+  const filas = FUSIBLES_DATA.filter(it => !ocultarSinStock || (cantidadElegida[it.idx] || 0) > 0);
+  tbody.innerHTML = filas.map((it) => {
+    const idx = it.idx;
+    const done = yaImportado(idx, it.codigo);
+    const dup = !done ? buscarDuplicadoBase(it) : null;
+    const bloqueado = done || !!dup;
+    let estado = '<span class="badge ok">nuevo</span>';
+    if (done) estado = '<span class="badge done">ya cargada</span>';
+    else if (dup) estado = `<span class="badge no">código repetido (${dup.titulo_repuesto || dup.codigo})</span>`;
+    const buscar = [it.tipo, it.codigo, it.amperaje + 'A'].join(' ').toUpperCase();
+    const swatch = it.color_hex
+      ? `<span class="swatch" style="background:${it.color_hex}" title="${it.color_hex}"></span>`
+      : `<span class="swatch sin" title="sin color / incoloro"></span>`;
+    const colorCell = `<div class="swatch-cell">${swatch}<span>${colorNombre(it.color_hex)}</span></div>`;
+    const pDef = precioElegido[idx] || { pub: '', costo: '' };
+    const matchTxt = it.matches && it.matches.length
+      ? `<div class="precio-match">${it.matches.map(m => `${m.marca}: $${m.costo.toLocaleString('es-AR')}`).join('<br>')}</div>`
+      : `<div class="precio-match">sin match en Bobinar</div>`;
+    const precioCell = `<div class="precio-cell">
+        <label>Público c/IVA <input type="number" step="0.01" class="precio-row precio-pub" data-idx="${idx}" value="${pDef.pub}"></label>
+        <label>Costo <input type="number" step="0.01" class="precio-row precio-costo" data-idx="${idx}" value="${pDef.costo}"></label>
+        ${matchTxt}
+      </div>`;
+    const estadoBadge = it.confianza === 'confirmado' ? ' <span class="badge ok">✓ con precio</span>' : ' <span class="badge no">sin precio en Bobinar</span>';
+    return `<tr data-idx="${idx}" data-buscar="${buscar}" class="${done ? 'done' : dup ? 'dup' : ''} ${(cantidadElegida[idx] || 0) === 0 ? 'sinstock' : ''}">
+      <td><input type="checkbox" class="chk-item" ${bloqueado ? 'disabled' : ((cantidadElegida[idx]||0) > 0 ? 'checked' : '')}></td>
+      <td>${it.tipo}</td>
+      <td class="mono">${it.amperaje}A</td>
+      <td class="mono">${it.codigo}${estadoBadge}</td>
+      <td>${colorCell}</td>
+      <td><input type="number" class="cant-row" data-idx="${idx}" value="${cantidadElegida[idx]}" min="0"></td>
+      <td>${precioCell}</td>
+      <td>${estado}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('.chk-item').forEach(c => c.addEventListener('change', actualizarBoton));
+  tbody.querySelectorAll('.precio-pub').forEach(inp => inp.addEventListener('change', e => {
+    const idx = parseInt(e.target.dataset.idx);
+    precioElegido[idx] = precioElegido[idx] || {};
+    precioElegido[idx].pub = e.target.value;
+  }));
+  tbody.querySelectorAll('.precio-costo').forEach(inp => inp.addEventListener('change', e => {
+    const idx = parseInt(e.target.dataset.idx);
+    precioElegido[idx] = precioElegido[idx] || {};
+    precioElegido[idx].costo = e.target.value;
+  }));
+  tbody.querySelectorAll('.cant-row').forEach(inp => inp.addEventListener('change', e => {
+    const idx = parseInt(e.target.dataset.idx);
+    cantidadElegida[idx] = parseInt(e.target.value) || 0;
+  }));
+  actualizarBoton();
+}
+
+function aplicarFiltro(e) {
+  const q = e.target.value.trim().toUpperCase();
+  document.querySelectorAll('#tbody-items tr').forEach(tr => {
+    tr.style.display = !q || tr.dataset.buscar.includes(q) ? '' : 'none';
+  });
+  actualizarBoton();
+}
+function marcarVisibles(marcar) {
+  document.querySelectorAll('#tbody-items tr').forEach(tr => {
+    if (tr.style.display === 'none') return;
+    const c = tr.querySelector('.chk-item');
+    if (c && !c.disabled) c.checked = marcar;
+  });
+  actualizarBoton();
+}
+function actualizarBoton() {
+  const n = [...document.querySelectorAll('#tbody-items tr')]
+    .filter(tr => tr.style.display !== 'none')
+    .filter(tr => { const c = tr.querySelector('.chk-item'); return c && c.checked && !c.disabled; }).length;
+  document.getElementById('btn-cargar').textContent = `⚡ Cargar seleccionados (${n})`;
+}
+
+function construirDescripcion(it) {
+  let html = `<p><b>Fusible ${it.tipo} ${it.amperaje}A</b> — código interno <b>${it.codigo}</b></p>`;
+  html += `<p style="margin-top:6px">Color: <b>${colorNombre(it.color_hex)}</b>${it.color_hex ? ' (' + it.color_hex + ')' : ''}</p>`;
+  if (it.matches && it.matches.length) {
+    html += `<p style="margin-top:8px"><b>Precios Bobinar (tipo + amperaje):</b></p>`;
+    html += `<table class="prev-tabla" style="width:100%"><tr><th>Marca</th><th>Código</th><th>Costo</th></tr>`;
+    it.matches.forEach(m => { html += `<tr><td>${m.marca}</td><td>${m.codigo}</td><td>$${m.costo}</td></tr>`; });
+    html += `</table>`;
+  }
+  html += `<p style="color:#4b5563;font-size:11px;border-top:1px dashed #2a3347;padding-top:8px;margin-top:8px">— Importado desde la hoja FUSIBLES de "Respuesto en Stock Galponcito.xlsx" —</p>`;
+  return html;
+}
+
+function construirTitulo(it) {
+  return `Fusible ${it.tipo} ${it.amperaje}A — ${it.codigo}`;
+}
+
+function construirDoc(it, categoriaObj, condicion, publicar, idMysql) {
+  const idx = it.idx;
+  const p = precioElegido[idx] || {};
+  const pub = parseFloat(p.pub) || 0;
+  const costo = parseFloat(p.costo) || 0;
+  const sinIva = pub ? Math.round((pub / 1.21) * 100) / 100 : 0;
+  return {
+    titulo_repuesto: construirTitulo(it),
+    categoria: categoriaObj.nombre,
+    categoria_id: categoriaObj.id || '',
+    id_estanteria: '', id_estante: '',
+    tipos_vehiculo: [],
+    tipo: 'ORIGINAL',
+    condicion,
+    contenedor: '',
+    marcas_repuesto: (it.matches || []).map(m => m.marca),
+    fabricantes: (it.matches || []).map(m => m.marca),
+    arranque: '', alternador: '',
+    modelo_repuesto: '',
+    material: '',
+    lado: '',
+    codigo: it.codigo,
+    codigos_oem: [],
+    aplicacion: '',
+    marcas_modelos: [],
+    marcas_vehiculo: [],
+    codigos_proveedores: (it.matches || []).map(m => ({ proveedor: m.marca, codigo: m.codigo })),
+    catalogos_papel: [],
+    descripcion: construirDescripcion(it),
+    notas_internas: '',
+    importante: '',
+    tipo_ficha: it.tipo,
+    amperaje: it.amperaje,
+    color_hex: it.color_hex || '',
+    color_nombre: colorNombre(it.color_hex),
+    dd_alta_rotacion: '', dd_demanda: '', dd_disponibilidad: '', dd_descontinuado: '',
+    dd_buscado_por: '', dd_vigencia: '', dd_oferta: '', dd_justificacion: '',
+    cant_artic: cantidadElegida[idx] || 0,
+    stock_minimo: 1,
+    forma_pago: 'Contado Efectivo',
+    forma_entrega: 'A convenir',
+    fecha_compra: '',
+    moneda: 'ARS',
+    precio_costo: costo,
+    precio_venta: sinIva,
+    precio_venta_iva: pub,
+    precio_ganancia_pct: 40,
+    imagenes: [], imagen_url: '',
+    alta: !!publicar,
+    id_mysql: String(idMysql),
+    vistas: 0,
+    creado_en: serverTimestamp(),
+    origen_import: ORIGEN,
+    origen_hoja: HOJA,
+    origen_item_idx: idx,
+  };
+}
+
+function categoriaPara() {
+  const selCat = document.getElementById('sel-categoria');
+  const libre = document.getElementById('txt-categoria-libre').value.trim();
+  if (selCat.value === '__libre__' || !selCat.value) {
+    return { id: '', nombre: libre || 'Fusibles' };
+  }
+  return categoriasCache.find(c => c.id === selCat.value) || { id: '', nombre: libre || 'Fusibles' };
+}
+
+async function cargarSeleccionados() {
+  const condicion = document.getElementById('sel-condicion').value;
+  const publicar = document.getElementById('chk-publicar').checked;
+  const btn = document.getElementById('btn-cargar');
+  const prog = document.getElementById('progreso');
+
+  const categoriaObj = categoriaPara();
+
+  const filas = [...document.querySelectorAll('#tbody-items tr')];
+  const seleccionados = filas
+    .map(tr => ({ tr, idx: parseInt(tr.dataset.idx) }))
+    .filter(({ tr }) => { const c = tr.querySelector('.chk-item'); return c && c.checked && !c.disabled; });
+
+  if (!seleccionados.length) { toast('No hay filas tildadas.'); return; }
+  if (!confirm(`Vas a cargar ${seleccionados.length} fusibles a Firebase en la categoría "${categoriaObj.nombre}". ¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0, idMysql = maxIdMysql;
+  try {
+    for (const { idx } of seleccionados) {
+      const it = FUSIBLES_DATA[idx];
+      idMysql++;
+      const docData = construirDoc(it, categoriaObj, condicion, publicar, idMysql);
+      const ref = doc(collection(db, 'repuestos'));
+      batch.set(ref, docData);
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionados.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    maxIdMysql = idMysql;
+    prog.textContent = `✅ ${total} cargados`;
+    toast(`✅ ${total} fusibles cargados`);
+    await iniciar();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
