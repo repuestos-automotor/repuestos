@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargador de Circuitos Impresos (Galponcito) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1400px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:980px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+input.precio-row{min-width:0;width:95px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+.precio-cell{display:flex;flex-direction:column;gap:3px}
+.precio-cell label{font-size:9.5px;color:var(--text3);display:flex;gap:4px;align-items:center}
+.precio-match{font-size:10px;color:var(--text3);margin-top:2px}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.scroll-tabla{max-height:600px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.dup td{opacity:.55}
+table.tabla-items tr.done td{opacity:.4}
+table.tabla-items tr.revisar{background:rgba(239,68,68,.06)}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.detalle-txt{max-width:280px;white-space:pre-wrap;font-size:11px;color:var(--text2)}
+input.cant-row{width:50px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+input.tipo-row{width:100%;min-width:150px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+.prev-tabla{border-collapse:collapse;font-size:11px;margin-top:4px}
+.prev-tabla th{background:var(--bg3);color:var(--blue);text-align:left;padding:3px 6px;border:1px solid var(--border2)}
+.prev-tabla td{padding:3px 6px;border:1px solid var(--border2)}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Cargador de Circuitos Impresos (Galponcito)</h1>
+<div class="sub">Carga la hoja <b>CIRCUITO IMPRESO</b> de "Respuesto en Stock Galponcito.xlsx" (24 ítems). A diferencia de bujías y fusibles, acá no hay lista de precios de Bobinar para cruzar: los precios ya estaban puestos a mano en la planilla, así que quedan precargados tal cual y son editables. Donde la planilla tenía nota de "precio de internet" la dejo como referencia debajo del precio, sin tocarla. Las 2 filas que en la planilla original tenían la celda de MODELO en rojo (<b>MAREA</b> sin datos y <b>PEUGEOT ???</b>) quedan marcadas <span class="badge warn">revisar</span> y sin tildar por defecto, porque el propio Bri las dejó como dudosas.</div>
+
+<div id="carga-inicial" class="loading">Cargando categorías y repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+
+  <div class="card">
+    <h2 style="font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px">Configuración de carga</h2>
+    <div class="controles">
+      <label>Categoría
+        <select id="sel-categoria"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-libre" value="Circuitos Impresos">
+      </label>
+      <label>Condición
+        <select id="sel-condicion">
+          <option selected>NUEVO</option>
+          <option>REACONDICIONADO</option><option>RECAMBIO</option><option>DESCONTINUADO</option><option>REEMPLAZO</option><option>OUTLET</option>
+        </select>
+      </label>
+      <label class="controles" style="flex-direction:row;align-items:center;gap:6px">
+        <input type="checkbox" id="chk-publicar"> publicar automáticamente (si no, queda como borrador)
+      </label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <label>Buscar por marca, modelo, código o tipo
+        <input class="txt" id="filtro-items" placeholder="ej: PEUGEOT, 505, circuito…" style="min-width:280px">
+      </label>
+      <button class="btn ghost small" id="btn-sel-visibles">Tildar visibles</button>
+      <button class="btn ghost small" id="btn-desel-visibles">Destildar visibles</button>
+      <button class="btn green" id="btn-cargar">⚡ Cargar seleccionados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <div class="scroll-tabla"><table class="tabla-items">
+    <thead><tr><th></th><th>N°</th><th>Marca / Modelo</th><th>Código</th><th>Descripción / Detalle</th><th>Tipo (editable)</th><th>Cant.</th><th>Precio</th><th>Estado</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-circuitos-impresos';
+const HOJA = 'CIRCUITO IMPRESO';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+function normCodigo(s) { return (s || '').toString().trim().toUpperCase(); }
+function partesCodigo(s) { return normCodigo(s).split(/[|,\n\/]/).map(x => x.trim()).filter(Boolean); }
+
+// ── DATOS PARSEADOS DE LA HOJA CIRCUITO IMPRESO (24 ítems, precio ya cargado a mano en la planilla) ──
+const ITEMS_DATA = [{"idx":0,"numero":1,"marca":"VOLKSWAGUEN","modelo":"GOL AB9 95/99","codigo":"03-544-0","descripcion":"Faro Trasero Cibie Gol Ab9 96 / 99","detalle":"","tipo":"Circuito Impreso","cantidad":1,"precio":0,"nota_internet":"PRECIO DE INTERNET $1500","revisar":false},{"idx":1,"numero":2,"marca":"FIAT","modelo":"PALIO 2004-2019  Ó  04/19","codigo":"","descripcion":"FARO TRASERO IZQUIERDO","detalle":"D","tipo":"Circuito Impreso","cantidad":1,"precio":1150,"nota_internet":"PRECIO DE INTERNET $1200","revisar":false},{"idx":2,"numero":3,"marca":"VOLKSWAGUEN","modelo":"GACEL 83/91","codigo":"","descripcion":"FARO TRASERO DERECHO","detalle":"D","tipo":"Circuito Impreso","cantidad":1,"precio":500,"nota_internet":"PRECIO DE INTERNET $1200","revisar":false},{"idx":3,"numero":4,"marca":"VOLKSWAGUEN","modelo":"GACEL 83/91","codigo":"","descripcion":"FARO TRASERO IZQUIERDO","detalle":"I","tipo":"Circuito Impreso","cantidad":1,"precio":500,"nota_internet":"PRECIO DE INTERNET $1200","revisar":false},{"idx":4,"numero":5,"marca":"FIAT","modelo":"DUNA 88/95","codigo":"","descripcion":"FARO TRASERO IZQUIERDO","detalle":"MADE BY ARTEB - P21W - 5993572","tipo":"Circuito Impreso","cantidad":1,"precio":2200,"nota_internet":"PRECIO DE INTERNET $1200","revisar":false},{"idx":5,"numero":6,"marca":"FIAT","modelo":"MAREA","codigo":"","descripcion":"","detalle":"","tipo":"Circuito Impreso","cantidad":1,"precio":0,"nota_internet":"PRECIO DE INTERNET $1200","revisar":true},{"idx":6,"numero":7,"marca":"FORD","modelo":"Ford Falcon Ghia 81/91 Taunus 81/84","codigo":"192803","descripcion":"","detalle":"ORIGINAL FITAM 31120-D","tipo":"Circuito Impreso","cantidad":1,"precio":1969,"nota_internet":"PRECIO DE INTERNET $1200","revisar":false},{"idx":7,"numero":8,"marca":"FORD","modelo":"Ford Falcon Ghia 81/91 Taunus 81/84","codigo":"192803","descripcion":"","detalle":"ORIGINAL FITAM 31120-I","tipo":"Circuito Impreso","cantidad":1,"precio":1969,"nota_internet":"PRECIO DE INTERNET $1200","revisar":false},{"idx":8,"numero":9,"marca":"PEUGEOT","modelo":"505","codigo":"6211464","descripcion":"FARO TRASERO DERECHO","detalle":"D","tipo":"Circuito Impreso","cantidad":1,"precio":0,"nota_internet":"PRECIO DE INTERNET $1200","revisar":false},{"idx":9,"numero":10,"marca":"PEUGEOT","modelo":"505","codigo":"6211464","descripcion":"FARO TRASERO IZQUIERDO","detalle":"I","tipo":"Circuito Impreso","cantidad":1,"precio":0,"nota_internet":"PRECIO DE INTERNET $1200","revisar":false},{"idx":10,"numero":11,"marca":null,"modelo":"","codigo":"","descripcion":"RETÉN ÓPTICA FARO / SOPORTE DE CHAPA","detalle":"","tipo":"Rectangular Chapa","cantidad":1,"precio":1500,"nota_internet":"","revisar":false},{"idx":11,"numero":12,"marca":"PEUGEOT","modelo":"PEUGEOT","codigo":"","descripcion":"","detalle":"","tipo":"peugeot  ???","cantidad":1,"precio":0,"nota_internet":"","revisar":true},{"idx":12,"numero":13,"marca":"RENAULT","modelo":"Renault 11 Modelo Viejo","codigo":"","descripcion":"Reten Base Optica Original CIBIE","detalle":"I","tipo":"Renault Rectangular","cantidad":1,"precio":2000,"nota_internet":"","revisar":false},{"idx":13,"numero":14,"marca":"ORLAND ROBER","modelo":"TRACTOR NUEVO","codigo":"","descripcion":"Velocimetro Rpm Cuenta Horas Km","detalle":"","tipo":"Reloj Cuenta Hora","cantidad":1,"precio":4500,"nota_internet":"","revisar":false},{"idx":14,"numero":15,"marca":"IKA","modelo":"","codigo":"","descripcion":"","detalle":"","tipo":"JEEP Ika Llave","cantidad":1,"precio":0,"nota_internet":"","revisar":false},{"idx":15,"numero":16,"marca":"JEEP","modelo":"","codigo":"3482520","descripcion":"LLAVE ORIGINAL LIMPIAPARABRISAS IKA","detalle":"","tipo":"Relojes Varios","cantidad":9,"precio":0,"nota_internet":"","revisar":false},{"idx":16,"numero":17,"marca":null,"modelo":"","codigo":"","descripcion":"","detalle":"","tipo":"Juego Ficha x 2","cantidad":4,"precio":0,"nota_internet":"","revisar":false},{"idx":17,"numero":18,"marca":"JEEP","modelo":"ALBERA","codigo":"","descripcion":"MOTOR LIMPIAPARABRISAS ELÉCTRICO","detalle":"Motor de Limpiaparabrisas Eléctrico\n* Llave interruptora incorporada.\n* Sujeción cónica moleteada para brazo portaescobilla.\n* Bornera Extra Aislación.\n* Voltaje 6-12 y 24 volts.\n* Parada automática (derecha o Izquierda opcional).\n* Dos largos de eje 40 y 70 mm.\nMARCA ALBERA \nORIGINAL \nCON CAJA","tipo":"Jeep (Albera) Limp.","cantidad":1,"precio":2500,"nota_internet":"","revisar":false},{"idx":18,"numero":19,"marca":"FIAT","modelo":"","codigo":"","descripcion":"","detalle":"","tipo":"Fiat Limpia Luneta Motor","cantidad":1,"precio":0,"nota_internet":"","revisar":false},{"idx":19,"numero":20,"marca":null,"modelo":"","codigo":"","descripcion":"","detalle":"","tipo":"Juego Plástico AP702 $40 (es lo que salia en ese momento)","cantidad":3,"precio":0,"nota_internet":"","revisar":false},{"idx":20,"numero":21,"marca":"DODGE","modelo":"1500","codigo":"","descripcion":"","detalle":"","tipo":"Dodge 1500 Plásticos","cantidad":4,"precio":0,"nota_internet":"","revisar":false},{"idx":21,"numero":null,"marca":"MERCEDES BENZ","modelo":"CAMIÓN","codigo":"","descripcion":"","detalle":"","tipo":"Mercedes Benz Camión  Faro Lateral","cantidad":4,"precio":0,"nota_internet":"","revisar":false},{"idx":22,"numero":null,"marca":null,"modelo":"","codigo":"","descripcion":"","detalle":"","tipo":"Juego Baliza","cantidad":2,"precio":0,"nota_internet":"","revisar":false},{"idx":23,"numero":null,"marca":null,"modelo":"","codigo":"","descripcion":"","detalle":"","tipo":"Óptica Faro Auxiliar","cantidad":1,"precio":0,"nota_internet":"","revisar":false}];
+
+let categoriasCache = [], repuestosCache = [], maxIdMysql = 0;
+let importadosExactos = new Set();
+let importadosPorCodigo = new Set();
+const precioElegido = {};   // idx -> { pub, costo }, arranca con el precio ya puesto en la planilla
+const cantidadElegida = {}; // idx -> cantidad, editable
+const tipoElegido = {};     // idx -> texto de Tipo, editable (por si hay que aclarar un "???")
+
+async function iniciar() {
+  const [catSnap, repSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')),
+    getDocs(collection(db, 'repuestos')),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  repuestosCache = repSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  repuestosCache.forEach(r => { const v = parseInt(r.id_mysql); if (!isNaN(v) && v > maxIdMysql) maxIdMysql = v; });
+
+  repuestosCache.forEach(r => {
+    if (r.origen_import === ORIGEN) {
+      if (r.origen_item_idx != null) importadosExactos.add(r.origen_item_idx);
+      if (r.codigo) importadosPorCodigo.add(normCodigo(r.codigo));
+    }
+  });
+
+  ITEMS_DATA.forEach((it) => {
+    precioElegido[it.idx] = { pub: it.precio || '', costo: '' };
+    cantidadElegida[it.idx] = it.cantidad || 0;
+    tipoElegido[it.idx] = it.tipo || '';
+  });
+
+  const opcionesCat = `<option value="">— elegir categoría —</option>` +
+    categoriasCache.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('') +
+    `<option value="__libre__" selected>— usar texto libre —</option>`;
+  document.getElementById('sel-categoria').innerHTML = opcionesCat;
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderResumen();
+  renderTabla();
+
+  document.getElementById('filtro-items').addEventListener('input', aplicarFiltro);
+  document.getElementById('btn-sel-visibles').addEventListener('click', () => marcarVisibles(true));
+  document.getElementById('btn-desel-visibles').addEventListener('click', () => marcarVisibles(false));
+  document.getElementById('btn-cargar').addEventListener('click', cargarSeleccionados);
+}
+
+function yaImportado(idx, codigo) {
+  return importadosExactos.has(idx) || (codigo && importadosPorCodigo.has(normCodigo(codigo)));
+}
+function buscarDuplicadoBase(it) {
+  const c = normCodigo(it.codigo);
+  if (!c) return null;
+  return repuestosCache.find(r => {
+    if (r.origen_import === ORIGEN) return false;
+    return partesCodigo(r.codigo).includes(c) || (r.codigos_proveedores || []).some(cp => partesCodigo(cp.codigo).includes(c));
+  });
+}
+
+function renderResumen() {
+  const total = ITEMS_DATA.length;
+  const cargados = ITEMS_DATA.filter(it => yaImportado(it.idx, it.codigo)).length;
+  const conPrecio = ITEMS_DATA.filter(it => (parseFloat(precioElegido[it.idx]?.pub) || 0) > 0).length;
+  const sinPrecio = total - conPrecio;
+  const revisar = ITEMS_DATA.filter(it => it.revisar).length;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${total}</div><div class="l">ítems en la planilla</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${cargados}</div><div class="l">ya cargados (según Firebase)</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${conPrecio}</div><div class="l">con precio puesto en la planilla</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${sinPrecio}</div><div class="l">sin precio — cargar a mano</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${revisar}</div><div class="l">marcados a revisar (celda roja original)</div></div>
+  `;
+}
+
+function marcaModeloTxt(it) {
+  const partes = [it.marca, it.modelo].filter(Boolean);
+  return partes.length ? partes.join(' — ') : '<span style="color:var(--text3)">sin marca/modelo</span>';
+}
+function descDetalleTxt(it) {
+  const partes = [it.descripcion, it.detalle].filter(Boolean);
+  return partes.length ? `<div class="detalle-txt">${partes.join('<br>')}</div>` : '<span style="color:var(--text3)">—</span>';
+}
+
+function renderTabla() {
+  const tbody = document.getElementById('tbody-items');
+  tbody.innerHTML = ITEMS_DATA.map((it) => {
+    const idx = it.idx;
+    const done = yaImportado(idx, it.codigo);
+    const dup = !done ? buscarDuplicadoBase(it) : null;
+    const bloqueado = done || !!dup;
+    let estado = '<span class="badge ok">nuevo</span>';
+    if (done) estado = '<span class="badge done">ya cargado</span>';
+    else if (dup) estado = `<span class="badge no">código repetido (${dup.titulo_repuesto || dup.codigo})</span>`;
+    if (it.revisar) estado += ' <span class="badge warn">revisar</span>';
+    const buscar = [it.numero, it.marca, it.modelo, it.codigo, it.tipo, it.descripcion, it.detalle].filter(Boolean).join(' ').toUpperCase();
+    const pDef = precioElegido[idx] || { pub: '', costo: '' };
+    const notaTxt = it.nota_internet ? `<div class="precio-match">${it.nota_internet}</div>` : '';
+    const precioCell = `<div class="precio-cell">
+        <label>Público c/IVA <input type="number" step="0.01" class="precio-row precio-pub" data-idx="${idx}" value="${pDef.pub}"></label>
+        <label>Costo <input type="number" step="0.01" class="precio-row precio-costo" data-idx="${idx}" value="${pDef.costo}"></label>
+        ${notaTxt}
+      </div>`;
+    const checked = bloqueado ? '' : (it.revisar ? '' : 'checked');
+    return `<tr data-idx="${idx}" data-buscar="${buscar}" class="${done ? 'done' : dup ? 'dup' : ''} ${it.revisar ? 'revisar' : ''}">
+      <td><input type="checkbox" class="chk-item" ${bloqueado ? 'disabled' : ''} ${checked}></td>
+      <td class="mono">${it.numero ?? '—'}</td>
+      <td>${marcaModeloTxt(it)}</td>
+      <td class="mono">${it.codigo || '—'}</td>
+      <td>${descDetalleTxt(it)}</td>
+      <td><input type="text" class="tipo-row" data-idx="${idx}" value="${(tipoElegido[idx] || '').replace(/"/g, '&quot;')}"></td>
+      <td><input type="number" class="cant-row" data-idx="${idx}" value="${cantidadElegida[idx]}" min="0"></td>
+      <td>${precioCell}</td>
+      <td>${estado}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('.chk-item').forEach(c => c.addEventListener('change', actualizarBoton));
+  tbody.querySelectorAll('.precio-pub').forEach(inp => inp.addEventListener('change', e => {
+    const idx = parseInt(e.target.dataset.idx);
+    precioElegido[idx] = precioElegido[idx] || {};
+    precioElegido[idx].pub = e.target.value;
+  }));
+  tbody.querySelectorAll('.precio-costo').forEach(inp => inp.addEventListener('change', e => {
+    const idx = parseInt(e.target.dataset.idx);
+    precioElegido[idx] = precioElegido[idx] || {};
+    precioElegido[idx].costo = e.target.value;
+  }));
+  tbody.querySelectorAll('.cant-row').forEach(inp => inp.addEventListener('change', e => {
+    const idx = parseInt(e.target.dataset.idx);
+    cantidadElegida[idx] = parseInt(e.target.value) || 0;
+  }));
+  tbody.querySelectorAll('.tipo-row').forEach(inp => inp.addEventListener('change', e => {
+    const idx = parseInt(e.target.dataset.idx);
+    tipoElegido[idx] = e.target.value;
+  }));
+  actualizarBoton();
+}
+
+function aplicarFiltro(e) {
+  const q = e.target.value.trim().toUpperCase();
+  document.querySelectorAll('#tbody-items tr').forEach(tr => {
+    tr.style.display = !q || tr.dataset.buscar.includes(q) ? '' : 'none';
+  });
+  actualizarBoton();
+}
+function marcarVisibles(marcar) {
+  document.querySelectorAll('#tbody-items tr').forEach(tr => {
+    if (tr.style.display === 'none') return;
+    const c = tr.querySelector('.chk-item');
+    if (c && !c.disabled) c.checked = marcar;
+  });
+  actualizarBoton();
+}
+function actualizarBoton() {
+  const n = [...document.querySelectorAll('#tbody-items tr')]
+    .filter(tr => tr.style.display !== 'none')
+    .filter(tr => { const c = tr.querySelector('.chk-item'); return c && c.checked && !c.disabled; }).length;
+  document.getElementById('btn-cargar').textContent = `⚡ Cargar seleccionados (${n})`;
+}
+
+function construirDescripcion(it) {
+  let html = `<p><b>${tipoElegido[it.idx] || it.tipo}</b></p>`;
+  const partes = [it.descripcion, it.detalle].filter(Boolean);
+  if (partes.length) html += `<p style="margin-top:6px">${partes.join('<br>')}</p>`;
+  if (it.nota_internet) html += `<p style="margin-top:6px;color:var(--text3)">Referencia planilla: ${it.nota_internet}</p>`;
+  html += `<p style="color:#4b5563;font-size:11px;border-top:1px dashed #2a3347;padding-top:8px;margin-top:8px">— Importado desde la hoja CIRCUITO IMPRESO de "Respuesto en Stock Galponcito.xlsx" —</p>`;
+  return html;
+}
+
+function construirTitulo(it) {
+  const tipoTxt = (tipoElegido[it.idx] || it.tipo || '').trim();
+  const mm = [it.marca, it.modelo].filter(Boolean).join(' ');
+  const lado = (it.detalle === 'D' || it.detalle === 'I') ? ` (${it.detalle})` : '';
+  if (mm) return `${tipoTxt} — ${mm}${lado}`.slice(0, 180);
+  return tipoTxt.slice(0, 180);
+}
+
+function construirDoc(it, categoriaObj, condicion, publicar, idMysql) {
+  const idx = it.idx;
+  const p = precioElegido[idx] || {};
+  const pub = parseFloat(p.pub) || 0;
+  const costo = parseFloat(p.costo) || 0;
+  const sinIva = pub ? Math.round((pub / 1.21) * 100) / 100 : 0;
+  return {
+    titulo_repuesto: construirTitulo(it),
+    categoria: categoriaObj.nombre,
+    categoria_id: categoriaObj.id || '',
+    id_estanteria: '', id_estante: '',
+    tipos_vehiculo: [],
+    tipo: 'ORIGINAL',
+    condicion,
+    contenedor: '',
+    marcas_repuesto: it.marca ? [it.marca] : [],
+    fabricantes: it.marca ? [it.marca] : [],
+    arranque: '', alternador: '',
+    modelo_repuesto: '',
+    material: '',
+    lado: (it.detalle === 'D' || it.detalle === 'I') ? it.detalle : '',
+    codigo: it.codigo || '',
+    codigos_oem: [],
+    aplicacion: [it.marca, it.modelo].filter(Boolean).join(' '),
+    marcas_modelos: [],
+    marcas_vehiculo: it.modelo ? [it.modelo] : [],
+    codigos_proveedores: [],
+    catalogos_papel: [],
+    descripcion: construirDescripcion(it),
+    notas_internas: it.nota_internet || '',
+    importante: it.revisar ? 'Dato incompleto en la planilla original — revisar antes de publicar' : '',
+    tipo_pieza: tipoElegido[idx] || it.tipo || '',
+    dd_alta_rotacion: '', dd_demanda: '', dd_disponibilidad: '', dd_descontinuado: '',
+    dd_buscado_por: '', dd_vigencia: '', dd_oferta: '', dd_justificacion: '',
+    cant_artic: cantidadElegida[idx] || 0,
+    stock_minimo: 1,
+    forma_pago: 'Contado Efectivo',
+    forma_entrega: 'A convenir',
+    fecha_compra: '',
+    moneda: 'ARS',
+    precio_costo: costo,
+    precio_venta: sinIva,
+    precio_venta_iva: pub,
+    precio_ganancia_pct: 40,
+    imagenes: [], imagen_url: '',
+    alta: !!publicar,
+    id_mysql: String(idMysql),
+    vistas: 0,
+    creado_en: serverTimestamp(),
+    origen_import: ORIGEN,
+    origen_hoja: HOJA,
+    origen_item_idx: idx,
+  };
+}
+
+function categoriaPara() {
+  const selCat = document.getElementById('sel-categoria');
+  const libre = document.getElementById('txt-categoria-libre').value.trim();
+  if (selCat.value === '__libre__' || !selCat.value) {
+    return { id: '', nombre: libre || 'Circuitos Impresos' };
+  }
+  return categoriasCache.find(c => c.id === selCat.value) || { id: '', nombre: libre || 'Circuitos Impresos' };
+}
+
+async function cargarSeleccionados() {
+  const condicion = document.getElementById('sel-condicion').value;
+  const publicar = document.getElementById('chk-publicar').checked;
+  const btn = document.getElementById('btn-cargar');
+  const prog = document.getElementById('progreso');
+
+  const categoriaObj = categoriaPara();
+
+  const filas = [...document.querySelectorAll('#tbody-items tr')];
+  const seleccionados = filas
+    .map(tr => ({ tr, idx: parseInt(tr.dataset.idx) }))
+    .filter(({ tr }) => { const c = tr.querySelector('.chk-item'); return c && c.checked && !c.disabled; });
+
+  if (!seleccionados.length) { toast('No hay filas tildadas.'); return; }
+  if (!confirm(`Vas a cargar ${seleccionados.length} ítems a Firebase en la categoría "${categoriaObj.nombre}". ¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0, idMysql = maxIdMysql;
+  try {
+    for (const { idx } of seleccionados) {
+      const it = ITEMS_DATA[idx];
+      idMysql++;
+      const docData = construirDoc(it, categoriaObj, condicion, publicar, idMysql);
+      const ref = doc(collection(db, 'repuestos'));
+      batch.set(ref, docData);
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionados.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    maxIdMysql = idMysql;
+    prog.textContent = `✅ ${total} cargados`;
+    toast(`✅ ${total} ítems cargados`);
+    await iniciar();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
