@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Completar Precios — Bujías incompletas — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1350px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:1000px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--text2)}
+.controles label{display:flex;align-items:center;gap:6px}
+.filtro{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12.5px}
+.precio-fijo-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;font-family:'JetBrains Mono',monospace;width:120px}
+.precio-row{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:5px 8px;font-size:12px;width:110px;font-family:'JetBrains Mono',monospace}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+table.tabla{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+.scroll-tabla{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:380px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+h3{font-family:'Rajdhani',sans-serif;font-size:15px;margin:16px 0 8px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Completar Precios — Bujías incompletas</h1>
+<div class="sub">Busca las bujías ya cargadas (<span class="mono">stock-galponcito-bujias</span>) con algún precio en $0 o vacío. El tipo (nafteras/encendido o incandescentes/precalentamiento) se identifica por el ítem original de la hoja BUJÍAS. A las que ya tienen costo válido, solo se les completa venta/IVA/descuento/ganancia. A las que no tienen costo, se les carga el <b>precio de costo promedio</b> de Bobinar para su tipo (calculado sobre toda la lista de precios: <b>nafteras ≈ $10.097</b>, <b>incandescentes ≈ $30.889</b> — son promedios simples, hay bujías premium tipo NGK Iridium o HIDRIA que empujan el número para arriba; podés bajarlos en los inputs de abajo, por ejemplo a la mediana: naftera $6.203, incandescente $29.156). El valor es editable también por fila antes de aplicar. Guarda los 7 campos: costo, % ganancia, venta sin IVA, venta con IVA, venta con 10% descuento, ganancia neta y ganancia neta con descuento.</div>
+
+<div id="carga-inicial" class="loading">Buscando bujías con precios incompletos en Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div class="card">
+    <div class="controles">
+      <input class="filtro" id="filtro" placeholder="Buscar por código o título…" style="min-width:220px">
+      <label>Promedio NAFTERAS: $ <input class="precio-fijo-input" id="precio-naf" type="number" step="0.01" value="10097.41"></label>
+      <label>Promedio INCANDESCENTES: $ <input class="precio-fijo-input" id="precio-inc" type="number" step="0.01" value="30888.60"></label>
+      <button class="btn small ghost" id="btn-recalc">Recalcular vista previa</button>
+      <button class="btn green" id="btn-aplicar">✅ Aplicar precios a los tildados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <h3>Bujías con precio incompleto</h3>
+  <div class="scroll-tabla"><table class="tabla" id="tabla-match">
+    <thead><tr><th><input type="checkbox" id="chk-todos" checked></th><th>Código</th><th>Título</th><th>Tipo</th><th>Costo actual</th><th>Costo a usar</th><th>Venta c/IVA</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-bujias';
+
+// idx (origen_item_idx) -> tipo, tal como quedó asignado por el cargador original al importar la hoja BUJÍAS
+const TIPO_POR_IDX = {"0":"NAFTERAS","1":"NAFTERAS","2":"NAFTERAS","3":"NAFTERAS","4":"NAFTERAS","5":"NAFTERAS","6":"NAFTERAS","7":"NAFTERAS","8":"NAFTERAS","9":"NAFTERAS","10":"NAFTERAS","11":"NAFTERAS","12":"NAFTERAS","13":"NAFTERAS","14":"NAFTERAS","15":"NAFTERAS","16":"NAFTERAS","17":"NAFTERAS","18":"NAFTERAS","19":"NAFTERAS","20":"NAFTERAS","21":"NAFTERAS","22":"NAFTERAS","23":"NAFTERAS","24":"NAFTERAS","25":"NAFTERAS","26":"NAFTERAS","27":"NAFTERAS","28":"NAFTERAS","29":"NAFTERAS","30":"NAFTERAS","31":"NAFTERAS","32":"INCANDESCENTES","33":"INCANDESCENTES","34":"INCANDESCENTES","35":"INCANDESCENTES","36":"INCANDESCENTES","37":"INCANDESCENTES","38":"INCANDESCENTES","39":"INCANDESCENTES","40":"INCANDESCENTES"};
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+function numInvalido(v) {
+  var n = parseFloat(v);
+  return v == null || v === '' || isNaN(n) || n <= 0;
+}
+
+// Deduce el tipo: primero por origen_item_idx (confiable, viene del cargador original),
+// si no está, intenta por el texto de la categoría guardada.
+function tipoDe(b) {
+  if (b.origen_item_idx != null && TIPO_POR_IDX[String(b.origen_item_idx)]) {
+    return TIPO_POR_IDX[String(b.origen_item_idx)];
+  }
+  const cat = (b.categoria || '').toUpperCase();
+  if (cat.includes('INCANDESC') || cat.includes('PRECALENT')) return 'INCANDESCENTES';
+  if (cat.includes('NAFTER') || cat.includes('ENCENDIDO')) return 'NAFTERAS';
+  return null; // desconocido, requiere completar a mano
+}
+
+// Misma fórmula que bujes y fusibles
+function calcPrecios(costo, pctDoc) {
+  var pct = parseFloat(pctDoc) || 40;
+  var sinIva = costo * (1 + pct / 100);
+  var conIva = sinIva * 1.21;
+  var conDescuento = conIva * 0.9;
+  var gananciaNeta = sinIva - costo;
+  var gananciaNetaDescuento = conDescuento - costo;
+  return {
+    pct: pct,
+    sinIva: Math.round(sinIva * 100) / 100,
+    conIva: Math.round(conIva * 100) / 100,
+    conDescuento: Math.round(conDescuento * 100) / 100,
+    gananciaNeta: Math.round(gananciaNeta * 100) / 100,
+    gananciaNetaDescuento: Math.round(gananciaNetaDescuento * 100) / 100
+  };
+}
+
+let bujiasCache = [];
+let incompletos = [];
+
+async function iniciar() {
+  const snap = await getDocs(query(collection(db, 'repuestos'), where('origen_import', '==', ORIGEN)));
+  bujiasCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  incompletos = bujiasCache.filter(b =>
+    numInvalido(b.precio_costo) ||
+    numInvalido(b.precio_venta) ||
+    numInvalido(b.precio_venta_iva)
+  );
+
+  incompletos.forEach(b => { b._tipo = tipoDe(b); });
+  actualizarCostosSugeridos();
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderResumen();
+  renderTabla();
+
+  document.getElementById('filtro').addEventListener('input', renderTabla);
+  document.getElementById('btn-recalc').addEventListener('click', () => { actualizarCostosSugeridos(true); renderTabla(); });
+  document.getElementById('btn-aplicar').addEventListener('click', aplicar);
+  document.getElementById('chk-todos').addEventListener('change', (e) => {
+    document.querySelectorAll('.chk-fila').forEach(chk => chk.checked = e.target.checked);
+  });
+}
+
+function actualizarCostosSugeridos(forzarPromedio) {
+  const promNaf = parseFloat(document.getElementById('precio-naf').value) || 0;
+  const promInc = parseFloat(document.getElementById('precio-inc').value) || 0;
+  incompletos.forEach(b => {
+    if (!numInvalido(b.precio_costo) && !forzarPromedio) {
+      // ya tiene costo válido, se respeta (salvo que el usuario ya haya tocado el input a mano)
+      if (b._costoUsar == null) b._costoUsar = parseFloat(b.precio_costo);
+    } else if (numInvalido(b.precio_costo)) {
+      b._costoUsar = b._tipo === 'NAFTERAS' ? promNaf : (b._tipo === 'INCANDESCENTES' ? promInc : '');
+    }
+  });
+}
+
+function renderResumen() {
+  const sinTipo = incompletos.filter(b => !b._tipo).length;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${bujiasCache.length}</div><div class="l">bujías cargadas</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${incompletos.length}</div><div class="l">con algún precio incompleto</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${sinTipo}</div><div class="l">sin tipo detectado — completar a mano</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${bujiasCache.length - incompletos.length}</div><div class="l">completas</div></div>
+  `;
+}
+
+function capturarInputsFila() {
+  document.querySelectorAll('#tabla-match tbody tr').forEach(tr => {
+    const b = incompletos.find(x => x.id === tr.dataset.id);
+    if (!b) return;
+    const val = tr.querySelector('.precio-row').value;
+    b._costoUsar = val === '' ? '' : parseFloat(val);
+  });
+  renderTabla();
+}
+
+function renderTabla() {
+  const q = document.getElementById('filtro').value.trim().toUpperCase();
+  document.querySelector('#tabla-match tbody').innerHTML = incompletos
+    .filter(b => !q || (b.codigo || '').toUpperCase().includes(q) || (b.titulo_repuesto || '').toUpperCase().includes(q))
+    .map(b => {
+      const costoUsar = b._costoUsar;
+      const tieneCosto = costoUsar !== '' && costoUsar != null && !isNaN(costoUsar) && costoUsar > 0;
+      const p = tieneCosto ? calcPrecios(costoUsar, b.precio_ganancia_pct) : null;
+      const tipoTxt = b._tipo || '<span class="badge no">sin tipo</span>';
+      return `
+    <tr data-id="${b.id}">
+      <td><input type="checkbox" class="chk-fila" ${tieneCosto ? 'checked' : 'disabled'}></td>
+      <td class="mono">${b.codigo || ''}</td>
+      <td>${b.titulo_repuesto || ''}</td>
+      <td>${tipoTxt}</td>
+      <td>$${b.precio_costo ?? 0}</td>
+      <td><input type="number" step="0.01" class="precio-row" value="${costoUsar ?? ''}"></td>
+      <td>${p ? '$' + Math.round(p.conIva).toLocaleString('es-AR') : '—'}</td>
+    </tr>`;
+    }).join('');
+
+  document.querySelectorAll('.precio-row').forEach(inp => inp.addEventListener('change', capturarInputsFila));
+}
+
+async function aplicar() {
+  const filas = [...document.querySelectorAll('#tabla-match tbody tr')];
+  const seleccionadosIds = filas
+    .filter(tr => { const c = tr.querySelector('.chk-fila'); return c.checked && !c.disabled; })
+    .map(tr => tr.dataset.id);
+  const seleccionados = incompletos.filter(b => seleccionadosIds.includes(b.id));
+  if (!seleccionados.length) { toast('No hay filas tildadas con costo válido.'); return; }
+
+  if (!confirm(`Vas a completar los precios de ${seleccionados.length} bujías. ¿Confirmás?`)) return;
+
+  const btn = document.getElementById('btn-aplicar');
+  const prog = document.getElementById('progreso');
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const b of seleccionados) {
+      const costoUsar = parseFloat(b._costoUsar);
+      const p = calcPrecios(costoUsar, b.precio_ganancia_pct);
+      const cambios = {
+        precio_costo: costoUsar,
+        precio_venta: p.sinIva,
+        precio_venta_iva: p.conIva,
+        precio_venta_descuento: p.conDescuento,
+        precio_ganancia_pct: p.pct,
+        ganancia_neta: p.gananciaNeta,
+        ganancia_neta_descuento: p.gananciaNetaDescuento
+      };
+      batch.update(doc(db, 'repuestos', b.id), cambios);
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionados.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} actualizadas`;
+    toast(`✅ ${total} bujías con todos los precios completados`);
+    await iniciar();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
