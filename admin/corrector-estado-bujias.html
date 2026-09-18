@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Corrector de Publicación — Bujías Galponcito</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1300px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:980px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.scroll-tabla{max-height:600px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.ok-row td{opacity:.5}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Corrector de Publicación — Bujías Galponcito</h1>
+<div class="sub">Corrige el estado de publicación (<span class="mono">alta</span>) de los repuestos cargados por <span class="mono">admin/cargador-bujias-galponcito.html</span> (import <span class="mono">stock-galponcito-bujias</span>). Ese import quedó con el checkbox "publicar automáticamente" destildado, así que todo el lote se guardó como <b>Oculto</b>. Las filas ocultas salen tildadas por defecto — solo esas se tocan al confirmar. No toca nada de otros imports.</div>
+
+<div id="carga-inicial" class="loading">Cargando repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+
+  <div class="card">
+    <div class="controles">
+      <button class="btn ghost small" id="btn-sel-ocultas">Tildar solo ocultas</button>
+      <button class="btn ghost small" id="btn-sel-todas">Tildar todas</button>
+      <button class="btn ghost small" id="btn-desel-todas">Destildar todas</button>
+      <button class="btn green" id="btn-corregir">✔ Publicar seleccionadas</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <div class="scroll-tabla"><table class="tabla-items">
+    <thead><tr><th></th><th>Código</th><th>Descripción</th><th>Categoría</th><th>Precio venta</th><th>Estado actual</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-bujias';
+let docsCache = [];
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+async function iniciar() {
+  const snap = await getDocs(collection(db, 'repuestos'));
+  docsCache = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(r => r.origen_import === ORIGEN);
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  render();
+
+  document.getElementById('btn-sel-ocultas').addEventListener('click', () => marcarSegun(tr => tr.dataset.oculta === '1'));
+  document.getElementById('btn-sel-todas').addEventListener('click', () => marcarSegun(() => true));
+  document.getElementById('btn-desel-todas').addEventListener('click', () => marcarSegun(() => false));
+  document.getElementById('btn-corregir').addEventListener('click', corregirSeleccionadas);
+}
+
+function render() {
+  const ocultas = docsCache.filter(r => !r.alta).length;
+
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${docsCache.length}</div><div class="l">bujías cargadas (este import)</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${ocultas}</div><div class="l">ocultas</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${docsCache.length - ocultas}</div><div class="l">ya publicadas</div></div>
+  `;
+
+  const tbody = document.getElementById('tbody-items');
+  tbody.innerHTML = docsCache.map(r => {
+    const oculta = !r.alta;
+    const estado = oculta ? '<span class="badge no">Oculto</span>' : '<span class="badge ok">Publicado</span>';
+    const precio = (r.precio_venta_iva !== undefined && r.precio_venta_iva !== null && r.precio_venta_iva !== '')
+      ? `$ ${Number(r.precio_venta_iva).toLocaleString('es-AR')}` : '—';
+    return `<tr data-id="${r.id}" data-oculta="${oculta ? '1' : '0'}" class="${oculta ? '' : 'ok-row'}">
+      <td><input type="checkbox" class="chk-item" ${oculta ? 'checked' : ''}></td>
+      <td class="mono">${r.codigo || '—'}</td>
+      <td>${r.titulo_repuesto || r.descripcion_breve || '—'}</td>
+      <td>${r.categoria || '<i>(sin categoría)</i>'}</td>
+      <td>${precio}</td>
+      <td>${estado}</td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.chk-item').forEach(c => c.addEventListener('change', actualizarBoton));
+  actualizarBoton();
+}
+
+function marcarSegun(criterio) {
+  document.querySelectorAll('#tbody-items tr').forEach(tr => {
+    const c = tr.querySelector('.chk-item');
+    if (c) c.checked = criterio(tr);
+  });
+  actualizarBoton();
+}
+function actualizarBoton() {
+  const n = [...document.querySelectorAll('#tbody-items tr')]
+    .filter(tr => { const c = tr.querySelector('.chk-item'); return c && c.checked; }).length;
+  document.getElementById('btn-corregir').textContent = `✔ Publicar seleccionadas (${n})`;
+}
+
+async function corregirSeleccionadas() {
+  const btn = document.getElementById('btn-corregir');
+  const prog = document.getElementById('progreso');
+
+  const filas = [...document.querySelectorAll('#tbody-items tr')];
+  const seleccionadas = filas.filter(tr => { const c = tr.querySelector('.chk-item'); return c && c.checked; });
+  if (!seleccionadas.length) { toast('No hay filas tildadas.'); return; }
+  if (!confirm(`Vas a publicar ${seleccionadas.length} bujías en Firestore (alta: true). ¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const tr of seleccionadas) {
+      const id = tr.dataset.id;
+      batch.update(doc(db, 'repuestos', id), { alta: true });
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionadas.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} publicadas`;
+    toast(`✅ ${total} bujías publicadas`);
+    // refrescar cache local para que el resumen quede al día
+    seleccionadas.forEach(tr => {
+      const id = tr.dataset.id;
+      const rDoc = docsCache.find(d => d.id === id);
+      if (rDoc) rDoc.alta = true;
+    });
+    render();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
