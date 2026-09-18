@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Corregir títulos "SIN NOMBRE" — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.grupo{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.grupo-head{padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;background:var(--bg3)}
+.grupo-head .tit{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px}
+.grupo-body{padding:12px 14px;display:none;font-size:12.5px}
+.grupo-body.open{display:block}
+table.tabla{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+table.tabla th{text-align:left;color:var(--text2);border-bottom:1px solid var(--border2);padding:5px 8px}
+table.tabla td{padding:5px 8px;border-bottom:1px solid var(--border)}
+.scroll-tabla{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-top:6px}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600}
+.badge.ind{background:rgba(99,102,241,.18);color:var(--indigo)}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+input[type=text].correccion{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:3px 6px;font-size:12px;width:220px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Corregir títulos "SIN NOMBRE"</h1>
+<div class="sub">Busca todos los repuestos cuyo título quedó como "SIN NOMBRE — HOJA #código" (por no tener descripción en el excel de origen) y lo cambia a un nombre limpio: "HOJA (singular) código". Agrupado por hoja — revisá y tildá solo las que quieras corregir ahora.</div>
+
+<div id="carga-inicial" class="loading">Buscando títulos "SIN NOMBRE" en Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div id="grupos"></div>
+  <div style="margin-top:16px">
+    <button class="btn green" id="btn-aplicar">✅ Aplicar corrección a los grupos tildados</button>
+    <span class="progreso" id="progreso"></span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function singularPalabra(w) {
+  const up = w.toUpperCase();
+  if (up.length <= 3) return w;
+  if (up.endsWith('CES')) return w.slice(0, -3) + (w === up ? 'Z' : 'z');
+  if (up.endsWith('ES') && !'AEIOU'.includes(up[up.length - 3])) return w.slice(0, -2);
+  if (up.endsWith('S')) return w.slice(0, -1);
+  return w;
+}
+function singularFrase(frase) {
+  return frase.trim().split(/\s+/).map(singularPalabra).join(' ');
+}
+
+const RE_SIN_NOMBRE = /^SIN NOMBRE — (.+?) #(.+)$/;
+
+let repuestosCache = [];
+let grupos = {}; // hoja -> [{id, codigo, tituloActual, tituloNuevo}]
+
+async function iniciar() {
+  const snap = await getDocs(collection(db, 'repuestos'));
+  repuestosCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  grupos = {};
+  repuestosCache.forEach(r => {
+    const m = (r.titulo_repuesto || '').match(RE_SIN_NOMBRE);
+    if (!m) return;
+    const hoja = m[1].trim();
+    const codigo = m[2].trim();
+    const tituloNuevo = `${singularFrase(hoja)} ${codigo}`;
+    (grupos[hoja] ||= []).push({ id: r.id, codigo, tituloActual: r.titulo_repuesto, tituloNuevo });
+  });
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderResumen();
+  renderGrupos();
+  document.getElementById('btn-aplicar').addEventListener('click', aplicar);
+}
+
+function renderResumen() {
+  const totalGrupos = Object.keys(grupos).length;
+  const totalItems = Object.values(grupos).reduce((a, g) => a + g.length, 0);
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${totalGrupos}</div><div class="l">hojas con "SIN NOMBRE"</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${totalItems}</div><div class="l">repuestos afectados en total</div></div>
+  `;
+}
+
+function renderGrupos() {
+  const cont = document.getElementById('grupos');
+  cont.innerHTML = '';
+  Object.keys(grupos).sort().forEach(hoja => {
+    const items = grupos[hoja];
+    const preSeleccionado = hoja.toUpperCase().includes('PLANETARIO');
+    const div = document.createElement('div');
+    div.className = 'grupo';
+    div.dataset.hoja = hoja;
+    div.innerHTML = `
+      <div class="grupo-head">
+        <input type="checkbox" class="chk-grupo" ${preSeleccionado ? 'checked' : ''} onclick="event.stopPropagation()">
+        <span class="tit">${hoja}</span>
+        <span class="badge ind">${items.length} ítems</span>
+        <span style="color:var(--text2)">ej: "${items[0].tituloActual}" → "${items[0].tituloNuevo}"</span>
+        <button class="btn ghost small" style="margin-left:auto" onclick="event.stopPropagation(); this.closest('.grupo').querySelector('.grupo-body').classList.toggle('open')">Ver / editar ítems</button>
+      </div>
+      <div class="grupo-body">
+        <div class="scroll-tabla"><table class="tabla">
+          <thead><tr><th></th><th>Código</th><th>Título actual</th><th>Título nuevo</th></tr></thead>
+          <tbody>${items.map((it, i) => `
+            <tr data-idx="${i}">
+              <td><input type="checkbox" class="chk-item" checked></td>
+              <td class="mono">${it.codigo}</td>
+              <td style="color:var(--text3)">${it.tituloActual}</td>
+              <td><input type="text" class="correccion" value="${it.tituloNuevo}"></td>
+            </tr>`).join('')}</tbody>
+        </table></div>
+      </div>
+    `;
+    cont.appendChild(div);
+  });
+}
+
+async function aplicar() {
+  const gruposSeleccionados = [...document.querySelectorAll('.grupo')].filter(g => g.querySelector('.chk-grupo').checked);
+  if (!gruposSeleccionados.length) { toast('No hay hojas tildadas.'); return; }
+
+  const cambios = [];
+  gruposSeleccionados.forEach(gDiv => {
+    const hoja = gDiv.dataset.hoja;
+    const items = grupos[hoja];
+    gDiv.querySelectorAll('tbody tr').forEach(tr => {
+      if (!tr.querySelector('.chk-item').checked) return;
+      const idx = parseInt(tr.dataset.idx);
+      const nuevoTitulo = tr.querySelector('.correccion').value.trim();
+      if (nuevoTitulo) cambios.push({ id: items[idx].id, nuevoTitulo });
+    });
+  });
+
+  if (!cambios.length) { toast('No hay ítems tildados dentro de los grupos seleccionados.'); return; }
+  if (!confirm(`Vas a corregir el título de ${cambios.length} repuestos. ¿Confirmás?`)) return;
+
+  const btn = document.getElementById('btn-aplicar');
+  const prog = document.getElementById('progreso');
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const c of cambios) {
+      batch.update(doc(db, 'repuestos', c.id), { titulo_repuesto: c.nuevoTitulo });
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${cambios.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} corregidos`;
+    toast(`✅ ${total} títulos corregidos`);
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
