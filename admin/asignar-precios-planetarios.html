@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Asignar Precios a Planetarios (manual) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;padding:14px}
+.item.hecho{opacity:.45}
+.item .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.item .tit{font-family:'JetBrains Mono',monospace;color:var(--blue);font-weight:700;font-size:15px}
+select.sel-precio{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:8px 10px;font-size:12.5px}
+.controles{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.filtro-top{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filtro{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12.5px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Asignar Precios a Planetarios (manual)</h1>
+<div class="sub">Como los códigos internos (1301, 1302…) no coinciden con los de la lista de Bobinar/DIPRA, elegís vos, para cada planetario, cuál de las ~169 líneas de la lista corresponde (por descripción/marca que reconozcas de la pieza física) — y se carga el precio de costo en el momento.</div>
+
+<div id="carga-inicial" class="loading">Buscando tus planetarios en Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div class="filtro-top">
+    <input class="filtro" id="filtro" placeholder="Buscar por código…" style="min-width:200px">
+    <label style="color:var(--text2);font-size:12.5px"><input type="checkbox" id="chk-ocultar-hechos"> Ocultar los ya asignados</label>
+  </div>
+  <div id="lista"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── Lista de precios de Bobinar/DIPRA para planetarios (169 líneas) ──
+const PRECIOS = [{"codigo":"406K","detalle":"KIT COMPLETO DE PLANETARIO","costo":22261.68,"marca":"D"},{"codigo":"15648","detalle":"KIT PLANETARIO TIPO BOSCH VW","costo":30932.64,"marca":"DIPRA"},{"codigo":"15654","detalle":"KIT PLANETARIO TIPO DENSO DODGE-FIAT-TOYOTA VW","costo":20311.2,"marca":"DIPRA"},{"codigo":"DE-150","detalle":"KIT REDUCTOR","costo":28820.16,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"B-018","detalle":"KIT REDUCTOR","costo":29971.44,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"B-663","detalle":"KIT REDUCTOR","costo":40174.56,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"MI-113","detalle":"KIT REDUCTOR","costo":52423.92,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"NI-790","detalle":"KIT REDUCTOR","costo":29664.72,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"V-105","detalle":"KIT REDUCTOR","costo":32196.24,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"V-107","detalle":"KIT REDUCTOR","costo":29971.44,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"V-117","detalle":"KIT REDUCTOR","costo":26953.92,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"1463","detalle":"PLANETARIO","costo":150978.24,"marca":"DIPRA"},{"codigo":"14508","detalle":"PLANETARIO ARR. BOSCH LINEA FORD 37D","costo":60248.16,"marca":"DIPRA"},{"codigo":"14502","detalle":"PLANETARIO ARR. TIPO BOSCH RENAULT 36 DIENTES","costo":55593.36,"marca":"DIPRA"},{"codigo":"14501","detalle":"PLANETARIO ARR. TIPO BOSCH VW 42 DIENTES","costo":65980.8,"marca":"DIPRA"},{"codigo":"14568","detalle":"PLANETARIO ARR. TIPO DENSO FIAT ARGO-MOBI","costo":68719.68,"marca":"DIPRA"},{"codigo":"15619","detalle":"PLANETARIO BOSCH  AUDI-VW","costo":40083.84,"marca":"DIPRA"},{"codigo":"1552","detalle":"PLANETARIO BOSCH C/ENGRANAJES FIAT FORD IVECO","costo":33611.04,"marca":"DIPRA"},{"codigo":"1436","detalle":"PLANETARIO BOSCH CITROEN BERLINGO FORD FIESTA","costo":50284.08,"marca":"DIPRA"},{"codigo":"1437","detalle":"PLANETARIO BOSCH FIAT PALIO","costo":51260.4,"marca":"DIPRA"},{"codigo":"1554","detalle":"PLANETARIO BOSCH FORD ESCORT ZETEC","costo":31950.72,"marca":"DIPRA"},{"codigo":"1439","detalle":"PLANETARIO BOSCH MB SPRINTER 210","costo":84736.8,"marca":"DIPRA"},{"codigo":"15639","detalle":"PLANETARIO C/ENGRANAJES. T.JHAEM, CHERY QQ (1.1 16V, Z50","costo":18264.24,"marca":"DIPRA"},{"codigo":"14569","detalle":"PLANETARIO COMP. T.BOSCH, FIAT: DUCATO, PUEGEOT: BOXER, CITROEN; Z37","costo":61257.6,"marca":"DIPRA"},{"codigo":"14570","detalle":"PLANETARIO COMPLETO . T.JHAEM, CHERY QQ (1.1 16V Z50","costo":41098.32,"marca":"DIPRA"},{"codigo":"14559","detalle":"PLANETARIO COMPLETO TIPO VALEO Z56 KIA-HYUNDAI","costo":73062.72,"marca":"DIPRA"},{"codigo":"VAL2","detalle":"PLANETARIO COMPLETO VALEO D6RA RENAULT PEUGEOT 9E 37D","costo":28938.24,"marca":"IZETA"},{"codigo":"VAL1","detalle":"PLANETARIO COMPLETO VALEO D6RA RENAULT PEUGEOT 9E 59D","costo":28938.24,"marca":"IZETA"},{"codigo":"14571","detalle":"PLANETARIO COMPLETO, T.BORGWARNER, HYUNDAI, KIA, Z37","costo":61269.12,"marca":"DIPRA"},{"codigo":"14572","detalle":"PLANETARIO COMPLETO, T.VALEO, CITROEN, FORD, PEUGEOT, Z47","costo":46852.56,"marca":"DIPRA"},{"codigo":"1555","detalle":"PLANETARIO DE ARR. BOSCH FIAT DUNA DIESEL","costo":30006.72,"marca":"DIPRA"},{"codigo":"1387","detalle":"PLANETARIO DE ARR. MITSUBISHI - 42DIENTES","costo":5495.76,"marca":"DIPRA"},{"codigo":"1358","detalle":"PLANETARIO DENSO FIAT-JEEP-DODGE","costo":5274.72,"marca":"DIPRA"},{"codigo":"1549","detalle":"PLANETARIO DIPRA","costo":30443.04,"marca":"DIPRA"},{"codigo":"13105","detalle":"PLANETARIO DIPRA TIPO DENSO Z37","costo":4580.64,"marca":"DIPRA"},{"codigo":"1443R","detalle":"PLANETARIO FORD CARGO REFORZADO","costo":94521.6,"marca":"DIPRA"},{"codigo":"15620","detalle":"PLANETARIO HITACHI FIAT","costo":31656.96,"marca":"DIPRA"},{"codigo":"15624","detalle":"PLANETARIO KIA-HYUNDAI","costo":28416.96,"marca":"DIPRA"},{"codigo":"1388","detalle":"PLANETARIO MITSUBISHI 42 DIENTES","costo":5495.76,"marca":"DIPRA"},{"codigo":"15621","detalle":"PLANETARIO MITSUBISHI CHEVROLET","costo":26298.72,"marca":"DIPRA"},{"codigo":"14562","detalle":"PLANETARIO MOTORCRAFT, FORD: FOCUS 1.6 / 2.0","costo":71784,"marca":"DIPRA"},{"codigo":"1422R","detalle":"PLANETARIO PICK UP F100 MOTOR MWM","costo":80170.56,"marca":"DIPRA"},{"codigo":"1357","detalle":"PLANETARIO RENAULT LOGAN-SANDERO","costo":15240.24,"marca":"DIPRA"},{"codigo":"15638","detalle":"PLANETARIO T. DELCO, CHEVROLET, HYUNDAII, KIA, RENAULT, Z37","costo":27585.36,"marca":"DIPRA"},{"codigo":"13121","detalle":"PLANETARIO T. MITSUBISHI M000TD1371ZE: RENAULT:","costo":8118,"marca":"DIPRA"},{"codigo":"14560","detalle":"PLANETARIO T. MITSUBISHI, CHEVROLET: CRUZE, TRACKER","costo":69670.08,"marca":"DIPRA"},{"codigo":"14561","detalle":"PLANETARIO T. VALEO, FORD: NEW FIESTA, 1.4/1.6, ECOSPORT,","costo":46608.48,"marca":"DIPRA"},{"codigo":"15618","detalle":"PLANETARIO T.BOSCH Z36 Renault, Clio, Duster, Fluence, Megane, Scénic,Trafic","costo":25650.72,"marca":"DIPRA"},{"codigo":"1435","detalle":"PLANETARIO T.BOSCH, AUDI: TT 1 F.Galaxy , Golf III 1.8, 37 D. 10 ESTR","costo":59884.56,"marca":"DIPRA"},{"codigo":"1556","detalle":"PLANETARIO T.BOSCH, C/ ENGRANAJES FIAT DUCATO 2.3 MULTIJET. PEUGEOT: B","costo":31124.88,"marca":"DIPRA"},{"codigo":"1550","detalle":"PLANETARIO T.BOSCH, C/ ENGRANAJES VOLKSWAGEN GOL, SAVEIRO, TRANSPORTER","costo":29899.44,"marca":"DIPRA"},{"codigo":"1465","detalle":"PLANETARIO T.BOSCH, FIAT: Bravo Doblo , G.Siena, Palio 40D. 16ESTRIA","costo":55899.36,"marca":"DIPRA"},{"codigo":"1433","detalle":"PLANETARIO T.BOSCH, FORD: CARGO, BENZ BENZ SPRINTER 37DIENTES, 10 ESTR","costo":63984.96,"marca":"DIPRA"},{"codigo":"15608","detalle":"PLANETARIO T.BOSCH, Z36, CITROEN, FORD, RENAULT, PEUGEOT, BMW, TOYOTA","costo":39137.04,"marca":"DIPRA"},{"codigo":"1464","detalle":"PLANETARIO T.MITSUBISHI,MAN: Series 7 AL 18/26, VOLKSWAGEN: 44 D.10EST","costo":104392.08,"marca":"DIPRA"},{"codigo":"15623","detalle":"PLANETARIO TIPO BOSCH","costo":38296.08,"marca":"DIPRA"},{"codigo":"15645","detalle":"PLANETARIO TIPO BOSCH - 37 DIENTES","costo":26773.92,"marca":"DIPRA"},{"codigo":"15616","detalle":"PLANETARIO TIPO BOSCH - 38 DIENTES","costo":42447.6,"marca":"DIPRA"},{"codigo":"14531","detalle":"PLANETARIO TIPO BOSCH - 38 DIENTES AGRALE","costo":68796.72,"marca":"DIPRA"},{"codigo":"15644","detalle":"PLANETARIO TIPO BOSCH - 41 DIENTES MERCEDES BENZ","costo":85191.12,"marca":"DIPRA"},{"codigo":"14500","detalle":"PLANETARIO TIPO BOSCH - 42 DIENTES","costo":89064.72,"marca":"DIPRA"},{"codigo":"15606","detalle":"PLANETARIO TIPO BOSCH - 42 DIENTES","costo":44814.24,"marca":"DIPRA"},{"codigo":"14528","detalle":"PLANETARIO TIPO BOSCH - 42 DIENTES FIAT","costo":58872.24,"marca":"DIPRA"},{"codigo":"14504","detalle":"PLANETARIO TIPO BOSCH BMW-CITROEN-FORD-PEUG-RENAULT-TOYOTA 36 DIENTES","costo":76537.44,"marca":"DIPRA"},{"codigo":"14532","detalle":"PLANETARIO TIPO BOSCH FIAT","costo":76627.44,"marca":"DIPRA"},{"codigo":"1485","detalle":"PLANETARIO TIPO BOSCH MB SPRINTER","costo":68136.48,"marca":"DIPRA"},{"codigo":"1599","detalle":"PLANETARIO TIPO BOSCH MB SPRINTER BMW C/ENGRANAJES","costo":30204.72,"marca":"DIPRA"},{"codigo":"14511","detalle":"PLANETARIO TIPO BOSCH NISSAN GM","costo":63308.88,"marca":"DIPRA"},{"codigo":"1391","detalle":"PLANETARIO TIPO BOSCH TOYOTA COROLLA","costo":5868.72,"marca":"DIPRA"},{"codigo":"14540","detalle":"PLANETARIO TIPO BOSCH TOYOTA HILUX","costo":68986.8,"marca":"DIPRA"},{"codigo":"14533","detalle":"PLANETARIO TIPO BOSCH VW","costo":78091.92,"marca":"DIPRA"},{"codigo":"13139","detalle":"PLANETARIO TIPO DELCO AGRALE 44 DIENTES","costo":48061.44,"marca":"DIPRA"},{"codigo":"15610","detalle":"PLANETARIO TIPO DELCO C/ENGRANAJES HYUNDAI-KIA","costo":23394.24,"marca":"DIPRA"},{"codigo":"1487","detalle":"PLANETARIO TIPO DELCO CHEVROLET ONIX","costo":65009.52,"marca":"DIPRA"},{"codigo":"1386","detalle":"PLANETARIO TIPO DELCO REMY Z-48","costo":5495.76,"marca":"DIPRA"},{"codigo":"15630","detalle":"PLANETARIO TIPO DELCO TOYOTA","costo":30201.84,"marca":"DIPRA"},{"codigo":"13107","detalle":"PLANETARIO TIPO DELCO Z48","costo":6535.44,"marca":"DIPRA"},{"codigo":"15655","detalle":"PLANETARIO TIPO DENSO - Z42","costo":21097.44,"marca":"DIPRA"},{"codigo":"1496","detalle":"PLANETARIO TIPO DENSO","costo":41829.84,"marca":"DIPRA"},{"codigo":"1392","detalle":"PLANETARIO TIPO DENSO BMW","costo":5065.2,"marca":"DIPRA"},{"codigo":"1359","detalle":"PLANETARIO TIPO DENSO FIAT","costo":5274.72,"marca":"DIPRA"},{"codigo":"15625","detalle":"PLANETARIO TIPO DENSO FIAT-HONDA-CHRYSLER-DODGE","costo":22850.64,"marca":"DIPRA"},{"codigo":"1396","detalle":"PLANETARIO TIPO DENSO FIAT BRAVO-PALIO WEEKEND","costo":7927.92,"marca":"DIPRA"},{"codigo":"15622","detalle":"PLANETARIO TIPO DENSO Z31","costo":20414.16,"marca":"DIPRA"},{"codigo":"13106","detalle":"PLANETARIO TIPO DENSO Z55","costo":4580.64,"marca":"DIPRA"},{"codigo":"13108","detalle":"PLANETARIO TIPO DENSO Z55","costo":4580.64,"marca":"DIPRA"},{"codigo":"13138","detalle":"PLANETARIO TIPO HITACHI CHEVROLET 38 DIENTES","costo":6924.96,"marca":"DIPRA"},{"codigo":"14557","detalle":"PLANETARIO TIPO HITACHI FIAT PALIO-STRADA-SIENA","costo":60645.6,"marca":"DIPRA"},{"codigo":"1561","detalle":"PLANETARIO TIPO ISKRA","costo":104882.4,"marca":"DIPRA"},{"codigo":"15647","detalle":"PLANETARIO TIPO ISKRA - Z38","costo":55042.56,"marca":"DIPRA"},{"codigo":"15642","detalle":"PLANETARIO TIPO ISKRA - Z42","costo":55042.56,"marca":"DIPRA"},{"codigo":"1559","detalle":"PLANETARIO TIPO ISKRA MINI CARGADORA","costo":84098.16,"marca":"DIPRA"},{"codigo":"1390","detalle":"PLANETARIO TIPO MITSUBA HONDA FIT-CIVIC","costo":7889.76,"marca":"DIPRA"},{"codigo":"1393","detalle":"PLANETARIO TIPO MITSUBA HONDA FIT-CIVIC","costo":48240.72,"marca":"DIPRA"},{"codigo":"1488","detalle":"PLANETARIO TIPO MITSUBISHI","costo":66758.4,"marca":"DIPRA"},{"codigo":"1389","detalle":"PLANETARIO TIPO MITSUBISHI  - Z40","costo":5374.8,"marca":"DIPRA"},{"codigo":"14581","detalle":"PLANETARIO TIPO MITSUBISHI  - Z42","costo":48487.68,"marca":"DIPRA"},{"codigo":"15646","detalle":"PLANETARIO TIPO MITSUBISHI  - Z42","costo":21097.44,"marca":"DIPRA"},{"codigo":"1395","detalle":"PLANETARIO TIPO MITSUBISHI  - Z43 RANGER","costo":34151.76,"marca":"DIPRA"},{"codigo":"15611","detalle":"PLANETARIO TIPO MITSUBISHI  - Z43 RANGER","costo":44460,"marca":"DIPRA"},{"codigo":"13141","detalle":"PLANETARIO TIPO MITSUBISHI  - Z44","costo":55242,"marca":"DIPRA"},{"codigo":"13142","detalle":"PLANETARIO TIPO MITSUBISHI  - Z46","costo":50510.16,"marca":"DIPRA"},{"codigo":"13120","detalle":"PLANETARIO TIPO MITSUBISHI LANCER","costo":14361.12,"marca":"DIPRA"},{"codigo":"15607","detalle":"PLANETARIO TIPO MITSUBISHI RENAULT SANDERO-LOGAN-NISSAN C/ENGRANAJES","costo":23891.76,"marca":"DIPRA"},{"codigo":"1344","detalle":"PLANETARIO TIPO TOYOTA  - Z55","costo":10127.52,"marca":"DIPRA"},{"codigo":"1343","detalle":"PLANETARIO TIPO TOYOTA  - Z55","costo":10513.44,"marca":"DIPRA"},{"codigo":"15656","detalle":"PLANETARIO TIPO VALEO  - VW AMAROK","costo":24674.4,"marca":"DIPRA"},{"codigo":"1381","detalle":"PLANETARIO TIPO VALEO  - Z37","costo":5945.04,"marca":"DIPRA"},{"codigo":"1397","detalle":"PLANETARIO TIPO VALEO  - Z40","costo":5887.44,"marca":"DIPRA"},{"codigo":"1382","detalle":"PLANETARIO TIPO VALEO  - Z41","costo":5926.32,"marca":"DIPRA"},{"codigo":"1384","detalle":"PLANETARIO TIPO VALEO  - Z47","costo":5945.04,"marca":"DIPRA"},{"codigo":"15653","detalle":"PLANETARIO TIPO VALEO  - Z47","costo":32787.36,"marca":"DIPRA"},{"codigo":"V-0194","detalle":"PLANETARIO TIPO VALEO  - Z47","costo":9897.12,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"1385","detalle":"PLANETARIO TIPO VALEO  - Z47","costo":6104.16,"marca":"DIPRA"},{"codigo":"1350","detalle":"PLANETARIO TIPO VALEO  - Z56","costo":8811.36,"marca":"DIPRA"},{"codigo":"V-0069","detalle":"PLANETARIO TIPO VALEO  - Z59","costo":8341.92,"marca":"ESTRADA ELECTROMECANICA"},{"codigo":"14546","detalle":"PLANETARIO TIPO VALEO AUDI-FIAT-VW","costo":54105.12,"marca":"DIPRA"},{"codigo":"14547","detalle":"PLANETARIO TIPO VALEO NISSAN-OPEL-RENAULT","costo":75245.04,"marca":"DIPRA"},{"codigo":"15626","detalle":"PLANETARIO TIPO VALEO VW","costo":17429.76,"marca":"DIPRA"},{"codigo":"15627","detalle":"PLANETARIO TIPO VALEO VW","costo":17429.76,"marca":"DIPRA"},{"codigo":"14545","detalle":"PLANETARIO TIPO VALEO VW","costo":54950.4,"marca":"DIPRA"},{"codigo":"14577","detalle":"PLANETARIO VALEO VW VENTO AUDI A3 47 DIENTES","costo":73272.24,"marca":"DIPRA"},{"codigo":"12695","detalle":"PLANETARIO","costo":30816,"marca":""},{"codigo":"12841","detalle":"PLANETARIO","costo":65094.48,"marca":""},{"codigo":"12694","detalle":"PLANETARIO","costo":30816,"marca":""},{"codigo":"1569","detalle":"PLANETARIO, T.BOSCH, FIAT SIENA, GRAN SIENA, BRAVO, AVENTURE 40 DIENTE","costo":22934.16,"marca":"DIPRA"},{"codigo":"1567","detalle":"PLANETARIO, T.MITSUBISHI, MAN: Series: 7 / 8 / 10 / 12 / 13 / 15 / 18 / 26, VOLKSWAGEN  44 DIENTES","costo":66708.72,"marca":"DIPRA"},{"codigo":"601K","detalle":"PLANETARIOS D","costo":22762.08,"marca":"D"},{"codigo":"306","detalle":"PLANETARIOS D","costo":7837.92,"marca":"D"},{"codigo":"504K","detalle":"PLANETARIOS D","costo":38509.92,"marca":"D"},{"codigo":"406","detalle":"PLANETARIOS D","costo":9546.48,"marca":"D"},{"codigo":"400","detalle":"PLANETARIOS D","costo":11067.84,"marca":"D"},{"codigo":"503","detalle":"PLANETARIOS D","costo":12229.2,"marca":"D"},{"codigo":"401","detalle":"PLANETARIOS D","costo":9657.36,"marca":"D"},{"codigo":"403","detalle":"PLANETARIOS D","costo":10520.64,"marca":"D"},{"codigo":"501K","detalle":"PLANETARIOS D","costo":49517.28,"marca":"D"},{"codigo":"333","detalle":"PLANETARIOS D","costo":7619.04,"marca":"D"},{"codigo":"VA2","detalle":"PLANETARIOS D","costo":11188.08,"marca":"D"},{"codigo":"402","detalle":"PLANETARIOS D","costo":9561.6,"marca":"D"},{"codigo":"1647","detalle":"PLANETARIOS D","costo":111567.6,"marca":"D"},{"codigo":"311","detalle":"PLANETARIOS D","costo":8560.08,"marca":"D"},{"codigo":"334","detalle":"PLANETARIOS D","costo":12273.84,"marca":"D"},{"codigo":"304","detalle":"PLANETARIOS D","costo":7210.08,"marca":"D"},{"codigo":"701","detalle":"PLANETARIOS D","costo":29473.92,"marca":"D"},{"codigo":"402K","detalle":"PLANETARIOS D","costo":20787.12,"marca":"D"},{"codigo":"316","detalle":"PLANETARIOS D","costo":14861.52,"marca":"D"},{"codigo":"309","detalle":"PLANETARIOS D","costo":8290.8,"marca":"D"},{"codigo":"501","detalle":"PLANETARIOS D","costo":12229.2,"marca":"D"},{"codigo":"302","detalle":"PLANETARIOS D","costo":7210.08,"marca":"D"},{"codigo":"307","detalle":"PLANETARIOS D","costo":7495.92,"marca":"D"},{"codigo":"314","detalle":"PLANETARIOS D","costo":14830.56,"marca":"D"},{"codigo":"850","detalle":"PLANETARIOS D","costo":108321.12,"marca":"D"},{"codigo":"401K","detalle":"PLANETARIOS D","costo":20787.12,"marca":"D"},{"codigo":"303K","detalle":"PLANETARIOS D","costo":13168.8,"marca":"D"},{"codigo":"VA6","detalle":"PLANETARIOS D","costo":14960.16,"marca":"D"},{"codigo":"602K","detalle":"PLANETARIOS D","costo":25799.04,"marca":"D"},{"codigo":"VA4","detalle":"PLANETARIOS D","costo":11188.08,"marca":"D"},{"codigo":"303","detalle":"PLANETARIOS D","costo":7210.08,"marca":"D"},{"codigo":"500K","detalle":"PLANETARIOS D","costo":38509.92,"marca":"D"},{"codigo":"308","detalle":"PLANETARIOS D","costo":7873.2,"marca":"D"},{"codigo":"504","detalle":"PLANETARIOS D","costo":9406.8,"marca":"D"},{"codigo":"322","detalle":"PLANETARIOS D","costo":8498.16,"marca":"D"},{"codigo":"404","detalle":"PLANETARIOS D","costo":8935.92,"marca":"D"},{"codigo":"500","detalle":"PLANETARIOS D","costo":12229.2,"marca":"D"},{"codigo":"305","detalle":"PLANETARIOS D","costo":7210.08,"marca":"D"},{"codigo":"VA3","detalle":"PLANETARIOS D","costo":11188.08,"marca":"D"},{"codigo":"323","detalle":"PLANETARIOS D","costo":7619.04,"marca":"D"},{"codigo":"730","detalle":"REDUCTOR VALEO TRAFIC DIESEL","costo":48906,"marca":"D"},{"codigo":"1207","detalle":"TAPA DE ACERO PLANETARIO TIPO VALEO","costo":2955.6,"marca":"DIPRA"}];
+
+let planetariosCache = [];
+
+async function iniciar() {
+  const snap = await getDocs(collection(db, 'repuestos'));
+  planetariosCache = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(r => /planetario/i.test(r.titulo_repuesto || '') || /planetario/i.test(r.categoria || ''));
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderResumen();
+  renderLista();
+
+  document.getElementById('filtro').addEventListener('input', renderLista);
+  document.getElementById('chk-ocultar-hechos').addEventListener('change', renderLista);
+}
+
+function renderResumen() {
+  const total = planetariosCache.length;
+  const conPrecio = planetariosCache.filter(r => r.precio_costo > 0).length;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${total}</div><div class="l">planetarios encontrados</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${conPrecio}</div><div class="l">ya con precio de costo</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${total - conPrecio}</div><div class="l">sin precio todavía</div></div>
+  `;
+}
+
+function opcionesPrecios() {
+  return `<option value="">— elegí a cuál corresponde —</option>` +
+    PRECIOS.map((p, i) => `<option value="${i}">${p.marca ? '[' + p.marca + '] ' : ''}${p.detalle} — $${p.costo}</option>`).join('');
+}
+
+function renderLista() {
+  const q = document.getElementById('filtro').value.trim().toUpperCase();
+  const ocultarHechos = document.getElementById('chk-ocultar-hechos').checked;
+  const cont = document.getElementById('lista');
+  const items = planetariosCache.filter(r => {
+    if (q && !(r.codigo || '').toUpperCase().includes(q)) return false;
+    if (ocultarHechos && r.precio_costo > 0) return false;
+    return true;
+  });
+  cont.innerHTML = items.map(r => `
+    <div class="item ${r.precio_costo > 0 ? 'hecho' : ''}" data-id="${r.id}">
+      <div class="top">
+        <span class="tit">${r.codigo || '—'}</span>
+        <span>${r.titulo_repuesto || ''}</span>
+        <span style="color:var(--text2)">cant: ${r.cant_artic ?? '—'}</span>
+        ${r.precio_costo > 0 ? `<span class="badge ok">costo actual: $${r.precio_costo}</span>` : `<span class="badge warn">sin precio</span>`}
+      </div>
+      <select class="sel-precio">${opcionesPrecios()}</select>
+      <div class="controles">
+        <button class="btn green btn-asignar">💾 Asignar este precio</button>
+        <button class="btn ghost btn-saltar">Saltar (no sé cuál es)</button>
+      </div>
+    </div>
+  `).join('');
+
+  cont.querySelectorAll('.item').forEach(div => {
+    div.querySelector('.btn-asignar').addEventListener('click', () => asignar(div));
+    div.querySelector('.btn-saltar').addEventListener('click', () => {
+      div.style.display = 'none';
+    });
+  });
+}
+
+async function asignar(div) {
+  const id = div.dataset.id;
+  const sel = div.querySelector('.sel-precio');
+  if (!sel.value) { toast('Elegí una opción de la lista primero.'); return; }
+  const precio = PRECIOS[parseInt(sel.value)];
+  const btn = div.querySelector('.btn-asignar');
+  btn.disabled = true;
+  try {
+    await updateDoc(doc(db, 'repuestos', id), { precio_costo: precio.costo });
+    const r = planetariosCache.find(x => x.id === id);
+    r.precio_costo = precio.costo;
+    div.classList.add('hecho');
+    div.querySelector('.badge')?.remove();
+    div.querySelector('.top').insertAdjacentHTML('beforeend', `<span class="badge ok">costo actual: $${precio.costo}</span>`);
+    toast(`✅ ${r.codigo}: $${precio.costo} asignado`);
+    renderResumen();
+  } catch (e) {
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
