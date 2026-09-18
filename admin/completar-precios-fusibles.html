@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Completar Precios — Fusibles incompletos — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1300px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--text2)}
+.controles label{display:flex;align-items:center;gap:6px}
+.filtro{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12.5px}
+.precio-row{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:5px 8px;font-size:12px;width:110px;font-family:'JetBrains Mono',monospace}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+table.tabla{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+.scroll-tabla{max-height:480px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+h3{font-family:'Rajdhani',sans-serif;font-size:15px;margin:16px 0 8px}
+.matchinfo{font-size:10px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Completar Precios — Fusibles incompletos</h1>
+<div class="sub">Busca los fusibles ya cargados (<span class="mono">stock-galponcito-fusibles</span>) que tengan algún precio en $0 o vacío. Cruza cada uno por <b>tipo + amperaje</b> contra la lista de precios de Bobinar (prioridad GEN-ROD, después RONBAY) para sugerir el costo. Si el fusible ya tenía un costo válido cargado, se respeta y solo se completan venta/IVA/descuento/ganancia. Los que no tienen match en Bobinar quedan con el costo vacío para que lo completes a mano antes de aplicar. Guarda siempre los 6 campos: costo, % ganancia, venta sin IVA, venta con IVA, venta con 10% descuento y ganancia neta (con y sin descuento).</div>
+
+<div id="carga-inicial" class="loading">Buscando fusibles con precios incompletos en Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div class="card">
+    <div class="controles">
+      <input class="filtro" id="filtro" placeholder="Buscar por código, tipo o amperaje…" style="min-width:240px">
+      <button class="btn small ghost" id="btn-recalc">Recalcular vista previa</button>
+      <button class="btn green" id="btn-aplicar">✅ Aplicar precios a los tildados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <h3>Fusibles con precio incompleto</h3>
+  <div class="scroll-tabla"><table class="tabla" id="tabla-match">
+    <thead><tr><th><input type="checkbox" id="chk-todos" checked></th><th>Código</th><th>Tipo/Amp</th><th>Título</th><th>Match Bobinar</th><th>Costo a usar</th><th>Venta c/IVA</th><th>Estado</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, where, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-fusibles';
+
+// ── Misma lista de precios de Bobinar que usa el cargador original (verificada contra el excel actual) ──
+const PRECIOS_FUSIBLES = [{"tipo":"FICHA","amperaje":10,"marca":"GENROD","codigo":"GENR04010","detalle":"FUSIBLE FICHA 10AMP","costo":170.64},{"tipo":"FICHA","amperaje":10,"marca":"RONBAY","codigo":"RON0110A","detalle":"FUSIBLE FICHA 10AMP","costo":136.08},{"tipo":"FICHA","amperaje":15,"marca":"RONBAY","codigo":"RON0115A","detalle":"FUSIBLE FICHA 15AMP","costo":136.08},{"tipo":"FICHA","amperaje":15,"marca":"GENROD","codigo":"GENR04015","detalle":"FUSIBLE FICHA 15AMP","costo":170.64},{"tipo":"FICHA","amperaje":20,"marca":"RONBAY","codigo":"RON0120A","detalle":"FUSIBLE FICHA 20AMP","costo":136.08},{"tipo":"FICHA","amperaje":20,"marca":"GENROD","codigo":"GENR04020","detalle":"FUSIBLE FICHA 20AMP","costo":170.64},{"tipo":"FICHA","amperaje":25,"marca":"RONBAY","codigo":"RON0125A","detalle":"FUSIBLE FICHA 25AMP","costo":136.08},{"tipo":"FICHA","amperaje":25,"marca":"GENROD","codigo":"GENR04025","detalle":"FUSIBLE FICHA 25AMP","costo":170.64},{"tipo":"FICHA","amperaje":30,"marca":"RONBAY","codigo":"RON0130A","detalle":"FUSIBLE FICHA 30AMP","costo":136.08},{"tipo":"FICHA","amperaje":30,"marca":"GENROD","codigo":"GENR04030","detalle":"FUSIBLE FICHA 30AMP","costo":170.64},{"tipo":"FICHA","amperaje":3,"marca":"GENROD","codigo":"GENR04003","detalle":"FUSIBLE FICHA 3AMP","costo":170.64},{"tipo":"FICHA","amperaje":40,"marca":"GENROD","codigo":"GENR04040","detalle":"FUSIBLE FICHA 40AMP","costo":170.64},{"tipo":"FICHA","amperaje":40,"marca":"RONBAY","codigo":"RON0140A","detalle":"FUSIBLE FICHA 40AMP","costo":136.08},{"tipo":"FICHA","amperaje":4,"marca":"GENROD","codigo":"GENR04004","detalle":"FUSIBLE FICHA 4AMP","costo":170.64},{"tipo":"FICHA","amperaje":5,"marca":"RONBAY","codigo":"RON0105A","detalle":"FUSIBLE FICHA 5AMP","costo":136.08},{"tipo":"FICHA","amperaje":5,"marca":"GENROD","codigo":"GENR04005","detalle":"FUSIBLE FICHA 5AMP","costo":170.64},{"tipo":"FICHA","amperaje":7.5,"marca":"RONBAY","codigo":"RON0175A","detalle":"FUSIBLE FICHA 7,5AMP","costo":136.08},{"tipo":"FICHA","amperaje":7.5,"marca":"GENROD","codigo":"GENR04075","detalle":"FUSIBLE FICHA 7,5AMP","costo":170.64},{"tipo":"FICHA MAXI","amperaje":100,"marca":"RONBAY","codigo":"RON01MX100","detalle":"FUSIBLE FICHA MAXI 100AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":100,"marca":"GENROD","codigo":"GENR06100","detalle":"FUSIBLE FICHA MAXI 100AMP","costo":1392.48},{"tipo":"FICHA MAXI","amperaje":20,"marca":"RONBAY","codigo":"RON01MX20","detalle":"FUSIBLE FICHA MAXI 20AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":20,"marca":"GENROD","codigo":"GENR06020","detalle":"FUSIBLE FICHA MAXI 20AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":30,"marca":"RONBAY","codigo":"RON01MX30","detalle":"FUSIBLE FICHA MAXI 30AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":30,"marca":"GENROD","codigo":"GENR06030","detalle":"FUSIBLE FICHA MAXI 30AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":40,"marca":"GENROD","codigo":"GENR06040","detalle":"FUSIBLE FICHA MAXI 40AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":40,"marca":"RONBAY","codigo":"RON01MX40","detalle":"FUSIBLE FICHA MAXI 40AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":50,"marca":"RONBAY","codigo":"RON01MX50","detalle":"FUSIBLE FICHA MAXI 50AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":50,"marca":"GENROD","codigo":"GENR06050","detalle":"FUSIBLE FICHA MAXI 50AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":60,"marca":"RONBAY","codigo":"RON01MX60","detalle":"FUSIBLE FICHA MAXI 60AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":60,"marca":"GENROD","codigo":"GENR06060","detalle":"FUSIBLE FICHA MAXI 60AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":70,"marca":"GENROD","codigo":"GENR06070","detalle":"FUSIBLE FICHA MAXI 70AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":70,"marca":"RONBAY","codigo":"RON01MX70","detalle":"FUSIBLE FICHA MAXI 70AMP","costo":831.6},{"tipo":"FICHA MAXI","amperaje":80,"marca":"GENROD","codigo":"GENR06080","detalle":"FUSIBLE FICHA MAXI 80AMP","costo":1364.4},{"tipo":"FICHA MAXI","amperaje":80,"marca":"RONBAY","codigo":"RON01MX80","detalle":"FUSIBLE FICHA MAXI 80AMP","costo":831.6},{"tipo":"FICHA MINI","amperaje":10,"marca":"GENROD","codigo":"GENR05010","detalle":"FUSIBLE FICHA MINI 10AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":10,"marca":"RONBAY","codigo":"RON01FMN010","detalle":"FUSIBLE FICHA MINI 10AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":15,"marca":"RONBAY","codigo":"RON01FMN015","detalle":"FUSIBLE FICHA MINI 15AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":15,"marca":"GENROD","codigo":"GENR05015","detalle":"FUSIBLE FICHA MINI 15AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":20,"marca":"GENROD","codigo":"GENR05020","detalle":"FUSIBLE FICHA MINI 20AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":20,"marca":"RONBAY","codigo":"RON01FMN020","detalle":"FUSIBLE FICHA MINI 20AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":25,"marca":"GENROD","codigo":"GENR05025","detalle":"FUSIBLE FICHA MINI 25AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":25,"marca":"RONBAY","codigo":"RON01FMN025","detalle":"FUSIBLE FICHA MINI 25AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":30,"marca":"GENROD","codigo":"GENR05030","detalle":"FUSIBLE FICHA MINI 30AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":30,"marca":"RONBAY","codigo":"RON01FMN030","detalle":"FUSIBLE FICHA MINI 30AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":40,"marca":"RONBAY","codigo":"RON01FMN040","detalle":"FUSIBLE FICHA MINI 40AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":40,"marca":"GENROD","codigo":"GENR05040","detalle":"FUSIBLE FICHA MINI 40AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":5,"marca":"RONBAY","codigo":"RON01FMN005","detalle":"FUSIBLE FICHA MINI 5AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":5,"marca":"GENROD","codigo":"GENR05005","detalle":"FUSIBLE FICHA MINI 5AMP","costo":191.52},{"tipo":"FICHA MINI","amperaje":7.5,"marca":"RONBAY","codigo":"RON01FMN075","detalle":"FUSIBLE FICHA MINI 7,5AMP","costo":123.12},{"tipo":"FICHA MINI","amperaje":7.5,"marca":"GENROD","codigo":"GENR05075","detalle":"FUSIBLE FICHA MINI 7,5AMP","costo":191.52}];
+const PRIORIDAD_MARCA = ['GENROD', 'RONBAY'];
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+function numInvalido(v) {
+  var n = parseFloat(v);
+  return v == null || v === '' || isNaN(n) || n <= 0;
+}
+
+function buscarMatch(tipo, amperaje) {
+  const matches = PRECIOS_FUSIBLES.filter(p => p.tipo === tipo && p.amperaje === amperaje);
+  for (const marca of PRIORIDAD_MARCA) {
+    const cand = matches.find(m => m.marca === marca);
+    if (cand) return { costo: cand.costo, marca: cand.marca, codigo: cand.codigo, matches };
+  }
+  if (matches.length) return { costo: matches[0].costo, marca: matches[0].marca, codigo: matches[0].codigo, matches };
+  return null;
+}
+
+// Misma fórmula que el formulario de repuestos y que el cargador de bujes
+function calcPrecios(costo, pctDoc) {
+  var pct = parseFloat(pctDoc) || 40;
+  var sinIva = costo * (1 + pct / 100);
+  var conIva = sinIva * 1.21;
+  var conDescuento = conIva * 0.9;
+  var gananciaNeta = sinIva - costo;
+  var gananciaNetaDescuento = conDescuento - costo;
+  return {
+    pct: pct,
+    sinIva: Math.round(sinIva * 100) / 100,
+    conIva: Math.round(conIva * 100) / 100,
+    conDescuento: Math.round(conDescuento * 100) / 100,
+    gananciaNeta: Math.round(gananciaNeta * 100) / 100,
+    gananciaNetaDescuento: Math.round(gananciaNetaDescuento * 100) / 100
+  };
+}
+
+let fusiblesCache = [];
+let incompletos = [];
+
+async function iniciar() {
+  const snap = await getDocs(query(collection(db, 'repuestos'), where('origen_import', '==', ORIGEN)));
+  fusiblesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  incompletos = fusiblesCache.filter(b =>
+    numInvalido(b.precio_costo) ||
+    numInvalido(b.precio_venta) ||
+    numInvalido(b.precio_venta_iva)
+  );
+
+  incompletos.forEach(b => {
+    b._match = buscarMatch(b.tipo_ficha, parseFloat(b.amperaje));
+    b._costoUsar = !numInvalido(b.precio_costo) ? parseFloat(b.precio_costo) : (b._match ? b._match.costo : '');
+  });
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderResumen();
+  renderTabla();
+
+  document.getElementById('filtro').addEventListener('input', renderTabla);
+  document.getElementById('btn-recalc').addEventListener('click', capturarInputs);
+  document.getElementById('btn-aplicar').addEventListener('click', aplicar);
+  document.getElementById('chk-todos').addEventListener('change', (e) => {
+    document.querySelectorAll('.chk-fila').forEach(chk => chk.checked = e.target.checked);
+  });
+}
+
+function renderResumen() {
+  const sinMatchNiCosto = incompletos.filter(b => b._costoUsar === '').length;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${fusiblesCache.length}</div><div class="l">fusibles cargados</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${incompletos.length}</div><div class="l">con algún precio incompleto</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${sinMatchNiCosto}</div><div class="l">sin match ni costo — completar a mano</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${fusiblesCache.length - incompletos.length}</div><div class="l">completos</div></div>
+  `;
+}
+
+function capturarInputs() {
+  document.querySelectorAll('#tabla-match tbody tr').forEach(tr => {
+    const b = incompletos.find(x => x.id === tr.dataset.id);
+    if (!b) return;
+    const val = tr.querySelector('.precio-row').value;
+    b._costoUsar = val === '' ? '' : parseFloat(val);
+  });
+  renderTabla();
+}
+
+function renderTabla() {
+  const q = document.getElementById('filtro').value.trim().toUpperCase();
+  document.querySelector('#tabla-match tbody').innerHTML = incompletos
+    .filter(b => !q || (b.codigo || '').toUpperCase().includes(q) || (b.tipo_ficha || '').toUpperCase().includes(q) || String(b.amperaje || '').includes(q))
+    .map(b => {
+      const costoUsar = b._costoUsar;
+      const tieneCosto = costoUsar !== '' && !isNaN(costoUsar) && costoUsar > 0;
+      const p = tieneCosto ? calcPrecios(costoUsar, b.precio_ganancia_pct) : null;
+      const matchInfo = b._match
+        ? `<span class="matchinfo">${b._match.marca} ${b._match.codigo}: $${b._match.costo}</span>`
+        : `<span class="matchinfo" style="color:var(--red)">sin match en Bobinar</span>`;
+      const estado = tieneCosto
+        ? `<span class="badge ok">✓ listo</span>`
+        : `<span class="badge no">falta costo</span>`;
+      return `
+    <tr data-id="${b.id}">
+      <td><input type="checkbox" class="chk-fila" ${tieneCosto ? 'checked' : 'disabled'}></td>
+      <td class="mono">${b.codigo || ''}</td>
+      <td>${b.tipo_ficha || ''} ${b.amperaje || ''}A</td>
+      <td>${b.titulo_repuesto || ''}</td>
+      <td>${matchInfo}</td>
+      <td><input type="number" step="0.01" class="precio-row" value="${costoUsar}"></td>
+      <td>${p ? '$' + Math.round(p.conIva).toLocaleString('es-AR') : '—'}</td>
+      <td>${estado}</td>
+    </tr>`;
+    }).join('');
+
+  document.querySelectorAll('.precio-row').forEach(inp => inp.addEventListener('change', capturarInputs));
+}
+
+async function aplicar() {
+  const filas = [...document.querySelectorAll('#tabla-match tbody tr')];
+  const seleccionadosIds = filas
+    .filter(tr => { const c = tr.querySelector('.chk-fila'); return c.checked && !c.disabled; })
+    .map(tr => tr.dataset.id);
+  const seleccionados = incompletos.filter(b => seleccionadosIds.includes(b.id));
+  if (!seleccionados.length) { toast('No hay filas tildadas con costo válido.'); return; }
+
+  if (!confirm(`Vas a completar los precios de ${seleccionados.length} fusibles. ¿Confirmás?`)) return;
+
+  const btn = document.getElementById('btn-aplicar');
+  const prog = document.getElementById('progreso');
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0;
+  try {
+    for (const b of seleccionados) {
+      const costoUsar = parseFloat(b._costoUsar);
+      const p = calcPrecios(costoUsar, b.precio_ganancia_pct);
+      const cambios = {
+        precio_costo: costoUsar,
+        precio_venta: p.sinIva,
+        precio_venta_iva: p.conIva,
+        precio_venta_descuento: p.conDescuento,
+        precio_ganancia_pct: p.pct,
+        ganancia_neta: p.gananciaNeta,
+        ganancia_neta_descuento: p.gananciaNetaDescuento
+      };
+      batch.update(doc(db, 'repuestos', b.id), cambios);
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionados.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} actualizados`;
+    toast(`✅ ${total} fusibles con todos los precios completados`);
+    await iniciar();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
