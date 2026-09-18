@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Revisor descripción pegada — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;--text4:#374151;
+  --blue:#3b82f6;--blue2:#2563eb;--blue-dim:#1e3a5f;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1100px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:130px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.fila{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;padding:12px 16px}
+.fila .tit{font-weight:600;font-family:'Rajdhani',sans-serif;font-size:15px}
+.fila .meta{color:var(--text2);font-size:11.5px;margin:4px 0 8px}
+.fila .meta .mono{color:var(--blue);font-family:'JetBrains Mono',monospace}
+.fila .campo{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text2);white-space:pre-wrap;max-height:90px;overflow:hidden;position:relative}
+.fila .campo b{color:var(--amber)}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-block;margin-top:8px}
+.btn:hover{background:var(--blue2)}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.vacio{color:var(--green);padding:30px;text-align:center;background:var(--bg2);border:1px solid var(--border);border-radius:10px;font-size:14px}
+.mono{font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Revisor: descripción pegada por error</h1>
+<div class="sub">Busca en TODOS los repuestos si el campo "Descripción" o "Notas internas" tiene pegado por error el texto de especificaciones de rodamientos (el que quedaba trabado por el bug del formulario). Esto solo LEE datos, no modifica nada.</div>
+
+<div id="resumen"></div>
+<div id="resultados"><div class="loading">Verificando sesión…</div></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+
+// Cada bloque distinto de especificaciones que quedó pegado, con un
+// fragmento único que lo identifica. Cuando un producto tiene VARIOS
+// bloques distintos mezclados en la misma descripción, es imposible que
+// sea legítimo (un producto no puede ser dos rodamientos distintos a la
+// vez) — ese es el caso 100% seguro del bug. Cuando tiene UN solo bloque,
+// puede ser el bug (se pegó una sola vez) o puede ser la descripción real
+// de ese producto si por casualidad es justo ese rodamiento — por eso se
+// muestran separados.
+const BLOQUES = [
+  { id: 'A-agujas-22x28x16',    frag: 'casquillo de agujas con extremos abiertos' },
+  { id: 'B-ntn-62304-17x52x21', frag: '62304 /17' },
+  { id: 'C-62202-15x35x14-F3',  frag: 'Sufijo AB: Indica que el ancho' },
+  { id: 'D-std3065-30x65',      frag: 'STD3065' },
+  { id: 'E-mini-8x22x7-skate',  frag: 'Patinetas (skate)' },
+  { id: 'F-63001-12x28x12',     frag: 'Rodamiento 63001' },
+  { id: 'G-6202-bb1-0372ab',    frag: 'BB1-0372 AB' },
+  { id: 'H-6202-catalogo-skf',  frag: 'catálogo oficial de SKF Argentina' },
+];
+
+function bloquesEncontrados(texto) {
+  if (!texto) return [];
+  const plano = texto.replace(/<[^>]+>/g, ' '); // sacar HTML si lo tiene
+  return BLOQUES.filter(b => plano.includes(b.frag));
+}
+
+
+function escapeHTML(s) {
+  return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function escanear() {
+  const resumenEl = document.getElementById('resumen');
+  const resEl = document.getElementById('resultados');
+  resEl.innerHTML = '<div class="loading">Cargando y revisando los repuestos, un momento...</div>';
+  try {
+    const snap = await getDocs(collection(db, 'repuestos'));
+    const afectados = [];
+    snap.forEach(d => {
+      const r = d.data();
+      const bDesc  = bloquesEncontrados(r.descripcion);
+      const bNotas = bloquesEncontrados(r.notas_internas);
+      // Bloques distintos entre los dos campos juntos (sin repetir)
+      const idsUnicos = new Set([...bDesc.map(b=>b.id), ...bNotas.map(b=>b.id)]);
+      if (idsUnicos.size > 0) {
+        afectados.push({
+          id: d.id, titulo: r.titulo_repuesto || r.codigo || '(sin título)', codigo: r.codigo||'',
+          bDesc, bNotas, totalBloques: idsUnicos.size,
+          descripcion: r.descripcion||'', notas: r.notas_internas||''
+        });
+      }
+    });
+
+    // Separar: 2+ bloques distintos mezclados = imposible que sea legítimo,
+    // es el bug seguro. 1 solo bloque = puede ser el bug o puede ser la
+    // descripción real de ESE producto (si de casualidad es ese rodamiento).
+    const seguros = afectados.filter(a => a.totalBloques >= 2);
+    const revisar = afectados.filter(a => a.totalBloques === 1);
+
+    resumenEl.innerHTML = `<div class="summary">
+      <div class="box"><div class="n">${snap.size}</div><div class="l">REPUESTOS REVISADOS</div></div>
+      <div class="box" style="border-color:var(--red)"><div class="n" style="color:var(--red)">${seguros.length}</div><div class="l">MEZCLADOS (bug seguro)</div></div>
+      <div class="box" style="border-color:var(--amber)"><div class="n" style="color:var(--amber)">${revisar.length}</div><div class="l">1 SOLO BLOQUE (a revisar)</div></div>
+    </div>`;
+
+    if (afectados.length === 0) {
+      resEl.innerHTML = `<div class="vacio">✓ No se encontró ningún repuesto con ese texto pegado. Tus 2.139 descripciones están intactas.</div>`;
+      return;
+    }
+
+    const renderFila = (a, destacar) => `
+      <div class="fila" style="${destacar?'border-color:var(--red)':''}">
+        <div class="tit">${escapeHTML(a.titulo)}</div>
+        <div class="meta">Código: <span class="mono">${escapeHTML(a.codigo)}</span> · ID: <span class="mono">${escapeHTML(a.id)}</span> · Bloques detectados: <b style="color:${destacar?'var(--red)':'var(--amber)'}">${a.totalBloques}</b> (${[...a.bDesc,...a.bNotas].map(b=>b.id).filter((v,i,arr)=>arr.indexOf(v)===i).join(', ')})</div>
+        ${a.bDesc.length ? `<div class="campo"><b>Descripción</b>\n${escapeHTML(a.descripcion.replace(/<[^>]+>/g,' ')).slice(0,400)}${a.descripcion.length>400?'…':''}</div>` : ''}
+        ${a.bNotas.length ? `<div class="campo" style="margin-top:6px"><b>Notas internas</b>\n${escapeHTML(a.notas.replace(/<[^>]+>/g,' ')).slice(0,400)}${a.notas.length>400?'…':''}</div>` : ''}
+        <a class="btn" href="index.html#nuevo-repuesto" onclick="sessionStorage.setItem('_abrirEdicionId','${a.id}')">Abrir en el panel para corregir</a>
+      </div>`;
+
+    let html = '';
+    if (seguros.length) {
+      html += `<h2 style="font-family:'Rajdhani',sans-serif;font-size:17px;color:var(--red);margin:6px 0 10px">Mezclados — bug seguro (${seguros.length})</h2>`;
+      html += seguros.map(a => renderFila(a, true)).join('');
+    }
+    if (revisar.length) {
+      html += `<h2 style="font-family:'Rajdhani',sans-serif;font-size:17px;color:var(--amber);margin:20px 0 10px">Un solo bloque — revisar si es legítimo (${revisar.length})</h2>`;
+      html += revisar.map(a => renderFila(a, false)).join('');
+    }
+    resEl.innerHTML = html;
+  } catch(e) {
+    console.error(e);
+    resEl.innerHTML = `<div class="vacio" style="color:var(--red)">Error al leer los repuestos: ${escapeHTML(e.message)}</div>`;
+  }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await escanear();
+});
+</script>
+</body>
+</html>
