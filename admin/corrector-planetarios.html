@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Corrector de Planetarios — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;--text4:#374151;
+  --blue:#3b82f6;--blue2:#2563eb;--blue-dim:#1e3a5f;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1200px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.top-actions{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.filtro{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:8px 10px;font-size:12.5px}
+details.hoja-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+summary{padding:12px 16px;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--bg3)}
+summary::-webkit-details-marker{display:none}
+summary .tit{font-weight:600;font-family:'Rajdhani',sans-serif;font-size:15px}
+summary .hint{color:var(--text3);font-size:11px}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.hoja-body{padding:14px 16px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:170px}
+.chk-line{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.progreso{font-size:12px;color:var(--text2)}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.dup td{opacity:.55}
+table.tabla-items tr.done td{opacity:.4}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.sin-desc{color:var(--amber)}
+.scroll-tabla{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Corrector de Planetarios</h1>
+<div class="sub">Completa <b>marca, código real, código de bobinar, descripción y precio de costo</b> de los repuestos de la hoja "PLANETARIOS CORONAS" que ya están cargados en Firebase (importados por el agregador de stock antes de que existiera esta parte). No crea repuestos nuevos, solo corrige los que ya existen.</div>
+
+<div id="carga-inicial" class="loading">Cargando repuestos de Planetarios desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div class="top-actions">
+    <input class="filtro" id="filtro-items" placeholder="Buscar código o título…" style="min-width:260px">
+    <button class="btn ghost small" id="btn-solo-pendientes">Ver solo sin corregir</button>
+  </div>
+  <div class="scroll-tabla" style="max-height:70vh"><table class="tabla-items">
+    <thead><tr><th></th><th>Código</th><th>Título actual</th><th>Marca</th><th>Código real</th><th>Código bobinar</th><th>Buscar precio</th><th>Descripción</th><th>Costo</th><th>Estado</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+  <div class="top-actions" style="margin-top:14px">
+    <button class="btn green" id="btn-guardar">💾 Guardar seleccionados</button>
+    <span class="progreso" id="progreso"></span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, query, where } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── PRECIOS POR MARCA (Excel 'precio planetarios_completo.xlsx') ──
+// Cada fila: codigo de bobinar completo (ej DIPP1358), detalle, costo, marca
+const PRECIOS_MARCAS = [{"codigo": "HARR406K", "detalle": "KIT COMPLETO DE PLANETARIO", "costo": 22261.68, "marca": "HARD"}, {"codigo": "DIPP15648", "detalle": "KIT PLANETARIO TIPO BOSCH VW", "costo": 30932.64, "marca": "DIPRA"}, {"codigo": "DIPP15654", "detalle": "KIT PLANETARIO TIPO DENSO DODGE-FIAT-TOYOTA VW", "costo": 20311.2, "marca": "DIPRA"}, {"codigo": "ESTRAREDDE-150", "detalle": "KIT REDUCTOR", "costo": 28820.16, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "ESTRAREDB-018", "detalle": "KIT REDUCTOR", "costo": 29971.44, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "ESTRAREDB-663", "detalle": "KIT REDUCTOR", "costo": 40174.56, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "ESTRAREDMI-113", "detalle": "KIT REDUCTOR", "costo": 52423.92, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "ESTRAREDNI-790", "detalle": "KIT REDUCTOR", "costo": 29664.72, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "ESTRAREDV-105", "detalle": "KIT REDUCTOR", "costo": 32196.24, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "ESTRAREDV-107", "detalle": "KIT REDUCTOR", "costo": 29971.44, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "ESTRAREDV-117", "detalle": "KIT REDUCTOR", "costo": 26953.92, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "DIPP1463", "detalle": "PLANETARIO", "costo": 150978.24, "marca": "DIPRA"}, {"codigo": "DIPP14508", "detalle": "PLANETARIO ARR. BOSCH LINEA FORD 37D", "costo": 60248.16, "marca": "DIPRA"}, {"codigo": "DIPP14502", "detalle": "PLANETARIO ARR. TIPO BOSCH RENAULT 36 DIENTES", "costo": 55593.36, "marca": "DIPRA"}, {"codigo": "DIPP14501", "detalle": "PLANETARIO ARR. TIPO BOSCH VW 42 DIENTES", "costo": 65980.8, "marca": "DIPRA"}, {"codigo": "DIPP14568", "detalle": "PLANETARIO ARR. TIPO DENSO FIAT ARGO-MOBI", "costo": 68719.68, "marca": "DIPRA"}, {"codigo": "DIPP15619", "detalle": "PLANETARIO BOSCH  AUDI-VW", "costo": 40083.84, "marca": "DIPRA"}, {"codigo": "DIPP1552", "detalle": "PLANETARIO BOSCH C/ENGRANAJES FIAT FORD IVECO", "costo": 33611.04, "marca": "DIPRA"}, {"codigo": "DIPP1436", "detalle": "PLANETARIO BOSCH CITROEN BERLINGO FORD FIESTA", "costo": 50284.08, "marca": "DIPRA"}, {"codigo": "DIPP1437", "detalle": "PLANETARIO BOSCH FIAT PALIO", "costo": 51260.4, "marca": "DIPRA"}, {"codigo": "DIPP1554", "detalle": "PLANETARIO BOSCH FORD ESCORT ZETEC", "costo": 31950.72, "marca": "DIPRA"}, {"codigo": "DIPP1439", "detalle": "PLANETARIO BOSCH MB SPRINTER 210", "costo": 84736.8, "marca": "DIPRA"}, {"codigo": "DIPP15639", "detalle": "PLANETARIO C/ENGRANAJES. T.JHAEM, CHERY QQ (1.1 16V, Z50", "costo": 18264.24, "marca": "DIPRA"}, {"codigo": "DIPP14569", "detalle": "PLANETARIO COMP. T.BOSCH, FIAT: DUCATO, PUEGEOT: BOXER, CITROEN; Z37", "costo": 61257.6, "marca": "DIPRA"}, {"codigo": "DIPP14570", "detalle": "PLANETARIO COMPLETO . T.JHAEM, CHERY QQ (1.1 16V Z50", "costo": 41098.32, "marca": "DIPRA"}, {"codigo": "DIPP14559", "detalle": "PLANETARIO COMPLETO TIPO VALEO Z56 KIA-HYUNDAI", "costo": 73062.72, "marca": "DIPRA"}, {"codigo": "IZ05PLANVAL2", "detalle": "PLANETARIO COMPLETO VALEO D6RA RENAULT PEUGEOT 9E 37D", "costo": 28938.24, "marca": "IZETA"}, {"codigo": "IZ05PLANVAL1", "detalle": "PLANETARIO COMPLETO VALEO D6RA RENAULT PEUGEOT 9E 59D", "costo": 28938.24, "marca": "IZETA"}, {"codigo": "DIPP14571", "detalle": "PLANETARIO COMPLETO, T.BORGWARNER, HYUNDAI, KIA, Z37", "costo": 61269.12, "marca": "DIPRA"}, {"codigo": "DIPP14572", "detalle": "PLANETARIO COMPLETO, T.VALEO, CITROEN, FORD, PEUGEOT, Z47", "costo": 46852.56, "marca": "DIPRA"}, {"codigo": "DIPP1555", "detalle": "PLANETARIO DE ARR. BOSCH FIAT DUNA DIESEL", "costo": 30006.72, "marca": "DIPRA"}, {"codigo": "DIPP1387", "detalle": "PLANETARIO DE ARR. MITSUBISHI - 42DIENTES", "costo": 5495.76, "marca": "DIPRA"}, {"codigo": "DIPP1358", "detalle": "PLANETARIO DENSO FIAT-JEEP-DODGE", "costo": 5274.72, "marca": "DIPRA"}, {"codigo": "DIPP1549", "detalle": "PLANETARIO DIPRA", "costo": 30443.04, "marca": "DIPRA"}, {"codigo": "DIPP13105", "detalle": "PLANETARIO DIPRA TIPO DENSO Z37", "costo": 4580.64, "marca": "DIPRA"}, {"codigo": "DIPP1443R", "detalle": "PLANETARIO FORD CARGO REFORZADO", "costo": 94521.6, "marca": "DIPRA"}, {"codigo": "DIPP15620", "detalle": "PLANETARIO HITACHI FIAT", "costo": 31656.96, "marca": "DIPRA"}, {"codigo": "DIPP15624", "detalle": "PLANETARIO KIA-HYUNDAI", "costo": 28416.96, "marca": "DIPRA"}, {"codigo": "DIPP1388", "detalle": "PLANETARIO MITSUBISHI 42 DIENTES", "costo": 5495.76, "marca": "DIPRA"}, {"codigo": "DIPP15621", "detalle": "PLANETARIO MITSUBISHI CHEVROLET", "costo": 26298.72, "marca": "DIPRA"}, {"codigo": "DIPP14562", "detalle": "PLANETARIO MOTORCRAFT, FORD: FOCUS 1.6 / 2.0", "costo": 71784.0, "marca": "DIPRA"}, {"codigo": "DIPP1422R", "detalle": "PLANETARIO PICK UP F100 MOTOR MWM", "costo": 80170.56, "marca": "DIPRA"}, {"codigo": "DIPP1357", "detalle": "PLANETARIO RENAULT LOGAN-SANDERO", "costo": 15240.24, "marca": "DIPRA"}, {"codigo": "DIPP15638", "detalle": "PLANETARIO T. DELCO, CHEVROLET, HYUNDAII, KIA, RENAULT, Z37", "costo": 27585.36, "marca": "DIPRA"}, {"codigo": "DIPP13121", "detalle": "PLANETARIO T. MITSUBISHI M000TD1371ZE: RENAULT:", "costo": 8118.0, "marca": "DIPRA"}, {"codigo": "DIPP14560", "detalle": "PLANETARIO T. MITSUBISHI, CHEVROLET: CRUZE, TRACKER", "costo": 69670.08, "marca": "DIPRA"}, {"codigo": "DIPP14561", "detalle": "PLANETARIO T. VALEO, FORD: NEW FIESTA, 1.4/1.6, ECOSPORT,", "costo": 46608.48, "marca": "DIPRA"}, {"codigo": "DIPP15618", "detalle": "PLANETARIO T.BOSCH Z36 Renault, Clio, Duster, Fluence, Megane, Scénic,Trafic", "costo": 25650.72, "marca": "DIPRA"}, {"codigo": "DIPP1435", "detalle": "PLANETARIO T.BOSCH, AUDI: TT 1 F.Galaxy , Golf III 1.8, 37 D. 10 ESTR", "costo": 59884.56, "marca": "DIPRA"}, {"codigo": "DIPP1556", "detalle": "PLANETARIO T.BOSCH, C/ ENGRANAJES FIAT DUCATO 2.3 MULTIJET. PEUGEOT: B", "costo": 31124.88, "marca": "DIPRA"}, {"codigo": "DIPP1550", "detalle": "PLANETARIO T.BOSCH, C/ ENGRANAJES VOLKSWAGEN GOL, SAVEIRO, TRANSPORTER", "costo": 29899.44, "marca": "DIPRA"}, {"codigo": "DIPP1465", "detalle": "PLANETARIO T.BOSCH, FIAT: Bravo Doblo , G.Siena, Palio 40D. 16ESTRIA", "costo": 55899.36, "marca": "DIPRA"}, {"codigo": "DIPP1433", "detalle": "PLANETARIO T.BOSCH, FORD: CARGO, BENZ BENZ SPRINTER 37DIENTES, 10 ESTR", "costo": 63984.96, "marca": "DIPRA"}, {"codigo": "DIPP15608", "detalle": "PLANETARIO T.BOSCH, Z36, CITROEN, FORD, RENAULT, PEUGEOT, BMW, TOYOTA", "costo": 39137.04, "marca": "DIPRA"}, {"codigo": "DIPP1464", "detalle": "PLANETARIO T.MITSUBISHI,MAN: Series 7 AL 18/26, VOLKSWAGEN: 44 D.10EST", "costo": 104392.08, "marca": "DIPRA"}, {"codigo": "DIPP15623", "detalle": "PLANETARIO TIPO BOSCH", "costo": 38296.08, "marca": "DIPRA"}, {"codigo": "DIPP15645", "detalle": "PLANETARIO TIPO BOSCH - 37 DIENTES", "costo": 26773.92, "marca": "DIPRA"}, {"codigo": "DIPP15616", "detalle": "PLANETARIO TIPO BOSCH - 38 DIENTES", "costo": 42447.6, "marca": "DIPRA"}, {"codigo": "DIPP14531", "detalle": "PLANETARIO TIPO BOSCH - 38 DIENTES AGRALE", "costo": 68796.72, "marca": "DIPRA"}, {"codigo": "DIPP15644", "detalle": "PLANETARIO TIPO BOSCH - 41 DIENTES MERCEDES BENZ", "costo": 85191.12, "marca": "DIPRA"}, {"codigo": "DIPP14500", "detalle": "PLANETARIO TIPO BOSCH - 42 DIENTES", "costo": 89064.72, "marca": "DIPRA"}, {"codigo": "DIPP15606", "detalle": "PLANETARIO TIPO BOSCH - 42 DIENTES", "costo": 44814.24, "marca": "DIPRA"}, {"codigo": "DIPP14528", "detalle": "PLANETARIO TIPO BOSCH - 42 DIENTES FIAT", "costo": 58872.24, "marca": "DIPRA"}, {"codigo": "DIPP14504", "detalle": "PLANETARIO TIPO BOSCH BMW-CITROEN-FORD-PEUG-RENAULT-TOYOTA 36 DIENTES", "costo": 76537.44, "marca": "DIPRA"}, {"codigo": "DIPP14532", "detalle": "PLANETARIO TIPO BOSCH FIAT", "costo": 76627.44, "marca": "DIPRA"}, {"codigo": "DIPP1485", "detalle": "PLANETARIO TIPO BOSCH MB SPRINTER", "costo": 68136.48, "marca": "DIPRA"}, {"codigo": "DIPP1599", "detalle": "PLANETARIO TIPO BOSCH MB SPRINTER BMW C/ENGRANAJES", "costo": 30204.72, "marca": "DIPRA"}, {"codigo": "DIPP14511", "detalle": "PLANETARIO TIPO BOSCH NISSAN GM", "costo": 63308.88, "marca": "DIPRA"}, {"codigo": "DIPP1391", "detalle": "PLANETARIO TIPO BOSCH TOYOTA COROLLA", "costo": 5868.72, "marca": "DIPRA"}, {"codigo": "DIPP14540", "detalle": "PLANETARIO TIPO BOSCH TOYOTA HILUX", "costo": 68986.8, "marca": "DIPRA"}, {"codigo": "DIPP14533", "detalle": "PLANETARIO TIPO BOSCH VW", "costo": 78091.92, "marca": "DIPRA"}, {"codigo": "DIPP13139", "detalle": "PLANETARIO TIPO DELCO AGRALE 44 DIENTES", "costo": 48061.44, "marca": "DIPRA"}, {"codigo": "DIPP15610", "detalle": "PLANETARIO TIPO DELCO C/ENGRANAJES HYUNDAI-KIA", "costo": 23394.24, "marca": "DIPRA"}, {"codigo": "DIPP1487", "detalle": "PLANETARIO TIPO DELCO CHEVROLET ONIX", "costo": 65009.52, "marca": "DIPRA"}, {"codigo": "DIPP1386", "detalle": "PLANETARIO TIPO DELCO REMY Z-48", "costo": 5495.76, "marca": "DIPRA"}, {"codigo": "DIPP15630", "detalle": "PLANETARIO TIPO DELCO TOYOTA", "costo": 30201.84, "marca": "DIPRA"}, {"codigo": "DIPP13107", "detalle": "PLANETARIO TIPO DELCO Z48", "costo": 6535.44, "marca": "DIPRA"}, {"codigo": "DIPP15655", "detalle": "PLANETARIO TIPO DENSO - Z42", "costo": 21097.44, "marca": "DIPRA"}, {"codigo": "DIPP1496", "detalle": "PLANETARIO TIPO DENSO", "costo": 41829.84, "marca": "DIPRA"}, {"codigo": "DIPP1392", "detalle": "PLANETARIO TIPO DENSO BMW", "costo": 5065.2, "marca": "DIPRA"}, {"codigo": "DIPP1359", "detalle": "PLANETARIO TIPO DENSO FIAT", "costo": 5274.72, "marca": "DIPRA"}, {"codigo": "DIPP15625", "detalle": "PLANETARIO TIPO DENSO FIAT-HONDA-CHRYSLER-DODGE", "costo": 22850.64, "marca": "DIPRA"}, {"codigo": "DIPP1396", "detalle": "PLANETARIO TIPO DENSO FIAT BRAVO-PALIO WEEKEND", "costo": 7927.92, "marca": "DIPRA"}, {"codigo": "DIPP15622", "detalle": "PLANETARIO TIPO DENSO Z31", "costo": 20414.16, "marca": "DIPRA"}, {"codigo": "DIPP13106", "detalle": "PLANETARIO TIPO DENSO Z55", "costo": 4580.64, "marca": "DIPRA"}, {"codigo": "DIPP13108", "detalle": "PLANETARIO TIPO DENSO Z55", "costo": 4580.64, "marca": "DIPRA"}, {"codigo": "DIPP13138", "detalle": "PLANETARIO TIPO HITACHI CHEVROLET 38 DIENTES", "costo": 6924.96, "marca": "DIPRA"}, {"codigo": "DIPP14557", "detalle": "PLANETARIO TIPO HITACHI FIAT PALIO-STRADA-SIENA", "costo": 60645.6, "marca": "DIPRA"}, {"codigo": "DIPP1561", "detalle": "PLANETARIO TIPO ISKRA", "costo": 104882.4, "marca": "DIPRA"}, {"codigo": "DIPP15647", "detalle": "PLANETARIO TIPO ISKRA - Z38", "costo": 55042.56, "marca": "DIPRA"}, {"codigo": "DIPP15642", "detalle": "PLANETARIO TIPO ISKRA - Z42", "costo": 55042.56, "marca": "DIPRA"}, {"codigo": "DIPP1559", "detalle": "PLANETARIO TIPO ISKRA MINI CARGADORA", "costo": 84098.16, "marca": "DIPRA"}, {"codigo": "DIPP1390", "detalle": "PLANETARIO TIPO MITSUBA HONDA FIT-CIVIC", "costo": 7889.76, "marca": "DIPRA"}, {"codigo": "DIPP1393", "detalle": "PLANETARIO TIPO MITSUBA HONDA FIT-CIVIC", "costo": 48240.72, "marca": "DIPRA"}, {"codigo": "DIPP1488", "detalle": "PLANETARIO TIPO MITSUBISHI", "costo": 66758.4, "marca": "DIPRA"}, {"codigo": "DIPP1389", "detalle": "PLANETARIO TIPO MITSUBISHI  - Z40", "costo": 5374.8, "marca": "DIPRA"}, {"codigo": "DIPP14581", "detalle": "PLANETARIO TIPO MITSUBISHI  - Z42", "costo": 48487.68, "marca": "DIPRA"}, {"codigo": "DIPP15646", "detalle": "PLANETARIO TIPO MITSUBISHI  - Z42", "costo": 21097.44, "marca": "DIPRA"}, {"codigo": "DIPP1395", "detalle": "PLANETARIO TIPO MITSUBISHI  - Z43 RANGER", "costo": 34151.76, "marca": "DIPRA"}, {"codigo": "DIPP15611", "detalle": "PLANETARIO TIPO MITSUBISHI  - Z43 RANGER", "costo": 44460.0, "marca": "DIPRA"}, {"codigo": "DIPP13141", "detalle": "PLANETARIO TIPO MITSUBISHI  - Z44", "costo": 55242.0, "marca": "DIPRA"}, {"codigo": "DIPP13142", "detalle": "PLANETARIO TIPO MITSUBISHI  - Z46", "costo": 50510.16, "marca": "DIPRA"}, {"codigo": "DIPP13120", "detalle": "PLANETARIO TIPO MITSUBISHI LANCER", "costo": 14361.12, "marca": "DIPRA"}, {"codigo": "DIPP15607", "detalle": "PLANETARIO TIPO MITSUBISHI RENAULT SANDERO-LOGAN-NISSAN C/ENGRANAJES", "costo": 23891.76, "marca": "DIPRA"}, {"codigo": "DIPP1344", "detalle": "PLANETARIO TIPO TOYOTA  - Z55", "costo": 10127.52, "marca": "DIPRA"}, {"codigo": "DIPP1343", "detalle": "PLANETARIO TIPO TOYOTA  - Z55", "costo": 10513.44, "marca": "DIPRA"}, {"codigo": "DIPP15656", "detalle": "PLANETARIO TIPO VALEO  - VW AMAROK", "costo": 24674.4, "marca": "DIPRA"}, {"codigo": "DIPP1381", "detalle": "PLANETARIO TIPO VALEO  - Z37", "costo": 5945.04, "marca": "DIPRA"}, {"codigo": "DIPP1397", "detalle": "PLANETARIO TIPO VALEO  - Z40", "costo": 5887.44, "marca": "DIPRA"}, {"codigo": "DIPP1382", "detalle": "PLANETARIO TIPO VALEO  - Z41", "costo": 5926.32, "marca": "DIPRA"}, {"codigo": "DIPP1384", "detalle": "PLANETARIO TIPO VALEO  - Z47", "costo": 5945.04, "marca": "DIPRA"}, {"codigo": "DIPP15653", "detalle": "PLANETARIO TIPO VALEO  - Z47", "costo": 32787.36, "marca": "DIPRA"}, {"codigo": "ESTRAPLAV-0194", "detalle": "PLANETARIO TIPO VALEO  - Z47", "costo": 9897.12, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "DIPP1385", "detalle": "PLANETARIO TIPO VALEO  - Z47", "costo": 6104.16, "marca": "DIPRA"}, {"codigo": "DIPP1350", "detalle": "PLANETARIO TIPO VALEO  - Z56", "costo": 8811.36, "marca": "DIPRA"}, {"codigo": "ESTRAPLAV-0069", "detalle": "PLANETARIO TIPO VALEO  - Z59", "costo": 8341.92, "marca": "ESTRADA ELECTROMECANICA"}, {"codigo": "DIPP14546", "detalle": "PLANETARIO TIPO VALEO AUDI-FIAT-VW", "costo": 54105.12, "marca": "DIPRA"}, {"codigo": "DIPP14547", "detalle": "PLANETARIO TIPO VALEO NISSAN-OPEL-RENAULT", "costo": 75245.04, "marca": "DIPRA"}, {"codigo": "DIPP15626", "detalle": "PLANETARIO TIPO VALEO VW", "costo": 17429.76, "marca": "DIPRA"}, {"codigo": "DIPP15627", "detalle": "PLANETARIO TIPO VALEO VW", "costo": 17429.76, "marca": "DIPRA"}, {"codigo": "DIPP14545", "detalle": "PLANETARIO TIPO VALEO VW", "costo": 54950.4, "marca": "DIPRA"}, {"codigo": "DIPP14577", "detalle": "PLANETARIO VALEO VW VENTO AUDI A3 47 DIENTES", "costo": 73272.24, "marca": "DIPRA"}, {"codigo": "ZEN12695", "detalle": "PLANETARIO ZEN", "costo": 30816.0, "marca": "ZEN"}, {"codigo": "ZEN12841", "detalle": "PLANETARIO ZEN", "costo": 65094.48, "marca": "ZEN"}, {"codigo": "ZEN12694", "detalle": "PLANETARIO ZEN", "costo": 30816.0, "marca": "ZEN"}, {"codigo": "DIPP1569", "detalle": "PLANETARIO, T.BOSCH, FIAT SIENA, GRAN SIENA, BRAVO, AVENTURE 40 DIENTE", "costo": 22934.16, "marca": "DIPRA"}, {"codigo": "DIPP1567", "detalle": "PLANETARIO, T.MITSUBISHI, MAN: Series: 7 / 8 / 10 / 12 / 13 / 15 / 18 / 26, VOLKSWAGEN  44 DIENTES", "costo": 66708.72, "marca": "DIPRA"}, {"codigo": "HARR601K", "detalle": "PLANETARIOS HARD", "costo": 22762.08, "marca": "HARD"}, {"codigo": "HARR306", "detalle": "PLANETARIOS HARD", "costo": 7837.92, "marca": "HARD"}, {"codigo": "HARR504K", "detalle": "PLANETARIOS HARD", "costo": 38509.92, "marca": "HARD"}, {"codigo": "HARR406", "detalle": "PLANETARIOS HARD", "costo": 9546.48, "marca": "HARD"}, {"codigo": "HARR400", "detalle": "PLANETARIOS HARD", "costo": 11067.84, "marca": "HARD"}, {"codigo": "HARR503", "detalle": "PLANETARIOS HARD", "costo": 12229.2, "marca": "HARD"}, {"codigo": "HARR401", "detalle": "PLANETARIOS HARD", "costo": 9657.36, "marca": "HARD"}, {"codigo": "HARR403", "detalle": "PLANETARIOS HARD", "costo": 10520.64, "marca": "HARD"}, {"codigo": "HARR501K", "detalle": "PLANETARIOS HARD", "costo": 49517.28, "marca": "HARD"}, {"codigo": "HARR333", "detalle": "PLANETARIOS HARD", "costo": 7619.04, "marca": "HARD"}, {"codigo": "HARVA2", "detalle": "PLANETARIOS HARD", "costo": 11188.08, "marca": "HARD"}, {"codigo": "HARR402", "detalle": "PLANETARIOS HARD", "costo": 9561.6, "marca": "HARD"}, {"codigo": "HARR1647", "detalle": "PLANETARIOS HARD", "costo": 111567.6, "marca": "HARD"}, {"codigo": "HARR311", "detalle": "PLANETARIOS HARD", "costo": 8560.08, "marca": "HARD"}, {"codigo": "HARR334", "detalle": "PLANETARIOS HARD", "costo": 12273.84, "marca": "HARD"}, {"codigo": "HARR304", "detalle": "PLANETARIOS HARD", "costo": 7210.08, "marca": "HARD"}, {"codigo": "HARR701", "detalle": "PLANETARIOS HARD", "costo": 29473.92, "marca": "HARD"}, {"codigo": "HARR402K", "detalle": "PLANETARIOS HARD", "costo": 20787.12, "marca": "HARD"}, {"codigo": "HARR316", "detalle": "PLANETARIOS HARD", "costo": 14861.52, "marca": "HARD"}, {"codigo": "HARR309", "detalle": "PLANETARIOS HARD", "costo": 8290.8, "marca": "HARD"}, {"codigo": "HARR501", "detalle": "PLANETARIOS HARD", "costo": 12229.2, "marca": "HARD"}, {"codigo": "HARR302", "detalle": "PLANETARIOS HARD", "costo": 7210.08, "marca": "HARD"}, {"codigo": "HARR307", "detalle": "PLANETARIOS HARD", "costo": 7495.92, "marca": "HARD"}, {"codigo": "HARR314", "detalle": "PLANETARIOS HARD", "costo": 14830.56, "marca": "HARD"}, {"codigo": "HARR850", "detalle": "PLANETARIOS HARD", "costo": 108321.12, "marca": "HARD"}, {"codigo": "HARR401K", "detalle": "PLANETARIOS HARD", "costo": 20787.12, "marca": "HARD"}, {"codigo": "HARR303K", "detalle": "PLANETARIOS HARD", "costo": 13168.8, "marca": "HARD"}, {"codigo": "HARVA6", "detalle": "PLANETARIOS HARD", "costo": 14960.16, "marca": "HARD"}, {"codigo": "HARR602K", "detalle": "PLANETARIOS HARD", "costo": 25799.04, "marca": "HARD"}, {"codigo": "HARVA4", "detalle": "PLANETARIOS HARD", "costo": 11188.08, "marca": "HARD"}, {"codigo": "HARR303", "detalle": "PLANETARIOS HARD", "costo": 7210.08, "marca": "HARD"}, {"codigo": "HARR500K", "detalle": "PLANETARIOS HARD", "costo": 38509.92, "marca": "HARD"}, {"codigo": "HARR308", "detalle": "PLANETARIOS HARD", "costo": 7873.2, "marca": "HARD"}, {"codigo": "HARR504", "detalle": "PLANETARIOS HARD", "costo": 9406.8, "marca": "HARD"}, {"codigo": "HARR322", "detalle": "PLANETARIOS HARD", "costo": 8498.16, "marca": "HARD"}, {"codigo": "HARR404", "detalle": "PLANETARIOS HARD", "costo": 8935.92, "marca": "HARD"}, {"codigo": "HARR500", "detalle": "PLANETARIOS HARD", "costo": 12229.2, "marca": "HARD"}, {"codigo": "HARR305", "detalle": "PLANETARIOS HARD", "costo": 7210.08, "marca": "HARD"}, {"codigo": "HARVA3", "detalle": "PLANETARIOS HARD", "costo": 11188.08, "marca": "HARD"}, {"codigo": "HARR323", "detalle": "PLANETARIOS HARD", "costo": 7619.04, "marca": "HARD"}, {"codigo": "HARR730", "detalle": "REDUCTOR VALEO TRAFIC DIESEL", "costo": 48906.0, "marca": "HARD"}, {"codigo": "DIPP1207", "detalle": "TAPA DE ACERO PLANETARIO TIPO VALEO", "costo": 2955.6, "marca": "DIPRA"}];
+
+// Prefijos para armar el codigo real y el codigo de bobinar por marca.
+// letra = se antepone al codigo del cuaderno para el 'codigo real' de esa marca (ej Dipra: 1313 -> P1313)
+// bobinar = prefijo de 3 letras del proveedor de bobinado (ej DIP + P1313 = DIPP1313)
+const PREFIJOS_MARCA = {
+  'DIPRA': { letra: 'P',  bobinar: 'DIP' },
+  'HARD':  { letra: 'R',  bobinar: 'HAR' },
+  'ZEN':   { letra: '',   bobinar: 'ZEN' },
+};
+const MARCAS_DISPONIBLES = ['DIPRA', 'HARD', 'ZEN'];
+
+function normMarca(m) { return (m || '').toString().trim().toUpperCase(); }
+
+function codigoRealMarca(marca, codigoBase) {
+  const cfg = PREFIJOS_MARCA[normMarca(marca)];
+  if (!cfg) return codigoBase;
+  return cfg.letra + codigoBase;
+}
+
+function codigoBobinarMarca(marca, codigoBase) {
+  const cfg = PREFIJOS_MARCA[normMarca(marca)];
+  if (!cfg) return '';
+  return cfg.bobinar + codigoRealMarca(marca, codigoBase);
+}
+
+function buscarPreciosMarca(marca, query) {
+  const m = normMarca(marca);
+  const q = (query || '').trim().toUpperCase();
+  return PRECIOS_MARCAS.filter(p => p.marca === m && (!q || p.codigo.toUpperCase().includes(q) || p.detalle.toUpperCase().includes(q))).slice(0, 30);
+}
+
+
+
+// ── IDENTIFICAR ÍTEMS DE LA HOJA "PLANETARIOS CORONAS" ──
+function extraerHoja(notas) {
+  const m = (notas || '').match(/Hoja de origen<\/th><td[^>]*>([^<]*)<\/td>/);
+  return m ? m[1] : '(sin dato)';
+}
+
+// Considero "ya corregido" si tiene al menos un código de proveedor cargado (marca o bobinar)
+function yaCorregido(r) {
+  return Array.isArray(r.codigos_proveedores) && r.codigos_proveedores.length > 0;
+}
+
+let itemsPlanetarios = []; // [{id, ...doc}]
+
+async function iniciar() {
+  const q = query(collection(db, 'repuestos'), where('origen_import', '==', 'stock-cuadernos'));
+  const snap = await getDocs(q);
+  itemsPlanetarios = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(r => extraerHoja(r.notas_internas) === 'PLANETARIOS CORONAS')
+    .sort((a, b) => (a.codigo || '').localeCompare(b.codigo || '', undefined, { numeric: true }));
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderResumen();
+  renderTabla();
+}
+
+function renderResumen() {
+  const total = itemsPlanetarios.length;
+  const corregidos = itemsPlanetarios.filter(yaCorregido).length;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${total}</div><div class="l">planetarios cargados en Firebase</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${corregidos}</div><div class="l">ya corregidos</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${total - corregidos}</div><div class="l">sin marca / código / precio</div></div>
+  `;
+}
+
+function renderTabla() {
+  const tbody = document.getElementById('tbody-items');
+  const datalistId = 'precios-dl-corrector';
+  tbody.innerHTML = itemsPlanetarios.map((r, idx) => {
+    const corregido = yaCorregido(r);
+    const marcaActual = (r.marcas_repuesto && r.marcas_repuesto[0]) || 'DIPRA';
+    const marcaSel = MARCAS_DISPONIBLES.includes(normMarca(marcaActual)) ? normMarca(marcaActual) : 'DIPRA';
+    const codigoReal = codigoRealMarca(marcaSel, r.codigo);
+    const codigoBob = codigoBobinarMarca(marcaSel, r.codigo);
+    return `<tr data-idx="${idx}" data-buscar="${(r.codigo || '').toUpperCase()} ${(r.titulo_repuesto || '').toUpperCase()}" class="${corregido ? 'done' : ''}">
+      <td><input type="checkbox" class="chk-item" data-idx="${idx}" ${corregido ? '' : 'checked'}></td>
+      <td class="mono">${r.codigo || '—'}</td>
+      <td>${r.titulo_repuesto || '<span class="sin-desc">⚠ SIN TÍTULO</span>'}</td>
+      <td><select class="sel-marca-item" data-idx="${idx}">
+        ${MARCAS_DISPONIBLES.map(m => `<option value="${m}" ${m === marcaSel ? 'selected' : ''}>${m}</option>`).join('')}
+      </select></td>
+      <td class="mono txt-codigo-real" data-idx="${idx}">${codigoReal}</td>
+      <td class="mono txt-codigo-bobinar" data-idx="${idx}">${codigoBob}</td>
+      <td><input class="txt buscar-precio-item" list="${datalistId}-${idx}" data-idx="${idx}" placeholder="código o descripción…" style="min-width:170px">
+      <datalist id="${datalistId}-${idx}"></datalist></td>
+      <td><input class="txt descripcion-item" data-idx="${idx}" value="${(r.descripcion || '').replace(/"/g,'&quot;')}" placeholder="descripción…" style="min-width:180px"></td>
+      <td><input type="number" step="0.01" class="txt costo-item" data-idx="${idx}" value="${r.precio_costo || ''}" placeholder="$" style="min-width:100px"></td>
+      <td>${corregido ? '<span class="badge done">corregido</span>' : '<span class="badge warn">falta</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.sel-marca-item').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      const idx = e.target.dataset.idx;
+      const r = itemsPlanetarios[idx];
+      const marca = e.target.value;
+      tbody.querySelector(`.txt-codigo-real[data-idx="${idx}"]`).textContent = codigoRealMarca(marca, r.codigo);
+      tbody.querySelector(`.txt-codigo-bobinar[data-idx="${idx}"]`).textContent = codigoBobinarMarca(marca, r.codigo);
+      const buscador = tbody.querySelector(`.buscar-precio-item[data-idx="${idx}"]`);
+      if (buscador) buscador.value = '';
+    });
+  });
+
+  tbody.querySelectorAll('.buscar-precio-item').forEach(inp => {
+    inp.addEventListener('input', (e) => {
+      const idx = e.target.dataset.idx;
+      const marca = tbody.querySelector(`.sel-marca-item[data-idx="${idx}"]`).value;
+      const dl = document.getElementById(`${datalistId}-${idx}`);
+      const opciones = buscarPreciosMarca(marca, e.target.value);
+      dl.innerHTML = opciones.map(p => `<option value="${p.codigo} — ${p.detalle} — $${p.costo}">`).join('');
+      const elegido = opciones.find(p => e.target.value.startsWith(p.codigo + ' — '));
+      if (elegido) {
+        tbody.querySelector(`.costo-item[data-idx="${idx}"]`).value = elegido.costo;
+        tbody.querySelector(`.descripcion-item[data-idx="${idx}"]`).value = elegido.detalle;
+      }
+    });
+  });
+
+  document.getElementById('filtro-items').addEventListener('input', (e) => {
+    const q = e.target.value.trim().toUpperCase();
+    tbody.querySelectorAll('tr').forEach(tr => {
+      tr.style.display = !q || tr.dataset.buscar.includes(q) ? '' : 'none';
+    });
+  });
+}
+
+let soloPendientes = false;
+document.getElementById('btn-solo-pendientes').addEventListener('click', (e) => {
+  soloPendientes = !soloPendientes;
+  e.target.textContent = soloPendientes ? 'Ver todos' : 'Ver solo sin corregir';
+  document.querySelectorAll('#tbody-items tr').forEach((tr, idx) => {
+    const corregido = yaCorregido(itemsPlanetarios[idx]);
+    tr.style.display = soloPendientes && corregido ? 'none' : '';
+  });
+});
+
+document.getElementById('btn-guardar').addEventListener('click', async () => {
+  const tbody = document.getElementById('tbody-items');
+  const btn = document.getElementById('btn-guardar');
+  const progEl = document.getElementById('progreso');
+
+  const seleccionados = [];
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const idx = parseInt(tr.dataset.idx);
+    const chk = tr.querySelector('.chk-item');
+    if (!chk.checked) return;
+    const marca = tbody.querySelector(`.sel-marca-item[data-idx="${idx}"]`).value;
+    const costo = tbody.querySelector(`.costo-item[data-idx="${idx}"]`).value;
+    const descripcion = tbody.querySelector(`.descripcion-item[data-idx="${idx}"]`).value.trim();
+    seleccionados.push({ r: itemsPlanetarios[idx], idx, marca, costo, descripcion });
+  });
+
+  if (!seleccionados.length) { toast('No hay filas tildadas.'); return; }
+
+  const sinCosto = seleccionados.filter(s => !s.costo).length;
+  if (sinCosto > 0) {
+    const seguir = confirm(`${sinCosto} de ${seleccionados.length} ítems no tienen precio de costo (van a quedar en $0). ¿Guardar igual?`);
+    if (!seguir) return;
+  }
+
+  btn.disabled = true;
+  let batch = writeBatch(db);
+  let enLote = 0, guardados = 0;
+  try {
+    for (const { r, marca, costo, descripcion } of seleccionados) {
+      const codigoReal = codigoRealMarca(marca, r.codigo);
+      const codigoBob = codigoBobinarMarca(marca, r.codigo);
+      const costoNum = costo ? Number(costo) : 0;
+      const venta = costoNum ? Math.round(costoNum * 1.4) : 0;
+      const ventaIva = venta ? Math.round(venta * 1.21) : 0;
+      const docRef = doc(db, 'repuestos', r.id);
+      const data = {
+        marcas_repuesto: [marca],
+        fabricantes: [marca],
+        marcas_vehiculo: [marca],
+        codigos_proveedores: [
+          { proveedor: marca, codigo: codigoReal },
+          { proveedor: 'Bobinar', codigo: codigoBob },
+        ],
+        descripcion: descripcion || r.descripcion || '',
+        precio_costo: costoNum,
+        precio_venta: venta,
+        precio_venta_iva: ventaIva,
+        precio_ganancia_pct: 40,
+      };
+      batch.update(docRef, data);
+      // reflejo el cambio en memoria para que el resumen/estado se actualice sin recargar
+      Object.assign(r, data);
+      enLote++; guardados++;
+      if (enLote >= 400) {
+        await batch.commit();
+        batch = writeBatch(db);
+        enLote = 0;
+        progEl.textContent = `Guardando… ${guardados}/${seleccionados.length}`;
+      }
+    }
+    if (enLote > 0) await batch.commit();
+    progEl.textContent = `✅ ${guardados} corregidos`;
+    toast(`✅ ${guardados} repuestos de Planetarios corregidos en Firebase`);
+    renderResumen();
+    renderTabla();
+  } catch (err) {
+    console.error(err);
+    toast('Error al guardar: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
