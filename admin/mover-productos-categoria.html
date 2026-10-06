@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mover productos de categoría</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1200px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+h2{font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:900px;line-height:1.45}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px;flex:1;min-width:300px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;width:100%;font-family:inherit}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:4px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap;background:rgba(245,158,11,.15);color:var(--amber)}
+.scroll-tabla{max-height:520px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.cat-actual{color:var(--text3)}
+.cat-nueva{color:var(--green);font-weight:600}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:380px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+.vacio{color:var(--text2);padding:8px 0}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Mover productos de categoría</h1>
+<div class="sub">Cuando renombrás o corregís una categoría en <b>Categorías</b>, los productos que ya la tenían siguen guardados con el nombre viejo. Acá elegís la categoría <b>vieja</b> (origen) y la <b>correcta</b> (destino), ves la lista de productos afectados y confirmás. Solo se tocan los campos <span class="mono">categoria</span> y <span class="mono">categoria_id</span> de los productos tildados.</div>
+
+<div id="carga" class="loading">Cargando categorías y repuestos desde Firebase…</div>
+
+<div id="app" style="display:none">
+
+  <div class="card">
+    <h2>Categorías en uso que no están en la lista de Categorías</h2>
+    <div class="sub" style="margin-bottom:8px">Son nombres que tienen productos pero ya no existen (o están escritos distinto) en la lista de Categorías: típicamente un typo ya corregido. Tocá "Usar como origen" para arreglarlas.</div>
+    <div id="huerfanas"></div>
+  </div>
+
+  <div class="card">
+    <h2>Mover</h2>
+    <div class="controles">
+      <label>Categoría ORIGEN (la vieja)
+        <input class="txt" id="f-origen" placeholder="Filtrar... (ej: reluladores)" style="margin-bottom:4px">
+        <select id="sel-origen" size="1"></select>
+      </label>
+      <label>Categoría DESTINO (la correcta)
+        <input class="txt" id="f-destino" placeholder="Filtrar... (ej: reguladores)" style="margin-bottom:4px">
+        <select id="sel-destino" size="1"></select>
+      </label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <button class="btn" id="btn-ver">Ver productos del origen</button>
+    </div>
+  </div>
+
+  <div class="card" id="card-lista" style="display:none">
+    <div class="controles" style="margin-bottom:10px;align-items:center">
+      <span id="resumen" style="flex:1;min-width:260px;color:var(--text)"></span>
+      <button class="btn ghost small" id="btn-todas">Tildar todos</button>
+      <button class="btn ghost small" id="btn-ninguna">Destildar todos</button>
+      <button class="btn green" id="btn-mover">✔ Mover tildados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+    <div class="scroll-tabla"><table>
+      <thead><tr><th></th><th>Código</th><th>Título</th><th>Categoría actual</th><th>Categoría nueva</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  if (!window._iniciado) { window._iniciado = true; await iniciar(); }
+});
+
+const $ = id => document.getElementById(id);
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const dec = s => { const t = document.createElement('textarea'); t.innerHTML = String(s ?? ''); return t.value; };
+const norm = s => dec(s).replace(/\s+/g,' ').trim().toLowerCase();
+const normBusq = s => norm(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+let cats = [];        // [{id, nombre}] colección "categorias"
+let reps = [];        // todos los repuestos
+let masterSet = new Set();
+let origenes = [];    // [{raw, n, huerfana}]
+let seleccionOrigen = null; // raw del origen cuya lista se está mostrando
+
+async function iniciar() {
+  const [cs, rs] = await Promise.all([ getDocs(collection(db,'categorias')), getDocs(collection(db,'repuestos')) ]);
+  cats = cs.docs.map(d => ({ id: d.id, nombre: d.data().nombre || '' })).filter(c => c.nombre)
+    .sort((a,b) => a.nombre.localeCompare(b.nombre,'es'));
+  reps = rs.docs.map(d => ({ id: d.id, ...d.data() }));
+  $('carga').style.display = 'none';
+  $('app').style.display = 'block';
+  $('f-origen').addEventListener('input', llenarOrigen);
+  $('f-destino').addEventListener('input', llenarDestino);
+  $('btn-ver').addEventListener('click', verProductos);
+  $('btn-todas').addEventListener('click', () => marcar(true));
+  $('btn-ninguna').addEventListener('click', () => marcar(false));
+  $('btn-mover').addEventListener('click', mover);
+  refrescarTodo();
+}
+
+function refrescarTodo() {
+  masterSet = new Set(cats.map(c => norm(c.nombre)));
+  const cuenta = new Map();
+  reps.forEach(r => { const k = r.categoria || ''; cuenta.set(k, (cuenta.get(k) || 0) + 1); });
+  origenes = [...cuenta.entries()].map(([raw, n]) => ({ raw, n, huerfana: !masterSet.has(norm(raw)) }))
+    .sort((a,b) => (b.huerfana - a.huerfana) || a.raw.localeCompare(b.raw,'es'));
+  llenarOrigen(); llenarDestino(); dibujarHuerfanas();
+}
+
+function llenarOrigen() {
+  const q = normBusq($('f-origen').value).split(/\s+/).filter(Boolean);
+  const actual = $('sel-origen').value;
+  const lista = origenes.map((o,i) => ({ o, i })).filter(({o}) => q.every(w => normBusq(o.raw || 'sin categoria').includes(w)));
+  $('sel-origen').innerHTML = lista.map(({o,i}) =>
+    `<option value="${i}">${esc(dec(o.raw) || '(sin categoría)')} — ${o.n} prod.${o.huerfana ? '  ⚠ no está en Categorías' : ''}</option>`).join('')
+    || '<option value="">(sin coincidencias)</option>';
+  if (actual && lista.some(({i}) => String(i) === actual)) $('sel-origen').value = actual;
+}
+function llenarDestino() {
+  const q = normBusq($('f-destino').value).split(/\s+/).filter(Boolean);
+  const actual = $('sel-destino').value;
+  const lista = cats.filter(c => q.every(w => normBusq(c.nombre).includes(w)));
+  $('sel-destino').innerHTML = lista.map(c => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('')
+    || '<option value="">(sin coincidencias)</option>';
+  if (actual && lista.some(c => c.id === actual)) $('sel-destino').value = actual;
+}
+
+function dibujarHuerfanas() {
+  const h = origenes.filter(o => o.huerfana);
+  if (!h.length) { $('huerfanas').innerHTML = '<div class="vacio">✅ Todas las categorías de los productos existen en la lista de Categorías.</div>'; return; }
+  $('huerfanas').innerHTML = `<div class="scroll-tabla" style="max-height:260px"><table><thead><tr><th>Categoría en los productos</th><th>Productos</th><th></th></tr></thead><tbody>` +
+    h.map(o => `<tr><td>${esc(dec(o.raw) || '(sin categoría)')}</td><td class="mono">${o.n}</td><td><button class="btn ghost small" data-i="${origenes.indexOf(o)}">Usar como origen</button></td></tr>`).join('') +
+    `</tbody></table></div>`;
+  $('huerfanas').querySelectorAll('button[data-i]').forEach(b => b.addEventListener('click', () => {
+    $('f-origen').value = ''; llenarOrigen(); $('sel-origen').value = b.dataset.i;
+    $('f-destino').focus(); window.scrollTo({ top: $('sel-origen').getBoundingClientRect().top + scrollY - 80, behavior: 'smooth' });
+    toast('Origen elegido. Ahora elegí el destino correcto.');
+  }));
+}
+
+function destinoElegido() { return cats.find(c => c.id === $('sel-destino').value) || null; }
+
+function verProductos() {
+  const o = origenes[Number($('sel-origen').value)];
+  const d = destinoElegido();
+  if (!o) { toast('Elegí una categoría de origen.'); return; }
+  if (!d) { toast('Elegí una categoría de destino.'); return; }
+  seleccionOrigen = o.raw;
+  const filas = reps.filter(r => (r.categoria || '') === o.raw);
+  const mismoNombre = (o.raw === d.nombre);
+  $('card-lista').style.display = 'block';
+  $('resumen').innerHTML = `<b>${filas.length}</b> productos en <span class="cat-actual">${esc(dec(o.raw) || '(sin categoría)')}</span> → <span class="cat-nueva">${esc(d.nombre)}</span>` +
+    (mismoNombre ? ' <span class="badge">origen y destino son iguales</span>' : '');
+  $('tbody').innerHTML = filas.map(r => `<tr data-id="${esc(r.id)}">
+      <td><input type="checkbox" class="chk" ${mismoNombre ? '' : 'checked'}></td>
+      <td class="mono">${esc(r.codigo || r.id)}</td>
+      <td>${esc(r.titulo_repuesto || '(sin nombre)')}</td>
+      <td class="cat-actual">${esc(dec(r.categoria) || '(sin categoría)')}</td>
+      <td class="cat-nueva">${esc(d.nombre)}</td></tr>`).join('');
+  $('tbody').querySelectorAll('.chk').forEach(c => c.addEventListener('change', actualizarBoton));
+  $('progreso').textContent = '';
+  actualizarBoton();
+}
+
+function marcar(v) { $('tbody').querySelectorAll('.chk').forEach(c => c.checked = v); actualizarBoton(); }
+function tildados() { return [...$('tbody').querySelectorAll('tr')].filter(tr => tr.querySelector('.chk')?.checked); }
+function actualizarBoton() { $('btn-mover').textContent = `✔ Mover tildados (${tildados().length})`; }
+
+async function mover() {
+  const d = destinoElegido();
+  const sel = tildados();
+  if (!d) { toast('Elegí una categoría de destino.'); return; }
+  if (!sel.length) { toast('No hay productos tildados.'); return; }
+  if (!confirm(`Vas a pasar ${sel.length} productos a la categoría:\n\n${d.nombre}\n\n¿Confirmás?`)) return;
+  const btn = $('btn-mover'); btn.disabled = true;
+  let batch = writeBatch(db), n = 0, total = 0;
+  try {
+    for (const tr of sel) {
+      batch.update(doc(db, 'repuestos', tr.dataset.id), { categoria: d.nombre, categoria_id: d.id });
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; $('progreso').textContent = `${total}/${sel.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    const ids = new Set(sel.map(tr => tr.dataset.id));
+    reps.forEach(r => { if (ids.has(r.id)) { r.categoria = d.nombre; r.categoria_id = d.id; } });
+    $('progreso').textContent = `✅ ${total} productos movidos`;
+    toast(`✅ ${total} productos movidos a "${d.nombre}"`);
+    refrescarTodo();
+    $('tbody').innerHTML = ''; $('card-lista').style.display = 'none';
+  } catch (e) {
+    console.error(e); toast('Error: ' + e.message);
+  } finally { btn.disabled = false; }
+}
+</script>
+</body>
+</html>
