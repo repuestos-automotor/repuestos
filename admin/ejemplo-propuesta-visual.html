@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Propuesta comercial — Lote de repuestos</title>
+<style>
+*{box-sizing:border-box} body{margin:0;background:#eef2f7;font-family:Inter,'Segoe UI',Arial,sans-serif;color:#111827;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{max-width:820px;margin:0 auto;background:#fff;padding:0 0 90px}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;padding:30px 36px 58px}
+.hero .brand{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+.hero h1{margin:6px 0 4px;font-size:27px;line-height:1.2}
+.hero p{margin:0;opacity:.85;font-size:13.5px}
+.hero .meta{margin-top:14px;font-size:12px;opacity:.75}
+.sec{padding:22px 36px 0} .sec h2{font-size:15px;margin:0 0 4px;color:#0f172a} .sec .sub{font-size:12px;color:#6b7280;margin:0 0 12px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:-34px;padding:0 36px;position:relative}
+.kpi{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.10)}
+.kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#6b7280}
+.kpi .v{font-size:21px;font-weight:800;margin-top:6px} .kpi .usd{font-size:15px;font-weight:700;color:#475569;margin-top:2px}
+.kpi.inv .v{color:#b45309} .kpi.rev .v{color:#1d4ed8} .kpi.gan .v{color:#047857}
+.kpi .s{font-size:11.5px;color:#6b7280;margin-top:6px}
+.big{margin:20px 36px 0;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:14px;padding:16px 20px;font-size:15.5px;line-height:1.5;color:#065f46}
+.big b{font-size:17px}
+.bar-row{display:flex;align-items:center;gap:10px;margin:9px 0}
+.bar-lbl{width:150px;font-size:12.5px;color:#374151;flex-shrink:0}
+.bar-track{flex:1;background:#f1f5f9;border-radius:6px;height:20px;overflow:hidden} .bar-fill{height:100%;border-radius:6px}
+.bar-val{width:170px;text-align:right;font-size:12.5px;flex-shrink:0} .bar-val span{display:block;font-size:11px;color:#6b7280}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kpi2{border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;background:#f8fafc}
+.kpi2 .k{font-size:11px;text-transform:uppercase;color:#6b7280;letter-spacing:.05em} .kpi2 .v{font-size:20px;font-weight:800;margin-top:4px;color:#b45309} .kpi2 .v.good{color:#047857}
+.kpi2 .usd{font-size:13px;font-weight:700;color:#475569} .kpi2 .s{font-size:11px;color:#6b7280;margin-top:4px}
+table.esc{width:100%;border-collapse:collapse;font-size:12.5px} table.esc th{text-align:right;font-size:10.5px;text-transform:uppercase;color:#6b7280;padding:6px 8px;border-bottom:2px solid #e5e7eb} table.esc th:first-child{text-align:left}
+table.esc td{padding:9px 8px;border-bottom:1px solid #f1f5f9} table.esc td.n{text-align:right;font-variant-numeric:tabular-nums} table.esc small{display:block;color:#6b7280;font-size:10.5px}
+table.esc tr.sel td{background:#eff6ff;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px} .chip{background:#f1f5f9;border-radius:999px;padding:6px 12px;font-size:12px;color:#334155}
+.cond{font-size:12px;color:#475569;line-height:1.7;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px 16px}
+.foot{padding:16px 36px 0;font-size:10.5px;color:#6b7280;line-height:1.55}
+.barra{position:fixed;bottom:0;left:0;right:0;background:#0f172a;padding:12px;display:flex;gap:10px;justify-content:center}
+.barra button{border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff}
+@media(max-width:640px){.kpis,.two{grid-template-columns:1fr} .hero,.sec{padding-left:18px;padding-right:18px} .kpis{padding:0 18px} .big{margin:20px 18px 0} .bar-lbl{width:95px} .bar-val{width:120px}}
+@media print{body{background:#fff} .barra{display:none} .page{max-width:none} .sec,.kpis,.big{break-inside:avoid}}
+</style></head><body><div class="page">
+<div class="hero"><div class="brand">Repuestos Electromecánicos</div>
+<h1>Propuesta comercial — Lote de repuestos</h1>
+<p>300 productos · 1.197 unidades en stock · Cotización USD $ 1.250</p>
+<div class="meta">Emitida el 13/10/2026 · Válida hasta el 16/10/2026</div></div>
+
+<div class="kpis">
+  <div class="kpi inv"><div class="k">Su inversión</div><div class="v">$ 21.943.981</div><div class="usd">US$ 17,555</div><div class="s">lote completo, con 15% de descuento</div></div>
+  <div class="kpi rev"><div class="k">Valor de reventa</div><div class="v">$ 25.816.448</div><div class="usd">US$ 20,653</div><div class="s">a precio de lista</div></div>
+  <div class="kpi gan"><div class="k">Ganancia potencial</div><div class="v">$ 3.872.467</div><div class="usd">US$ 3,098</div><div class="s">si vende todo el lote</div></div>
+</div>
+
+<div class="big">Por cada <b>$1</b> que invierte, recibe <b>$1,18</b> en mercadería a precio de lista: una ganancia potencial de <b>+17,6%</b> sobre su inversión.</div>
+
+<div class="sec"><h2>Inversión, reventa y ganancia</h2><p class="sub">Comparación del lote completo.</p><div class="bar-row"><div class="bar-lbl">Su inversión</div><div class="bar-track"><div class="bar-fill" style="width:85.0%;background:#d97706"></div></div><div class="bar-val"><b>$ 21.943.981</b><span>US$ 17,555</span></div></div><div class="bar-row"><div class="bar-lbl">Valor de reventa</div><div class="bar-track"><div class="bar-fill" style="width:100.0%;background:#2563eb"></div></div><div class="bar-val"><b>$ 25.816.448</b><span>US$ 20,653</span></div></div><div class="bar-row"><div class="bar-lbl">Ganancia potencial</div><div class="bar-track"><div class="bar-fill" style="width:15.0%;background:#059669"></div></div><div class="bar-val"><b>$ 3.872.467</b><span>US$ 3,098</span></div></div></div>
+
+<div class="sec"><h2>¿Cuándo recupera su inversión?</h2>
+<p class="sub">Proyección estimada: supone que usted revende el 10% del lote por mes, a precio de lista.</p>
+<svg viewBox="0 0 640 300" width="100%" role="img" aria-label="Recuperación de la inversión mes a mes">
+    <line x1="64" x2="622" y1="260" y2="260" stroke="#e5e7eb"/><text x="56" y="264" text-anchor="end" font-size="10" fill="#6b7280">$ 0</text><line x1="64" x2="622" y1="204.90740740740742" y2="204.90740740740742" stroke="#e5e7eb"/><text x="56" y="208.90740740740742" text-anchor="end" font-size="10" fill="#6b7280">$ 6 M</text><line x1="64" x2="622" y1="149.81481481481484" y2="149.81481481481484" stroke="#e5e7eb"/><text x="56" y="153.81481481481484" text-anchor="end" font-size="10" fill="#6b7280">$ 13 M</text><line x1="64" x2="622" y1="94.72222222222226" y2="94.72222222222226" stroke="#e5e7eb"/><text x="56" y="98.72222222222226" text-anchor="end" font-size="10" fill="#6b7280">$ 19 M</text><line x1="64" x2="622" y1="39.629629629629655" y2="39.629629629629655" stroke="#e5e7eb"/><text x="56" y="43.629629629629655" text-anchor="end" font-size="10" fill="#6b7280">$ 26 M</text><text x="64" y="282" text-anchor="middle" font-size="10" fill="#6b7280">Hoy</text><text x="157" y="282" text-anchor="middle" font-size="10" fill="#6b7280">2 m</text><text x="250" y="282" text-anchor="middle" font-size="10" fill="#6b7280">4 m</text><text x="343" y="282" text-anchor="middle" font-size="10" fill="#6b7280">6 m</text><text x="436" y="282" text-anchor="middle" font-size="10" fill="#6b7280">8 m</text><text x="529" y="282" text-anchor="middle" font-size="10" fill="#6b7280">10 m</text><text x="622" y="282" text-anchor="middle" font-size="10" fill="#6b7280">12 m</text>
+    <path d="M64.0,260.0 L110.5,238.0 L157.0,215.9 L203.5,193.9 L250.0,171.9 L296.5,149.8 L343.0,127.8 L389.5,105.7 L436.0,83.7 L482.5,61.7 L529.0,39.6 L575.5,39.6 L622.0,39.6 L622.0,260 L64.0,260 Z" fill="#2563eb" opacity=".10"/>
+    <path d="M64.0,260.0 L110.5,238.0 L157.0,215.9 L203.5,193.9 L250.0,171.9 L296.5,149.8 L343.0,127.8 L389.5,105.7 L436.0,83.7 L482.5,61.7 L529.0,39.6 L575.5,39.6 L622.0,39.6" fill="none" stroke="#2563eb" stroke-width="3" stroke-linejoin="round"/>
+    <line x1="64" x2="622" y1="72.68518518518519" y2="72.68518518518519" stroke="#d97706" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="70" y="65.68518518518519" font-size="10.5" font-weight="700" fill="#d97706">Su inversión $ 22 M</text>
+    <circle cx="459.25" cy="72.68518518518519" r="6" fill="#fff" stroke="#059669" stroke-width="3"/><text x="471.25" y="94.68518518518519" text-anchor="start" font-size="10.5" font-weight="700" fill="#059669">Recupera todo</text><circle cx="343" cy="127.77777777777777" r="5" fill="#1d4ed8" stroke="#fff" stroke-width="2"/><text x="343" y="116.77777777777777" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1d4ed8">$ 15 M</text><circle cx="622" cy="39.629629629629655" r="5" fill="#1d4ed8" stroke="#fff" stroke-width="2"/><text x="622" y="28.629629629629655" text-anchor="end" font-size="10.5" font-weight="700" fill="#1d4ed8">$ 26 M</text>
+  </svg>
+<div class="two" style="margin-top:8px"><div class="kpi2"><div class="k">A 6 meses</div><div class="v">71%</div><div class="s">de su inversión ya recuperada<br>(ingresos $ 15.489.869)</div></div><div class="kpi2"><div class="k">A 12 meses</div><div class="v good">+$ 3.872.467</div><div class="usd">US$ 3,098</div><div class="s">de ganancia (ingresos $ 25.816.448)</div></div></div>
+<p class="sub" style="margin-top:10px">Recupera el total invertido en <b>aprox. 8,5 meses</b>.</p></div>
+
+<div class="sec"><h2>Opciones de compra por volumen</h2><p class="sub">Lote completo. La opción propuesta está resaltada.</p>
+<table class="esc"><thead><tr><th>Opción</th><th>Inversión</th><th>Ganancia potencial</th><th>Rendimiento</th></tr></thead><tbody><tr class=""><td>Precio de lista</td><td class="n">$ 25.816.448<small>US$ 20,653</small></td><td class="n">$ 0<small>US$ 0</small></td><td class="n">0,0%</td></tr><tr class=""><td>5% de descuento</td><td class="n">$ 24.525.626<small>US$ 19,621</small></td><td class="n">$ 1.290.822<small>US$ 1,033</small></td><td class="n">5,3%</td></tr><tr class=""><td>10% de descuento</td><td class="n">$ 23.234.803<small>US$ 18,588</small></td><td class="n">$ 2.581.645<small>US$ 2,065</small></td><td class="n">11,1%</td></tr><tr class="sel"><td>15% de descuento ⭐</td><td class="n">$ 21.943.981<small>US$ 17,555</small></td><td class="n">$ 3.872.467<small>US$ 3,098</small></td><td class="n">17,6%</td></tr><tr class=""><td>20% de descuento</td><td class="n">$ 20.653.158<small>US$ 16,523</small></td><td class="n">$ 5.163.290<small>US$ 4,131</small></td><td class="n">25,0%</td></tr></tbody></table></div>
+
+<div class="sec"><h2>¿Qué incluye el lote?</h2><p class="sub">Participación de cada categoría en el valor del lote.</p><div class="bar-row"><div class="bar-lbl" style="width:42%;font-size:11.5px">Fusible</div><div class="bar-track"><div class="bar-fill" style="width:100.0%;background:#6366f1"></div></div><div class="bar-val" style="width:48px"><b>17%</b></div></div><div class="bar-row"><div class="bar-lbl" style="width:42%;font-size:11.5px">Lámpara</div><div class="bar-track"><div class="bar-fill" style="width:99.7%;background:#6366f1"></div></div><div class="bar-val" style="width:48px"><b>17%</b></div></div><div class="bar-row"><div class="bar-lbl" style="width:42%;font-size:11.5px">Alternador Completo</div><div class="bar-track"><div class="bar-fill" style="width:99.3%;background:#6366f1"></div></div><div class="bar-val" style="width:48px"><b>17%</b></div></div><div class="bar-row"><div class="bar-lbl" style="width:42%;font-size:11.5px">Arranque Despiece | Impulsor</div><div class="bar-track"><div class="bar-fill" style="width:97.8%;background:#6366f1"></div></div><div class="bar-val" style="width:48px"><b>17%</b></div></div><div class="bar-row"><div class="bar-lbl" style="width:42%;font-size:11.5px">Faros | Lente BAIML</div><div class="bar-track"><div class="bar-fill" style="width:95.3%;background:#6366f1"></div></div><div class="bar-val" style="width:48px"><b>16%</b></div></div><div class="bar-row"><div class="bar-lbl" style="width:42%;font-size:11.5px">Bujes</div><div class="bar-track"><div class="bar-fill" style="width:91.9%;background:#6366f1"></div></div><div class="bar-val" style="width:48px"><b>16%</b></div></div>
+<div class="chips" style="margin-top:12px"><span class="chip">🔧 Nuevos (caja original): 299 prod. / 1.191 un.</span><span class="chip">♻️ Reacondicionados: 1 prod. / 6 un.</span><span class="chip">💲 Precios desde $ 1.000 hasta $ 41.963 por unidad</span></div></div>
+
+<div class="sec"><h2>Condiciones</h2><div class="cond">
+• Propuesta válida por 3 días (hasta el 16/10/2026).<br>
+• Sujeta a variación: si el dólar baja más de 5%, la propuesta queda sin efecto hasta una nueva cotización.<br>
+• Formas de pago: Efectivo, Transferencia.</div></div>
+
+<div class="foot">Valores de reventa calculados a precio de lista vigente. La proyección mensual es una estimación según el supuesto indicado (reventa del 10% del lote por mes) y no constituye una garantía de ventas ni de ganancias. Stock sujeto a disponibilidad al momento de concretar la operación.</div>
+</div>
+<div class="barra"><button onclick="window.print()">🖨 Imprimir / Guardar como PDF</button></div>
+</body></html>
