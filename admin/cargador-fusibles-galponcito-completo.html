@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargador de Fusibles completo (Galponcito + Bobinar) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1500px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+h2{font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:1050px;line-height:1.5}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+.controles label.fila{flex-direction:row;align-items:center;gap:6px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+input.precio-row{min-width:0;width:100px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+input.code-row{min-width:0;width:110px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--blue);border-radius:6px;font-family:'JetBrains Mono',monospace}
+input.bob-otro{min-width:0;width:100%;margin-top:4px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;font-family:'JetBrains Mono',monospace}
+input.cant-row{width:55px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+select.bob-sel{min-width:0;width:100%;max-width:290px;padding:4px 6px;font-size:11.5px}
+.precio-cell{display:flex;flex-direction:column;gap:3px}
+.precio-cell label{font-size:9.5px;color:var(--text3);display:flex;gap:4px;align-items:center;justify-content:space-between}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-block}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.scroll-tabla{max-height:640px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2);z-index:2}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.dup td,table.tabla-items tr.done td{opacity:.5}
+table.tabla-items tr.sinstock td{opacity:.7}
+tr.titulo-sec td{background:var(--bg3);color:var(--amber);font-weight:600;font-size:11.5px}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.swatch-cell{display:flex;align-items:center;gap:8px}
+.swatch{width:22px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.25);flex-shrink:0}
+.swatch.sin{background:repeating-linear-gradient(45deg,#2a3347,#2a3347 3px,#141720 3px,#141720 6px)}
+.comp{font-size:10.5px;color:var(--amber);margin-top:3px;line-height:1.35}
+.info{font-size:10.5px;color:var(--text3);margin-top:3px;line-height:1.35}
+.aviso{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:380px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+.prev-tabla{border-collapse:collapse;font-size:11px;margin-top:4px}
+.prev-tabla th{background:var(--bg3);color:var(--blue);text-align:left;padding:3px 6px;border:1px solid var(--border2)}
+.prev-tabla td{padding:3px 6px;border:1px solid var(--border2)}
+details.card summary{cursor:pointer;font-weight:600;font-size:13px}
+.cp-viejo{color:var(--red)}
+.sep{height:10px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Cargador de Fusibles completo (Galponcito + Bobinar)</h1>
+<div class="sub">
+  Carga <b>todos los fusibles de la hoja FUSIBLES</b> de "Respuesto en Stock Galponcito.xlsx" (ficha, ficha mini, ficha maxi, ficha mini perfil bajo, vidrio cónico y cilíndrico, cerámico europeo, PAL hembra / hembra mini / macho y desnudos) y los cruza con la lista de <b>Bobinar</b> (fusibles_bobinar.xlsx) por <b>tipo + amperaje (+ medida)</b>. Cada fila detecta el <b>código Bobinar</b> (GENROD por defecto, después RONBAY; podés cambiarlo o escribir otro) y precarga el <b>costo</b> con "Costo Final". El código Bobinar se guarda en <i>códigos de proveedores</i> con proveedor <b>BOBINAR</b>.
+  <b>Nada se pisa:</b> lo que ya está en Firebase queda bloqueado (los 24 fusibles ficha que ya cargaste figuran como "ya cargada"). La cantidad es el <b>STOCK UNIDAD</b> de la planilla, igual que en la carga anterior.
+</div>
+
+<div id="carga-inicial" class="loading">Cargando categorías y repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div class="aviso" id="aviso-marcas" style="display:none"></div>
+
+  <div class="card">
+    <h2>Configuración de carga</h2>
+    <div class="controles">
+      <label>Categoría
+        <select id="sel-categoria"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-libre" value="Fusibles">
+      </label>
+      <label>Condición
+        <select id="sel-condicion">
+          <option selected>NUEVO</option>
+          <option>REACONDICIONADO</option><option>RECAMBIO</option><option>DESCONTINUADO</option><option>REEMPLAZO</option><option>OUTLET</option>
+        </select>
+      </label>
+      <label class="fila"><input type="checkbox" id="chk-publicar" checked> publicar automáticamente (los fusibles ya cargados están publicados; si no, queda oculto)</label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <label class="fila"><input type="checkbox" id="chk-codigos-marca" checked> además del código BOBINAR, guardar el código de cada marca (GENROD / RONBAY) como proveedor, como en la carga anterior</label>
+      <label class="fila"><input type="checkbox" id="chk-calc-venta"> calcular precio de venta a partir del costo, con margen
+        <input type="number" id="txt-margen" class="precio-row" style="width:60px" value="40" min="0" step="1"> %
+      </label>
+    </div>
+    <div class="info" style="margin-top:6px">Si no tildás "calcular precio de venta", el precio público queda vacío (lo completa <span class="mono">completar-precios-fusibles.html</span> con el mismo cálculo: costo × (1 + margen) × 1,21). Cualquier precio que escribas a mano en una fila se respeta.</div>
+    <div class="controles" style="margin-top:12px">
+      <label>Tipo
+        <select id="filtro-tipo"><option value="">Todos</option></select>
+      </label>
+      <label>Buscar por código, tipo o amperaje
+        <input class="txt" id="filtro-items" placeholder="ej: FICHA MINI, F20, 30A, CIL32…" style="min-width:260px">
+      </label>
+      <label class="fila"><input type="checkbox" id="chk-solo-stock"> solo con stock</label>
+      <label class="fila"><input type="checkbox" id="chk-ocultar-cargados"> ocultar ya cargados</label>
+      <button class="btn ghost small" id="btn-sel-visibles">Tildar visibles</button>
+      <button class="btn ghost small" id="btn-desel-visibles">Destildar visibles</button>
+      <button class="btn green" id="btn-cargar">⚡ Cargar seleccionados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <div class="scroll-tabla"><table class="tabla-items">
+    <thead><tr><th></th><th>Tipo</th><th>Amp</th><th>Código</th><th>Color</th><th>Cant.</th><th>Código Bobinar</th><th>Costo / Venta c/IVA</th><th>Estado</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+
+  <div class="sep"></div>
+  <div class="card" id="card-existentes" style="display:none">
+    <h2>Ya cargados en Firebase — agregar código Bobinar y costo</h2>
+    <div class="info" style="margin-bottom:10px">Son los fusibles que cargó este mismo cargador (origen <span class="mono">stock-galponcito-fusibles</span>). Acá <b>no se toca nada sin que lo tildes</b>: por defecto solo se <b>agrega</b> el código BOBINAR en "códigos de proveedores" y el costo <b>solo si hoy está vacío</b>. Si el costo guardado es distinto al de la lista, tenés una casilla aparte para actualizarlo. No se cambian cantidad, precio de venta ni nada más.</div>
+    <div class="controles" style="margin-bottom:10px">
+      <label class="fila"><input type="checkbox" id="chk-reemplazar-marcas"> también reemplazar los códigos GENROD / RONBAY guardados que ya no figuran en la lista nueva (en rojo) por el código actual de la misma marca</label>
+      <button class="btn green" id="btn-aplicar-ex">✅ Aplicar a los tildados</button>
+      <span class="progreso" id="progreso-ex"></span>
+    </div>
+    <div class="scroll-tabla" style="max-height:480px"><table class="tabla-items">
+      <thead><tr><th></th><th>Código</th><th>Título</th><th>Cant.</th><th>Proveedores hoy</th><th>Código Bobinar</th><th>Costo hoy → lista</th><th>Costo</th></tr></thead>
+      <tbody id="tbody-ex"></tbody>
+    </table></div>
+  </div>
+
+  <details class="card">
+    <summary>ℹ Filas de la lista Bobinar que no corresponden a ninguna fila de tu planilla — <span id="n-bob-sin"></span></summary>
+    <div class="info" style="margin-top:8px;font-size:12px">Son fusibles de Bobinar que no tenés en la hoja FUSIBLES (mega, mini mega, micro, surtidos, desnudo doble ojal, PAL hembra mini perfil bajo, etc.) o con otro amperaje. No se cargan.</div>
+    <div class="info" style="margin-top:8px;font-size:11.5px;line-height:1.6" id="lista-bob-sin"></div>
+  </details>
+</div>
+
+<datalist id="dl-bob"></datalist>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+// Mismo origen que el cargador de fusibles anterior: así el dedupe reconoce lo ya cargado
+// y completar-precios-fusibles.html sigue viendo estos productos.
+const ORIGEN = 'stock-galponcito-fusibles';
+const HOJA = 'FUSIBLES';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+// ── helpers ──
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const fmt = n => (n === null || n === undefined || n === '' || isNaN(n)) ? '—' : '$ ' + Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const r2 = n => Math.round(n * 100) / 100;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4200);
+}
+function normCodigo(s) { return (s || '').toString().trim().toUpperCase(); }
+function partesCodigo(s) { return normCodigo(s).split(/[|,\n\/]/).map(x => x.trim()).filter(Boolean); }
+function normTitulo(s) { return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9.]+/g, ' ').trim(); }
+function igualLista(lista, nombre) { return lista.find(x => x.toUpperCase() === (nombre || '').toUpperCase()) || null; }
+
+// ── DATOS: hoja FUSIBLES (118 combinaciones tipo/amperaje/medida; los primeros 25 conservan el mismo índice del cargador anterior) ──
+// cod = código que se usa en Firebase · codp = código que figura en la planilla · up = unidades por pack · sp/spt = stock pack (número / texto "*")
+// cant = STOCK UNIDAD · col = columna de la planilla · mm = medida · esp = espesor del hilo · hex = color de celda
+const ITEMS = [{"idx":0,"tipo":"FICHA","fam":"FICHA","amp":3,"cod":"F3","codp":"F3","up":100,"sp":1,"spt":null,"cant":11,"col":"F","hex":"#FF0066"},{"idx":1,"tipo":"FICHA","fam":"FICHA","amp":4,"cod":"F4","codp":"F4","up":100,"sp":null,"spt":"*","cant":1,"col":"G","hex":"#FFCC66"},{"idx":2,"tipo":"FICHA","fam":"FICHA","amp":5,"cod":"F5","codp":"F5","up":100,"sp":null,"spt":"*","cant":4,"col":"H","hex":"#FF9933"},{"idx":3,"tipo":"FICHA","fam":"FICHA","amp":7.5,"cod":"F7.5","codp":"F7.5","up":100,"sp":null,"spt":"*","cant":2,"col":"I","hex":"#503300"},{"idx":4,"tipo":"FICHA","fam":"FICHA","amp":10,"cod":"F10","codp":"F10","up":100,"sp":null,"spt":"*","cant":2,"col":"J","hex":"#FF0000"},{"idx":5,"tipo":"FICHA","fam":"FICHA","amp":15,"cod":"F15","codp":"F15","up":100,"sp":6,"spt":null,"cant":36,"col":"K","hex":"#0070C0"},{"idx":6,"tipo":"FICHA","fam":"FICHA","amp":20,"cod":"F20","codp":"F20","up":100,"sp":1,"spt":null,"cant":13,"col":"L","hex":"#FFFF00"},{"idx":7,"tipo":"FICHA","fam":"FICHA","amp":25,"cod":"F25","codp":"F25","up":100,"sp":1,"spt":null,"cant":10,"col":"M"},{"idx":8,"tipo":"FICHA","fam":"FICHA","amp":30,"cod":"F30","codp":"F30","up":100,"sp":null,"spt":null,"cant":4,"col":"N","hex":"#00B050"},{"idx":9,"tipo":"FICHA","fam":"FICHA","amp":40,"cod":"F40","codp":"F40","up":100,"sp":null,"spt":"*","cant":1,"col":"O","hex":"#F55E01"},{"idx":10,"tipo":"FICHA MINI","fam":"FICHA MINI","amp":3,"cod":"FM3","codp":"FM3","up":100,"sp":null,"spt":null,"cant":0,"col":"Q","hex":"#FF0066"},{"idx":11,"tipo":"FICHA MINI","fam":"FICHA MINI","amp":5,"cod":"FM5","codp":"FM5","up":100,"sp":2,"spt":null,"cant":17,"col":"R","hex":"#F55E01"},{"idx":12,"tipo":"FICHA MINI","fam":"FICHA MINI","amp":7.5,"cod":"FM7.5","codp":"FM7.5","up":100,"sp":null,"spt":null,"cant":0,"col":"S","hex":"#503300"},{"idx":13,"tipo":"FICHA MINI","fam":"FICHA MINI","amp":10,"cod":"FM10","codp":"FM10","up":100,"sp":null,"spt":"*","cant":3,"col":"T","hex":"#FF0000"},{"idx":14,"tipo":"FICHA MINI","fam":"FICHA MINI","amp":15,"cod":"FM15","codp":"FM15","up":100,"sp":null,"spt":null,"cant":1,"col":"U","hex":"#0070C0"},{"idx":15,"tipo":"FICHA MINI","fam":"FICHA MINI","amp":20,"cod":"FM20","codp":"FM20","up":100,"sp":null,"spt":null,"cant":1,"col":"V","hex":"#FFFF00"},{"idx":16,"tipo":"FICHA MINI","fam":"FICHA MINI","amp":25,"cod":"FM25","codp":"FM25","up":100,"sp":null,"spt":"*","cant":1,"col":"W"},{"idx":17,"tipo":"FICHA MINI","fam":"FICHA MINI","amp":30,"cod":"FM30","codp":"FM30","up":100,"sp":null,"spt":"*","cant":3,"col":"X","hex":"#00B050"},{"idx":18,"tipo":"FICHA MAXI","fam":"FICHA MAXI","amp":20,"cod":"FMX20","codp":"FMX20","up":20,"sp":null,"spt":null,"cant":0,"col":"Z","hex":"#FFFF00"},{"idx":19,"tipo":"FICHA MAXI","fam":"FICHA MAXI","amp":30,"cod":"FMX30","codp":"FMX30","up":20,"sp":1,"spt":null,"cant":1,"col":"AA","hex":"#00B050"},{"idx":20,"tipo":"FICHA MAXI","fam":"FICHA MAXI","amp":40,"cod":"FMX40","codp":"FMX40","up":20,"sp":null,"spt":null,"cant":0,"col":"AB","hex":"#FF9933"},{"idx":21,"tipo":"FICHA MAXI","fam":"FICHA MAXI","amp":50,"cod":"FMX50","codp":"FMX50","up":20,"sp":null,"spt":null,"cant":0,"col":"AC","hex":"#FF0000"},{"idx":22,"tipo":"FICHA MAXI","fam":"FICHA MAXI","amp":60,"cod":"FMX60","codp":"FMX60","up":20,"sp":null,"spt":null,"cant":0,"col":"AD","hex":"#0070C0"},{"idx":23,"tipo":"FICHA MAXI","fam":"FICHA MAXI","amp":70,"cod":"FMX70","codp":"FMX70","up":20,"sp":null,"spt":null,"cant":0,"col":"AE","hex":"#DCCFAE"},{"idx":24,"tipo":"FICHA MAXI","fam":"FICHA MAXI","amp":80,"cod":"FMX80","codp":"FMX80","up":20,"sp":null,"spt":"*","cant":2,"col":"AF","hex":"#FBEBA7"},{"idx":25,"tipo":"FICHA MINI PERFIL BAJO","fam":"FICHA MINI PERFIL BAJO","amp":3,"cod":"FMP83","codp":"FMP83","up":100,"sp":null,"spt":"*","cant":4,"col":"AH","hex":"#FF0066"},{"idx":26,"tipo":"FICHA MINI PERFIL BAJO","fam":"FICHA MINI PERFIL BAJO","amp":5,"cod":"FMP85","codp":"FMP85","up":100,"sp":null,"spt":"*","cant":20,"col":"AI","hex":"#F55E01"},{"idx":27,"tipo":"FICHA MINI PERFIL BAJO","fam":"FICHA MINI PERFIL BAJO","amp":7.5,"cod":"FMP87.5","codp":"FMP87.5","up":100,"sp":null,"spt":"*","cant":4,"col":"AJ","hex":"#FFCC66"},{"idx":28,"tipo":"FICHA MINI PERFIL BAJO","fam":"FICHA MINI PERFIL BAJO","amp":10,"cod":"FMP810","codp":"FMP810","up":100,"sp":null,"spt":"*","cant":1,"col":"AK","hex":"#FF0000"},{"idx":29,"tipo":"FICHA MINI PERFIL BAJO","fam":"FICHA MINI PERFIL BAJO","amp":15,"cod":"FMP815","codp":"FMP815","up":100,"sp":null,"spt":null,"cant":0,"col":"AL","hex":"#0070C0"},{"idx":30,"tipo":"FICHA MINI PERFIL BAJO","fam":"FICHA MINI PERFIL BAJO","amp":20,"cod":"FMP820","codp":"FMP820","up":100,"sp":null,"spt":null,"cant":0,"col":"AM","hex":"#FFFF00"},{"idx":31,"tipo":"FICHA MINI PERFIL BAJO","fam":"FICHA MINI PERFIL BAJO","amp":25,"cod":"FMP825","codp":"FMP825","up":100,"sp":null,"spt":"*","cant":2,"col":"AN"},{"idx":32,"tipo":"FICHA MINI PERFIL BAJO","fam":"FICHA MINI PERFIL BAJO","amp":30,"cod":"FMP830","codp":"FMP830","up":100,"sp":null,"spt":"*","cant":1,"col":"AO","hex":"#00B050"},{"idx":33,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":2,"cod":"C2","codp":"C2","up":100,"sp":null,"spt":null,"cant":0,"col":"AW","mm":25},{"idx":34,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":3,"cod":"C3","codp":"C3","up":100,"sp":3,"spt":null,"cant":15,"col":"AX","mm":25},{"idx":35,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":5,"cod":"C5","codp":"C5","up":100,"sp":null,"spt":null,"cant":0,"col":"AY","mm":25},{"idx":36,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":8,"cod":"C8","codp":"C8","up":100,"sp":null,"spt":null,"cant":0,"col":"AZ","mm":25},{"idx":37,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":10,"cod":"C10","codp":"C10","up":100,"sp":null,"spt":null,"cant":0,"col":"BA","mm":25},{"idx":38,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":16,"cod":"C16","codp":"C16","up":100,"sp":null,"spt":null,"cant":0,"col":"BB","mm":25},{"idx":39,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":20,"cod":"C20","codp":"C20","up":100,"sp":7,"spt":null,"cant":40,"col":"BC","mm":25},{"idx":40,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":25,"cod":"C25","codp":"C25","up":100,"sp":null,"spt":null,"cant":0,"col":"BD","mm":25},{"idx":41,"tipo":"VIDRIO CÓNICO","fam":"VIDRIO CÓNICO","amp":30,"cod":"C30","codp":"C30","up":100,"sp":null,"spt":null,"cant":0,"col":"BE","mm":25},{"idx":42,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":4,"cod":"CIL16-4","codp":"164","up":100,"sp":1,"spt":null,"cant":5,"col":"BG","mm":16},{"idx":43,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":10,"cod":"CIL16-10","codp":"161","up":100,"sp":null,"spt":null,"cant":0,"col":"BH","mm":16},{"idx":44,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":20,"cod":"CIL16-20","codp":"162","up":100,"sp":null,"spt":null,"cant":0,"col":"BI","mm":16},{"idx":45,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":3,"cod":"CIL22-3","codp":"223","up":100,"sp":null,"spt":null,"cant":0,"col":"BJ","mm":22},{"idx":46,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":5,"cod":"CIL22-5","codp":"225","up":100,"sp":null,"spt":null,"cant":0,"col":"BK","mm":22},{"idx":47,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":7,"cod":"CIL22-7","codp":"227","up":100,"sp":null,"spt":null,"cant":0,"col":"BL","mm":22},{"idx":48,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":10,"cod":"CIL22-10","codp":"221","up":100,"sp":1,"spt":null,"cant":5,"col":"BM","mm":22},{"idx":49,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":15,"cod":"CIL22-15","codp":"2215","up":100,"sp":null,"spt":null,"cant":0,"col":"BN","mm":22},{"idx":50,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":20,"cod":"CIL22-20","codp":"222","up":100,"sp":null,"spt":null,"cant":0,"col":"BO","mm":22},{"idx":51,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":25,"cod":"CIL22-25","codp":"2225","up":100,"sp":1,"spt":null,"cant":5,"col":"BP","mm":22},{"idx":52,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":30,"cod":"CIL22-30","codp":"2230","up":100,"sp":null,"spt":null,"cant":0,"col":"BQ","mm":22},{"idx":53,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":5,"cod":"CIL25-5","codp":"225","up":100,"sp":null,"spt":null,"cant":0,"col":"BR","mm":25},{"idx":54,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":25,"cod":"CIL25-25","codp":"2525","up":100,"sp":1,"spt":null,"cant":5,"col":"BS","mm":25},{"idx":55,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":5,"cod":"CIL27-5","codp":"275","up":100,"sp":null,"spt":null,"cant":0,"col":"BT","mm":27},{"idx":56,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":10,"cod":"CIL27-10","codp":"2710","up":100,"sp":null,"spt":null,"cant":0,"col":"BU","mm":27},{"idx":57,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":14,"cod":"CIL27-14","codp":"271","up":100,"sp":null,"spt":null,"cant":0,"col":"BV","mm":27},{"idx":58,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":20,"cod":"CIL27-20","codp":"272","up":100,"sp":null,"spt":"*","cant":4,"col":"BW","mm":27},{"idx":59,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":30,"cod":"CIL27-30","codp":"273","up":100,"sp":null,"spt":null,"cant":0,"col":"BX","mm":27},{"idx":60,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":0.5,"cod":"CIL32-0.5","codp":"0.5","up":100,"sp":null,"spt":null,"cant":0,"col":"BY","mm":32},{"idx":61,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":0.75,"cod":"CIL32-0.75","codp":"0.75","up":100,"sp":null,"spt":null,"cant":0,"col":"BZ","mm":32},{"idx":62,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":1,"cod":"CIL32-1","codp":"1","up":100,"sp":null,"spt":null,"cant":0,"col":"CA","mm":32},{"idx":63,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":1.5,"cod":"CIL32-1.5","codp":"1.5","up":100,"sp":null,"spt":null,"cant":0,"col":"CB","mm":32},{"idx":64,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":2,"cod":"CIL32-2","codp":"2","up":100,"sp":null,"spt":null,"cant":0,"col":"CC","mm":32},{"idx":65,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":3,"cod":"CIL32-3","codp":"3","up":100,"sp":2,"spt":null,"cant":10,"col":"CD","mm":32},{"idx":66,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":4,"cod":"CIL32-4","codp":"4","up":100,"sp":null,"spt":null,"cant":0,"col":"CE","mm":32},{"idx":67,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":5,"cod":"CIL32-5","codp":"5","up":100,"sp":null,"spt":null,"cant":0,"col":"CF","mm":32},{"idx":68,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":6,"cod":"CIL32-6","codp":"6","up":100,"sp":null,"spt":null,"cant":0,"col":"CG","mm":32},{"idx":69,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":7,"cod":"CIL32-7","codp":"7","up":100,"sp":null,"spt":null,"cant":0,"col":"CH","mm":32},{"idx":70,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":8,"cod":"CIL32-8","codp":"8","up":100,"sp":null,"spt":null,"cant":0,"col":"CI","mm":32},{"idx":71,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":10,"cod":"CIL32-10","codp":"10","up":100,"sp":null,"spt":null,"cant":0,"col":"CJ","mm":32},{"idx":72,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":15,"cod":"CIL32-15","codp":"15","up":100,"sp":null,"spt":null,"cant":0,"col":"CK","mm":32},{"idx":73,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":20,"cod":"CIL32-20","codp":"20","up":100,"sp":8,"spt":null,"cant":40,"col":"CL","mm":32},{"idx":74,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":25,"cod":"CIL32-25","codp":"25","up":100,"sp":null,"spt":null,"cant":0,"col":"CM","mm":32},{"idx":75,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":30,"cod":"CIL32-30","codp":"30","up":100,"sp":3,"spt":null,"cant":15,"col":"CN","mm":32},{"idx":76,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":35,"cod":"CIL32-35","codp":"35","up":100,"sp":null,"spt":null,"cant":0,"col":"CO","mm":32},{"idx":77,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":40,"cod":"CIL32-40","codp":"40","up":100,"sp":null,"spt":null,"cant":0,"col":"CP","mm":32},{"idx":78,"tipo":"VIDRIO CILÍNDRICO","fam":"VIDRIO CILÍNDRICO","amp":30,"cod":"CIL37-30","codp":"30","up":100,"sp":null,"spt":null,"cant":0,"col":"CQ","mm":37},{"idx":79,"tipo":"CERÁMICO EUROPEO","fam":"CERÁMICO EUROPEO","amp":5,"cod":"E5","codp":"E5","up":100,"sp":null,"spt":"*","cant":0,"col":"CZ","hex":"#FFC000"},{"idx":80,"tipo":"CERÁMICO EUROPEO","fam":"CERÁMICO EUROPEO","amp":8,"cod":"E8","codp":"E8","up":100,"sp":2,"spt":null,"cant":11,"col":"DA"},{"idx":81,"tipo":"CERÁMICO EUROPEO","fam":"CERÁMICO EUROPEO","amp":10,"cod":"E10","codp":"E10","up":100,"sp":null,"spt":"*","cant":0,"col":"DB","hex":"#00B050"},{"idx":82,"tipo":"CERÁMICO EUROPEO","fam":"CERÁMICO EUROPEO","amp":16,"cod":"E16","codp":"E16","up":100,"sp":null,"spt":"*","cant":5,"col":"DC","hex":"#FF0000"},{"idx":83,"tipo":"CERÁMICO EUROPEO","fam":"CERÁMICO EUROPEO","amp":20,"cod":"E20","codp":"E20","up":100,"sp":null,"spt":"*","cant":17,"col":"DD","hex":"#1F4E79"},{"idx":84,"tipo":"PAL HEMBRA","fam":"PAL HEMBRA","amp":20,"cod":"P20","codp":"P20","up":10,"sp":null,"spt":null,"cant":0,"col":"DF","hex":"#FF0066"},{"idx":85,"tipo":"PAL HEMBRA","fam":"PAL HEMBRA","amp":30,"cod":"P30","codp":"P30","up":10,"sp":null,"spt":null,"cant":0,"col":"DG","hex":"#FF9933"},{"idx":86,"tipo":"PAL HEMBRA","fam":"PAL HEMBRA","amp":40,"cod":"P40","codp":"P40","up":10,"sp":null,"spt":null,"cant":0,"col":"DH","hex":"#FFCC66"},{"idx":87,"tipo":"PAL HEMBRA","fam":"PAL HEMBRA","amp":50,"cod":"P50","codp":"P50","up":10,"sp":null,"spt":"*","cant":1,"col":"DI","hex":"#FF0000"},{"idx":88,"tipo":"PAL HEMBRA","fam":"PAL HEMBRA","amp":60,"cod":"P60","codp":"P60","up":10,"sp":null,"spt":"*","cant":9,"col":"DJ","hex":"#0070C0"},{"idx":89,"tipo":"PAL HEMBRA","fam":"PAL HEMBRA","amp":80,"cod":"P80","codp":"P80","up":10,"sp":null,"spt":null,"cant":0,"col":"DK"},{"idx":90,"tipo":"PAL HEMBRA","fam":"PAL HEMBRA","amp":100,"cod":"P100","codp":"P100","up":10,"sp":null,"spt":null,"cant":0,"col":"DL","hex":"#00B050"},{"idx":91,"tipo":"PAL HEMBRA MINI","fam":"PAL HEMBRA MINI","amp":30,"cod":"PMN30","codp":"PMN30","up":10,"sp":null,"spt":null,"cant":1,"col":"DN","mm":32,"hex":"#FF0066"},{"idx":92,"tipo":"PAL HEMBRA MINI","fam":"PAL HEMBRA MINI","amp":40,"cod":"PMN40","codp":"PMN40","up":10,"sp":null,"spt":null,"cant":2,"col":"DO","mm":32,"hex":"#FF9933"},{"idx":93,"tipo":"PAL HEMBRA MINI","fam":"PAL HEMBRA MINI","amp":50,"cod":"PMN50","codp":"PMN50","up":10,"sp":null,"spt":null,"cant":1,"col":"DP","mm":32,"hex":"#FFCC66"},{"idx":94,"tipo":"PAL HEMBRA MINI","fam":"PAL HEMBRA MINI","amp":60,"cod":"PMN60","codp":"PMN60","up":10,"sp":null,"spt":null,"cant":0,"col":"DQ","mm":32,"hex":"#FFE699"},{"idx":95,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":40,"cod":"PM40","codp":"PM40","up":10,"sp":null,"spt":"*","cant":2,"col":"DY","hex":"#FF0066"},{"idx":96,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":50,"cod":"PM50","codp":"PM50","up":10,"sp":null,"spt":"*","cant":1,"col":"DZ","hex":"#503300"},{"idx":97,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":60,"cod":"PM60","codp":"PM60","up":10,"sp":null,"spt":null,"cant":0,"col":"EA","hex":"#ED7D31"},{"idx":98,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":80,"cod":"PM80","codp":"PM80","up":10,"sp":null,"spt":null,"cant":0,"col":"EB","hex":"#FFCC66"},{"idx":99,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":100,"cod":"PM100","codp":"PM100","up":10,"sp":null,"spt":null,"cant":0,"col":"EC","hex":"#FF0000"},{"idx":100,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":120,"cod":"PM120","codp":"PM120","up":10,"sp":null,"spt":null,"cant":0,"col":"ED","hex":"#0070C0"},{"idx":101,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":60,"cod":"PM6260","codp":"PM6260","up":10,"sp":null,"spt":"*","cant":2,"col":"EF","mm":62,"hex":"#FF0066"},{"idx":102,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":80,"cod":"PM6280","codp":"PM6280","up":10,"sp":null,"spt":null,"cant":0,"col":"EG","mm":62,"hex":"#ED7D31"},{"idx":103,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":100,"cod":"PM62100","codp":"PM62100","up":10,"sp":null,"spt":null,"cant":0,"col":"EH","mm":62,"hex":"#FFCC66"},{"idx":104,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":120,"cod":"PM62120","codp":"PM62120","up":10,"sp":null,"spt":null,"cant":0,"col":"EI","mm":62,"hex":"#FBEBA7"},{"idx":105,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":60,"cod":"PM4860","codp":"PM4860","up":10,"sp":null,"spt":null,"cant":0,"col":"EK","mm":48,"hex":"#FF0066"},{"idx":106,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":80,"cod":"PM4880","codp":"PM4880","up":10,"sp":null,"spt":"*","cant":1,"col":"EL","mm":48,"hex":"#ED7D31"},{"idx":107,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":100,"cod":"PM48100","codp":"PM48100","up":10,"sp":null,"spt":null,"cant":0,"col":"EM","mm":48,"hex":"#FFCC66"},{"idx":108,"tipo":"PAL MACHO","fam":"PAL MACHO","amp":120,"cod":"PM48120","codp":"PM48120","up":10,"sp":null,"spt":null,"cant":0,"col":"EN","mm":48,"hex":"#FBEBA7"},{"idx":109,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":30,"cod":"FD153","codp":"FD153","up":25,"sp":null,"spt":null,"cant":0,"col":"FH","esp":"0.25"},{"idx":110,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":40,"cod":"FD154","codp":"FD154","up":25,"sp":null,"spt":null,"cant":0,"col":"FI","esp":"0.35"},{"idx":111,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":25,"cod":"FD295","codp":"FD295","up":25,"sp":null,"spt":null,"cant":0,"col":"FJ","esp":"0.25"},{"idx":112,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":30,"cod":"FD296","codp":"FD296","up":25,"sp":null,"spt":null,"cant":0,"col":"FK","esp":"0.20"},{"idx":113,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":50,"cod":"FD297","codp":"FD297","up":25,"sp":null,"spt":null,"cant":0,"col":"FL","esp":"0.35"},{"idx":114,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":80,"cod":"FD298","codp":"FD298","up":25,"sp":null,"spt":null,"cant":0,"col":"FM","esp":"0.50"},{"idx":115,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":100,"cod":"FD299","codp":"FD299","up":25,"sp":null,"spt":null,"cant":0,"col":"FN","esp":"0.55"},{"idx":116,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":40,"cod":"FD300","codp":"FD300","up":25,"sp":null,"spt":null,"cant":0,"col":"FO","esp":"0.25"},{"idx":117,"tipo":"DESNUDO STRIP","fam":"DESNUDO","amp":60,"cod":"FD601","codp":"FD601","up":25,"sp":1,"spt":null,"cant":7,"col":"FP","esp":"0.40"}];
+
+// ── DATOS: lista Bobinar de fusibles (fusibles_bobinar.xlsx, hoja Hoja2). c=código, d=detalle, cf="Costo Final", pu=precio público, m=marca ──
+// fam/amp/mm = clasificación mía a partir del detalle · fl = motivo por el que el rótulo de Bobinar es dudoso
+const BOB = [{"c":"RONFFCU","d":"BLISTER SURTIDO FUSIBLES FICHA (X10)","cf":1341.36,"pu":2012.04,"m":"RONBAY","fam":"SURTIDO","amp":null,"mm":null,"fl":null},{"c":"GENRSURT","d":"BLISTER SURTIDO FUSIBLES FICHA (X10)","cf":1705.68,"pu":2558.52,"m":"GENROD","fam":"SURTIDO","amp":null,"mm":null,"fl":null},{"c":"GENR05SURT","d":"BLISTER SURTIDO FUSIBLES FICHA MINI (X10)","cf":1913.04,"pu":2869.56,"m":"GENROD","fam":"SURTIDO","amp":null,"mm":null,"fl":null},{"c":"RONBLMN05","d":"BLISTER SURTIDO FUSIBLES FICHA MINI (X10)","cf":1200.24,"pu":1800.36,"m":"RONBAY","fam":"SURTIDO","amp":null,"mm":null,"fl":null},{"c":"RONFMNU","d":"BLISTER SURTIDO FUSIBLES FICHA MINI (X5)","cf":613.44,"pu":920.16,"m":"RONBAY","fam":"SURTIDO","amp":null,"mm":null,"fl":null},{"c":"GENR13EXHG","d":"EXHIBIDOR GEN-ROD C/700 FUSIBLES VARIOS","cf":138615.84,"pu":207923.76,"m":"GENROD","fam":"SURTIDO","amp":null,"mm":null,"fl":null},{"c":"RONEC1025","d":"FUSIBLE CERAMICO 10 AMP","cf":104.4,"pu":156.6,"m":"RONBAY","fam":"CERÁMICO EUROPEO","amp":10,"mm":null,"fl":null},{"c":"GENR10A","d":"FUSIBLE CERAMICO 10 AMP","cf":115.2,"pu":172.8,"m":"GENROD","fam":"CERÁMICO EUROPEO","amp":10,"mm":null,"fl":null},{"c":"RONEC1625","d":"FUSIBLE CERAMICO 10 AMP","cf":104.4,"pu":156.6,"m":"RONBAY","fam":"CERÁMICO EUROPEO","amp":16,"mm":null,"fl":"El detalle dice 10 AMP pero el código (EC16) sugiere 16A"},{"c":"GENR16A","d":"FUSIBLE CERAMICO 16 AMP","cf":115.2,"pu":172.8,"m":"GENROD","fam":"CERÁMICO EUROPEO","amp":16,"mm":null,"fl":null},{"c":"RONEC2025","d":"FUSIBLE CERAMICO 20 AMP","cf":104.4,"pu":156.6,"m":"RONBAY","fam":"CERÁMICO EUROPEO","amp":20,"mm":null,"fl":null},{"c":"GENR20A","d":"FUSIBLE CERAMICO 20 AMP","cf":115.2,"pu":172.8,"m":"GENROD","fam":"CERÁMICO EUROPEO","amp":20,"mm":null,"fl":null},{"c":"RONEC2525","d":"FUSIBLE CERAMICO 25 AMP","cf":104.4,"pu":156.6,"m":"RONBAY","fam":"CERÁMICO EUROPEO","amp":25,"mm":null,"fl":null},{"c":"GENR25A","d":"FUSIBLE CERAMICO 25 AMP","cf":115.2,"pu":172.8,"m":"GENROD","fam":"CERÁMICO EUROPEO","amp":25,"mm":null,"fl":null},{"c":"RONEC3025","d":"FUSIBLE CERAMICO 30 AMP","cf":104.4,"pu":156.6,"m":"RONBAY","fam":"CERÁMICO EUROPEO","amp":30,"mm":null,"fl":null},{"c":"GENR08A","d":"FUSIBLE CERAMICO 8 AMP","cf":115.2,"pu":172.8,"m":"GENROD","fam":"CERÁMICO EUROPEO","amp":8,"mm":null,"fl":null},{"c":"GENR16X10","d":"FUSIBLE CILINDRICO 16MM X 10AMP","cf":210.96,"pu":316.44,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":10,"mm":16,"fl":null},{"c":"GENR16X4","d":"FUSIBLE CILINDRICO 16MM X 4AMP","cf":210.96,"pu":316.44,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":4,"mm":16,"fl":null},{"c":"GENR22X10","d":"FUSIBLE CILINDRICO 22MM X 10AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":10,"mm":22,"fl":null},{"c":"GENR27X20","d":"FUSIBLE CILINDRICO 27MM X 20AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":20,"mm":27,"fl":null},{"c":"GENR32X10","d":"FUSIBLE CILINDRICO 32MM X 10AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":10,"mm":32,"fl":null},{"c":"GENR32X15","d":"FUSIBLE CILINDRICO 32MM X 15AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":15,"mm":32,"fl":null},{"c":"RONVC1532","d":"FUSIBLE CILINDRICO 32MM X 15AMP","cf":247.68,"pu":371.52,"m":"RONBAY","fam":"VIDRIO CILÍNDRICO","amp":15,"mm":32,"fl":null},{"c":"GENR32X20","d":"FUSIBLE CILINDRICO 32MM X 20AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":20,"mm":32,"fl":null},{"c":"GENR32X25","d":"FUSIBLE CILINDRICO 32MM X 25AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":25,"mm":32,"fl":null},{"c":"GENR32X30","d":"FUSIBLE CILINDRICO 32MM X 30AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":30,"mm":32,"fl":null},{"c":"GENR32X03","d":"FUSIBLE CILINDRICO 32MM X 3AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":3,"mm":32,"fl":null},{"c":"GENR32X40","d":"FUSIBLE CILINDRICO 32MM X 40AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":40,"mm":32,"fl":null},{"c":"GENR32X05","d":"FUSIBLE CILINDRICO 32MM X 5AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":5,"mm":32,"fl":null},{"c":"RONVC0532","d":"FUSIBLE CILINDRICO 32MM X 5AMP","cf":247.68,"pu":371.52,"m":"RONBAY","fam":"VIDRIO CILÍNDRICO","amp":5,"mm":32,"fl":null},{"c":"GENR37X30","d":"FUSIBLE CILINDRICO 37MM X 30AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CILÍNDRICO","amp":30,"mm":37,"fl":null},{"c":"GENR25X10","d":"FUSIBLE CONICO 25MM X 10AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CÓNICO","amp":10,"mm":25,"fl":null},{"c":"GENR25X16","d":"FUSIBLE CONICO 25MM X 16AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CÓNICO","amp":16,"mm":25,"fl":null},{"c":"GENR25X20","d":"FUSIBLE CONICO 25MM X 20AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CÓNICO","amp":20,"mm":25,"fl":null},{"c":"GENR25X25","d":"FUSIBLE CONICO 25MM X 25AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CÓNICO","amp":25,"mm":25,"fl":null},{"c":"GENR25X30","d":"FUSIBLE CONICO 25MM X 30AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CÓNICO","amp":30,"mm":25,"fl":null},{"c":"GENR25X05","d":"FUSIBLE CONICO 25MM X 5AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CÓNICO","amp":5,"mm":25,"fl":null},{"c":"GENR25X08","d":"FUSIBLE CONICO 25MM X 8AMP","cf":228.24,"pu":342.36,"m":"GENROD","fam":"VIDRIO CÓNICO","amp":8,"mm":25,"fl":null},{"c":"GENR11030","d":"FUSIBLE DESNUDO 30AMP","cf":781.2,"pu":1171.8,"m":"GENROD","fam":"DESNUDO","amp":30,"mm":null,"fl":null},{"c":"RONFD40","d":"FUSIBLE DESNUDO 40AMP","cf":549.36,"pu":824.04,"m":"RONBAY","fam":"DESNUDO","amp":40,"mm":null,"fl":null},{"c":"GENR11040","d":"FUSIBLE DESNUDO 40AMP","cf":781.2,"pu":1171.8,"m":"GENROD","fam":"DESNUDO","amp":40,"mm":null,"fl":null},{"c":"GENR11050","d":"FUSIBLE DESNUDO 50AMP","cf":781.2,"pu":1171.8,"m":"GENROD","fam":"DESNUDO","amp":50,"mm":null,"fl":null},{"c":"RONFD60","d":"FUSIBLE DESNUDO 60AMP","cf":549.36,"pu":824.04,"m":"RONBAY","fam":"DESNUDO","amp":60,"mm":null,"fl":null},{"c":"GENR11060","d":"FUSIBLE DESNUDO 60AMP","cf":781.2,"pu":1171.8,"m":"GENROD","fam":"DESNUDO","amp":60,"mm":null,"fl":null},{"c":"GENR11080","d":"FUSIBLE DESNUDO 80AMP","cf":781.2,"pu":1171.8,"m":"GENROD","fam":"DESNUDO","amp":80,"mm":null,"fl":null},{"c":"RONFDDO110","d":"FUSIBLE DESNUDO DOBLE OJAL 110 AMP","cf":869.76,"pu":1304.64,"m":"RONBAY","fam":"DESNUDO DOBLE OJAL","amp":110,"mm":null,"fl":null},{"c":"RONFDDO150","d":"FUSIBLE DESNUDO DOBLE OJAL 150 AMP","cf":869.76,"pu":1304.64,"m":"RONBAY","fam":"DESNUDO DOBLE OJAL","amp":150,"mm":null,"fl":null},{"c":"RONFDDO175","d":"FUSIBLE DESNUDO DOBLE OJAL 175 AMP","cf":869.76,"pu":1304.64,"m":"RONBAY","fam":"DESNUDO DOBLE OJAL","amp":175,"mm":null,"fl":null},{"c":"RONFDDO40","d":"FUSIBLE DESNUDO DOBLE OJAL 40 AMP","cf":869.76,"pu":1304.64,"m":"RONBAY","fam":"DESNUDO DOBLE OJAL","amp":40,"mm":null,"fl":null},{"c":"RONFDDO50","d":"FUSIBLE DESNUDO DOBLE OJAL 50 AMP","cf":869.76,"pu":1304.64,"m":"RONBAY","fam":"DESNUDO DOBLE OJAL","amp":50,"mm":null,"fl":null},{"c":"RONFDDO60","d":"FUSIBLE DESNUDO DOBLE OJAL 60 AMP","cf":869.76,"pu":1304.64,"m":"RONBAY","fam":"DESNUDO DOBLE OJAL","amp":60,"mm":null,"fl":null},{"c":"RONFDDO80","d":"FUSIBLE DESNUDO DOBLE OJAL 80 AMP","cf":869.76,"pu":1304.64,"m":"RONBAY","fam":"DESNUDO DOBLE OJAL","amp":80,"mm":null,"fl":null},{"c":"RON10A","d":"FUSIBLE FICHA 10AMP","cf":136.08,"pu":204.12,"m":"RONBAY","fam":"FICHA","amp":10,"mm":null,"fl":null},{"c":"GENR010","d":"FUSIBLE FICHA 10AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":10,"mm":null,"fl":null},{"c":"RON15A","d":"FUSIBLE FICHA 15AMP","cf":136.08,"pu":204.12,"m":"RONBAY","fam":"FICHA","amp":15,"mm":null,"fl":null},{"c":"GENR015","d":"FUSIBLE FICHA 15AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":15,"mm":null,"fl":null},{"c":"RON20A","d":"FUSIBLE FICHA 20AMP","cf":136.08,"pu":204.12,"m":"RONBAY","fam":"FICHA","amp":20,"mm":null,"fl":null},{"c":"GENR020","d":"FUSIBLE FICHA 20AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":20,"mm":null,"fl":null},{"c":"RON25A","d":"FUSIBLE FICHA 25AMP","cf":136.08,"pu":204.12,"m":"RONBAY","fam":"FICHA","amp":25,"mm":null,"fl":null},{"c":"GENR025","d":"FUSIBLE FICHA 25AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":25,"mm":null,"fl":null},{"c":"RON30A","d":"FUSIBLE FICHA 30AMP","cf":136.08,"pu":204.12,"m":"RONBAY","fam":"FICHA","amp":30,"mm":null,"fl":null},{"c":"GENR030","d":"FUSIBLE FICHA 30AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":30,"mm":null,"fl":null},{"c":"GENR003","d":"FUSIBLE FICHA 3AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":3,"mm":null,"fl":null},{"c":"RON40A","d":"FUSIBLE FICHA 40AMP","cf":136.08,"pu":204.12,"m":"RONBAY","fam":"FICHA","amp":40,"mm":null,"fl":null},{"c":"GENR040","d":"FUSIBLE FICHA 40AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":40,"mm":null,"fl":null},{"c":"GENR004","d":"FUSIBLE FICHA 4AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":4,"mm":null,"fl":null},{"c":"RON05A","d":"FUSIBLE FICHA 5AMP","cf":136.08,"pu":204.12,"m":"RONBAY","fam":"FICHA","amp":5,"mm":null,"fl":null},{"c":"GENR005","d":"FUSIBLE FICHA 5AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":5,"mm":null,"fl":null},{"c":"RON75A","d":"FUSIBLE FICHA 7,5AMP","cf":136.08,"pu":204.12,"m":"RONBAY","fam":"FICHA","amp":7.5,"mm":null,"fl":null},{"c":"GENR075","d":"FUSIBLE FICHA 7,5AMP","cf":170.64,"pu":255.96,"m":"GENROD","fam":"FICHA","amp":7.5,"mm":null,"fl":null},{"c":"GENR100","d":"FUSIBLE FICHA MAXI 100AMP","cf":1392.48,"pu":2088.72,"m":"GENROD","fam":"FICHA MAXI","amp":100,"mm":null,"fl":null},{"c":"RONMX100","d":"FUSIBLE FICHA MAXI 100AMP","cf":831.6,"pu":1247.4,"m":"RONBAY","fam":"FICHA MAXI","amp":100,"mm":null,"fl":null},{"c":"RONMX20","d":"FUSIBLE FICHA MAXI 20AMP","cf":831.6,"pu":1247.4,"m":"RONBAY","fam":"FICHA MAXI","amp":20,"mm":null,"fl":null},{"c":"GENR06020","d":"FUSIBLE FICHA MAXI 20AMP","cf":1364.4,"pu":2046.6,"m":"GENROD","fam":"FICHA MAXI","amp":20,"mm":null,"fl":null},{"c":"RONMX30","d":"FUSIBLE FICHA MAXI 30AMP","cf":831.6,"pu":1247.4,"m":"RONBAY","fam":"FICHA MAXI","amp":30,"mm":null,"fl":null},{"c":"GENR06030","d":"FUSIBLE FICHA MAXI 30AMP","cf":1364.4,"pu":2046.6,"m":"GENROD","fam":"FICHA MAXI","amp":30,"mm":null,"fl":null},{"c":"GENR06040","d":"FUSIBLE FICHA MAXI 40AMP","cf":1364.4,"pu":2046.6,"m":"GENROD","fam":"FICHA MAXI","amp":40,"mm":null,"fl":null},{"c":"RONMX40","d":"FUSIBLE FICHA MAXI 40AMP","cf":831.6,"pu":1247.4,"m":"RONBAY","fam":"FICHA MAXI","amp":40,"mm":null,"fl":null},{"c":"RONMX50","d":"FUSIBLE FICHA MAXI 50AMP","cf":831.6,"pu":1247.4,"m":"RONBAY","fam":"FICHA MAXI","amp":50,"mm":null,"fl":null},{"c":"GENR050","d":"FUSIBLE FICHA MAXI 50AMP","cf":1364.4,"pu":2046.6,"m":"GENROD","fam":"FICHA MAXI","amp":50,"mm":null,"fl":null},{"c":"GENR06060","d":"FUSIBLE FICHA MAXI 60AMP","cf":1364.4,"pu":2046.6,"m":"GENROD","fam":"FICHA MAXI","amp":60,"mm":null,"fl":null},{"c":"RONMX60","d":"FUSIBLE FICHA MAXI 60AMP","cf":831.6,"pu":1247.4,"m":"RONBAY","fam":"FICHA MAXI","amp":60,"mm":null,"fl":null},{"c":"GENR070","d":"FUSIBLE FICHA MAXI 70AMP","cf":1364.4,"pu":2046.6,"m":"GENROD","fam":"FICHA MAXI","amp":70,"mm":null,"fl":null},{"c":"RONMX70","d":"FUSIBLE FICHA MAXI 70AMP","cf":831.6,"pu":1247.4,"m":"RONBAY","fam":"FICHA MAXI","amp":70,"mm":null,"fl":null},{"c":"GENR06080","d":"FUSIBLE FICHA MAXI 80AMP","cf":1364.4,"pu":2046.6,"m":"GENROD","fam":"FICHA MAXI","amp":80,"mm":null,"fl":null},{"c":"RONMX80","d":"FUSIBLE FICHA MAXI 80AMP","cf":831.6,"pu":1247.4,"m":"RONBAY","fam":"FICHA MAXI","amp":80,"mm":null,"fl":null},{"c":"GENR080","d":"FUSIBLE FICHA MAXI 80AMP","cf":1364.4,"pu":2046.6,"m":"GENROD","fam":"FICHA MAXI","amp":80,"mm":null,"fl":null},{"c":"GENR05010","d":"FUSIBLE FICHA MINI 10AMP","cf":191.52,"pu":287.28,"m":"GENROD","fam":"FICHA MINI","amp":10,"mm":null,"fl":null},{"c":"RONFMN010","d":"FUSIBLE FICHA MINI 10AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI","amp":10,"mm":null,"fl":null},{"c":"RONFMN015","d":"FUSIBLE FICHA MINI 15AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI","amp":15,"mm":null,"fl":null},{"c":"GENR05015","d":"FUSIBLE FICHA MINI 15AMP","cf":191.52,"pu":287.28,"m":"GENROD","fam":"FICHA MINI","amp":15,"mm":null,"fl":null},{"c":"RONFMN020","d":"FUSIBLE FICHA MINI 20AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI","amp":20,"mm":null,"fl":null},{"c":"GENR05020","d":"FUSIBLE FICHA MINI 20AMP","cf":191.52,"pu":287.28,"m":"GENROD","fam":"FICHA MINI","amp":20,"mm":null,"fl":null},{"c":"GENR05025","d":"FUSIBLE FICHA MINI 25AMP","cf":191.52,"pu":287.28,"m":"GENROD","fam":"FICHA MINI","amp":25,"mm":null,"fl":null},{"c":"RONFMN025","d":"FUSIBLE FICHA MINI 25AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI","amp":25,"mm":null,"fl":null},{"c":"RONFMN030","d":"FUSIBLE FICHA MINI 30AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI","amp":30,"mm":null,"fl":null},{"c":"GENR05030","d":"FUSIBLE FICHA MINI 30AMP","cf":191.52,"pu":287.28,"m":"GENROD","fam":"FICHA MINI","amp":30,"mm":null,"fl":null},{"c":"RONFMN040","d":"FUSIBLE FICHA MINI 40AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI","amp":40,"mm":null,"fl":null},{"c":"GENR05040","d":"FUSIBLE FICHA MINI 40AMP","cf":191.52,"pu":287.28,"m":"GENROD","fam":"FICHA MINI","amp":40,"mm":null,"fl":null},{"c":"GENR05005","d":"FUSIBLE FICHA MINI 5AMP","cf":191.52,"pu":287.28,"m":"GENROD","fam":"FICHA MINI","amp":5,"mm":null,"fl":null},{"c":"RONFMN005","d":"FUSIBLE FICHA MINI 5AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI","amp":5,"mm":null,"fl":null},{"c":"RONFMN075","d":"FUSIBLE FICHA MINI 7,5AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI","amp":7.5,"mm":null,"fl":null},{"c":"GENR05075","d":"FUSIBLE FICHA MINI 7,5AMP","cf":191.52,"pu":287.28,"m":"GENROD","fam":"FICHA MINI","amp":7.5,"mm":null,"fl":null},{"c":"GENR16010","d":"FUSIBLE FICHA MINI PERFIL BAJO 10AMP","cf":301.68,"pu":452.52,"m":"GENROD","fam":"FICHA MINI PERFIL BAJO","amp":10,"mm":null,"fl":null},{"c":"RONFMPF10","d":"FUSIBLE FICHA MINI PERFIL BAJO 10AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI PERFIL BAJO","amp":10,"mm":null,"fl":null},{"c":"RONFMPF15","d":"FUSIBLE FICHA MINI PERFIL BAJO 15AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI PERFIL BAJO","amp":15,"mm":null,"fl":null},{"c":"GENR16015","d":"FUSIBLE FICHA MINI PERFIL BAJO 15AMP","cf":301.68,"pu":452.52,"m":"GENROD","fam":"FICHA MINI PERFIL BAJO","amp":15,"mm":null,"fl":null},{"c":"GENR16020","d":"FUSIBLE FICHA MINI PERFIL BAJO 20AMP","cf":301.68,"pu":452.52,"m":"GENROD","fam":"FICHA MINI PERFIL BAJO","amp":20,"mm":null,"fl":null},{"c":"GENR16025","d":"FUSIBLE FICHA MINI PERFIL BAJO 25AMP","cf":301.68,"pu":452.52,"m":"GENROD","fam":"FICHA MINI PERFIL BAJO","amp":25,"mm":null,"fl":null},{"c":"RONFMPF25","d":"FUSIBLE FICHA MINI PERFIL BAJO 25AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI PERFIL BAJO","amp":25,"mm":null,"fl":null},{"c":"GENR16030","d":"FUSIBLE FICHA MINI PERFIL BAJO 30AMP","cf":301.68,"pu":452.52,"m":"GENROD","fam":"FICHA MINI PERFIL BAJO","amp":30,"mm":null,"fl":null},{"c":"RONFMPF30","d":"FUSIBLE FICHA MINI PERFIL BAJO 30AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI PERFIL BAJO","amp":30,"mm":null,"fl":null},{"c":"RONFMPF05","d":"FUSIBLE FICHA MINI PERFIL BAJO 5AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI PERFIL BAJO","amp":5,"mm":null,"fl":null},{"c":"RONFMPF75","d":"FUSIBLE FICHA MINI PERFIL BAJO 7,5AMP","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI PERFIL BAJO","amp":7.5,"mm":null,"fl":null},{"c":"GENR15100","d":"FUSIBLE MEGA DE 100AMP","cf":6459.84,"pu":9689.76,"m":"GENROD","fam":"MEGA","amp":100,"mm":null,"fl":null},{"c":"RONMEG100","d":"FUSIBLE MEGA DE 100AMP","cf":6333.12,"pu":9499.68,"m":"RONBAY","fam":"MEGA","amp":100,"mm":null,"fl":null},{"c":"RONMEG500","d":"FUSIBLE MEGA DE 100AMP","cf":6333.12,"pu":9499.68,"m":"RONBAY","fam":"MEGA","amp":100,"mm":null,"fl":"RONMEG500: el código dice 500 pero el detalle 100AMP"},{"c":"RONMEG125","d":"FUSIBLE MEGA DE 125AMP","cf":6333.12,"pu":9499.68,"m":"RONBAY","fam":"MEGA","amp":125,"mm":null,"fl":null},{"c":"GENR15150","d":"FUSIBLE MEGA DE 150AMP","cf":6459.84,"pu":9689.76,"m":"GENROD","fam":"MEGA","amp":150,"mm":null,"fl":null},{"c":"RONMEG150","d":"FUSIBLE MEGA DE 150AMP","cf":6333.12,"pu":9499.68,"m":"RONBAY","fam":"MEGA","amp":150,"mm":null,"fl":null},{"c":"RONMEG200","d":"FUSIBLE MEGA DE 200AMP","cf":6333.12,"pu":9499.68,"m":"RONBAY","fam":"MEGA","amp":200,"mm":null,"fl":null},{"c":"GENR15200","d":"FUSIBLE MEGA DE 200AMP","cf":6459.84,"pu":9689.76,"m":"GENROD","fam":"MEGA","amp":200,"mm":null,"fl":null},{"c":"RONMIC010","d":"FUSIBLE MICRO II 10AMP.","cf":947.52,"pu":1421.28,"m":"RONBAY","fam":"MICRO II","amp":10,"mm":null,"fl":null},{"c":"RONMIC020","d":"FUSIBLE MICRO II 20AMP.","cf":947.52,"pu":1421.28,"m":"RONBAY","fam":"MICRO II","amp":20,"mm":null,"fl":null},{"c":"RONMIC030","d":"FUSIBLE MICRO II 30AMP.","cf":947.52,"pu":1421.28,"m":"RONBAY","fam":"MICRO II","amp":30,"mm":null,"fl":null},{"c":"RONMIC3010","d":"FUSIBLE MICRO III 10AMP.","cf":947.52,"pu":1421.28,"m":"RONBAY","fam":"MICRO III","amp":10,"mm":null,"fl":null},{"c":"RONMIC3020","d":"FUSIBLE MICRO III 20AMP.","cf":947.52,"pu":1421.28,"m":"RONBAY","fam":"MICRO III","amp":20,"mm":null,"fl":null},{"c":"RONFMND01","d":"FUSIBLE MINI FICHA DIODO 1AMP P/RENAULT-GM-DHELPI","cf":28859.76,"pu":43289.64,"m":"RONBAY","fam":"SURTIDO","amp":null,"mm":null,"fl":null},{"c":"RONMID125","d":"FUSIBLE MINI MEGA 125AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"MINI MEGA","amp":125,"mm":null,"fl":null},{"c":"RONMID030","d":"FUSIBLE MINI MEGA 30AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"MINI MEGA","amp":30,"mm":null,"fl":null},{"c":"RONMID040","d":"FUSIBLE MINI MEGA 40AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"MINI MEGA","amp":40,"mm":null,"fl":null},{"c":"RONMID050","d":"FUSIBLE MINI MEGA 50AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"MINI MEGA","amp":50,"mm":null,"fl":null},{"c":"GENR17050","d":"FUSIBLE MINI MEGA 50AMP","cf":3582,"pu":5373,"m":"GENROD","fam":"MINI MEGA","amp":50,"mm":null,"fl":null},{"c":"GENR17060","d":"FUSIBLE MINI MEGA 60AMP","cf":3582,"pu":5373,"m":"GENROD","fam":"MINI MEGA","amp":60,"mm":null,"fl":null},{"c":"RONMID070","d":"FUSIBLE MINI MEGA 70AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"MINI MEGA","amp":70,"mm":null,"fl":null},{"c":"RONMID080","d":"FUSIBLE MINI MEGA 80AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"MINI MEGA","amp":80,"mm":null,"fl":null},{"c":"GENR17080","d":"FUSIBLE MINI MEGA 80AMP","cf":3582,"pu":5373,"m":"GENROD","fam":"MINI MEGA","amp":80,"mm":null,"fl":null},{"c":"RONFMH050","d":"FUSIBLE MUELA HEMBRA 14mm 50 AMP.","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA","amp":50,"mm":null,"fl":"Rotulado \"MUELA HEMBRA 14mm\" (no dice PAL): confirmá que es el mismo fusible"},{"c":"RONFMH060","d":"FUSIBLE MUELA HEMBRA 14mm 60 AMP.","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA","amp":60,"mm":null,"fl":"Rotulado \"MUELA HEMBRA 14mm\" (no dice PAL): confirmá que es el mismo fusible"},{"c":"RONFMH080","d":"FUSIBLE MUELA HEMBRA 14mm 80 AMP.","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA","amp":80,"mm":null,"fl":"Rotulado \"MUELA HEMBRA 14mm\" (no dice PAL): confirmá que es el mismo fusible"},{"c":"RONMHPBS15","d":"FUSIBLE MUELA HEMBRA MINI PERFIL BAJO SLOTED 15A","cf":3277.44,"pu":4916.16,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO SLOTED","amp":15,"mm":null,"fl":null},{"c":"RONMHPBS20","d":"FUSIBLE MUELA HEMBRA MINI PERFIL BAJO SLOTED 20A","cf":3277.44,"pu":4916.16,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO SLOTED","amp":20,"mm":null,"fl":null},{"c":"RONMHPBS30","d":"FUSIBLE MUELA HEMBRA MINI PERFIL BAJO SLOTED 30A","cf":3277.44,"pu":4916.16,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO SLOTED","amp":30,"mm":null,"fl":null},{"c":"RONMHPBS40","d":"FUSIBLE MUELA HEMBRA MINI PERFIL BAJO SLOTED 40A","cf":3277.44,"pu":4916.16,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO SLOTED","amp":40,"mm":null,"fl":null},{"c":"RONMHPBS60","d":"FUSIBLE MUELA HEMBRA MINI PERFIL BAJO SLOTED 60A","cf":3277.44,"pu":4916.16,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO SLOTED","amp":60,"mm":null,"fl":null},{"c":"GENR18045","d":"FUSIBLE PAL CLIP 45AMP","cf":5602.32,"pu":8403.48,"m":"GENROD","fam":"PAL CLIP","amp":45,"mm":null,"fl":null},{"c":"GENR18MIN40","d":"FUSIBLE PAL MINI CLIP 40AMP","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL CLIP MINI","amp":40,"mm":null,"fl":null},{"c":"GENR14020","d":"FUSIBLE PAL MINI HEMBRA 20AMP","cf":4598.64,"pu":6897.96,"m":"GENROD","fam":"PAL HEMBRA MINI","amp":20,"mm":null,"fl":null},{"c":"GENR14025","d":"FUSIBLE PAL MINI HEMBRA 25AMP","cf":4598.64,"pu":6897.96,"m":"GENROD","fam":"PAL HEMBRA MINI","amp":25,"mm":null,"fl":null},{"c":"GENR14030","d":"FUSIBLE PAL MINI HEMBRA 30AMP","cf":4598.64,"pu":6897.96,"m":"GENROD","fam":"PAL HEMBRA MINI","amp":30,"mm":null,"fl":null},{"c":"GENR14040","d":"FUSIBLE PAL MINI HEMBRA 40AMP","cf":4598.64,"pu":6897.96,"m":"GENROD","fam":"PAL HEMBRA MINI","amp":40,"mm":null,"fl":null},{"c":"GENR14050","d":"FUSIBLE PAL MINI HEMBRA 50AMP","cf":4598.64,"pu":6897.96,"m":"GENROD","fam":"PAL HEMBRA MINI","amp":50,"mm":null,"fl":null},{"c":"GENR08020","d":"FUSIBLE PAL MUELA HEMBRA 20AMP","cf":5040,"pu":7560,"m":"GENROD","fam":"PAL HEMBRA","amp":20,"mm":null,"fl":null},{"c":"RONFMHJ20","d":"FUSIBLE PAL MUELA HEMBRA 20AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA","amp":20,"mm":null,"fl":null},{"c":"RONFMHJ30","d":"FUSIBLE PAL MUELA HEMBRA 30AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA","amp":30,"mm":null,"fl":null},{"c":"GENR08030","d":"FUSIBLE PAL MUELA HEMBRA 30AMP","cf":5040,"pu":7560,"m":"GENROD","fam":"PAL HEMBRA","amp":30,"mm":null,"fl":null},{"c":"GENR08040","d":"FUSIBLE PAL MUELA HEMBRA 40AMP","cf":5040,"pu":7560,"m":"GENROD","fam":"PAL HEMBRA","amp":40,"mm":null,"fl":null},{"c":"GENR08050","d":"FUSIBLE PAL MUELA HEMBRA 50AMP","cf":5040,"pu":7560,"m":"GENROD","fam":"PAL HEMBRA","amp":50,"mm":null,"fl":null},{"c":"RONFMHJ60","d":"FUSIBLE PAL MUELA HEMBRA 60A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA","amp":60,"mm":null,"fl":null},{"c":"GENR08060","d":"FUSIBLE PAL MUELA HEMBRA 60AMP","cf":5040,"pu":7560,"m":"GENROD","fam":"PAL HEMBRA","amp":60,"mm":null,"fl":null},{"c":"GENR08080","d":"FUSIBLE PAL MUELA HEMBRA 80AMP","cf":5040,"pu":7560,"m":"GENROD","fam":"PAL HEMBRA","amp":80,"mm":null,"fl":null},{"c":"RONMHM20","d":"FUSIBLE PAL MUELA HEMBRA MINI 20A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI","amp":20,"mm":null,"fl":null},{"c":"RONMHM25","d":"FUSIBLE PAL MUELA HEMBRA MINI 25A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI","amp":25,"mm":null,"fl":null},{"c":"RONMHM30","d":"FUSIBLE PAL MUELA HEMBRA MINI 30A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI","amp":30,"mm":null,"fl":null},{"c":"RONMHM40","d":"FUSIBLE PAL MUELA HEMBRA MINI 40A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI","amp":40,"mm":null,"fl":null},{"c":"RONMHM50","d":"FUSIBLE PAL MUELA HEMBRA MINI 50A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI","amp":50,"mm":null,"fl":null},{"c":"RONMHM60","d":"FUSIBLE PAL MUELA HEMBRA MINI 60A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI","amp":60,"mm":null,"fl":null},{"c":"RONMHPB20","d":"FUSIBLE PAL MUELA HEMBRA MINI PERFIL BAJO 20A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO","amp":20,"mm":null,"fl":null},{"c":"RONFMPF20","d":"FUSIBLE PAL MUELA HEMBRA MINI PERFIL BAJO 20A","cf":123.12,"pu":184.68,"m":"RONBAY","fam":"FICHA MINI PERFIL BAJO","amp":20,"mm":null,"fl":"Rotulado \"PAL MUELA HEMBRA MINI PERFIL BAJO\" pero el precio y el código son de ficha mini perfil bajo"},{"c":"GENR16025PB","d":"FUSIBLE PAL MUELA HEMBRA MINI PERFIL BAJO 25A","cf":301.68,"pu":452.52,"m":"GENROD","fam":"FICHA MINI PERFIL BAJO","amp":25,"mm":null,"fl":"Rotulado \"PAL MUELA HEMBRA MINI PERFIL BAJO\" pero el precio y el código son de ficha mini perfil bajo"},{"c":"RONMHPB25","d":"FUSIBLE PAL MUELA HEMBRA MINI PERFIL BAJO 25A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO","amp":25,"mm":null,"fl":null},{"c":"GENR16030PB","d":"FUSIBLE PAL MUELA HEMBRA MINI PERFIL BAJO 30A","cf":301.68,"pu":452.52,"m":"GENROD","fam":"FICHA MINI PERFIL BAJO","amp":30,"mm":null,"fl":"Rotulado \"PAL MUELA HEMBRA MINI PERFIL BAJO\" pero el precio y el código son de ficha mini perfil bajo"},{"c":"RONMHPB30","d":"FUSIBLE PAL MUELA HEMBRA MINI PERFIL BAJO 30A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO","amp":30,"mm":null,"fl":null},{"c":"RONMHPB40","d":"FUSIBLE PAL MUELA HEMBRA MINI PERFIL BAJO 40A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO","amp":40,"mm":null,"fl":null},{"c":"RONMHPB50","d":"FUSIBLE PAL MUELA HEMBRA MINI PERFIL BAJO 50A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL HEMBRA MINI PERFIL BAJO","amp":50,"mm":null,"fl":null},{"c":"RONFMM100","d":"FUSIBLE PAL MUELA MACHO 100AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL MACHO","amp":100,"mm":null,"fl":null},{"c":"GENR07120","d":"FUSIBLE PAL MUELA MACHO 120AMP","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":120,"mm":null,"fl":null},{"c":"RONFMM120","d":"FUSIBLE PAL MUELA MACHO 120AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL MACHO","amp":120,"mm":null,"fl":null},{"c":"GENR0712048MM","d":"FUSIBLE PAL MUELA MACHO 120AMP 48MM","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":120,"mm":48,"fl":null},{"c":"GENR0712062MM","d":"FUSIBLE PAL MUELA MACHO 120AMP 62MM","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":120,"mm":62,"fl":null},{"c":"GENR07020","d":"FUSIBLE PAL MUELA MACHO 20AMP","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":20,"mm":null,"fl":null},{"c":"GENR07030","d":"FUSIBLE PAL MUELA MACHO 30AMP","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":30,"mm":null,"fl":null},{"c":"GENR07040","d":"FUSIBLE PAL MUELA MACHO 40AMP","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":40,"mm":null,"fl":null},{"c":"GENR07050","d":"FUSIBLE PAL MUELA MACHO 50AMP","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":50,"mm":null,"fl":null},{"c":"GENR07060","d":"FUSIBLE PAL MUELA MACHO 60AMP","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":60,"mm":null,"fl":null},{"c":"RONFMM60","d":"FUSIBLE PAL MUELA MACHO 60AMP","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL MACHO","amp":60,"mm":null,"fl":null},{"c":"GENR0706048MM","d":"FUSIBLE PAL MUELA MACHO 60AMP 48MM","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":60,"mm":48,"fl":null},{"c":"RONFMM4860","d":"FUSIBLE PAL MUELA MACHO 60AMP 48MM","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL MACHO","amp":60,"mm":48,"fl":null},{"c":"RONFMM80","d":"FUSIBLE PAL MUELA MACHO 80A","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL MACHO","amp":80,"mm":null,"fl":null},{"c":"GENR07080","d":"FUSIBLE PAL MUELA MACHO 80AMP","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":80,"mm":null,"fl":null},{"c":"GENR0708048MM","d":"FUSIBLE PAL MUELA MACHO 80AMP 48MM","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":80,"mm":48,"fl":null},{"c":"RONFMM4880","d":"FUSIBLE PAL MUELA MACHO 80AMP 48MM","cf":1766.16,"pu":2649.24,"m":"RONBAY","fam":"PAL MACHO","amp":80,"mm":48,"fl":null},{"c":"GENR0708062MM","d":"FUSIBLE PAL MUELA MACHO 80AMP 62MM","cf":5292,"pu":7938,"m":"GENROD","fam":"PAL MACHO","amp":80,"mm":62,"fl":null},{"c":"GENRDODGE","d":"FUSIBLES CILINDRICOS GEN-ROD DODGE TODOS","cf":228.24,"pu":342.36,"m":"GENROD","fam":"OTRO","amp":null,"mm":null,"fl":null}];
+
+const PRIORIDAD = ['GENROD', 'RONBAY'];
+const NOMBRES_COLOR = {
+  '#FF0066':'Rosa/Violeta', '#FFCC66':'Beige', '#FF9933':'Naranja', '#503300':'Marrón',
+  '#FF0000':'Rojo', '#0070C0':'Azul', '#FFFF00':'Amarillo', '#00B050':'Verde',
+  '#F55E01':'Naranja oscuro', '#DCCFAE':'Beige/tostado', '#FBEBA7':'Amarillo claro',
+  '#FFC000':'Ámbar', '#1F4E79':'Azul oscuro', '#FFE699':'Amarillo pálido', '#ED7D31':'Naranja',
+};
+function colorNombre(hex) { return hex ? (NOMBRES_COLOR[hex.toUpperCase()] || 'Color s/identificar') : 'Incoloro/natural'; }
+
+// ── cruce con Bobinar: tipo + amperaje (+ medida en vidrio y PAL macho) ──
+function candidatos(it) {
+  let r = [];
+  BOB.forEach((b, i) => {
+    if (b.fam !== it.fam || b.amp !== it.amp) return;
+    if (it.fam === 'VIDRIO CÓNICO' || it.fam === 'VIDRIO CILÍNDRICO') { if (b.mm !== (it.mm ?? null)) return; }
+    r.push({ i, fl: b.fl || '' });
+  });
+  if (it.fam === 'PAL MACHO') {
+    const gen = r.filter(x => BOB[x.i].mm === null);
+    if (it.mm == null) r = gen;
+    else {
+      const exacto = r.filter(x => BOB[x.i].mm === it.mm);
+      r = exacto.length ? exacto : gen.map(x => ({ i: x.i, fl: `Bobinar tiene este PAL macho sin aclarar la medida (el tuyo es de ${it.mm} mm): confirmá que le sirve` }));
+    }
+  }
+  return r;
+}
+function elegirDefault(it) {
+  if (!it.cands.length) return '';
+  const orden = [...it.cands].sort((a, b) => {
+    const fa = a.fl ? 1 : 0, fb = b.fl ? 1 : 0; if (fa !== fb) return fa - fb;
+    const pa = PRIORIDAD.indexOf(BOB[a.i].m), pb = PRIORIDAD.indexOf(BOB[b.i].m);
+    return (pa < 0 ? 9 : pa) - (pb < 0 ? 9 : pb);
+  });
+  return orden[0].i;
+}
+ITEMS.forEach(it => { it.cands = candidatos(it); });
+
+// ── estado editable por fila ──
+const st = {};        // idx -> { chk, cod, cant, bob, bobOtro, costo, costoManual, pub }
+const exSt = {};      // idx -> { chk, chkCosto }  (panel de ya cargados)
+function ampTxt(n) { return String(n); }
+function tituloDe(it, cod) { return `Fusible ${it.tipo}${it.mm ? ' ' + it.mm + ' mm' : ''} ${ampTxt(it.amp)}A — ${cod}`; }
+
+function inicializarEstado() {
+  ITEMS.forEach(it => {
+    if (st[it.idx]) return;
+    const bob = elegirDefault(it);
+    st[it.idx] = { chk: it.cant > 0, cod: it.cod, cant: it.cant, bob, bobOtro: '', costo: bob === '' ? '' : BOB[bob].cf, costoManual: false, pub: '' };
+  });
+}
+function bobDe(idx) {
+  const s = st[idx];
+  if (s.bob === '' || s.bob === undefined) return null;
+  if (s.bob === 'otro') {
+    const c = (s.bobOtro || '').trim(); if (!c) return null;
+    const k = BOB.find(b => normCodigo(b.c) === normCodigo(c));
+    return k ? { ...k, codigo: k.c, marca: k.m, costo: k.cf, detalle: k.d, conocido: true } : { codigo: c, marca: '', costo: null, detalle: '(código escrito a mano, no está en la lista cargada)', conocido: false };
+  }
+  const b = BOB[s.bob];
+  return { ...b, codigo: b.c, marca: b.m, costo: b.cf, detalle: b.d, conocido: true };
+}
+function flagDe(it) {
+  const s = st[it.idx]; if (typeof s.bob !== 'number') return '';
+  const c = it.cands.find(x => x.i === s.bob); return c ? c.fl : '';
+}
+
+// ── Firebase ──
+let categoriasCache = [], repuestosCache = [], docsOrigen = [], marcasForm = [], proveedoresForm = [], maxIdMysql = 0;
+
+async function iniciar() {
+  const [catSnap, repSnap, mrSnap, pvSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')),
+    getDocs(collection(db, 'repuestos')),
+    getDocs(collection(db, 'marcas_repuesto')),
+    getDocs(collection(db, 'proveedores')),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => String(a.nombre).localeCompare(String(b.nombre)));
+  repuestosCache = repSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  marcasForm = mrSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  proveedoresForm = pvSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  repuestosCache.forEach(r => {
+    r._nt = normTitulo(r.titulo_repuesto);
+    r._cods = new Set([...partesCodigo(r.codigo), ...(r.codigos_proveedores || []).flatMap(cp => partesCodigo(cp.codigo))]);
+    r._cod1 = new Set(partesCodigo(r.codigo));
+    r._fus = esFusible(r);
+  });
+  docsOrigen = repuestosCache.filter(r => r.origen_import === ORIGEN);
+  maxIdMysql = 0;
+  repuestosCache.forEach(r => { const v = parseInt(r.id_mysql); if (!isNaN(v) && v > maxIdMysql) maxIdMysql = v; });
+
+  Object.keys(st).forEach(k => delete st[k]);
+  Object.keys(exSt).forEach(k => delete exSt[k]);
+  inicializarEstado();
+
+  // categoría: la que ya usan los fusibles cargados; si no, una que se llame "fusible"; si no, texto libre
+  const pref = categoriaPreferida();
+  const catSel = categoriasCache.find(c => pref.id && c.id === pref.id)
+    || categoriasCache.find(c => pref.nombre && c.nombre === pref.nombre)
+    || categoriasCache.find(c => /^fusible/i.test(c.nombre || ''));
+  document.getElementById('sel-categoria').innerHTML = `<option value="">— elegir categoría —</option>` +
+    categoriasCache.map(c => `<option value="${esc(c.id)}" ${catSel && catSel.id === c.id ? 'selected' : ''}>${esc(c.nombre)}</option>`).join('') +
+    `<option value="__libre__" ${catSel ? '' : 'selected'}>— usar texto libre —</option>`;
+  document.getElementById('txt-categoria-libre').value = pref.nombre || 'Fusibles';
+
+  const tipos = [...new Set(ITEMS.map(it => grupoDe(it)))];
+  const ft = document.getElementById('filtro-tipo');
+  const prevTipo = ft.value;
+  ft.innerHTML = `<option value="">Todos</option>` + tipos.map(t => `<option ${t === prevTipo ? 'selected' : ''}>${esc(t)}</option>`).join('');
+
+  document.getElementById('dl-bob').innerHTML = BOB.map(b => `<option value="${esc(b.c)}">${esc(b.d)} · ${esc(b.m)} · ${fmt(b.cf)}</option>`).join('');
+
+  const usados = new Set(); ITEMS.forEach(it => it.cands.forEach(c => usados.add(c.i)));
+  const sinGrupo = BOB.filter((b, i) => !usados.has(i));
+  document.getElementById('n-bob-sin').textContent = sinGrupo.length + ' filas';
+  const porFam = {};
+  sinGrupo.forEach(b => { (porFam[b.fam] = porFam[b.fam] || []).push(b); });
+  document.getElementById('lista-bob-sin').innerHTML = Object.keys(porFam).sort().map(f =>
+    `<b>${esc(f)}</b> (${porFam[f].length}): ` + porFam[f].map(b => `${esc(b.c)}${b.amp ? ' ' + b.amp + 'A' : ''} · ${fmt(b.cf)}`).join(' — ')).join('<br>');
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderTodo();
+
+  const fi = document.getElementById('filtro-items');
+  if (!fi.dataset.bound) {
+    fi.dataset.bound = '1';
+    fi.addEventListener('input', renderTabla);
+    ['filtro-tipo', 'chk-solo-stock', 'chk-ocultar-cargados'].forEach(id => document.getElementById(id).addEventListener('change', renderTabla));
+    ['chk-calc-venta', 'txt-margen'].forEach(id => document.getElementById(id).addEventListener('change', renderTabla));
+    ['chk-codigos-marca', 'sel-categoria'].forEach(id => document.getElementById(id).addEventListener('change', renderAviso));
+    document.getElementById('btn-sel-visibles').addEventListener('click', () => marcarVisibles(true));
+    document.getElementById('btn-desel-visibles').addEventListener('click', () => marcarVisibles(false));
+    document.getElementById('btn-cargar').addEventListener('click', cargarSeleccionados);
+    document.getElementById('btn-aplicar-ex').addEventListener('click', aplicarExistentes);
+    document.getElementById('chk-reemplazar-marcas').addEventListener('change', renderExistentes);
+    const tb = document.getElementById('tbody-items');
+    tb.addEventListener('change', onCambioTabla);
+    tb.addEventListener('input', onInputTabla);
+    const te = document.getElementById('tbody-ex');
+    te.addEventListener('change', onCambioExistentes);
+  }
+}
+function categoriaPreferida() {
+  const cnt = {};
+  docsOrigen.forEach(r => { const k = (r.categoria_id || '') + '||' + (r.categoria || ''); cnt[k] = (cnt[k] || 0) + 1; });
+  const best = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
+  if (!best) return { id: '', nombre: '' };
+  const [id, nombre] = best[0].split('||');
+  return { id, nombre };
+}
+function grupoDe(it) { return it.tipo + (it.mm ? ' ' + it.mm + ' mm' : ''); }
+
+// ── estado frente a Firebase ──
+function buscarYaCargado(it) {
+  return docsOrigen.find(r => r.origen_item_idx === it.idx)
+    || docsOrigen.find(r => normCodigo(r.codigo) === normCodigo(it.cod))
+    || docsOrigen.find(r => r.tipo_ficha === it.tipo && Number(r.amperaje) === it.amp && (Number(r.medida_mm) || 0) === (it.mm || 0))
+    || null;
+}
+function esFusible(r) { return /fusible/i.test(r.categoria || '') || /fusible/i.test(r.titulo_repuesto || ''); }
+function buscarDuplicado(it) {
+  const cod = normCodigo(st[it.idx].cod);
+  const tit = normTitulo(tituloDe(it, st[it.idx].cod));
+  // incluye los de este mismo origen: si la fila no figura como "ya cargada", un producto de este cargador con el mismo código/título es de OTRA fila
+  return repuestosCache.find(r => r._nt === tit || (cod && r._fus && r._cods.has(cod))) || null;
+}
+function codigoEnOtroRubro(it) {
+  const cod = normCodigo(st[it.idx].cod); if (!cod) return null;
+  return repuestosCache.find(r => r.origen_import !== ORIGEN && !r._fus && r._cod1.has(cod)) || null;
+}
+function estadoItem(it) {
+  const ya = buscarYaCargado(it);
+  if (ya) return { tipo: 'done', ref: ya };
+  const dup = buscarDuplicado(it);
+  if (dup) return { tipo: 'dup', ref: dup };
+  return { tipo: 'nuevo', ref: null, otro: codigoEnOtroRubro(it) };
+}
+
+// ── precios ──
+function calcPrecios(costo, pct) {
+  const p = parseFloat(pct) || 40;
+  const sinIva = costo * (1 + p / 100), conIva = sinIva * 1.21, conDesc = conIva * 0.9;
+  return { pct: p, sinIva: r2(sinIva), conIva: r2(conIva), conDescuento: r2(conDesc), gananciaNeta: r2(sinIva - costo), gananciaNetaDescuento: r2(conDesc - costo) };
+}
+function calcVentaActiva() { return document.getElementById('chk-calc-venta').checked; }
+function margenActual() { return parseFloat(document.getElementById('txt-margen').value) || 40; }
+
+// ── aviso marcas / proveedores del form ──
+function nombresUsados() {
+  const marcas = new Set(); let usaBob = false;
+  ITEMS.forEach(it => {
+    const s = st[it.idx];
+    if (!s.chk || estadoItem(it).tipo !== 'nuevo') return;
+    candidatosNoDudosos(it).forEach(b => marcas.add(b.m));
+    if (bobDe(it.idx)) usaBob = true;
+  });
+  ITEMS.forEach(it => { const ya = buscarYaCargado(it); if (ya && exSt[it.idx] && exSt[it.idx].chk && bobDe(it.idx)) usaBob = true; });
+  return { marcas: [...marcas], usaBob };
+}
+function candidatosNoDudosos(it) { return it.cands.filter(c => !c.fl).map(c => BOB[c.i]); }
+function renderAviso() {
+  const { marcas, usaBob } = nombresUsados();
+  const conCod = document.getElementById('chk-codigos-marca').checked;
+  const faltaMarca = marcas.filter(m => !igualLista(marcasForm, m));
+  const faltaProv = (conCod ? marcas : []).filter(m => !igualLista(proveedoresForm, m));
+  if (usaBob && !igualLista(proveedoresForm, 'BOBINAR') && !faltaProv.includes('BOBINAR')) faltaProv.push('BOBINAR');
+  const el = document.getElementById('aviso-marcas');
+  if (!faltaMarca.length && !faltaProv.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'block';
+  el.innerHTML = `<b>Ojo con el form de nuevo repuesto:</b> sus listas desplegables de marcas y proveedores se arman desde Firebase. Estas no están, y si abrís un repuesto en el form y guardás sin que existan, esa marca/código se pierde.<br>
+    ${faltaMarca.length ? `Marcas de repuesto que faltan: <b>${faltaMarca.map(esc).join(', ')}</b><br>` : ''}
+    ${faltaProv.length ? `Proveedores (para "códigos de proveedores") que faltan: <b>${faltaProv.map(esc).join(', ')}</b><br>` : ''}
+    <button class="btn small" id="btn-agregar-marcas" style="margin-top:8px">➕ Agregar las que faltan a las listas del form</button>
+    <span class="info"> — es opcional y solo agrega nombres nuevos; no cambia ni borra ninguno existente.</span>`;
+  document.getElementById('btn-agregar-marcas').addEventListener('click', () => agregarFaltantes(faltaMarca, faltaProv));
+}
+async function agregarFaltantes(faltaMarca, faltaProv) {
+  if (!confirm(`Se van a agregar ${faltaMarca.length} marcas de repuesto y ${faltaProv.length} proveedores nuevos a las listas del form. ¿Confirmás?`)) return;
+  try {
+    const batch = writeBatch(db);
+    faltaMarca.forEach(n => batch.set(doc(collection(db, 'marcas_repuesto')), { nombre: n }));
+    faltaProv.forEach(n => batch.set(doc(collection(db, 'proveedores')), { nombre: n }));
+    await batch.commit();
+    toast('✅ Listas del form actualizadas');
+    await iniciar();
+  } catch (e) { console.error(e); toast('Error: ' + e.message); }
+}
+
+// ── render ──
+function renderTodo() { renderResumen(); renderTabla(); renderExistentes(); renderAviso(); }
+
+function renderResumen() {
+  const est = ITEMS.map(it => estadoItem(it).tipo);
+  const total = ITEMS.length;
+  const conStock = ITEMS.filter(it => it.cant > 0).length;
+  const done = est.filter(e => e === 'done').length;
+  const dup = est.filter(e => e === 'dup').length;
+  const nuevos = est.filter(e => e === 'nuevo').length;
+  const nuevosStock = ITEMS.filter((it, i) => est[i] === 'nuevo' && it.cant > 0);
+  const conBob = nuevosStock.filter(it => bobDe(it.idx)).length;
+  const sinBob = nuevosStock.length - conBob;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${total}</div><div class="l">combinaciones en la planilla</div></div>
+    <div class="box"><div class="n" style="color:var(--blue)">${conStock}</div><div class="l">con stock &gt; 0</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${done}</div><div class="l">ya cargadas (Firebase)</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${dup}</div><div class="l">código/título repetido</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${nuevos}</div><div class="l">nuevas para cargar</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${conBob}</div><div class="l">nuevas con stock y código Bobinar</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${sinBob}</div><div class="l">nuevas con stock sin Bobinar</div></div>`;
+}
+
+function visibles() {
+  const q = document.getElementById('filtro-items').value.trim().toUpperCase();
+  const tipo = document.getElementById('filtro-tipo').value;
+  const soloStock = document.getElementById('chk-solo-stock').checked;
+  const ocultarCarg = document.getElementById('chk-ocultar-cargados').checked;
+  return ITEMS.filter(it => {
+    if (tipo && grupoDe(it) !== tipo) return false;
+    if (soloStock && !(st[it.idx].cant > 0)) return false;
+    if (q) {
+      const hay = [it.tipo, it.cod, it.codp, it.amp + 'A', it.mm ? it.mm + 'MM' : ''].join(' ').toUpperCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (ocultarCarg && estadoItem(it).tipo === 'done') return false;
+    return true;
+  });
+}
+
+function filaHTML(it) {
+  const s = st[it.idx];
+  const est = estadoItem(it);
+  const bloqueado = est.tipo !== 'nuevo';
+  const dis = est.tipo === 'done' ? 'disabled' : '';   // las ya cargadas se completan en el panel de abajo
+  let estado = '<span class="badge ok">nuevo</span>';
+  if (est.tipo === 'done') estado = '<span class="badge done">ya cargada</span>';
+  else if (est.tipo === 'dup') estado = `<span class="badge no" title="${esc(est.ref.titulo_repuesto || est.ref.codigo)}">código/título repetido</span><div class="info">${esc(est.ref.titulo_repuesto || est.ref.codigo)}</div>`;
+  else if (est.otro) estado += `<div class="comp">El código ${esc(s.cod)} también lo usa en otro rubro: ${esc(est.otro.titulo_repuesto || est.otro.codigo)}. No bloquea.</div>`;
+
+  const swatch = it.hex ? `<span class="swatch" style="background:${esc(it.hex)}" title="${esc(it.hex)}"></span>` : `<span class="swatch sin"></span>`;
+  const colorTxt = it.hex ? colorNombre(it.hex) : (it.fam.startsWith('VIDRIO') ? `Vidrio ${it.mm} mm` : (it.esp ? `Hilo ${it.esp} mm` : 'Incoloro/natural'));
+  const color = `<div class="swatch-cell">${swatch}<span>${esc(colorTxt)}</span></div>`;
+
+  const pack = it.sp != null ? `${it.sp} pack${it.sp === 1 ? '' : 's'} × ${it.up}` : (it.spt ? `pack "${esc(it.spt)}"` : '');
+  const cant = `<input type="number" class="cant-row" data-idx="${it.idx}" data-k="cant" value="${s.cant}" min="0" ${dis}>${pack ? `<div class="info">${pack}</div>` : ''}`;
+
+  // código Bobinar
+  const opts = it.cands.map(c => { const b = BOB[c.i]; return `<option value="${c.i}" ${s.bob === c.i ? 'selected' : ''}>${c.fl ? '⚠ ' : ''}${esc(b.c)} · ${esc(b.m)} · ${fmt(b.cf)}</option>`; }).join('');
+  let bobCel = `<select class="bob-sel" data-idx="${it.idx}" ${dis}><option value="">— sin código Bobinar —</option>${opts}<option value="otro" ${s.bob === 'otro' ? 'selected' : ''}>✎ otro código…</option></select>`;
+  if (s.bob === 'otro') bobCel += `<input class="bob-otro" list="dl-bob" data-idx="${it.idx}" data-k="bobOtro" placeholder="escribí el código Bobinar" value="${esc(s.bobOtro)}">`;
+  const b = bobDe(it.idx);
+  if (b && b.detalle) bobCel += `<div class="info">${esc(b.detalle)}${b.marca ? ' · ' + esc(b.marca) : ''}</div>`;
+  const fl = flagDe(it); if (fl) bobCel += `<div class="comp">⚠ ${esc(fl)}</div>`;
+  if (!it.cands.length && s.bob === '') bobCel += `<div class="comp">Bobinar no tiene ${esc(it.tipo)}${it.mm ? ' ' + it.mm + ' mm' : ''} de ${it.amp}A. Podés elegir "otro código" si lo conocés, o cargar el costo a mano.</div>`;
+  if (b && !b.conocido) bobCel += `<div class="comp">Ese código no está en la lista cargada: el costo hay que ponerlo a mano.</div>`;
+  if (it.fam === 'CERÁMICO EUROPEO' || it.fam === 'DESNUDO') bobCel += `<div class="info">Cruce por tipo y amperaje: confirmá que el rótulo de Bobinar (${it.fam === 'DESNUDO' ? 'desnudo' : 'cerámico'}) es el mismo producto.</div>`;
+
+  // costo / venta
+  const costoNum = parseFloat(s.costo);
+  let ph = '';
+  if (calcVentaActiva() && costoNum > 0) ph = String(calcPrecios(costoNum, margenActual()).conIva);
+  const precio = `<div class="precio-cell">
+    <label>Costo <input type="number" step="0.01" class="precio-row" data-idx="${it.idx}" data-k="costo" value="${s.costo}" ${dis}></label>
+    <label>Venta c/IVA <input type="number" step="0.01" class="precio-row" data-idx="${it.idx}" data-k="pub" value="${s.pub}" placeholder="${esc(ph)}" ${dis}></label></div>`;
+
+  return `<tr id="tr-${it.idx}" data-idx="${it.idx}" class="${est.tipo === 'done' ? 'done' : est.tipo === 'dup' ? 'dup' : ''} ${s.cant === 0 ? 'sinstock' : ''}">
+    <td><input type="checkbox" class="chk-item" data-idx="${it.idx}" ${bloqueado ? 'disabled' : (s.chk ? 'checked' : '')}></td>
+    <td>${esc(it.tipo)}${it.mm ? ' <span class="mono">' + it.mm + ' mm</span>' : ''}</td>
+    <td class="mono">${it.amp}A</td>
+    <td><input class="code-row" data-idx="${it.idx}" data-k="cod" value="${esc(s.cod)}" ${est.tipo === 'done' ? 'disabled' : ''}>${s.cod !== it.codp ? `<div class="info">planilla: ${esc(it.codp)}</div>` : ''}</td>
+    <td>${color}</td>
+    <td>${cant}</td>
+    <td style="min-width:250px">${bobCel}</td>
+    <td>${precio}</td>
+    <td>${estado}</td>
+  </tr>`;
+}
+
+function renderTabla() {
+  const tbody = document.getElementById('tbody-items');
+  const lista = visibles();
+  let html = '', ult = '';
+  lista.forEach(it => {
+    const g = grupoDe(it);
+    if (g !== ult) {
+      const n = ITEMS.filter(x => grupoDe(x) === g);
+      html += `<tr class="titulo-sec"><td colspan="9">${esc(g)} — ${n.length} combinaciones · ${n.filter(x => x.cant > 0).length} con stock</td></tr>`;
+      ult = g;
+    }
+    html += filaHTML(it);
+  });
+  tbody.innerHTML = html || `<tr><td colspan="9" class="loading">No hay filas con ese filtro.</td></tr>`;
+  actualizarBoton();
+}
+const refrescoPendiente = new Set();
+// Se difiere un tick: reemplazar la fila mientras el input todavía está perdiendo el foco tira error en Chrome.
+function refrescarFila(idx) {
+  if (refrescoPendiente.has(idx)) return;
+  refrescoPendiente.add(idx);
+  setTimeout(() => {
+    refrescoPendiente.delete(idx);
+    const tr = document.getElementById('tr-' + idx);
+    if (!tr || !tr.parentNode) return;
+    const tpl = document.createElement('template');
+    tpl.innerHTML = filaHTML(ITEMS[idx]).trim();
+    tr.replaceWith(tpl.content.firstElementChild);
+    renderResumen(); renderAviso(); actualizarBoton();
+  }, 0);
+}
+function marcarVisibles(v) {
+  visibles().forEach(it => { if (estadoItem(it).tipo === 'nuevo') st[it.idx].chk = v; });
+  renderTabla(); renderAviso();
+}
+function totalTildados() { return ITEMS.filter(it => st[it.idx].chk && estadoItem(it).tipo === 'nuevo'); }
+function actualizarBoton() {
+  document.getElementById('btn-cargar').textContent = `⚡ Cargar seleccionados (${totalTildados().length})`;
+}
+
+// ── eventos de la tabla principal ──
+function setBobCosto(it) {
+  const s = st[it.idx]; if (s.costoManual) return;
+  const b = bobDe(it.idx);
+  s.costo = b && b.costo != null ? b.costo : '';
+}
+function onCambioTabla(e) {
+  const t = e.target; const idx = parseInt(t.dataset.idx); if (isNaN(idx)) return;
+  const it = ITEMS[idx], s = st[idx];
+  if (t.classList.contains('chk-item')) { s.chk = t.checked; actualizarBoton(); renderAviso(); return; }
+  if (t.classList.contains('bob-sel')) {
+    s.bob = t.value === '' ? '' : (t.value === 'otro' ? 'otro' : parseInt(t.value));
+    if (s.bob !== 'otro') s.bobOtro = '';
+    setBobCosto(it);
+    refrescarFila(idx); return;
+  }
+  if (t.classList.contains('bob-otro')) { s.bobOtro = t.value.trim(); setBobCosto(it); refrescarFila(idx); return; }
+  const k = t.dataset.k;
+  if (k === 'cant') { s.cant = parseInt(t.value) || 0; return; }
+  if (k === 'cod') { s.cod = t.value.trim(); refrescarFila(idx); return; }
+  if (k === 'costo') {
+    s.costoManual = t.value !== '';
+    if (t.value === '') setBobCosto(it); else s.costo = t.value;
+    refrescarFila(idx); return;
+  }
+  if (k === 'pub') { s.pub = t.value; return; }
+}
+function onInputTabla(e) {
+  const t = e.target; if (!t.classList.contains('bob-otro')) return;
+  const idx = parseInt(t.dataset.idx); st[idx].bobOtro = t.value.trim();
+}
+
+// ── panel: ya cargados ──
+function filasExistentes() {
+  return ITEMS.map(it => ({ it, d: buscarYaCargado(it) })).filter(x => x.d && x.d.origen_import === ORIGEN);
+}
+function bobEnDoc(d) { return (d.codigos_proveedores || []).find(cp => /BOBINAR/i.test(cp.proveedor || '')) || null; }
+function cpViejos(d) { // entradas GENROD/RONBAY cuyo código ya no existe en la lista Bobinar
+  return (d.codigos_proveedores || []).filter(cp => PRIORIDAD.includes(normCodigo(cp.proveedor)) && !BOB.some(b => normCodigo(b.c) === normCodigo(cp.codigo)));
+}
+function exDefaults(it, d) {
+  const b = bobDe(it.idx); if (!b) return { chk: false, chkCosto: false };
+  const actual = bobEnDoc(d);
+  const cambioCod = !actual || normCodigo(actual.codigo) !== normCodigo(b.codigo);
+  const costoHoy = parseFloat(d.precio_costo) || 0;
+  const falta = costoHoy <= 0 && b.costo != null;
+  return { chk: cambioCod || falta, chkCosto: falta };
+}
+function renderExistentes() {
+  const filas = filasExistentes();
+  const card = document.getElementById('card-existentes');
+  if (!filas.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  const reemplazar = document.getElementById('chk-reemplazar-marcas').checked;
+  document.getElementById('tbody-ex').innerHTML = filas.map(({ it, d }) => {
+    if (!exSt[it.idx]) exSt[it.idx] = exDefaults(it, d);
+    const x = exSt[it.idx];
+    const b = bobDe(it.idx);
+    const cps = (d.codigos_proveedores || []).map(cp => {
+      const viejo = PRIORIDAD.includes(normCodigo(cp.proveedor)) && !BOB.some(bb => normCodigo(bb.c) === normCodigo(cp.codigo));
+      return `<span class="${viejo ? 'cp-viejo' : ''}">${esc(cp.proveedor)}: ${esc(cp.codigo)}</span>`;
+    }).join('<br>') || '<span class="info">sin códigos de proveedores</span>';
+    const opts = it.cands.map(c => { const bb = BOB[c.i]; return `<option value="${c.i}" ${st[it.idx].bob === c.i ? 'selected' : ''}>${c.fl ? '⚠ ' : ''}${esc(bb.c)} · ${esc(bb.m)} · ${fmt(bb.cf)}</option>`; }).join('');
+    const sel = `<select class="bob-sel" data-idx="${it.idx}"><option value="">— no tocar —</option>${opts}</select>`;
+    const actual = bobEnDoc(d);
+    let estadoCod = '';
+    if (b && actual && normCodigo(actual.codigo) === normCodigo(b.codigo)) estadoCod = '<div class="info">✓ ya tiene este código BOBINAR</div>';
+    else if (b && actual) estadoCod = `<div class="comp">hoy BOBINAR: ${esc(actual.codigo)} → se reemplaza</div>`;
+    else if (b) estadoCod = '<div class="info">se agrega proveedor BOBINAR</div>';
+    const fl = flagDe(it); if (fl) estadoCod += `<div class="comp">⚠ ${esc(fl)}</div>`;
+    const costoHoy = parseFloat(d.precio_costo) || 0;
+    let costoTxt = '', costoChk = '';
+    if (b && b.costo != null) {
+      if (costoHoy <= 0) { costoTxt = `hoy vacío → ${fmt(b.costo)}`; costoChk = `<input type="checkbox" class="ex-chk-costo" data-idx="${it.idx}" ${x.chkCosto ? 'checked' : ''}> cargar`; }
+      else if (Math.abs(costoHoy - b.costo) < 0.005) { costoTxt = `${fmt(costoHoy)} = lista`; costoChk = '<span class="info">sin cambios</span>'; }
+      else { costoTxt = `${fmt(costoHoy)} → <b>${fmt(b.costo)}</b>`; costoChk = `<input type="checkbox" class="ex-chk-costo" data-idx="${it.idx}" ${x.chkCosto ? 'checked' : ''}> actualizar`; }
+    } else if (b) costoTxt = '<span class="info">el código escrito a mano no tiene costo en la lista</span>';
+    else costoTxt = `${fmt(costoHoy)}`;
+    const viejos = cpViejos(d);
+    const extra = viejos.length ? `<div class="${reemplazar ? 'info' : 'comp'}">${viejos.length} código${viejos.length > 1 ? 's' : ''} de marca viejo${viejos.length > 1 ? 's' : ''}${reemplazar ? ' → se reemplaza' + (viejos.length > 1 ? 'n' : '') + ' al aplicar' : ' (tildá la casilla de arriba para actualizarlos)'}</div>` : '';
+    return `<tr data-idx="${it.idx}">
+      <td><input type="checkbox" class="ex-chk" data-idx="${it.idx}" ${x.chk ? 'checked' : ''} ${b ? '' : 'disabled'}></td>
+      <td class="mono">${esc(d.codigo || it.cod)}</td>
+      <td>${esc(d.titulo_repuesto || '')}</td>
+      <td>${esc(d.cant_artic ?? '')}</td>
+      <td>${cps}${extra}</td>
+      <td style="min-width:240px">${sel}${estadoCod}</td>
+      <td>${costoTxt}</td>
+      <td>${costoChk}</td>
+    </tr>`;
+  }).join('');
+}
+function onCambioExistentes(e) {
+  const t = e.target; const idx = parseInt(t.dataset.idx); if (isNaN(idx)) return;
+  if (t.classList.contains('ex-chk')) { exSt[idx].chk = t.checked; renderAviso(); return; }
+  if (t.classList.contains('ex-chk-costo')) { exSt[idx].chkCosto = t.checked; return; }
+  if (t.classList.contains('bob-sel')) {
+    const s = st[idx], it = ITEMS[idx];
+    s.bob = t.value === '' ? '' : parseInt(t.value); s.bobOtro = ''; s.costoManual = false; setBobCosto(it);
+    delete exSt[idx];
+    setTimeout(() => { renderExistentes(); renderAviso(); }, 0);
+    refrescarFila(idx);
+  }
+}
+async function aplicarExistentes() {
+  const reemplazar = document.getElementById('chk-reemplazar-marcas').checked;
+  const sel = filasExistentes().filter(({ it }) => exSt[it.idx] && exSt[it.idx].chk && bobDe(it.idx));
+  if (!sel.length) { toast('No hay filas tildadas.'); return; }
+  const nCostos = sel.filter(({ it }) => exSt[it.idx].chkCosto).length;
+  if (!confirm(`Vas a modificar ${sel.length} fusibles ya cargados: agregar/ajustar el código BOBINAR${nCostos ? ` y cambiar el costo de ${nCostos}` : ''}${reemplazar ? ', y reemplazar los códigos de marca viejos' : ''}. No se toca cantidad ni precio de venta. ¿Confirmás?`)) return;
+  const btn = document.getElementById('btn-aplicar-ex'), prog = document.getElementById('progreso-ex');
+  btn.disabled = true;
+  let batch = writeBatch(db), n = 0, total = 0;
+  try {
+    for (const { it, d } of sel) {
+      const b = bobDe(it.idx);
+      let cps = (d.codigos_proveedores || []).map(cp => ({ ...cp }));
+      if (reemplazar) {
+        cps = cps.map(cp => {
+          const m = normCodigo(cp.proveedor);
+          if (!PRIORIDAD.includes(m) || BOB.some(bb => normCodigo(bb.c) === normCodigo(cp.codigo))) return cp;
+          const nuevo = candidatosNoDudosos(it).find(bb => normCodigo(bb.m) === m);
+          return nuevo ? { ...cp, codigo: nuevo.c } : cp;
+        });
+      }
+      const provBob = igualLista(proveedoresForm, 'BOBINAR') || 'BOBINAR';
+      const iBob = cps.findIndex(cp => /BOBINAR/i.test(cp.proveedor || ''));
+      if (iBob >= 0) cps[iBob] = { ...cps[iBob], codigo: b.codigo }; else cps.push({ proveedor: provBob, codigo: b.codigo });
+      const cambios = { codigos_proveedores: cps };
+      if (exSt[it.idx].chkCosto && b.costo != null) cambios.precio_costo = r2(b.costo);
+      batch.update(doc(db, 'repuestos', d.id), cambios);
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${sel.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} actualizados`;
+    toast(`✅ ${total} fusibles actualizados con Bobinar`);
+    await iniciar();
+  } catch (e) { console.error(e); toast('Error: ' + e.message); }
+  finally { btn.disabled = false; }
+}
+
+// ── construcción del documento (misma estructura que el cargador anterior + medidas y Bobinar) ──
+function construirDescripcion(it, cod) {
+  let html = `<p><b>Fusible ${esc(it.tipo)}${it.mm ? ' ' + it.mm + ' mm' : ''} ${it.amp}A</b> — código interno <b>${esc(cod)}</b></p>`;
+  if (it.fam.startsWith('VIDRIO')) html += `<p style="margin-top:6px">Medida: <b>${it.mm} mm</b></p>`;
+  else if (it.esp) html += `<p style="margin-top:6px">Espesor del hilo: <b>${esc(it.esp)} mm</b></p>`;
+  else html += `<p style="margin-top:6px">Color: <b>${esc(colorNombre(it.hex))}</b>${it.hex ? ' (' + it.hex + ')' : ''}</p>`;
+  html += `<p style="margin-top:6px">Se vende por unidad (pack de ${it.up}).</p>`;
+  const b = bobDe(it.idx);
+  const alt = candidatosNoDudosos(it);
+  if (b || alt.length) {
+    html += `<p style="margin-top:8px"><b>Precios Bobinar (tipo + amperaje):</b></p>`;
+    html += `<table class="prev-tabla" style="width:100%"><tr><th>Marca</th><th>Código</th><th>Costo</th></tr>`;
+    const filas = [...alt]; if (b && b.conocido && !filas.some(x => normCodigo(x.c) === normCodigo(b.codigo))) filas.push({ m: b.marca, c: b.codigo, cf: b.costo });
+    filas.forEach(m => { html += `<tr><td>${esc(m.m)}</td><td>${esc(m.c)}</td><td>$${m.cf}</td></tr>`; });
+    html += `</table>`;
+  }
+  html += `<p style="color:#4b5563;font-size:11px;border-top:1px dashed #2a3347;padding-top:8px;margin-top:8px">— Importado desde la hoja FUSIBLES de "Respuesto en Stock Galponcito.xlsx" —</p>`;
+  return html;
+}
+function construirNotas(it, cod) {
+  const l = [`Planilla FUSIBLES (col. ${it.col}): código ${it.codp} · pack de ${it.up} u · stock pack ${it.sp != null ? it.sp : (it.spt ? '"' + it.spt + '"' : '—')} · stock unidad ${it.cant}`];
+  const b = bobDe(it.idx);
+  if (b) l.push(`Bobinar: ${b.codigo}${b.marca ? ' (' + b.marca + ')' : ''}${b.costo != null ? ' — costo final ' + fmt(b.costo) : ''} [lista fusibles_bobinar.xlsx]`);
+  return l.join('\n');
+}
+function construirDoc(it, categoriaObj, condicion, publicar, idMysql, conCodMarca) {
+  const s = st[it.idx];
+  const cod = s.cod;
+  const costo = parseFloat(s.costo) || 0;
+  let pub = parseFloat(s.pub) || 0;
+  const extraPrecios = {};
+  if (!pub && calcVentaActiva() && costo > 0) {
+    const p = calcPrecios(costo, margenActual());
+    pub = p.conIva;
+    Object.assign(extraPrecios, { precio_venta_descuento: p.conDescuento, ganancia_neta: p.gananciaNeta, ganancia_neta_descuento: p.gananciaNetaDescuento });
+  }
+  const sinIva = pub ? r2(pub / 1.21) : 0;
+  const alt = candidatosNoDudosos(it);
+  const b = bobDe(it.idx);
+  const marcas = [...new Set(alt.map(m => m.m))];
+  if (b && b.marca && !marcas.includes(b.marca)) marcas.push(b.marca);
+  const provBob = igualLista(proveedoresForm, 'BOBINAR') || 'BOBINAR';
+  const cps = [];
+  if (b) cps.push({ proveedor: provBob, codigo: b.codigo });
+  if (conCodMarca) alt.forEach(m => { if (!cps.some(c => normCodigo(c.proveedor) === normCodigo(m.m) && normCodigo(c.codigo) === normCodigo(m.c))) cps.push({ proveedor: igualLista(proveedoresForm, m.m) || m.m, codigo: m.c }); });
+  const d = {
+    titulo_repuesto: tituloDe(it, cod),
+    categoria: categoriaObj.nombre,
+    categoria_id: categoriaObj.id || '',
+    id_estanteria: '', id_estante: '',
+    tipos_vehiculo: [],
+    tipo: 'ORIGINAL',
+    condicion,
+    contenedor: '',
+    marcas_repuesto: marcas,
+    fabricantes: marcas,
+    arranque: '', alternador: '',
+    modelo_repuesto: '',
+    material: '',
+    lado: '',
+    codigo: cod,
+    codigos_oem: [],
+    aplicacion: '',
+    marcas_modelos: [],
+    marcas_vehiculo: [],
+    codigos_proveedores: cps,
+    catalogos_papel: [],
+    descripcion: construirDescripcion(it, cod),
+    notas_internas: construirNotas(it, cod),
+    importante: '',
+    tipo_ficha: it.tipo,
+    amperaje: it.amp,
+    color_hex: it.hex || '',
+    color_nombre: it.hex ? colorNombre(it.hex) : '',
+    medida_mm: it.mm || '',
+    espesor_mm: it.esp || '',
+    codigo_planilla: it.codp,
+    unidades_pack: it.up,
+    dd_alta_rotacion: '', dd_demanda: '', dd_disponibilidad: '', dd_descontinuado: '',
+    dd_buscado_por: '', dd_vigencia: '', dd_oferta: '', dd_justificacion: '',
+    cant_artic: s.cant || 0,
+    stock_minimo: 1,
+    forma_pago: 'Contado Efectivo',
+    forma_entrega: 'A convenir',
+    fecha_compra: '',
+    moneda: 'ARS',
+    precio_costo: costo,
+    precio_venta: sinIva,
+    precio_venta_iva: pub,
+    precio_ganancia_pct: pub && calcVentaActiva() ? margenActual() : 40,
+    ...extraPrecios,
+    imagenes: [], imagen_url: '',
+    alta: !!publicar,
+    id_mysql: String(idMysql),
+    vistas: 0,
+    creado_en: serverTimestamp(),
+    origen_import: ORIGEN,
+    origen_hoja: HOJA,
+    origen_item_idx: it.idx,
+  };
+  return d;
+}
+
+function categoriaPara() {
+  const selCat = document.getElementById('sel-categoria');
+  const libre = document.getElementById('txt-categoria-libre').value.trim();
+  if (selCat.value === '__libre__' || !selCat.value) return { id: '', nombre: libre || 'Fusibles' };
+  return categoriasCache.find(c => c.id === selCat.value) || { id: '', nombre: libre || 'Fusibles' };
+}
+
+async function cargarSeleccionados() {
+  const condicion = document.getElementById('sel-condicion').value;
+  const publicar = document.getElementById('chk-publicar').checked;
+  const conCodMarca = document.getElementById('chk-codigos-marca').checked;
+  const btn = document.getElementById('btn-cargar');
+  const prog = document.getElementById('progreso');
+  const categoriaObj = categoriaPara();
+
+  const sel = totalTildados();
+  if (!sel.length) { toast('No hay filas tildadas.'); return; }
+  // validaciones
+  const vacios = sel.filter(it => !st[it.idx].cod);
+  if (vacios.length) { toast('Hay filas tildadas sin código: ' + vacios.map(it => tituloDe(it, '?')).slice(0, 3).join(', ')); return; }
+  const vistos = {}; const rep = [];
+  sel.forEach(it => { const c = normCodigo(st[it.idx].cod); if (vistos[c]) rep.push(st[it.idx].cod); vistos[c] = true; });
+  if (rep.length) { toast('Código repetido entre las filas tildadas: ' + [...new Set(rep)].join(', ')); return; }
+  const sinCosto = sel.filter(it => !(parseFloat(st[it.idx].costo) > 0)).length;
+  const sinBob = sel.filter(it => !bobDe(it.idx)).length;
+  if (!confirm(`Vas a cargar ${sel.length} fusibles a Firebase en la categoría "${categoriaObj.nombre}"${publicar ? ' (publicados)' : ' (OCULTOS: no tildaste publicar)'}.\n${sinBob ? `${sinBob} quedan sin código Bobinar.\n` : ''}${sinCosto ? `${sinCosto} quedan sin costo.\n` : ''}¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0, idMysql = maxIdMysql;
+  try {
+    for (const it of sel) {
+      idMysql++;
+      const ref = doc(collection(db, 'repuestos'));
+      batch.set(ref, construirDoc(it, categoriaObj, condicion, publicar, idMysql, conCodMarca));
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${sel.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    maxIdMysql = idMysql;
+    prog.textContent = `✅ ${total} cargados`;
+    toast(`✅ ${total} fusibles cargados`);
+    await iniciar();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
