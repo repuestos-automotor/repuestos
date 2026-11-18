@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargador de Rulemanes (Galponcito) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1350px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:980px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+input.precio-row{min-width:0;width:90px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+.precio-cell{display:flex;flex-direction:column;gap:3px}
+.precio-cell label{font-size:9.5px;color:var(--text3);display:flex;gap:4px;align-items:center}
+.precio-match{font-size:10px;color:var(--text3);margin-top:2px}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.scroll-tabla{max-height:600px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.dup td{opacity:.55}
+table.tabla-items tr.done td{opacity:.4}
+table.tabla-items tr.sinstock td{opacity:.5}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.swatch-cell{display:flex;align-items:center;gap:8px}
+.swatch{width:22px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.25);flex-shrink:0}
+.swatch.sin{background:repeating-linear-gradient(45deg,#2a3347,#2a3347 3px,#141720 3px,#141720 6px)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+input.code-row{min-width:0;width:190px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;font-family:'JetBrains Mono',monospace}
+input.cant-row{width:55px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+select.marca-row{min-width:0;width:150px;padding:4px 6px;font-size:11.5px}
+.comp{font-size:10.5px;color:var(--amber);margin-top:3px;line-height:1.35}
+.info{font-size:10.5px;color:var(--text3);margin-top:3px;line-height:1.35}
+details.card summary{cursor:pointer;font-weight:600;font-size:13px}
+.prev-tabla th{background:var(--bg3);color:var(--blue);text-align:left;padding:3px 6px;border:1px solid var(--border2)}
+.prev-tabla td{padding:3px 6px;border:1px solid var(--border2)}
+tr.titulo-sec td{background:var(--bg3);color:var(--amber);font-weight:600;font-size:11.5px}
+.grupo{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.grupo.done,.grupo.dup{opacity:.7}
+.grupo-head{padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg3)}
+.grupo-head .tit{font-family:'JetBrains Mono',monospace;color:var(--blue);font-weight:600;font-size:14px}
+.grupo-body{padding:8px 14px 12px}
+table.lineas{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+table.lineas th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:4px 6px;font-size:11px}
+table.lineas td{border-bottom:1px solid var(--border);padding:4px 6px;vertical-align:middle}
+.aviso{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);margin-bottom:12px}
+
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Cargador de Rulemanes (Galponcito)</h1>
+<div class="sub">Carga la hoja <b>RULEMANES</b> de "Respuesto en Stock Galponcito.xlsx" como lo maneja el form de nuevo repuesto: <b>un repuesto por grupo</b> (6001, 6002, 6200…) con <b>todas las marcas</b> y <b>todos los códigos</b> adentro (SKF 6001-2RSH/C3, NSK 6001-DDU/C3…). El form tiene <b>un solo campo de cantidad</b>, así que la cantidad del repuesto es el <b>total</b> del grupo y el desglose por marca queda en las notas internas. También cruza cada grupo con la lista de <b>Bobinar</b> (ruleman_bobinar.xlsx): agrega el <b>código Bobinar</b> en "códigos de proveedores" y precarga el <b>costo</b> con la columna "Costo Final" (editable). <b>Nada se pisa</b>: si ya hay un repuesto con ese código (por ejemplo los 6001, 6002… que cargaste de los cuadernos), el grupo queda bloqueado y te muestro la comparación y el detalle para copiarlo a mano.</div>
+
+<div id="carga-inicial" class="loading">Cargando categorías y repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+
+  <div class="aviso" id="aviso-marcas" style="display:none"></div>
+
+  <div class="card">
+    <h2 style="font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px">Configuración de carga</h2>
+    <div class="controles">
+      <label>Categoría
+        <select id="sel-categoria"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-libre" value="Ruleman | Alternador - Arranque - Otros" style="min-width:300px">
+      </label>
+      <label>Condición
+        <select id="sel-condicion">
+          <option selected>NUEVO</option>
+          <option>REACONDICIONADO</option><option>RECAMBIO</option><option>DESCONTINUADO</option><option>REEMPLAZO</option><option>OUTLET</option>
+        </select>
+      </label>
+      <label class="controles" style="flex-direction:row;align-items:center;gap:6px">
+        <input type="checkbox" id="chk-publicar"> publicar automáticamente (si no, queda como borrador)
+      </label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <label>Buscar por grupo, marca o código
+        <input class="txt" id="filtro-items" placeholder="ej: 6001, SKF, 2RSH…" style="min-width:280px">
+      </label>
+      <button class="btn ghost small" id="btn-sel-visibles">Tildar visibles</button>
+      <button class="btn ghost small" id="btn-desel-visibles">Destildar visibles</button>
+      <button class="btn green" id="btn-cargar">⚡ Cargar seleccionados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <div id="lista"></div>
+
+  <details class="card" style="margin-top:14px">
+    <summary>ℹ Filas de la lista Bobinar que no corresponden a ningún grupo de tu planilla — <span id="n-bob-sin"></span></summary>
+    <div class="info" style="margin-top:8px;font-size:12px">Son rulemanes de la lista de Bobinar que no tenés en la hoja RULEMANES (o con otro código). No se cargan.</div>
+    <div id="lista-bob-sin" style="margin-top:8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text2)"></div>
+  </details>
+
+  <details class="card" style="margin-top:14px">
+    <summary>⚠ Celdas con cantidad pero sin código (no se pueden cargar) — <span id="n-huerfanas"></span></summary>
+    <div class="info" style="margin-top:8px;font-size:12px">Son celdas de cantidad que en la planilla no tienen código al lado (casi todas en las columnas de las últimas marcas, parecen restos de arrastrar celdas). No las cargué. Si alguna es stock real, avisame de qué marca y código es.</div>
+    <div id="lista-huerfanas" style="margin-top:8px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text2)"></div>
+  </details>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-rulemanes';
+const HOJA = 'RULEMANES';
+const MARCADOR = '__atributos-rodamiento__';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3800);
+}
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function normCodigo(s) { return (s || '').toString().trim().toUpperCase().replace(/\s+/g, ' '); }
+function normCompacto(s) { return normCodigo(s).replace(/[\s\-\/]/g, ''); }
+function partesCodigo(s) { return normCodigo(s).split(/[|,\n]/).map(x => x.trim()).filter(Boolean); }
+
+// ── DATOS PARSEADOS DE LA HOJA RULEMANES: un grupo por bloque de la planilla ──
+// linea.dudoso = el mismo código y cantidad aparece repetido en 3+ marcas (parece arrastre de celdas): se elige la marca real.
+const GRUPOS_DATA = [{"key": "g4", "fila": 4, "nombre": "6001", "lineas": [{"marca": "SKF", "codigo": "6001-2RSH/C3", "cantidad": 6, "dudoso": false, "marcas": ["SKF"]}, {"marca": "NSK", "codigo": "6001-DDU/C3", "cantidad": 1, "dudoso": false, "marcas": ["NSK"]}, {"marca": "SKF", "codigo": "6001-2RSH", "cantidad": 1, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g8", "fila": 8, "nombre": "6002", "lineas": [{"marca": "SKF", "codigo": "6002-2RSH/C3", "cantidad": 8, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g12", "fila": 12, "nombre": "6003", "lineas": [{"marca": "NTN", "codigo": "6003-LLUC3/EM", "cantidad": 3, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g16", "fila": 16, "nombre": "6004", "lineas": [{"marca": "SKF", "codigo": "6004-2RSH/C3", "cantidad": 5, "dudoso": false, "marcas": ["SKF"]}, {"marca": "SKF", "codigo": "6004-2RSH", "cantidad": 1, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g20", "fila": 20, "nombre": "6200", "lineas": [{"marca": "NTN", "codigo": "6200LLBC3/2A", "cantidad": 1, "dudoso": false, "marcas": ["NTN"]}, {"marca": "SKF", "codigo": "6200-2RSH/C3", "cantidad": 11, "dudoso": false, "marcas": ["SKF"]}, {"marca": "TCH", "codigo": "6200-ZNR LLC3", "cantidad": 1, "dudoso": false, "marcas": ["TCH"]}, {"marca": "KOYO", "codigo": "6200-2RSCM GSR", "cantidad": 1, "dudoso": true, "marcas": ["KOYO", "GPZ BEARING", "ARH", "GMN", "FORD", "PFI BEARING", "RMT AUTOPARTES", "CRAPODINA", "RULEMAN GIGANTE", "BOSCH"]}]}, {"key": "g24", "fila": 24, "nombre": "6201", "lineas": [{"marca": "NTN", "codigo": "6201LLUC3/EM", "cantidad": 4, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g28", "fila": 28, "nombre": "6202", "lineas": [{"marca": "NTN", "codigo": "6202LLUC3/EM", "cantidad": 3, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g32", "fila": 32, "nombre": "6203", "lineas": [{"marca": "NTN", "codigo": "6203LLUC3/L627", "cantidad": 4, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g36", "fila": 36, "nombre": "6204", "lineas": [{"marca": "SKF", "codigo": "6204-2RSH/C3", "cantidad": 4, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g40", "fila": 40, "nombre": "6205", "lineas": [{"marca": "NTN", "codigo": "6205-2RSH/C3", "cantidad": 4, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g44", "fila": 44, "nombre": "6301", "lineas": [{"marca": "NTN", "codigo": "6301-2RSH/C3", "cantidad": 1, "dudoso": false, "marcas": ["NTN"]}, {"marca": "KOYO", "codigo": "6301-2RSHC3", "cantidad": 6, "dudoso": true, "marcas": ["KOYO", "GPZ BEARING", "ARH", "GMN", "FORD", "PFI BEARING", "RMT AUTOPARTES", "CRAPODINA", "RULEMAN GIGANTE", "BOSCH"]}]}, {"key": "g48", "fila": 48, "nombre": "6302", "lineas": [{"marca": "NTN", "codigo": "6302-2RSH/C3", "cantidad": 1, "dudoso": false, "marcas": ["NTN"]}, {"marca": "NTN", "codigo": "6302-2RSH", "cantidad": 5, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g56", "fila": 56, "nombre": "6304", "lineas": [{"marca": "SKF", "codigo": "6304-2RS1", "cantidad": 1, "dudoso": false, "marcas": ["SKF"]}, {"marca": "NSK", "codigo": "6304DDU AR2S", "cantidad": 3, "dudoso": false, "marcas": ["NSK"]}, {"marca": "GPZ BEARING", "codigo": "6304 RS", "cantidad": 3, "dudoso": true, "marcas": ["GPZ BEARING", "ARH", "GMN", "FORD", "PFI BEARING", "RMT AUTOPARTES", "CRAPODINA", "RULEMAN GIGANTE"]}]}, {"key": "g60", "fila": 60, "nombre": "6305", "lineas": [{"marca": "SKF", "codigo": "6305-2RS1/C3", "cantidad": 3, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g64", "fila": 64, "nombre": "6306", "lineas": [{"marca": "SKF", "codigo": "6306-2RS1", "cantidad": 2, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g68", "fila": 68, "nombre": "6403", "lineas": [{"marca": "SKF", "codigo": "6403-2RS1/C3", "cantidad": 2, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g72", "fila": 72, "nombre": "B17-123DDWC3 BC", "lineas": [{"marca": "NSK", "codigo": "B17-123DDWC3 BC", "cantidad": 2, "dudoso": false, "marcas": ["NSK"]}, {"marca": "NSK", "codigo": "B17-123DDWC3 B", "cantidad": 1, "dudoso": false, "marcas": ["NSK"]}]}, {"key": "g76", "fila": 76, "nombre": "62201", "lineas": [{"marca": "NTN", "codigo": "62201T2X2LLHACS1#02", "cantidad": 3, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g80", "fila": 80, "nombre": "62202", "lineas": [{"marca": "SKF", "codigo": "62202-2RS1/C3", "cantidad": 4, "dudoso": false, "marcas": ["SKF"]}, {"marca": "KOYO", "codigo": "62202-2RSC3", "cantidad": 4, "dudoso": false, "marcas": ["KOYO"]}]}, {"key": "g84", "fila": 84, "nombre": "63001", "lineas": [{"marca": "SKF", "codigo": "63001-2RS1", "cantidad": 4, "dudoso": false, "marcas": ["SKF"]}, {"marca": "NSK", "codigo": "63001DDUC3E", "cantidad": 1, "dudoso": false, "marcas": ["NSK"]}, {"marca": "KOYO", "codigo": "63001-2RSC3", "cantidad": 1, "dudoso": false, "marcas": ["KOYO"]}]}, {"key": "g88", "fila": 88, "nombre": "BB1-0372", "lineas": [{"marca": "SKF", "codigo": "BB1-0372 AB", "cantidad": 6, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g92", "fila": 92, "nombre": "62304", "lineas": [{"marca": "SKF", "codigo": "62304-2RS1", "cantidad": 2, "dudoso": false, "marcas": ["SKF"]}, {"marca": "ARH", "codigo": "62304-2RS", "cantidad": 1, "dudoso": false, "marcas": ["ARH"]}]}, {"key": "g96", "fila": 96, "nombre": "E20", "lineas": [{"marca": "GMN", "codigo": "E20", "cantidad": 2, "dudoso": false, "marcas": ["GMN"]}]}, {"key": "g100", "fila": 100, "nombre": "C3DZ FORD", "lineas": [{"marca": "FORD", "codigo": "3517A", "cantidad": 1, "dudoso": true, "marcas": ["FORD", "PFI BEARING", "RMT AUTOPARTES", "CRAPODINA", "RULEMAN GIGANTE"]}]}, {"key": "g104", "fila": 104, "nombre": "2J-SC03A57LLVACS12/L41791", "lineas": [{"marca": "NTN", "codigo": "2J-SC03A57LLVACS12/L41791", "cantidad": 2, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g108", "fila": 108, "nombre": "B10", "lineas": [{"marca": "PFI BEARING", "codigo": "B10-50TT", "cantidad": 19, "dudoso": true, "marcas": ["PFI BEARING", "RMT AUTOPARTES", "CRAPODINA", "RULEMAN GIGANTE"]}]}, {"key": "g112", "fila": 112, "nombre": "HK1010FM", "lineas": [{"marca": "NTN", "codigo": "HK1010FM", "cantidad": 1, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g116", "fila": 116, "nombre": "HK2216C", "lineas": [{"marca": "NTN", "codigo": "HK2216C", "cantidad": 2, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g120", "fila": 120, "nombre": "1682 MITSUBISHI", "lineas": [{"marca": "NTN", "codigo": "1682 MITSUBISHI", "cantidad": 2, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g124", "fila": 124, "nombre": "1676 VALEO", "lineas": [{"marca": "NTN", "codigo": "1676 VALEO", "cantidad": 2, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g128", "fila": 128, "nombre": "1679 WAPSA", "lineas": [{"marca": "NTN", "codigo": "1679 WAPSA", "cantidad": 4, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g132", "fila": 132, "nombre": "1681 VALEO", "lineas": [{"marca": "NTN", "codigo": "1681 VALEO", "cantidad": 3, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g136", "fila": 136, "nombre": "1684 TORRINGTON", "lineas": [{"marca": "NTN", "codigo": "CLIO/PEUGEOT 405 D", "cantidad": 2, "dudoso": false, "marcas": ["NTN"]}]}, {"key": "g140", "fila": 140, "nombre": "BB1B", "lineas": [{"marca": "SKF", "codigo": "BB1B 631122B", "cantidad": 1, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g144", "fila": 144, "nombre": "1507 LAGUNA 2.2 LTS", "lineas": [{"marca": "RMT AUTOPARTES", "codigo": "1507 LAGUNA 2.2 LTS", "cantidad": 1, "dudoso": true, "marcas": ["RMT AUTOPARTES", "CRAPODINA", "RULEMAN GIGANTE"]}]}, {"key": "g148", "fila": 148, "nombre": "1303", "lineas": [{"marca": "RMT AUTOPARTES", "codigo": "1303 VECTRA / CORSA", "cantidad": 1, "dudoso": false, "marcas": ["RMT AUTOPARTES"]}]}, {"key": "g152", "fila": 152, "nombre": "1304", "lineas": [{"marca": "RMT AUTOPARTES", "codigo": "1304 CORSA / VECTRA / ASTRA", "cantidad": 1, "dudoso": false, "marcas": ["RMT AUTOPARTES"]}]}, {"key": "g156", "fila": 156, "nombre": "CRAPODINA", "lineas": [{"marca": "CRAPODINA", "codigo": "CRAPODINA ???", "cantidad": 1, "dudoso": false, "marcas": ["CRAPODINA"]}]}, {"key": "g160", "fila": 160, "nombre": "RULEMAN GIGANTE", "lineas": [{"marca": "RULEMAN GIGANTE", "codigo": "?????", "cantidad": 3, "dudoso": false, "marcas": ["RULEMAN GIGANTE"]}]}, {"key": "g164", "fila": 164, "nombre": "EC1-SC00A06", "lineas": [{"marca": "NSK", "codigo": "EC1-SC00A06", "cantidad": 2, "dudoso": false, "marcas": ["NSK"]}, {"marca": "RULEMAN GIGANTE", "codigo": "?????", "cantidad": 3, "dudoso": false, "marcas": ["RULEMAN GIGANTE"]}]}, {"key": "g168", "fila": 168, "nombre": "1120900012", "lineas": [{"marca": "BOSCH", "codigo": "1120900012", "cantidad": 1, "dudoso": false, "marcas": ["BOSCH"]}]}, {"key": "g172", "fila": 172, "nombre": "6000", "lineas": [{"marca": "SKF", "codigo": "6000", "cantidad": 1, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g176", "fila": 176, "nombre": "BB1-0603 EA", "lineas": [{"marca": "SKF", "codigo": "BB1-0603 EA", "cantidad": 1, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g180", "fila": 180, "nombre": "608-2RSH/C3", "lineas": [{"marca": "SKF", "codigo": "608-2RSH/C3", "cantidad": 1, "dudoso": false, "marcas": ["SKF"]}]}, {"key": "g184", "fila": 184, "nombre": "6000-2RSH/C3", "lineas": [{"marca": "SKF", "codigo": "000-2RSH/C3", "cantidad": 1, "dudoso": false, "marcas": ["SKF"]}]}];
+const HUERFANAS = [{"marca": "BOSCH", "fila": 57, "cantidad": 3}, {"marca": "GMN", "fila": 93, "cantidad": 1}, {"marca": "FORD", "fila": 93, "cantidad": 1}, {"marca": "PFI BEARING", "fila": 93, "cantidad": 1}, {"marca": "RMT AUTOPARTES", "fila": 93, "cantidad": 1}, {"marca": "CRAPODINA", "fila": 93, "cantidad": 1}, {"marca": "RULEMAN GIGANTE", "fila": 93, "cantidad": 1}, {"marca": "BOSCH", "fila": 93, "cantidad": 1}, {"marca": "BOSCH", "fila": 101, "cantidad": 1}, {"marca": "BOSCH", "fila": 109, "cantidad": 19}, {"marca": "BOSCH", "fila": 145, "cantidad": 1}, {"marca": "CRAPODINA", "fila": 149, "cantidad": 1}, {"marca": "RULEMAN GIGANTE", "fila": 149, "cantidad": 1}, {"marca": "BOSCH", "fila": 149, "cantidad": 1}, {"marca": "CRAPODINA", "fila": 153, "cantidad": 1}, {"marca": "RULEMAN GIGANTE", "fila": 153, "cantidad": 1}, {"marca": "BOSCH", "fila": 153, "cantidad": 1}, {"marca": "RULEMAN GIGANTE", "fila": 157, "cantidad": 1}, {"marca": "BOSCH", "fila": 157, "cantidad": 1}, {"marca": "BOSCH", "fila": 161, "cantidad": 3}, {"marca": "BOSCH", "fila": 165, "cantidad": 3}];
+// Lista de precios Bobinar (ruleman_bobinar.xlsx, hoja Hoja2). base = código sin el prefijo de marca (NTN6304 -> 6304). costo = "Costo Final".
+const BOBINAR_DATA = [{"codigo": "NTNB17-126", "detalle": "RULEMAN SXO344 17X62X17,5", "publico": 112543.56, "sin_iva": 104207, "costo": 75029.04, "marca": "NTN", "base": "B17-126"}, {"codigo": "NTN62304/17", "detalle": "RULEMAN 17X52X21", "publico": 87023.16, "sin_iva": 80577, "costo": 58015.44, "marca": "NTN", "base": "62304/17"}, {"codigo": "NTN6403", "detalle": "RULEMAN 6403 17X62X17", "publico": 80896.32, "sin_iva": 74904, "costo": 53930.88, "marca": "NTN", "base": "6403"}, {"codigo": "NTN6304", "detalle": "RULEMAN 6304 20X52X15", "publico": 72219.6, "sin_iva": 66870, "costo": 48146.4, "marca": "NTN", "base": "6304"}, {"codigo": "NTN63001", "detalle": "RULEMAN 63001 12X28X12", "publico": 65340, "sin_iva": 60500, "costo": 43560, "marca": "NTN", "base": "63001"}, {"codigo": "NSKB17-116", "detalle": "RULEMAN NSK B17-116", "publico": 62190.72, "sin_iva": 57584, "costo": 41460.48, "marca": "NSK", "base": "B17-116"}, {"codigo": "ROHF5-8", "detalle": "RULEMAN FKB", "publico": 53950.32, "sin_iva": 49954, "costo": 35966.88, "marca": "ROHER", "base": "F5-8"}, {"codigo": "NTNSCO352", "detalle": "RULEMAN B17-99 17X52X17", "publico": 53674.92, "sin_iva": 49699, "costo": 35783.28, "marca": "NTN", "base": "SCO352"}, {"codigo": "NSK62201", "detalle": "RULEMAN 62201 12X32X14", "publico": 46670.04, "sin_iva": 43213, "costo": 31113.36, "marca": "NSK", "base": "62201"}, {"codigo": "NSKB15-86", "detalle": "RULEMAN NSK", "publico": 41684.76, "sin_iva": 38597, "costo": 27789.84, "marca": "NSK", "base": "B15-86"}, {"codigo": "NTNSC8", "detalle": "RULEMAN NTN EC1A05 8x23,2x14", "publico": 40828.32, "sin_iva": 37804, "costo": 27218.88, "marca": "NTN", "base": "SC8"}, {"codigo": "NSKB17-99", "detalle": "RULEMAN", "publico": 39759.12, "sin_iva": 36814, "costo": 26506.08, "marca": "NSK", "base": "B17-99"}, {"codigo": "NSK63001", "detalle": "RULEMAN 63001 NSK", "publico": 38908.08, "sin_iva": 36026, "costo": 25938.72, "marca": "NSK", "base": "63001"}, {"codigo": "NTNB17-127D", "detalle": "RULEMAN NTN", "publico": 36473.76, "sin_iva": 33772, "costo": 24315.84, "marca": "NTN", "base": "B17-127D"}, {"codigo": "NTN62202", "detalle": "RULEMAN 62202 15X35X14", "publico": 36457.56, "sin_iva": 33757, "costo": 24305.04, "marca": "NTN", "base": "62202"}, {"codigo": "NTNB10-50T", "detalle": "RULEMAN EC1A06 10X27X11", "publico": 35711.28, "sin_iva": 33066, "costo": 23807.52, "marca": "NTN", "base": "B10-50T"}, {"codigo": "NTN6306", "detalle": "RULEMAN 6306 30X72X19", "publico": 32662.44, "sin_iva": 30243, "costo": 21774.96, "marca": "NTN", "base": "6306"}, {"codigo": "NSKBB1-3036", "detalle": "RULEMAN NSK BB1-3036", "publico": 30862.08, "sin_iva": 28576, "costo": 20574.72, "marca": "NSK", "base": "BB1-3036"}, {"codigo": "NTN0638ZZ2AS", "detalle": "RULEMAN NTN 638 8X28X9", "publico": 30113.64, "sin_iva": 27883, "costo": 20075.76, "marca": "NTN", "base": "0638ZZ2AS"}, {"codigo": "NACHI62201", "detalle": "RULEMAN 62201 12X32X14", "publico": 26792.64, "sin_iva": 24808, "costo": 17861.76, "marca": "NTN", "base": "62201"}, {"codigo": "NKE62200", "detalle": "RULEMAN 62200 NKE", "publico": 25652.16, "sin_iva": 23752, "costo": 17101.44, "marca": "NTN", "base": "62200"}, {"codigo": "A&SB15-70DD", "detalle": "RULEMAN B15 - 70 DD (15X32X11) A&S FERSA", "publico": 25178.04, "sin_iva": 23313, "costo": 16785.36, "marca": "NTN", "base": "B15-70DD"}, {"codigo": "NTN6305", "detalle": "RULEMAN 6305 20X62X17", "publico": 24999.84, "sin_iva": 23148, "costo": 16666.56, "marca": "NTN", "base": "6305"}, {"codigo": "NTN6206", "detalle": "RULEMAN 6206 NTN 30x62x16", "publico": 23849.64, "sin_iva": 22083, "costo": 15899.76, "marca": "NTN", "base": "6206"}, {"codigo": "NTN6205", "detalle": "RULEMAN 6205 25X52X15", "publico": 16063.92, "sin_iva": 14874, "costo": 10709.28, "marca": "NTN", "base": "6205"}, {"codigo": "NTN0609", "detalle": "RULEMAN 609 9X24X7", "publico": 15649.2, "sin_iva": 14490, "costo": 10432.8, "marca": "NTN", "base": "0609"}, {"codigo": "NTN6303", "detalle": "RULEMAN 6303 17X47X14", "publico": 14942.88, "sin_iva": 13836, "costo": 9961.92, "marca": "NTN", "base": "6303"}, {"codigo": "NTN6005", "detalle": "RULEMAN 6005 25X47X12", "publico": 14176.08, "sin_iva": 13126, "costo": 9450.72, "marca": "NTN", "base": "6005"}, {"codigo": "NTN6204", "detalle": "RULEMAN 6204 20X47X14", "publico": 12643.56, "sin_iva": 11707, "costo": 8429.04, "marca": "NTN", "base": "6204"}, {"codigo": "NTN6902", "detalle": "RULEMAN 6902 15X28X7", "publico": 11551.68, "sin_iva": 10696, "costo": 7701.12, "marca": "NTN", "base": "6902"}, {"codigo": "NTN6302", "detalle": "RULEMAN 6302 15X42X13", "publico": 11494.44, "sin_iva": 10643, "costo": 7662.96, "marca": "NTN", "base": "6302"}, {"codigo": "NTN6903", "detalle": "RULEMAN 17X30X7", "publico": 11398.32, "sin_iva": 10554, "costo": 7598.88, "marca": "NTN", "base": "6903"}, {"codigo": "NTN6301", "detalle": "RULEMAN 6301 12X37X12", "publico": 11160.72, "sin_iva": 10334, "costo": 7440.48, "marca": "NTN", "base": "6301"}, {"codigo": "NTN6004", "detalle": "RULEMAN 6004 20X42X12", "publico": 10985.76, "sin_iva": 10172, "costo": 7323.84, "marca": "NTN", "base": "6004"}, {"codigo": "NTN6904", "detalle": "RULEMAN 6904 20X37X9", "publico": 10882.08, "sin_iva": 10076, "costo": 7254.72, "marca": "NTN", "base": "6904"}, {"codigo": "NTN6901", "detalle": "RULEMAN 6901 12X24X6", "publico": 10613.16, "sin_iva": 9827, "costo": 7075.44, "marca": "NTN", "base": "6901"}, {"codigo": "NTN0629", "detalle": "RULEMAN 629 9X26X8", "publico": 10364.76, "sin_iva": 9597, "costo": 6909.84, "marca": "NTN", "base": "0629"}, {"codigo": "NTN6003", "detalle": "RULEMAN 6003 17X35X10", "publico": 9865.8, "sin_iva": 9135, "costo": 6577.2, "marca": "NTN", "base": "6003"}, {"codigo": "NTN6002", "detalle": "RULEMAN 6002 15X32X9", "publico": 9639, "sin_iva": 8925, "costo": 6426, "marca": "NTN", "base": "6002"}, {"codigo": "NTN6001", "detalle": "RULEMAN 6001 12X28X8", "publico": 9387.36, "sin_iva": 8692, "costo": 6258.24, "marca": "NTN", "base": "6001"}, {"codigo": "NTN6203", "detalle": "RULEMAN 6203 17X40X12", "publico": 9387.36, "sin_iva": 8692, "costo": 6258.24, "marca": "NTN", "base": "6203"}, {"codigo": "NTN0627", "detalle": "RULEMAN 627 7X22X7", "publico": 9016.92, "sin_iva": 8349, "costo": 6011.28, "marca": "NTN", "base": "0627"}, {"codigo": "NTN6000", "detalle": "RULEMAN 6000 10X26X8", "publico": 8620.56, "sin_iva": 7982, "costo": 5747.04, "marca": "NTN", "base": "6000"}, {"codigo": "NTN6202", "detalle": "RULEMAN 6202 15X35X11", "publico": 7949.88, "sin_iva": 7361, "costo": 5299.92, "marca": "NTN", "base": "6202"}, {"codigo": "NTN0626", "detalle": "RULEMAN NTN 626 (INTERIOR 6 EXTERIOR 19 )", "publico": 7472.52, "sin_iva": 6919, "costo": 4981.68, "marca": "NTN", "base": "0626"}, {"codigo": "NTN6201", "detalle": "RULEMAN 6201 12X32X10", "publico": 7151.76, "sin_iva": 6622, "costo": 4767.84, "marca": "NTN", "base": "6201"}, {"codigo": "NTN0608", "detalle": "RULEMAN 608 8X22X7", "publico": 6800.76, "sin_iva": 6297, "costo": 4533.84, "marca": "NTN", "base": "0608"}, {"codigo": "NTN6200", "detalle": "RULEMAN 6200 10X30X9", "publico": 6705.72, "sin_iva": 6209, "costo": 4470.48, "marca": "NTN", "base": "6200"}, {"codigo": "NTN0607", "detalle": "RULEMAN 607 7X19X6", "publico": 6356.88, "sin_iva": 5886, "costo": 4237.92, "marca": "NTN", "base": "0607"}];
+
+// ── MEDIDAS ESTÁNDAR ISO (d, D, B en mm) — igual que completar-rulemanes.html ──
+const MEDIDAS_ISO = {
+  '6000':[10,26,8],'6001':[12,28,8],'6002':[15,32,9],'6003':[17,35,10],'6004':[20,42,12],
+  '6005':[25,47,12],'6006':[30,55,13],'6007':[35,62,14],'6008':[40,68,15],'6009':[45,75,16],'6010':[50,80,16],
+  '6200':[10,30,9],'6201':[12,32,10],'6202':[15,35,11],'6203':[17,40,12],'6204':[20,47,14],
+  '6205':[25,52,15],'6206':[30,62,16],'6207':[35,72,17],'6208':[40,80,18],'6209':[45,85,19],'6210':[50,90,20],
+  '6300':[10,35,11],'6301':[12,37,12],'6302':[15,42,13],'6303':[17,47,14],'6304':[20,52,15],
+  '6305':[25,62,17],'6306':[30,72,19],'6307':[35,80,21],'6308':[40,90,23],'6309':[45,100,25],'6310':[50,110,27],
+};
+function detectarMedida(grupo) { // solo si el grupo ES exactamente la serie (6001, 6302…), no un código tipo 63001
+  const c = (grupo || '').trim().toUpperCase();
+  if (!/^6[0-3]\d{2}$/.test(c)) return null;
+  const dims = MEDIDAS_ISO[c];
+  return dims ? { base: c, d: dims[0], D: dims[1], B: dims[2] } : null;
+}
+
+let categoriasCache = [], repuestosCache = [], maxIdMysql = 0;
+let marcasForm = [], proveedoresForm = [];
+let importadosClaves = new Set();
+const incluida = {}, cantElegida = {}, codElegido = {}, marcaElegida = {}, precioElegido = {};
+const bobElegido = {}; // key de grupo -> índice en BOBINAR_DATA ('' = ninguno)
+
+function candidatosBobinar(g) {
+  const n = (g.nombre || '').toUpperCase();
+  const out = [];
+  BOBINAR_DATA.forEach((b, i) => {
+    const base = (b.base || '').toUpperCase();
+    if (base === n || base.startsWith(n + '/') || base.startsWith(n + '-')) out.push(i);
+  });
+  return out;
+}
+function fmtPrecio(n) { return '$' + Number(n || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+function lineaKey(g, i) { return g.key + '_' + i; }
+function claveGrupo(g) { return 'G|' + normCompacto(g.nombre); }
+
+function inicializarEstado() {
+  GRUPOS_DATA.forEach(g => {
+    if (!precioElegido[g.key]) precioElegido[g.key] = { pub: '', costo: '' };
+    if (bobElegido[g.key] === undefined) {
+      const c = candidatosBobinar(g);
+      const marcasG = new Set(g.lineas.map(l => l.marca.toUpperCase()));
+      const pref = c.find(i => marcasG.has((BOBINAR_DATA[i].marca || '').toUpperCase())) ?? c[0];
+      bobElegido[g.key] = pref === undefined ? '' : pref;
+      if (pref !== undefined && !precioElegido[g.key].costo) precioElegido[g.key].costo = BOBINAR_DATA[pref].costo;
+    }
+    g.lineas.forEach((l, i) => {
+      const k = lineaKey(g, i);
+      if (cantElegida[k] === undefined) cantElegida[k] = l.cantidad;
+      if (codElegido[k] === undefined) codElegido[k] = l.codigo;
+      if (marcaElegida[k] === undefined) marcaElegida[k] = l.marca;
+      if (incluida[k] === undefined) incluida[k] = !l.dudoso && !/\?/.test(l.codigo) && l.cantidad > 0;
+    });
+  });
+}
+
+function igualLista(lista, nombre) { return lista.find(x => x.toUpperCase() === (nombre || '').toUpperCase()) || null; }
+
+async function iniciar() {
+  const [catSnap, repSnap, mrSnap, pvSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')),
+    getDocs(collection(db, 'repuestos')),
+    getDocs(collection(db, 'marcas_repuesto')),
+    getDocs(collection(db, 'proveedores')),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  repuestosCache = repSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  marcasForm = mrSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  proveedoresForm = pvSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  maxIdMysql = 0;
+  repuestosCache.forEach(r => { const v = parseInt(r.id_mysql); if (!isNaN(v) && v > maxIdMysql) maxIdMysql = v; });
+  importadosClaves = new Set();
+  repuestosCache.forEach(r => { if (r.origen_import === ORIGEN && r.origen_clave) importadosClaves.add(r.origen_clave); });
+
+  inicializarEstado();
+
+  const rul = categoriasCache.find(c => /^ruleman/i.test(c.nombre) && /otros/i.test(c.nombre)) || categoriasCache.find(c => /^ruleman/i.test(c.nombre));
+  document.getElementById('sel-categoria').innerHTML = `<option value="">— elegir categoría —</option>` +
+    categoriasCache.map(c => `<option value="${c.id}" ${rul && rul.id === c.id ? 'selected' : ''}>${esc(c.nombre)}</option>`).join('') +
+    `<option value="__libre__" ${rul ? '' : 'selected'}>— usar texto libre —</option>`;
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('n-huerfanas').textContent = HUERFANAS.length + ' celdas';
+  document.getElementById('lista-huerfanas').innerHTML = HUERFANAS.map(h => `${esc(h.marca)} · fila ${h.fila} · cant. ${h.cantidad}`).join('<br>');
+  const usados = new Set(); GRUPOS_DATA.forEach(g => candidatosBobinar(g).forEach(i => usados.add(i)));
+  const sinGrupo = BOBINAR_DATA.filter((b, i) => !usados.has(i));
+  document.getElementById('n-bob-sin').textContent = sinGrupo.length + ' filas';
+  document.getElementById('lista-bob-sin').innerHTML = sinGrupo.map(b => `${esc(b.codigo)} · ${esc(b.detalle)} · costo ${fmtPrecio(b.costo)}`).join('<br>');
+  renderTodo();
+
+  const fi = document.getElementById('filtro-items');
+  if (!fi.dataset.bound) {
+    fi.dataset.bound = '1';
+    fi.addEventListener('input', aplicarFiltro);
+    document.getElementById('btn-sel-visibles').addEventListener('click', () => marcarVisibles(true));
+    document.getElementById('btn-desel-visibles').addEventListener('click', () => marcarVisibles(false));
+    document.getElementById('btn-cargar').addEventListener('click', cargarSeleccionados);
+  }
+}
+
+// Marcas y proveedores usados por las líneas incluidas de un grupo
+function lineasActivas(g) { return g.lineas.map((l, i) => ({ l, k: lineaKey(g, i) })).filter(({ k }) => incluida[k]); }
+function totalGrupo(g) { return lineasActivas(g).reduce((a, { k }) => a + (cantElegida[k] || 0), 0); }
+
+function buscarExistente(g) {
+  const c = normCompacto(g.nombre);
+  return repuestosCache.find(r => r.origen_import !== ORIGEN && normCompacto(r.codigo) === c) || null;
+}
+function codigosYaEnOtros(g) { // aviso informativo: algún código específico ya figura en otro repuesto (no bloquea)
+  const out = [];
+  lineasActivas(g).forEach(({ k }) => {
+    const c = normCompacto(codElegido[k]);
+    if (!c || c === normCompacto(g.nombre)) return;
+    const r = repuestosCache.find(x => x.origen_import !== ORIGEN && [...partesCodigo(x.codigo), ...(x.codigos_proveedores || []).flatMap(cp => partesCodigo(cp.codigo))].map(normCompacto).includes(c));
+    if (r) out.push(`${codElegido[k]} → ${r.titulo_repuesto || r.codigo}`);
+  });
+  return out;
+}
+function tieneInterrogante(g) { return lineasActivas(g).some(({ k }) => /\?/.test(codElegido[k] || '')); }
+function estadoGrupo(g) {
+  if (importadosClaves.has(claveGrupo(g))) return 'done';
+  if (buscarExistente(g)) return 'dup';
+  return 'nuevo';
+}
+
+function marcasFaltantes() {
+  const usadas = new Set();
+  GRUPOS_DATA.forEach(g => { if (estadoGrupo(g) === 'nuevo') lineasActivas(g).forEach(({ k }) => usadas.add(marcaElegida[k])); });
+  const faltaMarca = [...usadas].filter(m => !igualLista(marcasForm, m));
+  const faltaProv = [...usadas].filter(m => !igualLista(proveedoresForm, m));
+  const usaBob = GRUPOS_DATA.some(g => estadoGrupo(g) === 'nuevo' && bobElegido[g.key] !== '' && lineasActivas(g).length);
+  if (usaBob && !igualLista(proveedoresForm, 'BOBINAR') && !faltaProv.includes('BOBINAR')) faltaProv.push('BOBINAR');
+  return { faltaMarca, faltaProv };
+}
+function renderAviso() {
+  const { faltaMarca, faltaProv } = marcasFaltantes();
+  const el = document.getElementById('aviso-marcas');
+  if (!faltaMarca.length && !faltaProv.length) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = `<b>Ojo con el form de nuevo repuesto:</b> sus listas desplegables de marcas y proveedores se arman desde Firebase. Estas no están, y si abrís el repuesto en el form y guardás sin que existan, esa marca/código se pierde.<br>
+    ${faltaMarca.length ? `Marcas de repuesto que faltan: <b>${faltaMarca.map(esc).join(', ')}</b><br>` : ''}
+    ${faltaProv.length ? `Proveedores (para "códigos de proveedores") que faltan: <b>${faltaProv.map(esc).join(', ')}</b><br>` : ''}
+    <button class="btn small" id="btn-agregar-marcas" style="margin-top:8px">➕ Agregar las que faltan a las listas del form</button>
+    <span class="info"> — es opcional y solo agrega nombres nuevos; no cambia ni borra ninguno existente.</span>`;
+  document.getElementById('btn-agregar-marcas').addEventListener('click', agregarFaltantes);
+}
+async function agregarFaltantes() {
+  const { faltaMarca, faltaProv } = marcasFaltantes();
+  if (!confirm(`Se van a agregar ${faltaMarca.length} marcas de repuesto y ${faltaProv.length} proveedores nuevos a las listas del form. ¿Confirmás?`)) return;
+  try {
+    const batch = writeBatch(db);
+    faltaMarca.forEach(n => batch.set(doc(collection(db, 'marcas_repuesto')), { nombre: n }));
+    faltaProv.forEach(n => batch.set(doc(collection(db, 'proveedores')), { nombre: n }));
+    await batch.commit();
+    toast('✅ Listas del form actualizadas');
+    await iniciar();
+  } catch (e) { console.error(e); toast('Error: ' + e.message); }
+}
+
+function renderResumen() {
+  const est = GRUPOS_DATA.map(estadoGrupo);
+  const nuevos = est.filter(e => e === 'nuevo').length;
+  const unidades = GRUPOS_DATA.reduce((a, g) => a + totalGrupo(g), 0);
+  const lineas = GRUPOS_DATA.reduce((a, g) => a + g.lineas.length, 0);
+  const dud = GRUPOS_DATA.reduce((a, g) => a + g.lineas.filter(l => l.dudoso).length, 0);
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${GRUPOS_DATA.length}</div><div class="l">grupos (repuestos)</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${nuevos}</div><div class="l">nuevos, listos para cargar</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${est.filter(e => e === 'done').length}</div><div class="l">ya cargados con este cargador</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${est.filter(e => e === 'dup').length}</div><div class="l">código ya en Firebase (bloqueados)</div></div>
+    <div class="box"><div class="n">${lineas}</div><div class="l">marca + código en total</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${GRUPOS_DATA.filter(g => bobElegido[g.key] !== '').length}</div><div class="l">grupos con código Bobinar</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${dud}</div><div class="l">líneas dudosas (elegir marca)</div></div>
+    <div class="box"><div class="n" style="color:var(--blue)">${unidades}</div><div class="l">unidades (líneas incluidas)</div></div>`;
+}
+
+function detalleTexto(g) {
+  const b = bobElegido[g.key] !== '' ? BOBINAR_DATA[bobElegido[g.key]] : null;
+  return lineasActivas(g).map(({ k }) => `${marcaElegida[k]} | ${codElegido[k]} | ${cantElegida[k]}`).join('\n') + `\nTOTAL: ${totalGrupo(g)}` + (b ? `\nBOBINAR | ${b.codigo} | costo ${b.costo}` : '');
+}
+
+function bobHtml(g, bloqueado) {
+  const c = candidatosBobinar(g);
+  if (!c.length) return `<div class="info" style="margin-top:8px">Sin código en la lista de Bobinar para este grupo.</div>`;
+  const marcasG = new Set(g.lineas.map(l => l.marca.toUpperCase()));
+  const sel = bobElegido[g.key];
+  const aviso = sel !== '' && !marcasG.has((BOBINAR_DATA[sel].marca || '').toUpperCase())
+    ? `<div class="comp">El precio de Bobinar es de marca ${esc(BOBINAR_DATA[sel].marca)}; en tu planilla este grupo no tiene esa marca. Revisalo antes de cargar.</div>` : '';
+  return `<div style="margin-top:8px;font-size:12px"><b>Código Bobinar</b>
+    <select class="marca-row bob-sel" data-key="${g.key}" style="width:auto;min-width:320px" ${bloqueado ? 'disabled' : ''}>
+      <option value="">— ninguno —</option>
+      ${c.map(i => `<option value="${i}" ${sel === i ? 'selected' : ''}>${esc(BOBINAR_DATA[i].codigo)} — ${esc(BOBINAR_DATA[i].detalle)} — costo ${fmtPrecio(BOBINAR_DATA[i].costo)}</option>`).join('')}
+    </select>${aviso}</div>`;
+}
+
+function grupoHtml(g) {
+  const est = estadoGrupo(g);
+  const ex = est === 'dup' ? buscarExistente(g) : null;
+  const interr = tieneInterrogante(g);
+  const total = totalGrupo(g);
+  let badge = '<span class="badge ok">nuevo</span>';
+  let extra = '';
+  if (est === 'done') badge = '<span class="badge done">ya cargado</span>';
+  else if (est === 'dup') {
+    badge = '<span class="badge no">código repetido</span>';
+    const marcasEx = [...(ex.marcas_repuesto || [])].join(', ') || 'sin marca';
+    extra = `<div class="comp">Ya existe: <b>${esc(ex.titulo_repuesto || ex.codigo)}</b> · cant. ${ex.cant_artic ?? 0} · marcas: ${esc(marcasEx)} · $${ex.precio_venta_iva || ex.precio_costo || 0}<br>
+      ${bobElegido[g.key] !== '' ? `Bobinar: <b>${esc(BOBINAR_DATA[bobElegido[g.key]].codigo)}</b> · costo ${fmtPrecio(BOBINAR_DATA[bobElegido[g.key]].costo)}<br>` : ''}Planilla: total ${total} unidades (detalle abajo). No se toca nada: abrilo en form-repuesto y agregá a mano lo que falte.
+      <button class="btn ghost small btn-copiar" data-key="${g.key}" style="margin-left:6px">📋 Copiar detalle</button></div>`;
+  } else {
+    if (interr) badge = '<span class="badge no">corregí el código</span>';
+    const otros = codigosYaEnOtros(g);
+    if (otros.length) extra += `<div class="info">Códigos que ya figuran en otro repuesto (se permite igual): ${otros.map(esc).join(' · ')}</div>`;
+  }
+  const medida = detectarMedida(g.nombre);
+  const bloqueado = est !== 'nuevo';
+  const filas = g.lineas.map((l, i) => {
+    const k = lineaKey(g, i);
+    const marcaCell = l.dudoso
+      ? `<select class="marca-row" data-k="${k}" ${bloqueado ? 'disabled' : ''}>${l.marcas.map(m => `<option ${m === marcaElegida[k] ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select><div class="comp">dudoso: idéntico en ${l.marcas.length} marcas (${esc(l.marcas[0])} … ${esc(l.marcas[l.marcas.length - 1])}). Elegí la real.</div>`
+      : `<b>${esc(l.marca)}</b>`;
+    return `<tr>
+      <td><input type="checkbox" class="chk-linea" data-k="${k}" ${incluida[k] ? 'checked' : ''} ${bloqueado ? 'disabled' : ''}></td>
+      <td>${marcaCell}</td>
+      <td><input class="code-row" data-k="${k}" value="${esc(codElegido[k])}" ${bloqueado ? 'disabled' : ''}></td>
+      <td><input type="number" class="cant-row" data-k="${k}" value="${cantElegida[k]}" min="0" ${bloqueado ? 'disabled' : ''}></td>
+    </tr>`;
+  }).join('');
+  const p = precioElegido[g.key];
+  const buscar = [g.nombre, ...g.lineas.map(l => l.marcas.join(' ') + ' ' + l.codigo)].join(' ').toUpperCase();
+  const puedeTildar = !bloqueado && !interr && lineasActivas(g).length > 0;
+  return `<div class="grupo ${est === 'done' ? 'done' : est === 'dup' ? 'dup' : ''}" data-key="${g.key}" data-buscar="${esc(buscar)}">
+    <div class="grupo-head">
+      <input type="checkbox" class="chk-grupo" ${bloqueado ? 'disabled' : (puedeTildar ? 'checked' : '')}>
+      <span class="tit">${esc(g.nombre)}</span>
+      <span style="color:var(--text2)">Rulemán ${esc(g.nombre)}</span>
+      ${medida ? `<span class="badge ok">${medida.d}×${medida.D}×${medida.B} mm</span>` : ''}
+      <span class="badge done">total ${total}</span>
+      ${badge}
+    </div>
+    <div class="grupo-body">
+      ${extra}
+      <table class="lineas"><thead><tr><th></th><th>Marca</th><th>Código</th><th>Cant.</th></tr></thead><tbody>${filas}</tbody></table>
+      ${bobHtml(g, bloqueado)}
+      <div class="precio-cell" style="flex-direction:row;gap:14px;margin-top:8px">
+        <label>Público c/IVA <input type="number" step="0.01" class="precio-row precio-pub" data-key="${g.key}" value="${p.pub}" ${bloqueado ? 'disabled' : ''}></label>
+        <label>Costo <input type="number" step="0.01" class="precio-row precio-costo" data-key="${g.key}" value="${p.costo}" ${bloqueado ? 'disabled' : ''}></label>
+        <span class="info">opcional — se puede completar después</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTodo() {
+  const tildados = new Set([...document.querySelectorAll('.grupo')].filter(el => el.querySelector('.chk-grupo')?.checked).map(el => el.dataset.key));
+  const primera = !document.querySelector('.grupo');
+  renderResumen(); renderAviso();
+  const cont = document.getElementById('lista');
+  cont.innerHTML = GRUPOS_DATA.map(grupoHtml).join('');
+  if (!primera) cont.querySelectorAll('.grupo').forEach(el => { const c = el.querySelector('.chk-grupo'); if (c && !c.disabled) c.checked = tildados.has(el.dataset.key); });
+  cont.querySelectorAll('.chk-grupo').forEach(c => c.addEventListener('change', actualizarBoton));
+  cont.querySelectorAll('.chk-linea').forEach(c => c.addEventListener('change', e => { incluida[e.target.dataset.k] = e.target.checked; renderTodo(); }));
+  cont.querySelectorAll('.cant-row').forEach(i => i.addEventListener('change', e => { cantElegida[e.target.dataset.k] = parseInt(e.target.value) || 0; renderTodo(); }));
+  cont.querySelectorAll('.code-row').forEach(i => i.addEventListener('change', e => { codElegido[e.target.dataset.k] = e.target.value.trim(); renderTodo(); }));
+  cont.querySelectorAll('.marca-row').forEach(s => s.addEventListener('change', e => { marcaElegida[e.target.dataset.k] = e.target.value; renderTodo(); }));
+  cont.querySelectorAll('.bob-sel').forEach(s => s.addEventListener('change', e => {
+    const key = e.target.dataset.key;
+    bobElegido[key] = e.target.value === '' ? '' : parseInt(e.target.value);
+    precioElegido[key].costo = bobElegido[key] === '' ? '' : BOBINAR_DATA[bobElegido[key]].costo;
+    renderTodo();
+  }));
+  cont.querySelectorAll('.precio-pub').forEach(i => i.addEventListener('change', e => { precioElegido[e.target.dataset.key].pub = e.target.value; }));
+  cont.querySelectorAll('.precio-costo').forEach(i => i.addEventListener('change', e => { precioElegido[e.target.dataset.key].costo = e.target.value; }));
+  cont.querySelectorAll('.btn-copiar').forEach(b => b.addEventListener('click', async e => {
+    const g = GRUPOS_DATA.find(x => x.key === e.target.dataset.key);
+    try { await navigator.clipboard.writeText(detalleTexto(g)); toast('Detalle copiado'); } catch { toast('No pude copiar, seleccionalo a mano'); }
+  }));
+  const q = document.getElementById('filtro-items').value;
+  if (q) aplicarFiltro({ target: document.getElementById('filtro-items') });
+  actualizarBoton();
+}
+
+function aplicarFiltro(e) {
+  const q = e.target.value.trim().toUpperCase();
+  document.querySelectorAll('.grupo').forEach(el => { el.style.display = !q || el.dataset.buscar.includes(q) ? '' : 'none'; });
+  actualizarBoton();
+}
+function marcarVisibles(marcar) {
+  document.querySelectorAll('.grupo').forEach(el => {
+    if (el.style.display === 'none') return;
+    const c = el.querySelector('.chk-grupo');
+    if (c && !c.disabled) c.checked = marcar;
+  });
+  actualizarBoton();
+}
+function actualizarBoton() {
+  const n = [...document.querySelectorAll('.grupo')].filter(el => el.style.display !== 'none').filter(el => { const c = el.querySelector('.chk-grupo'); return c && c.checked && !c.disabled; }).length;
+  document.getElementById('btn-cargar').textContent = `⚡ Cargar seleccionados (${n})`;
+}
+
+function tablaCss(th) { return th ? 'border:1px solid #2a3347;padding:5px 8px;background:#1a1f2e;color:#3b82f6;text-align:left' : 'border:1px solid #2a3347;padding:5px 8px'; }
+function construirDescripcion(g) {
+  const act = lineasActivas(g);
+  let html = `<p><b>Rulemán ${esc(g.nombre)}</b></p>`;
+  html += `<table style="border-collapse:collapse;width:100%;font-size:12px;margin-top:6px"><tr><th style="${tablaCss(1)}">Marca</th><th style="${tablaCss(1)}">Código</th></tr>` +
+    act.map(({ k }) => `<tr><td style="${tablaCss()}">${esc(marcaElegida[k])}</td><td style="${tablaCss()}">${esc(codElegido[k])}</td></tr>`).join('') + `</table>`;
+  const m = detectarMedida(g.nombre);
+  if (m) {
+    const fila = (a, b) => `<tr><th style="${tablaCss(1)}">${a}</th><td style="${tablaCss()}">${b}</td></tr>`;
+    html += `<p style="color:#4b5563;font-size:11px;border-top:1px dashed #2a3347;padding-top:8px;margin:8px 0 6px">${MARCADOR} — Medidas estándar (rodamiento serie ${m.base}):</p>`;
+    html += `<table style="border-collapse:collapse;width:100%;font-size:12px">` + fila('Diámetro interior (d)', m.d + ' mm') + fila('Diámetro exterior (D)', m.D + ' mm') + fila('Ancho (B)', m.B + ' mm') + `</table>`;
+  }
+  return html;
+}
+function construirNotas(g) {
+  const act = lineasActivas(g);
+  let html = `<!--stock-galponcito-rulemanes--><p style="color:#4b5563;font-size:11px;border-top:1px dashed #2a3347;padding-top:8px;margin:8px 0 6px">— Importado desde la hoja RULEMANES de "Respuesto en Stock Galponcito.xlsx" —</p>`;
+  html += `<table style="border-collapse:collapse;width:100%;font-size:12px"><tr><th style="${tablaCss(1)}">Marca</th><th style="${tablaCss(1)}">Código</th><th style="${tablaCss(1)}">Cantidad</th></tr>` +
+    act.map(({ k }) => `<tr><td style="${tablaCss()}">${esc(marcaElegida[k])}</td><td style="${tablaCss()}">${esc(codElegido[k])}</td><td style="${tablaCss()}">${cantElegida[k]}</td></tr>`).join('') +
+    `<tr><th style="${tablaCss(1)}" colspan="2">TOTAL</th><td style="${tablaCss()}"><b>${totalGrupo(g)}</b></td></tr></table>`;
+  if (bobElegido[g.key] !== '') { const b = BOBINAR_DATA[bobElegido[g.key]]; html += `<table style="border-collapse:collapse;width:100%;font-size:12px;margin-top:6px"><tr><th style="${tablaCss(1)}">Código Bobinar</th><td style="${tablaCss()}">${esc(b.codigo)} — ${esc(b.detalle)}</td></tr><tr><th style="${tablaCss(1)}">Costo Final Bobinar</th><td style="${tablaCss()}">${fmtPrecio(b.costo)}</td></tr></table>`; }
+  html += `<table style="border-collapse:collapse;width:100%;font-size:12px;margin-top:6px"><tr><th style="${tablaCss(1)}">Hoja de origen</th><td style="${tablaCss()}">${HOJA}</td></tr></table>`;
+  return html;
+}
+
+function construirDoc(g, categoriaObj, condicion, publicar, idMysql) {
+  const act = lineasActivas(g);
+  const marcas = [...new Set(act.map(({ k }) => igualLista(marcasForm, marcaElegida[k]) || marcaElegida[k]))];
+  const p = precioElegido[g.key] || {};
+  const pub = parseFloat(p.pub) || 0;
+  const costo = parseFloat(p.costo) || 0;
+  const sinIva = pub ? Math.round((pub / 1.21) * 100) / 100 : 0;
+  return {
+    titulo_repuesto: `Rulemán ${g.nombre}`,
+    categoria: categoriaObj.nombre,
+    categoria_id: categoriaObj.id || '',
+    id_estanteria: '', id_estante: '',
+    tipos_vehiculo: [],
+    tipo: 'ORIGINAL',
+    condicion,
+    contenedor: '',
+    marcas_repuesto: marcas,
+    fabricantes: marcas,
+    arranque: '', alternador: '',
+    modelo_repuesto: '',
+    material: '',
+    lado: '',
+    codigo: g.nombre,
+    codigos_oem: [],
+    aplicacion: '',
+    marcas_modelos: [],
+    marcas_vehiculo: [],
+    codigos_proveedores: [
+      ...act.map(({ k }) => ({ proveedor: igualLista(proveedoresForm, marcaElegida[k]) || marcaElegida[k], codigo: codElegido[k] })),
+      ...(bobElegido[g.key] !== '' ? [{ proveedor: igualLista(proveedoresForm, 'BOBINAR') || 'BOBINAR', codigo: BOBINAR_DATA[bobElegido[g.key]].codigo }] : []),
+    ],
+    catalogos_papel: [],
+    descripcion: construirDescripcion(g),
+    notas_internas: construirNotas(g),
+    importante: '',
+    dd_alta_rotacion: '', dd_demanda: '', dd_disponibilidad: '', dd_descontinuado: '',
+    dd_buscado_por: '', dd_vigencia: '', dd_oferta: '', dd_justificacion: '',
+    cant_artic: totalGrupo(g),
+    stock_minimo: 1,
+    forma_pago: 'Contado Efectivo',
+    forma_entrega: 'A convenir',
+    fecha_compra: '',
+    moneda: 'ARS',
+    precio_costo: costo,
+    precio_venta: sinIva,
+    precio_venta_iva: pub,
+    precio_ganancia_pct: 40,
+    imagenes: [], imagen_url: '',
+    alta: !!publicar,
+    id_mysql: String(idMysql),
+    vistas: 0,
+    creado_en: serverTimestamp(),
+    origen_import: ORIGEN,
+    origen_hoja: HOJA,
+    origen_item_idx: g.fila,
+    origen_clave: claveGrupo(g),
+  };
+}
+
+function categoriaPara() {
+  const selCat = document.getElementById('sel-categoria');
+  const libre = document.getElementById('txt-categoria-libre').value.trim();
+  if (selCat.value === '__libre__' || !selCat.value) return { id: '', nombre: libre || 'Ruleman | Alternador - Arranque - Otros' };
+  return categoriasCache.find(c => c.id === selCat.value) || { id: '', nombre: libre || 'Ruleman | Alternador - Arranque - Otros' };
+}
+
+async function cargarSeleccionados() {
+  const condicion = document.getElementById('sel-condicion').value;
+  const publicar = document.getElementById('chk-publicar').checked;
+  const btn = document.getElementById('btn-cargar');
+  const prog = document.getElementById('progreso');
+  const categoriaObj = categoriaPara();
+
+  const seleccionados = [...document.querySelectorAll('.grupo')]
+    .filter(el => { const c = el.querySelector('.chk-grupo'); return c && c.checked && !c.disabled; })
+    .map(el => GRUPOS_DATA.find(g => g.key === el.dataset.key));
+
+  if (!seleccionados.length) { toast('No hay grupos tildados.'); return; }
+  const sinLineas = seleccionados.filter(g => !lineasActivas(g).length);
+  if (sinLineas.length) { toast(`El grupo ${sinLineas[0].nombre} no tiene ninguna línea incluida.`); return; }
+  const conInterr = seleccionados.filter(tieneInterrogante);
+  if (conInterr.length) { toast(`El grupo ${conInterr[0].nombre} tiene códigos con "?": corregilos o destildá la línea.`); return; }
+  if (!confirm(`Vas a cargar ${seleccionados.length} repuestos (${seleccionados.reduce((a, g) => a + totalGrupo(g), 0)} unidades) a Firebase en la categoría "${categoriaObj.nombre}". ¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0, idMysql = maxIdMysql;
+  try {
+    for (const g of seleccionados) {
+      idMysql++;
+      batch.set(doc(collection(db, 'repuestos')), construirDoc(g, categoriaObj, condicion, publicar, idMysql));
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${seleccionados.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    maxIdMysql = idMysql;
+    prog.textContent = `✅ ${total} cargados`;
+    toast(`✅ ${total} repuestos cargados`);
+    await iniciar();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
