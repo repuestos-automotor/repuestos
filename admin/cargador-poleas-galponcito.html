@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargador de Poleas (Bobinar) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1500px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+h2{font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:1050px;line-height:1.5}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+.controles label.fila{flex-direction:row;align-items:center;gap:6px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+input.precio-row{min-width:0;width:100px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+input.code-row{min-width:0;width:110px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--blue);border-radius:6px;font-family:'JetBrains Mono',monospace}
+input.bob-otro{min-width:0;width:100%;margin-top:4px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;font-family:'JetBrains Mono',monospace}
+input.cant-row{width:55px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+select.bob-sel{min-width:0;width:100%;max-width:290px;padding:4px 6px;font-size:11.5px}
+.precio-cell{display:flex;flex-direction:column;gap:3px}
+.precio-cell label{font-size:9.5px;color:var(--text3);display:flex;gap:4px;align-items:center;justify-content:space-between}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-block}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.scroll-tabla{max-height:640px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2);z-index:2}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.dup td,table.tabla-items tr.done td{opacity:.5}
+table.tabla-items tr.sinstock td{opacity:.7}
+tr.titulo-sec td{background:var(--bg3);color:var(--amber);font-weight:600;font-size:11.5px}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.swatch-cell{display:flex;align-items:center;gap:8px}
+.swatch{width:22px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.25);flex-shrink:0}
+.swatch.sin{background:repeating-linear-gradient(45deg,#2a3347,#2a3347 3px,#141720 3px,#141720 6px)}
+.comp{font-size:10.5px;color:var(--amber);margin-top:3px;line-height:1.35}
+.info{font-size:10.5px;color:var(--text3);margin-top:3px;line-height:1.35}
+.aviso{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:380px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+.prev-tabla{border-collapse:collapse;font-size:11px;margin-top:4px}
+.prev-tabla th{background:var(--bg3);color:var(--blue);text-align:left;padding:3px 6px;border:1px solid var(--border2)}
+.prev-tabla td{padding:3px 6px;border:1px solid var(--border2)}
+details.card summary{cursor:pointer;font-weight:600;font-size:13px}
+.cp-viejo{color:var(--red)}
+.sep{height:10px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Cargador de Poleas de alternador (Bobinar)</h1>
+<div class="sub">
+  Lista las <b>poleas de la lista de Bobinar</b> (poleas_bobinar.xlsx): cada fila trae su <b>código Bobinar</b>, la marca (DIPRA, ZEN, ZM…) y el <b>costo</b> con "Costo Final". Como la planilla de stock no tiene poleas, la <b>cantidad la ponés vos</b>: al escribir una cantidad mayor a 0 la fila se tilda sola. El código Bobinar se guarda como código interno y en <i>códigos de proveedores</i> con proveedor <b>BOBINAR</b> (opcional: también con la marca como proveedor).
+  <b>Nada se pisa:</b> si el código ya existe en Firebase como polea, la fila queda bloqueada. Los precios de venta quedan vacíos salvo que tildes "calcular precio de venta" o escribas uno a mano.
+</div>
+
+<div id="carga-inicial" class="loading">Cargando categorías y repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div class="aviso" id="aviso-marcas" style="display:none"></div>
+
+  <div class="card">
+    <h2>Configuración de carga</h2>
+    <div class="controles">
+      <label>Categoría
+        <select id="sel-categoria"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-libre" value="Poleas">
+      </label>
+      <label>Condición
+        <select id="sel-condicion">
+          <option selected>NUEVO</option>
+          <option>REACONDICIONADO</option><option>RECAMBIO</option><option>DESCONTINUADO</option><option>REEMPLAZO</option><option>OUTLET</option>
+        </select>
+      </label>
+      <label class="fila"><input type="checkbox" id="chk-publicar" checked> publicar automáticamente (si no, queda oculto)</label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <label class="fila"><input type="checkbox" id="chk-codigos-marca" checked> además del código BOBINAR, guardar el mismo código con la marca (DIPRA / ZEN / ZM…) como proveedor</label>
+      <label class="fila"><input type="checkbox" id="chk-calc-venta"> calcular precio de venta a partir del costo, con margen
+        <input type="number" id="txt-margen" class="precio-row" style="width:60px" value="40" min="0" step="1"> %
+      </label>
+    </div>
+    <div class="info" style="margin-top:6px">Cálculo: costo × (1 + margen) × 1,21 (igual que en fusibles). Cualquier precio que escribas a mano en una fila se respeta. Las filas sin costo en Bobinar quedan con costo vacío: lo podés escribir a mano.</div>
+    <div class="controles" style="margin-top:12px">
+      <label>Grupo
+        <select id="filtro-grupo"><option value="">Todos</option></select>
+      </label>
+      <label>Marca
+        <select id="filtro-marca"><option value="">Todas</option></select>
+      </label>
+      <label>Buscar por código o detalle
+        <input class="txt" id="filtro-items" placeholder="ej: DIPM125, RENAULT, 6 VIAS, NASHVILLE…" style="min-width:260px">
+      </label>
+      <label class="fila"><input type="checkbox" id="chk-solo-cant"> solo con cantidad &gt; 0</label>
+      <label class="fila"><input type="checkbox" id="chk-ocultar-bloq"> ocultar ya cargadas / repetidas</label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <button class="btn ghost small" id="btn-sel-visibles">Tildar visibles</button>
+      <button class="btn ghost small" id="btn-desel-visibles">Destildar visibles</button>
+      <button class="btn green" id="btn-cargar">⚡ Cargar seleccionados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <div class="scroll-tabla"><table class="tabla-items">
+    <thead><tr><th></th><th>Código Bobinar</th><th>Detalle</th><th>Marca</th><th>Cant.</th><th>Costo / Venta c/IVA</th><th>Estado</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+  <div class="info" id="pie-tabla" style="margin-top:8px"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-poleas';
+const HOJA = 'POLEAS (Bobinar)';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+// ── helpers ──
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const fmt = n => (n === null || n === undefined || n === '' || isNaN(n)) ? '—' : '$ ' + Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const r2 = n => Math.round(n * 100) / 100;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4200);
+}
+function normCodigo(s) { return (s || '').toString().trim().toUpperCase(); }
+function partesCodigo(s) { return normCodigo(s).split(/[|,\n\/]/).map(x => x.trim()).filter(Boolean); }
+function normTitulo(s) { return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9.]+/g, ' ').trim(); }
+function igualLista(lista, nombre) { return lista.find(x => x.toUpperCase() === (nombre || '').toUpperCase()) || null; }
+
+// ── DATOS: lista Bobinar de poleas (poleas_bobinar.xlsx, hoja Hoja2). c=código, d=detalle, cf="Costo Final", pu=precio público, m=marca ──
+const BOB = [{"c":"DIPM181","d":"POELA DE ALTERNADOR TIPO BOSCH CHEVROLET","pu":37248.12,"cf":24832.08,"m":"DIPRA"},{"c":"DIP0073","d":"POLEA 1 CANAL CHEVROLET CORSA DIESEL A80 B40 C17 D19 E13","pu":49425.12,"cf":32950.08,"m":"DIPRA"},{"c":"DIP0012","d":"POLEA 1 CANAL FIAT DUNA CHAPA A71 C17 D20 E10","pu":10087.2,"cf":6724.8,"m":"DIPRA"},{"c":"DIP0074","d":"POLEA 1 CANAL JOHN DEERE A90 C17 D19 E13","pu":66415.68,"cf":44277.12,"m":"DIPRA"},{"c":"DIPM146","d":"POLEA 4 VIAS CHEVROLET CORSA TIPO DELCO REMY","pu":37366.92,"cf":24911.28,"m":"DIPRA"},{"c":"DIPM108","d":"POLEA 5 VIAS FORD FIESTA KA A65 B44 C17 D26,5 E59,5","pu":36008.28,"cf":24005.52,"m":"DIPRA"},{"c":"DIPM132R","d":"POLEA 5 VIAS REFORMA RENAULT A58,5/76 B42 C17 D40 E55","pu":54066.96,"cf":36044.64,"m":"DIPRA"},{"c":"DIPM148","d":"POLEA 5 VIAS TIPO VALEO CORSA","pu":36388.44,"cf":24258.96,"m":"DIPRA"},{"c":"DIPM144","d":"POLEA 6 VIAS ALTERNADOR VALEO TOYOTA ETIOS","pu":46413,"cf":30942,"m":"DIPRA"},{"c":"DIPM141","d":"POLEA 6 VIAS FIAT IVECO DAILY A74,5 B47 C17 D42 E68","pu":65889.72,"cf":43926.48,"m":"DIPRA"},{"c":"DIPM133","d":"POLEA 6 VIAS PEUGEOT NAFTA A48,8 B36 C17 D31 E48,8","pu":34730.64,"cf":23153.76,"m":"DIPRA"},{"c":"DIPM125R","d":"POLEA 6 VIAS REFORMA RENAULT A58,5/76 B42 C17 D40 E55","pu":54057.24,"cf":36038.16,"m":"DIPRA"},{"c":"P-125R","d":"POLEA 6 VIAS REFORMA RENAULT A58,5/76 B42 C17 D40 E55","pu":34080.48,"cf":22720.32,"m":"VARIOS"},{"c":"P-140","d":"POLEA 6 VIAS RENAULT LOGAN SANDERO A59,7 B41 C17 D42 E55","pu":31812.48,"cf":21208.32,"m":"VARIOS"},{"c":"DIPM140","d":"POLEA 6 VIAS RENAULT LOGAN SANDERO A59,7 B41 C17 D42 E55","pu":45205.56,"cf":30137.04,"m":"DIPRA"},{"c":"DIPM100","d":"POLEA 7 VIAS CHEVROLET C10 SPRINTER DUCATO","pu":54243,"cf":36162,"m":"DIPRA"},{"c":"DIPM100R","d":"POLEA 7 VIAS CHEVROLET C10 SPRINTER DUCATO","pu":54065.88,"cf":36043.92,"m":"DIPRA"},{"c":"P-100R","d":"POLEA 7 VIAS CHEVROLET C10 SPRINTER DUCATO REFORZADA A72,5 D49 C17 D31,5 E66,5","pu":29764.8,"cf":19843.2,"m":"VARIOS"},{"c":"DIPM147","d":"POLEA 7 VIAS PARTNER-BERLINGO HDI","pu":51338.88,"cf":34225.92,"m":"DIPRA"},{"c":"DIPM142","d":"POLEA 8 VIAS JOHN DEERE 6605 7505 6 CIL 12V 90AMP A55,2 B34,3 C17 D36,7 E50","pu":44732.52,"cf":29821.68,"m":"DIPRA"},{"c":"DIPM126","d":"POLEA 9 VIAS MOTOR CUMMINS 1114 A83,5 B65 C17 D37 E76,8","pu":68270.04,"cf":45513.36,"m":"DIPRA"},{"c":"15469A","d":"POLEA ALT","pu":119685.6,"cf":79790.4,"m":"IMPORTACION"},{"c":"15468","d":"POLEA ALT MITSUBISHI","pu":210433.68,"cf":140289.12,"m":"IMPORTACION"},{"c":"DIPM192","d":"POLEA ALT T. FORD/MOTORKRAFT 8 VIAS, F250C","pu":54075.6,"cf":36050.4,"m":"DIPRA"},{"c":"DIPM193","d":"POLEA ALT T. VALEO 6 VIAS","pu":35636.76,"cf":23757.84,"m":"DIPRA"},{"c":"EXI35047","d":"POLEA ALT VALEO","pu":92706.12,"cf":61804.08,"m":"EXINTRADER"},{"c":"15469","d":"POLEA ALT VALEO","pu":210434.76,"cf":140289.84,"m":"IMPORTACION"},{"c":"DIPM198","d":"POLEA ALT. CASE, CITROEN, NEW HOLLAND 8 VIAS","pu":88393.68,"cf":58929.12,"m":"DIPRA"},{"c":"DIP0085","d":"POLEA ALT.T BOSCH AGRALE FIAT RETROESCAVADORA CLARK, HYSTER MAZDA","pu":68386.68,"cf":45591.12,"m":"DIPRA"},{"c":"ZEN5375","d":"POLEA ALTER.BOSCH 6 CANALES","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"DIPM139","d":"POLEA ALTERNADOR BOSCH 140A VOLVO 9 VIAS","pu":103623.84,"cf":69082.56,"m":"DIPRA"},{"c":"DIPM151","d":"POLEA ALTERNADOR CHEVROLET CORSA, 5 VÍAS","pu":38563.56,"cf":25709.04,"m":"DIPRA"},{"c":"DIPM150","d":"POLEA ALTERNADOR FIAT PALIO, UNO, SIENA, STRADA, PUNTO, 5 VÍAS","pu":40089.6,"cf":26726.4,"m":"DIPRA"},{"c":"DIPM149","d":"POLEA ALTERNADOR RENAULT CLÍO 1.6, RENAULT 19 1.6, RENAULT 11, 6 VÍAS","pu":43300.44,"cf":28866.96,"m":"DIPRA"},{"c":"VAL991110","d":"POLEA ALTERNADOR RENAULT MOTOR K4M","pu":234085.68,"cf":156057.12,"m":"VALEO"},{"c":"DIP0082","d":"POLEA ALTERNADOR T. BOSCH MERCEDES BENZ","pu":98477.64,"cf":65651.76,"m":"DIPRA"},{"c":"DIPM170","d":"POLEA ALTERNADOR T. BOSCH, MOTOR MWM, AGRALE, CAMIÓN VW, 8 VÍAS","pu":71822.16,"cf":47881.44,"m":"DIPRA"},{"c":"DIPM190","d":"POLEA ALTERNADOR TIPO BOSCH 4 VIAS, FIAT DUNA, FIORINO, UNO, ELBA, PREMIO, 1.6","pu":40885.56,"cf":27257.04,"m":"DIPRA"},{"c":"ZM9600508","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600046","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600078","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600014","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600017","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600038","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600506","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601224","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600029","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601220","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600024","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600039","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600040","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600007","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600577","d":"POLEA CON EMBRAGUE","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601268","d":"POLEA CON EMBRAGUE","pu":54312.12,"cf":36208.08,"m":"ZM"},{"c":"ZM9600702","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600035","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601204","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600513","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600060","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600802","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600028","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600044","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601008","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600701","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600706","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600032","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600543","d":"POLEA CON EMBRAGUE","pu":54312.12,"cf":36208.08,"m":"ZM"},{"c":"ZM9600512","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601206","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601211","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600033","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601006","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600025","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600537","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601223","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601215","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601269","d":"POLEA CON EMBRAGUE","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601221","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600803","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600707","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600052","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600302","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600121","d":"POLEA CON EMBRAGUE","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600004","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601201","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601241","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601222","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600514","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600027","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"EXI35021","d":"POLEA CON EMBRAGUE","pu":88143.12,"cf":58762.08,"m":"EXINTRADER"},{"c":"ZM9601231","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600034","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601010","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601235","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600019","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600003","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601009","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600045","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600515","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600037","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601219","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601251","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600585","d":"POLEA CON EMBRAGUE","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600042","d":"POLEA CON EMBRAGUE","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZEN5425","d":"POLEA DE ALTERNADOR","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5462","d":"POLEA DE ALTERNADOR","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5396","d":"POLEA DE ALTERNADOR","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5432","d":"POLEA DE ALTERNADOR","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5380","d":"POLEA DE ALTERNADOR","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5429","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5628","d":"POLEA DE ALTERNADOR ZEN","pu":87808.32,"cf":58538.88,"m":"ZEN"},{"c":"ZEN5730","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5663","d":"POLEA DE ALTERNADOR ZEN","pu":67870.44,"cf":45246.96,"m":"ZEN"},{"c":"ZEN5708","d":"POLEA DE ALTERNADOR ZEN","pu":65234.16,"cf":43489.44,"m":"ZEN"},{"c":"ZEN5690","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5622","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5437","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5422","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5503","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5525","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5423","d":"POLEA DE ALTERNADOR ZEN","pu":67640.4,"cf":45093.6,"m":"ZEN"},{"c":"ZEN5569","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5452","d":"POLEA DE ALTERNADOR ZEN","pu":63413.28,"cf":42275.52,"m":"ZEN"},{"c":"ZEN5378","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5385","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5509","d":"POLEA DE ALTERNADOR ZEN","pu":75250.08,"cf":50166.72,"m":"ZEN"},{"c":"ZEN5435","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5468","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5562","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5383","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5820","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5381","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5410","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5492","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5455","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5454","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5512","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5493","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5513","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5377","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5587","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5449","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5575","d":"POLEA DE ALTERNADOR ZEN","pu":74636.64,"cf":49757.76,"m":"ZEN"},{"c":"ZEN5431","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5729","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5448","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5450","d":"POLEA DE ALTERNADOR ZEN","pu":75250.08,"cf":50166.72,"m":"ZEN"},{"c":"ZEN5654","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5389","d":"POLEA DE ALTERNADOR ZEN","pu":74931.48,"cf":49954.32,"m":"ZEN"},{"c":"ZEN5582","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5505","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5453","d":"POLEA DE ALTERNADOR ZEN","pu":67640.4,"cf":45093.6,"m":"ZEN"},{"c":"ZEN5502","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5565","d":"POLEA DE ALTERNADOR ZEN","pu":74636.64,"cf":49757.76,"m":"ZEN"},{"c":"ZEN5623","d":"POLEA DE ALTERNADOR ZEN","pu":87808.32,"cf":58538.88,"m":"ZEN"},{"c":"ZEN5839","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5731","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5531","d":"POLEA DE ALTERNADOR ZEN","pu":84866.4,"cf":56577.6,"m":"ZEN"},{"c":"ZEN5643","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5467","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5384","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5716","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN6006","d":"POLEA DE ALTERNADOR ZEN","pu":190858.68,"cf":127239.12,"m":"ZEN"},{"c":"DIPM191","d":"POLEA DE ALTERNADOR BOSCH 8 VIAS FORD CARGO - VW","pu":81696.6,"cf":54464.4,"m":"DIPRA"},{"c":"DIPM155","d":"POLEA DE ALTERNADOR CHEVROLET CORSA-VECTRA-ASTRA","pu":39209.4,"cf":26139.6,"m":"DIPRA"},{"c":"DIPM165","d":"POLEA DE ALTERNADOR CITROEN BERLINGO-XSARA","pu":34001.64,"cf":22667.76,"m":"DIPRA"},{"c":"DIPM188","d":"POLEA DE ALTERNADOR DIPRA","pu":40520.52,"cf":27013.68,"m":"DIPRA"},{"c":"DIPM189","d":"POLEA DE ALTERNADOR DIPRA","pu":42575.76,"cf":28383.84,"m":"DIPRA"},{"c":"DIPM187","d":"POLEA DE ALTERNADOR DIPRA","pu":34545.96,"cf":23030.64,"m":"DIPRA"},{"c":"DIPM186","d":"POLEA DE ALTERNADOR DIPRA","pu":49526.64,"cf":33017.76,"m":"DIPRA"},{"c":"DIPM184","d":"POLEA DE ALTERNADOR DIPRA","pu":69076.8,"cf":46051.2,"m":"DIPRA"},{"c":"DIPM145","d":"POLEA DE ALTERNADOR DIPRA TIPO BOSCH 6VIAS","pu":33888.24,"cf":22592.16,"m":"DIPRA"},{"c":"GAR8321030","d":"POLEA DE ALTERNADOR DODGE 1500 FORD FALCON TAUNUS CHEVROLET 400 PEUGEOT 404 504","pu":18674.28,"cf":12449.52,"m":"GAREF"},{"c":"GAR8321025","d":"POLEA DE ALTERNADOR FIAR 125 128 147","pu":17339.4,"cf":11559.6,"m":"GAREF"},{"c":"DIPM163","d":"POLEA DE ALTERNADOR FIAT DUCATO -DAILY-CITROEN","pu":43652.52,"cf":29101.68,"m":"DIPRA"},{"c":"GAR8321067","d":"POLEA DE ALTERNADOR FIAT DUNA 147 DIESEL","pu":21728.52,"cf":14485.68,"m":"GAREF"},{"c":"DIPM157","d":"POLEA DE ALTERNADOR FIAT FIORINO-SIENA-PALIO","pu":51369.12,"cf":34246.08,"m":"DIPRA"},{"c":"DIPM159","d":"POLEA DE ALTERNADOR FIAT FIORINO-UNO- ALT. BOSCH","pu":52067.88,"cf":34711.92,"m":"DIPRA"},{"c":"DIPM161","d":"POLEA DE ALTERNADOR FIAT PALIO 6 VIAS","pu":63901.44,"cf":42600.96,"m":"DIPRA"},{"c":"DIPM160","d":"POLEA DE ALTERNADOR FORD ECOSPORT-COURIER","pu":35021.16,"cf":23347.44,"m":"DIPRA"},{"c":"DIPM152","d":"POLEA DE ALTERNADOR FORD ECOSPORT 1.6 ALT.VALEO","pu":37134.72,"cf":24756.48,"m":"DIPRA"},{"c":"DIPM182","d":"POLEA DE ALTERNADOR FORD RANGER","pu":50498.64,"cf":33665.76,"m":"DIPRA"},{"c":"ZEN5564","d":"POLEA DE ALTERNADOR LINEA RENAULT","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"EXI35072","d":"POLEA DE ALTERNADOR LINEA RENAULT","pu":88143.12,"cf":58762.08,"m":"EXINTRADER"},{"c":"EXI35023","d":"POLEA DE ALTERNADOR MITSUBISHI","pu":105462,"cf":70308,"m":"EXINTRADER"},{"c":"DIPM162","d":"POLEA DE ALTERNADOR NISSAN KICKS-VERSA","pu":42328.44,"cf":28218.96,"m":"DIPRA"},{"c":"EXI35026","d":"POLEA DE ALTERNADOR NISSAN RENAULT","pu":88143.12,"cf":58762.08,"m":"EXINTRADER"},{"c":"DIPM154","d":"POLEA DE ALTERNADOR PEUGEOT-RENAULT","pu":42738.84,"cf":28492.56,"m":"DIPRA"},{"c":"EXI35036","d":"POLEA DE ALTERNADOR RENAULT","pu":72389.16,"cf":48259.44,"m":"EXINTRADER"},{"c":"DIPM156","d":"POLEA DE ALTERNADOR RENAULT CLIO-MEGANE","pu":42718.32,"cf":28478.88,"m":"DIPRA"},{"c":"DIPM164","d":"POLEA DE ALTERNADOR RENAULT DUSTER-LOGAN-MEGANE","pu":46039.32,"cf":30692.88,"m":"DIPRA"},{"c":"ZM9600012","d":"POLEA DE ALTERNADOR TAMATEL","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"EXI35086","d":"POLEA DE ALTERNADOR TAMATEL","pu":86380.56,"cf":57587.04,"m":"EXINTRADER"},{"c":"EXI35053","d":"POLEA DE ALTERNADOR TAMATEL","pu":86380.56,"cf":57587.04,"m":"EXINTRADER"},{"c":"EXI35075","d":"POLEA DE ALTERNADOR TAMATEL","pu":86380.56,"cf":57587.04,"m":"EXINTRADER"},{"c":"EXI35029","d":"POLEA DE ALTERNADOR TAMATEL","pu":86380.56,"cf":57587.04,"m":"EXINTRADER"},{"c":"EXI35030","d":"POLEA DE ALTERNADOR TAMATEL","pu":86380.56,"cf":57587.04,"m":"EXINTRADER"},{"c":"EXI35000","d":"POLEA DE ALTERNADOR TAMATEL","pu":86380.56,"cf":57587.04,"m":"EXINTRADER"},{"c":"EXI35096","d":"POLEA DE ALTERNADOR TAMATEL","pu":86380.56,"cf":57587.04,"m":"EXINTRADER"},{"c":"EXI35043","d":"POLEA DE ALTERNADOR TAMATEL","pu":86380.56,"cf":57587.04,"m":"EXINTRADER"},{"c":"DIPM180","d":"POLEA DE ALTERNADOR TIPO BOSCH 6VIAS CHEVROLET-FORD","pu":58694.76,"cf":39129.84,"m":"DIPRA"},{"c":"DIPM179","d":"POLEA DE ALTERNADOR TIPO BOSCH 8VIAS VW","pu":50545.08,"cf":33696.72,"m":"DIPRA"},{"c":"DIPM194","d":"POLEA DE ALTERNADOR TIPO BOSCH AGRALE-FORD CARGO-IVECO 8 VIAS","pu":48117.24,"cf":32078.16,"m":"DIPRA"},{"c":"DIPM167","d":"POLEA DE ALTERNADOR TIPO BOSCH FIAT","pu":41287.32,"cf":27524.88,"m":"DIPRA"},{"c":"DIP0081","d":"POLEA DE ALTERNADOR TIPO BOSCH FORD CARGO","pu":95847.84,"cf":63898.56,"m":"DIPRA"},{"c":"DIPM197","d":"POLEA DE ALTERNADOR TIPO BOSCH VW","pu":38932.92,"cf":25955.28,"m":"DIPRA"},{"c":"DIPM169","d":"POLEA DE ALTERNADOR TIPO DELCO CHEVROLET-ONIX-SONIC 5 VIAS","pu":35319.24,"cf":23546.16,"m":"DIPRA"},{"c":"DIPM153","d":"POLEA DE ALTERNADOR TIPO MITSUBISHI FIAT","pu":69341.4,"cf":46227.6,"m":"DIPRA"},{"c":"DIPM168","d":"POLEA DE ALTERNADOR TIPO MITSUBISHI FORD","pu":41586.48,"cf":27724.32,"m":"DIPRA"},{"c":"DIPM166","d":"POLEA DE ALTERNADOR TIPO MITSUBISHI FORD","pu":39745.08,"cf":26496.72,"m":"DIPRA"},{"c":"DIPM196","d":"POLEA DE ALTERNADOR TIPO VALEO 6 VIAS CHEVROLET","pu":37444.68,"cf":24963.12,"m":"DIPRA"},{"c":"DIPM195","d":"POLEA DE ALTERNADOR TIPO VALEO CITROEN-FORD","pu":37005.12,"cf":24670.08,"m":"DIPRA"},{"c":"DIPM158","d":"POLEA DE ALTERNADOR TOYOTA COROLLA ALT.BOSCH","pu":35872.2,"cf":23914.8,"m":"DIPRA"},{"c":"ZEN5514","d":"POLEA DE ALTERNADOR VW AMAROK","pu":64004.04,"cf":42669.36,"m":"ZEN"},{"c":"ZEN5440","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5576","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5580","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5581","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5408","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5679","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5783","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5682","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5793","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5523","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5661","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5673","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5798","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5828","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5424","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5419","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5658","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5779","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5409","d":"POLEA DE ALTERNADOR ZEN","pu":67245.12,"cf":44830.08,"m":"ZEN"},{"c":"ZEN5650","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5593","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5819","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5629","d":"POLEA DE ALTERNADOR ZEN","pu":65949.12,"cf":43966.08,"m":"ZEN"},{"c":"ZEN5767","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5790","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5459","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5498","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5644","d":"POLEA DE ALTERNADOR ZEN","pu":67612.32,"cf":45074.88,"m":"ZEN"},{"c":"ZEN5560","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5589","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5382","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5675","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5496","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5500","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5766","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5659","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5584","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5721","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5632","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5772","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5387","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN6014","d":"POLEA DE ALTERNADOR ZEN","pu":203555.16,"cf":135703.44,"m":"ZEN"},{"c":"ZEN5670","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5507","d":"POLEA DE ALTERNADOR ZEN","pu":67640.4,"cf":45093.6,"m":"ZEN"},{"c":"ZEN5463","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5833","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN6004","d":"POLEA DE ALTERNADOR ZEN","pu":191096.28,"cf":127397.52,"m":"ZEN"},{"c":"ZEN5680","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5780","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5411","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5464","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5519","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5522","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5570","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5651","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5392","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5466","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5777","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5524","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5794","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5660","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5795","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5534","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5934","d":"POLEA DE ALTERNADOR ZEN","pu":70899.84,"cf":47266.56,"m":"ZEN"},{"c":"ZEN5604","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5712","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5607","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5595","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5494","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5775","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5738","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5627","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5829","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5837","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5735","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5678","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5656","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5802","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5677","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5728","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5771","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5653","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5782","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5428","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5807","d":"POLEA DE ALTERNADOR ZEN","pu":77023.44,"cf":51348.96,"m":"ZEN"},{"c":"ZEN5713","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5831","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5457","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5460","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5800","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5715","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5668","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5495","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5592","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5461","d":"POLEA DE ALTERNADOR ZEN","pu":74921.76,"cf":49947.84,"m":"ZEN"},{"c":"ZEN5655","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5697","d":"POLEA DE ALTERNADOR ZEN","pu":74889.36,"cf":49926.24,"m":"ZEN"},{"c":"ZEN5792","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5796","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5706","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5456","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5374","d":"POLEA DE ALTERNADOR ZEN","pu":63424.08,"cf":42282.72,"m":"ZEN"},{"c":"ZEN5676","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5574","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5379","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5403","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5567","d":"POLEA DE ALTERNADOR ZEN","pu":67640.4,"cf":45093.6,"m":"ZEN"},{"c":"ZEN5805","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5578","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5707","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5506","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5630","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5510","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5830","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5395","d":"POLEA DE ALTERNADOR ZEN","pu":67489.2,"cf":44992.8,"m":"ZEN"},{"c":"ZEN5785","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5635","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5376","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5817","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5388","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5594","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5664","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5776","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5824","d":"POLEA DE ALTERNADOR ZEN","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5801","d":"POLEA DE ALTERNADOR ZEN FORD","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5774","d":"POLEA DE ALTERNADOR ZEN FORD RANGER","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5840","d":"POLEA DE ALTERNADOR ZEN LAND ROVER","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5458","d":"POLEA DE ALTERNADOR ZEN LINEA BMW","pu":77023.44,"cf":51348.96,"m":"ZEN"},{"c":"ZEN5529","d":"POLEA DE ALTERNADOR ZEN MB SPRINTER-SsangYong-TOYOTA","pu":73027.44,"cf":48684.96,"m":"ZEN"},{"c":"ZEN5393","d":"POLEA DE ALTERNADOR ZEN MB SPRINTER-VITO","pu":75250.08,"cf":50166.72,"m":"ZEN"},{"c":"ZEN5879","d":"POLEA DE ALTERNADOR ZEN RENAULT KWID","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5857","d":"POLEA DE ALTERNADOR ZEN RENAULT SANDERO-LOGAN","pu":43598.52,"cf":29065.68,"m":"ZEN"},{"c":"ZEN5841","d":"POLEA DE ALTERNADOR ZEN TIPO BOSCH FIAT UNO FIRE","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5609","d":"POLEA DE ALTERNADOR ZEN TIPO DENSO TOYOTA","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5847","d":"POLEA DE ALTERNADOR ZEN TOYOTA COROLLA","pu":74927.16,"cf":49951.44,"m":"ZEN"},{"c":"ZEN5743","d":"POLEA DE ALTERNADOR ZEN TOYOTA COROLLA YARIS","pu":73027.44,"cf":48684.96,"m":"ZEN"},{"c":"ZM9600563","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600801","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600026","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601230","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601234","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601013","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600103","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600525","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601266","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601033","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601216","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600510","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601005","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601007","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601233","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600511","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600118","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600111","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601228","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600805","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600806","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600529","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601229","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600545","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601212","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601243","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600536","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600507","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600502","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601023","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601232","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600054","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601245","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600110","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600072","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600048","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600708","d":"polea de alternador ZM","pu":63711.36,"cf":42474.24,"m":"ZM"},{"c":"ZM9601002","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600564","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600079","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601014","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600070","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600080","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600540","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600112","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600076","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600074","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601218","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601239","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601017","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601236","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601260","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600541","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600006","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600120","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600516","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600527","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601244","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601280","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601209","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600804","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600043","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601016","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600041","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600068","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601284","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600509","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600534","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600073","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600020","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600548","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601030","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600547","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601015","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600526","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600009","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600031","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601207","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600016","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600063","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600114","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600517","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600523","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601202","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601208","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601217","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9600065","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601249","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601263","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9600011","d":"polea de alternador ZM","pu":54171.72,"cf":36114.48,"m":"ZM"},{"c":"ZM9601273","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"ZM9601226","d":"polea de alternador ZM","pu":0,"cf":0,"m":"ZM"},{"c":"POLEAHUTCHINSON","d":"POLEA RENAULT","pu":122158.8,"cf":81439.2,"m":"HUTCHINSON"},{"c":"ZEN12966","d":"POLEA TENSORA ZEN CITROEN-PEUGEOT","pu":28774.44,"cf":19182.96,"m":"ZEN"},{"c":"ZEN12784","d":"POLEA TENSORA ZEN LINEA VW","pu":120428.64,"cf":80285.76,"m":"ZEN"},{"c":"ZEN13558","d":"POLEA TENSORA ZEN TOYOTA","pu":182138.76,"cf":121425.84,"m":"ZEN"},{"c":"ZEN13399","d":"POLEA TENSORA ZEN VW AMAROK","pu":123666.48,"cf":82444.32,"m":"ZEN"},{"c":"ZEN13401","d":"POLEA TENSORA ZEN VW AUDI","pu":63531,"cf":42354,"m":"ZEN"},{"c":"ZEN13403","d":"POLEA TENSORA ZEN VW AUDI","pu":109344.6,"cf":72896.4,"m":"ZEN"},{"c":"DIP0024","d":"POLEA TIOPO NASHVILLE 1 CANAL MB A80,5 B35 C17 D26 E19,5","pu":44726.04,"cf":29817.36,"m":"DIPRA"},{"c":"DIP0058","d":"POLEA TIPO BOSCH 1 CANAL VW GACEL FORD ESCORT RENAULT 19 A73 B37 C17 D52 E13","pu":50963.04,"cf":33975.36,"m":"DIPRA"},{"c":"DIP0078","d":"POLEA TIPO BOSCH 2 CANALES 24V 140AMP SCANIA A92 B53 C30 D36 E13","pu":81173.88,"cf":54115.92,"m":"DIPRA"},{"c":"DIP0077","d":"POLEA TIPO BOSCH 2 CANALES 24V 55AMP OMNIBUS CAMION SCANIA A86 B47 C17 D31 E10","pu":72648.36,"cf":48432.24,"m":"DIPRA"},{"c":"DIP0069","d":"POLEA TIPO BOSCH 2 CANALES SCANIA A76 B40 C17 D36 E13","pu":69090.84,"cf":46060.56,"m":"DIPRA"},{"c":"DIPM110","d":"POLEA TIPO BOSCH 4 VIAS FIAT TEMPRA A70 B48 C17 D21 E64,5","pu":47499.48,"cf":31666.32,"m":"DIPRA"},{"c":"DIPM119","d":"POLEA TIPO BOSCH 6 VIAS 120AMP CHEVROLET VECTRA A55 B36 C17 D27,5 E49","pu":33293.16,"cf":22195.44,"m":"DIPRA"},{"c":"DIPM123","d":"POLEA TIPO BOSCH 6 VIAS 80AMP PEUGEOT A58,5 B41 C17 D26 E56","pu":29867.4,"cf":19911.6,"m":"DIPRA"},{"c":"DIPM104","d":"POLEA TIPO BOSCH 6 VIAS 85AMP A68 B46 C17 D30 E62","pu":37919.88,"cf":25279.92,"m":"DIPRA"},{"c":"DIPM121","d":"POLEA TIPO BOSCH 6 VIAS 90AMP GOL 2000 A62,5 B45 C17 D26,8 E57","pu":37979.28,"cf":25319.52,"m":"DIPRA"},{"c":"DIPM136","d":"POLEA TIPO BOSCH 6 VIAS 90AMP VW GOL SAVEIRO POLO FOX A55 B35 C17 D43,5 E50","pu":44685,"cf":29790,"m":"DIPRA"},{"c":"P-136","d":"POLEA TIPO BOSCH 6 VIAS 90AMP VW GOL SAVEIRO POLO FOX A55 B35 C17 D43,5 E50","pu":32532.84,"cf":21688.56,"m":"VARIOS"},{"c":"DIPM111","d":"POLEA TIPO BOSCH 6 VIAS VW POLO GOLF MOD. NUEVO A61 B42 C17 D37,5 E56","pu":51480.36,"cf":34320.24,"m":"DIPRA"},{"c":"DIPM129","d":"POLEA TIPO BOSCH 8 VIAS 140AMP 24V SCANIA A72 B50 C17 D34 E70","pu":59596.56,"cf":39731.04,"m":"DIPRA"},{"c":"DIPM134","d":"POLEA TIPO BOSCH 8 VIAS 140AMP A91 B66,5 C30 D35,5 E86,5","pu":85310.28,"cf":56873.52,"m":"DIPRA"},{"c":"DIPM128","d":"POLEA TIPO BOSCH 8 VIAS 80AMP 24V MB A63,5 B45 C17 D41,3 E57,5","pu":54419.04,"cf":36279.36,"m":"DIPRA"},{"c":"DIPM118","d":"POLEA TIPO BOSCH 8 VIAS CATERPILLAR A60 B41 C17 D39 E54,5","pu":69892.2,"cf":46594.8,"m":"DIPRA"},{"c":"DIPM105","d":"POLEA TIPO BOSCH 8 VIAS DEUTZ MOTOR CUMMINS A84 B60 C22,2 D38,5 E78","pu":74310.48,"cf":49540.32,"m":"DIPRA"},{"c":"DIPM130","d":"POLEA TIPO BOSCH 8 VIAS ESPAÑOL MB ELECTRONICO A79 B58 C17 D37,5 E70","pu":71224.92,"cf":47483.28,"m":"DIPRA"},{"c":"DIPM127","d":"POLEA TIPO BOSCH 8 VIAS MB SCANIA A92 B63 C30 D35,5 E86,5","pu":90342,"cf":60228,"m":"DIPRA"},{"c":"DIPM137","d":"POLEA TIPO BOSCH 8 VIAS SCANIA A85,3 B61 C17 D36,5 E80,5","pu":68924.52,"cf":45949.68,"m":"DIPRA"},{"c":"DIPM131","d":"POLEA TIPO BOSCH 9 VIAS ESPAÑOL MB ELECTRONICO A80/84 B60 C17 D42 E77","pu":76228.56,"cf":50819.04,"m":"DIPRA"},{"c":"DIP0065","d":"POLEA TIPO BOSCH WAPSA 1 CANAL KOMBI VW CHAPA C/TURBINA A107,5 C15 D32 E10","pu":25212.6,"cf":16808.4,"m":"DIPRA"},{"c":"DIPM103","d":"POLEA TIPO BOSCH WAPSA 8 VIAS FORD CARGO MOTOR CUMMINS A63,5 B37 C17 D39,5 E58","pu":51035.4,"cf":34023.6,"m":"DIPRA"},{"c":"DIP0062","d":"POLEA TIPO BOSCH/WAPSA 2 CANALES 105/125AMP A130 B91 C30 D46,5 E12,5","pu":161051.76,"cf":107367.84,"m":"DIPRA"},{"c":"DIP0066","d":"POLEA TIPO BOSCH/WAPSA 2 CANALES OHL MB 1621 A97 B55 C17 D38 E13","pu":80828.28,"cf":53885.52,"m":"DIPRA"},{"c":"DIP0060","d":"POLEA TIPO BOSCH/WAPSA 24V 75AMP 2 CANALES A91,5 B47 C22,2 D49 E14","pu":94052.88,"cf":62701.92,"m":"DIPRA"},{"c":"DIP0056","d":"POLEA TIPO BOSCH/WAPSA 75AMP 2 CANALES A128 B91 C22 D49 E13","pu":144902.52,"cf":96601.68,"m":"DIPRA"},{"c":"DIP0011","d":"POLEA TIPO GAREF 1 CANAL FIAT CHAPA A87,5 C17 D26 E10","pu":13665.24,"cf":9110.16,"m":"DIPRA"},{"c":"DIP0010","d":"POLEA TIPO GAREF INDIEL 1 CANAL FORD FALCON PEUGEOT UNIVERSAL CHAPA A71 C17 D20 E10","pu":9676.8,"cf":6451.2,"m":"DIPRA"},{"c":"DIP0034","d":"POLEA TIPO INDIEL 2 CANALES FORD PERKINS 55A A81 B38,5 C17 D43 E13","pu":60541.56,"cf":40361.04,"m":"DIPRA"},{"c":"DIP0035","d":"POLEA TIPO INDIEL 1 CANAL BEDFORD DIESEL A84 B39 C17 D24,5 E17","pu":44404.2,"cf":29602.8,"m":"DIPRA"},{"c":"DIP0030","d":"POLEA TIPO INDIEL 1 CANAL CITROEN 3CV A62 B38,5 C17 D20 E10","pu":34298.64,"cf":22865.76,"m":"DIPRA"},{"c":"DIP0033","d":"POLEA TIPO INDIEL 1 CANAL FIAT 400 500 700 800 A79,5 B31 C17 D26,5 E17","pu":46485.36,"cf":30990.24,"m":"DIPRA"},{"c":"DIP0032","d":"POLEA TIPO INDIEL 1 CANAL FORD FALCON A75 B40 C17 D19 E10","pu":34354.8,"cf":22903.2,"m":"DIPRA"},{"c":"DIP0029","d":"POLEA TIPO INDIEL 1 CANAL FORD MOTOR PERKINS A82 B36,5 C17 D27 E13","pu":43160.04,"cf":28773.36,"m":"DIPRA"},{"c":"DIP0028","d":"POLEA TIPO INDIEL 1 CANAL MB 608 1112 1114 A90,5 B45 C17 D22 E13","pu":50643.36,"cf":33762.24,"m":"DIPRA"},{"c":"DIP0031","d":"POLEA TIPO INDIEL 1 CANAL PEUGEOT 404 FAIRLANE TORNADO A75 B36 C15 D24,5 E10","pu":39520.44,"cf":26346.96,"m":"DIPRA"},{"c":"DIP0038","d":"POLEA TIPO INDIEL 1 CANAL PEUGEOT 504 505 DIESEL A70 B35 C17 D31,5 E10","pu":46315.8,"cf":30877.2,"m":"DIPRA"},{"c":"DIP0014","d":"POLEA TIPO INDIEL 1 CANAL PEUGEOT VW RENAULT FORD UNIVERSAL CHAPA A71 C17 D20 E10","pu":12247.2,"cf":8164.8,"m":"DIPRA"},{"c":"DIP0036","d":"POLEA TIPO INDIEL 1 CANAL RENAULT 4 6 12 CHEVROLET PEUGEOT DODGE A71 B37,5 C17 D19 E10","pu":31877.28,"cf":21251.52,"m":"DIPRA"},{"c":"DIP0053","d":"POLEA TIPO INDIEL 2 CANALES FIAT 600 A78/97 B36 C17 D31 E10","pu":79911.36,"cf":53274.24,"m":"DIPRA"},{"c":"DIP0037","d":"POLEA TIPO INDIEL 2 CANALES JOHN DEERE 5010 5020 A81,5 B35,5 C17 D31 E10","pu":57940.92,"cf":38627.28,"m":"DIPRA"},{"c":"DIP0075","d":"POLEA TIPO INDIEL 2 CANALES LEECE NEVILLE A84,5 B39,5 C22,2 D43,5 E13","pu":105116.4,"cf":70077.6,"m":"DIPRA"},{"c":"DIP0052","d":"POLEA TIPO INDIEL 2 CANALES MB A91 B36 C17 D38 E14","pu":75358.08,"cf":50238.72,"m":"DIPRA"},{"c":"DIP0070","d":"POLEA TIPO INDIEL 2 CANALES MB A99 B53 C17 D37,5 E13","pu":84057.48,"cf":56038.32,"m":"DIPRA"},{"c":"DIP0051","d":"POLEA TIPO INDIEL 2 CANALES PEUGEOT 504 DIESEL A70 B35 C17 D33,5 E10","pu":47253.24,"cf":31502.16,"m":"DIPRA"},{"c":"DIPM115","d":"POLEA TIPO INDIEL 3 VIAS FIESTA DIESEL A60 B39 C17 D28,5 E55","pu":32222.88,"cf":21481.92,"m":"DIPRA"},{"c":"DIPM114","d":"POLEA TIPO INDIEL 6 VIAS RENAULT 19 CLIO A61 B40 C17 D35 E55","pu":48976.92,"cf":32651.28,"m":"DIPRA"},{"c":"DIPM113","d":"POLEA TIPO INDIEL 6 VIAS VW GOL A64,4 B42 C17 D35 E57,5","pu":45415.08,"cf":30276.72,"m":"DIPRA"},{"c":"DIPM112","d":"POLEA TIPO INDIEL 6 VIAS VW POLO A/A A55 B35 C17 D44,5 E50","pu":48700.44,"cf":32466.96,"m":"DIPRA"},{"c":"DIPM117","d":"POLEA TIPO INDIEL 7 VIAS PICK UP C20 CUMMINS A66,5 B51,5 C17 D44 E66,7","pu":42514.2,"cf":28342.8,"m":"DIPRA"},{"c":"DIPM116","d":"POLEA TIPO INDIEL 8 VIAS CUMMINS ZANELLO A65 B44 C17 D35 E60","pu":47671.2,"cf":31780.8,"m":"DIPRA"},{"c":"DIP0076","d":"POLEA TIPO ISUZU DIESEL 1 CANAL A83,8 B39 C17 D25,5 E17","pu":48408.84,"cf":32272.56,"m":"DIPRA"},{"c":"DIP0041","d":"POLEA TIPO MARELLI 1 CANAL FIAT A71 B37,5 C17 D15,6 E10","pu":34714.44,"cf":23142.96,"m":"DIPRA"},{"c":"DIP0079","d":"POLEA TIPO MARELLI 1 CANAL FIAT A74 B35 C17 D16 E10","pu":36533.16,"cf":24355.44,"m":"DIPRA"},{"c":"DIP0059","d":"POLEA TIPO MARELLI 1 CANAL FIAT DUNA 1.7 A74 B35 C17 D20,5 E10","pu":29002.32,"cf":19334.88,"m":"DIPRA"},{"c":"DIP0068","d":"POLEA TIPO MARELLI 1 CANAL RENAULT 9 11 A68 B36 C17 D35 E10","pu":39364.92,"cf":26243.28,"m":"DIPRA"},{"c":"DIPM101","d":"POLEA TIPO MARELLI 5 VIAS 100AMP A64 B42 C17 D42,5 E59","pu":41389.92,"cf":27593.28,"m":"DIPRA"},{"c":"DIPM102","d":"POLEA TIPO MARELLI 5 VIAS 75AMP A66 B45 C17 D34 E60","pu":39867.12,"cf":26578.08,"m":"DIPRA"},{"c":"DIPM135","d":"POLEA TIPO MARELLI 5 VIAS FIAT FIORINO A68 B43 C17 D38,8 E61,5","pu":47401.2,"cf":31600.8,"m":"DIPRA"},{"c":"DIP0054","d":"POLEA TIPO NASHVEILLE 2 CANALES SCANIA A76 B35 C17 D40 E13","pu":63470.52,"cf":42313.68,"m":"DIPRA"},{"c":"DIP0025","d":"POLEA TIPO NASHVILLE 1 CANAL BEDFORD A68 B32 C17 D28 E16","pu":31190.4,"cf":20793.6,"m":"DIPRA"},{"c":"DIP0039","d":"POLEA TIPO NASHVILLE 1 CANAL DEUTZ MASSEY FERGUSON A100 B66,5 C17 D23 E10","pu":58931.28,"cf":39287.52,"m":"DIPRA"},{"c":"DIP0063","d":"POLEA TIPO NASHVILLE 1 CANAL FIAT 150 TURBO A90 B34 C17 D37 E10","pu":53064.72,"cf":35376.48,"m":"DIPRA"},{"c":"DIP0027","d":"POLEA TIPO NASHVILLE 1 CANAL MB 1112 A113 B72 C17 D21 E10","pu":74975.76,"cf":49983.84,"m":"DIPRA"},{"c":"DIP0023","d":"POLEA TIPO NASHVILLE 1 CANAL MB A104 B36 C17 D23,5 E13","pu":68071.32,"cf":45380.88,"m":"DIPRA"},{"c":"DIP0022","d":"POLEA TIPO NASHVILLE 1 CANAL PERKINS A82 B35 C17 D23 E13","pu":42398.64,"cf":28265.76,"m":"DIPRA"},{"c":"DIP0021","d":"POLEA TIPO NASHVILLE 1 CANAL PEUGEOT UNIVERSAL A74 B35 C15 D21,5 E10","pu":32531.76,"cf":21687.84,"m":"DIPRA"},{"c":"DIP0020","d":"POLEA TIPO NASHVILLE 1 CANAL PEUGEOT UNIVERSAL A74 B35 C17 D21,5 E10","pu":35560.08,"cf":23706.72,"m":"DIPRA"},{"c":"DIP0055","d":"POLEA TIPO NASHVILLE 2 CANALES 125A A/A A117 B60 C25 D36 E13","pu":153608.4,"cf":102405.6,"m":"DIPRA"},{"c":"DIP0080","d":"POLEA TIPO NASHVILLE 2 CANALES 125AMP","pu":87133.32,"cf":58088.88,"m":"DIPRA"},{"c":"DIP0061","d":"POLEA TIPO NASHVILLE 2 CANALES 125AMP A92 B55 C25 D38 E12,5","pu":87100.92,"cf":58067.28,"m":"DIPRA"},{"c":"DIP0057","d":"POLEA TIPO NASHVILLE 2 CANALES 125AMP EJE CONICO A115 B70 D33 E13","pu":111190.32,"cf":74126.88,"m":"DIPRA"},{"c":"DIP0067","d":"POLEA TIPO NASHVILLE 2 CANALES A80 B42 C25 D34,5 E13","pu":67182.48,"cf":44788.32,"m":"DIPRA"},{"c":"DIP0040","d":"POLEA TIPO NASHVILLE 2 CANALES DEUTZ MASSEY FERGUSON A100 B52,5 C17 D35 E10","pu":88234.92,"cf":58823.28,"m":"DIPRA"},{"c":"DIP0026","d":"POLEA TIPO NASHVILLE 2 CANALES MB A99 B53 C17 D39 E13","pu":93199.68,"cf":62133.12,"m":"DIPRA"},{"c":"DIPM138","d":"POLEA TIPO NIPPONDENSO MARELLI 4 VIAS FIAT FIORINO TURBO DIESEL A66 B45 C17 D39 E59,5","pu":34714.44,"cf":23142.96,"m":"DIPRA"},{"c":"DIP0072","d":"POLEA TIPO PRESTOLITE 2 CANALES A52,5 B34,8 C22,2 D35,5 E13","pu":82919.16,"cf":55279.44,"m":"DIPRA"},{"c":"DIP0071","d":"POLEA TIPO PRESTOLITE 2 CANALES A94,5 B34,8 C22,2 D35 E13","pu":102762,"cf":68508,"m":"DIPRA"},{"c":"DIPM143","d":"POLEA TIPO VALEO 5 VIAS RENAULT LOGAN","pu":44297.28,"cf":29531.52,"m":"DIPRA"},{"c":"DIPM120","d":"POLEA TIPO VALEO 6 VIAS 70AMP VW POLO GOLF 2000 TRANSPORTE A55 B36 C17 D41 E49","pu":44286.48,"cf":29524.32,"m":"DIPRA"},{"c":"DIPM122","d":"POLEA TIPO VALEO 6 VIAS 80AMP FIAT DUCATO RENAULT A60 B41 C17 D39 E54.5","pu":48080.52,"cf":32053.68,"m":"DIPRA"},{"c":"P-124","d":"POLEA TIPO VALEO 6 VIAS PEUGEOT 206 NAFTA A57 B40 C17 D25,5 E54,5","pu":24180.12,"cf":16120.08,"m":"VARIOS"},{"c":"DIPM124","d":"POLEA TIPO VALEO 6 VIAS PEUGEOT 206 NAFTA A57 B40 C17 D25,5 E54,5","pu":31143.96,"cf":20762.64,"m":"DIPRA"},{"c":"DIPM109","d":"POLEA TIPO VALEO 6 VIAS PEUGEOT 206 PARTNER A57 B39 C17 D25,5 E54,5","pu":35143.2,"cf":23428.8,"m":"DIPRA"},{"c":"P-109","d":"POLEA TIPO VALEO 6 VIAS PEUGEOT 206 PARTNER A57 B39 C17 D25,5 E54,5","pu":28171.8,"cf":18781.2,"m":"VARIOS"},{"c":"DIPM107","d":"POLEA TIPO VALEO 6 VIAS PEUGEOT 406TD A67 B45 C17 D29,5 E62,8","pu":39773.16,"cf":26515.44,"m":"DIPRA"},{"c":"DIPM106","d":"POLEA TIPO VALEO 6 VIAS RENAULT 19 A66 B45 C17 D29,5 E59,5","pu":44300.52,"cf":29533.68,"m":"DIPRA"},{"c":"DIP0064","d":"POLEA TIPO WAPSA 1 CANAL 75AMP 24V A97 B65,5 C22,2 D30 E10","pu":59982.12,"cf":39988.08,"m":"DIPRA"}];
+
+// ── clasificación por detalle (canales / vías) y medidas A-E ──
+function grupoDe(b) {
+  const m = b.d.match(/(\d+)\s*(CANAL(?:ES)?|V[IÍ]AS?)/i);
+  if (m) return /^CANAL/i.test(m[2]) ? `${m[1]} canal${m[1] === '1' ? '' : 'es'}` : `${m[1]} vías`;
+  if (/EMBRAGUE/i.test(b.d)) return 'Con embrague';
+  return 'Otras';
+}
+function medidasDe(d) {
+  const out = [];
+  const re = /\b([A-E])\s?(\d+(?:[.,]\d+)?(?:\/\d+(?:[.,]\d+)?)?)/g; let m;
+  const tail = d.replace(/^.*?(?=\bA\s?\d)/, '');
+  if (tail === d && !/\bA\s?\d/.test(d)) return '';
+  while ((m = re.exec(tail))) out.push(m[1] + m[2]);
+  return out.join(' ');
+}
+function limpiarDetalle(d) { return d.replace(/^POELA\b/i, 'POLEA'); }
+const ITEMS = BOB.map((b, idx) => ({ idx, c: String(b.c), d: limpiarDetalle(b.d), cf: b.cf || null, pu: b.pu, m: b.m, g: grupoDe(b), med: medidasDe(b.d) }));
+// mismos detalles en otras filas (equivalentes de otras marcas)
+const porDetalle = {};
+ITEMS.forEach(it => { const k = normTitulo(it.d); (porDetalle[k] = porDetalle[k] || []).push(it); });
+ITEMS.forEach(it => { it.eq = porDetalle[normTitulo(it.d)].filter(x => x.idx !== it.idx); });
+
+const st = {};
+function inicializarEstado() {
+  ITEMS.forEach(it => { if (!st[it.idx]) st[it.idx] = { chk: false, cod: it.c, cant: 0, costo: it.cf ?? '', pub: '' }; });
+}
+function tituloDe(it, cod) { return `${it.d} — ${cod}`; }
+
+// ── Firebase ──
+let categoriasCache = [], repuestosCache = [], docsOrigen = [], marcasForm = [], proveedoresForm = [], maxIdMysql = 0;
+let mapPol = new Map(), mapOtro = new Map(), mapTit = new Map(), mapOrigen = new Map();
+const esPolea = r => /polea/i.test(r.categoria || '') || /polea/i.test(r.titulo_repuesto || '');
+
+async function iniciar() {
+  const [catSnap, repSnap, mrSnap, pvSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')),
+    getDocs(collection(db, 'repuestos')),
+    getDocs(collection(db, 'marcas_repuesto')),
+    getDocs(collection(db, 'proveedores')),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => String(a.nombre).localeCompare(String(b.nombre)));
+  repuestosCache = repSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  marcasForm = mrSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  proveedoresForm = pvSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  mapPol = new Map(); mapOtro = new Map(); mapTit = new Map(); mapOrigen = new Map();
+  maxIdMysql = 0;
+  repuestosCache.forEach(r => {
+    const cods = new Set([...partesCodigo(r.codigo), ...(r.codigos_proveedores || []).flatMap(cp => partesCodigo(cp.codigo))]);
+    const pol = esPolea(r);
+    cods.forEach(c => { const m = pol ? mapPol : mapOtro; if (!m.has(c)) m.set(c, r); });
+    const nt = normTitulo(r.titulo_repuesto); if (nt && !mapTit.has(nt)) mapTit.set(nt, r);
+    if (r.origen_import === ORIGEN) { mapOrigen.set(normCodigo(r.origen_item_cod || r.codigo), r); }
+    const v = parseInt(r.id_mysql); if (!isNaN(v) && v > maxIdMysql) maxIdMysql = v;
+  });
+  docsOrigen = repuestosCache.filter(r => r.origen_import === ORIGEN);
+
+  inicializarEstado();
+
+  // categoría: la que ya usan las poleas cargadas por este cargador; si no, una que se llame "polea"; si no, texto libre
+  const pref = categoriaPreferida();
+  const catSel = categoriasCache.find(c => pref.id && c.id === pref.id)
+    || categoriasCache.find(c => /polea/i.test(c.nombre || ''));
+  document.getElementById('sel-categoria').innerHTML = `<option value="">— elegir categoría —</option>` +
+    categoriasCache.map(c => `<option value="${esc(c.id)}" ${catSel && catSel.id === c.id ? 'selected' : ''}>${esc(c.nombre)}</option>`).join('') +
+    `<option value="__libre__" ${catSel ? '' : 'selected'}>— usar texto libre —</option>`;
+  document.getElementById('txt-categoria-libre').value = pref.nombre || 'Poleas';
+
+  const grupos = [...new Set(ITEMS.map(it => it.g))];
+  grupos.sort((a, b) => { const na = parseInt(a), nb = parseInt(b); if (!isNaN(na) && !isNaN(nb)) return na - nb || a.localeCompare(b); if (!isNaN(na)) return -1; if (!isNaN(nb)) return 1; return a.localeCompare(b); });
+  const fg = document.getElementById('filtro-grupo'), pg = fg.value;
+  fg.innerHTML = `<option value="">Todos</option>` + grupos.map(g => `<option ${g === pg ? 'selected' : ''}>${esc(g)}</option>`).join('');
+  const marcas = [...new Set(ITEMS.map(it => it.m))].sort();
+  const fm = document.getElementById('filtro-marca'), pm = fm.value;
+  fm.innerHTML = `<option value="">Todas</option>` + marcas.map(m => `<option ${m === pm ? 'selected' : ''}>${esc(m)}</option>`).join('');
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderTodo();
+
+  const fi = document.getElementById('filtro-items');
+  if (!fi.dataset.bound) {
+    fi.dataset.bound = '1';
+    fi.addEventListener('input', renderTabla);
+    ['filtro-grupo', 'filtro-marca', 'chk-solo-cant', 'chk-ocultar-bloq'].forEach(id => document.getElementById(id).addEventListener('change', renderTabla));
+    ['chk-calc-venta', 'txt-margen'].forEach(id => document.getElementById(id).addEventListener('change', renderTabla));
+    ['chk-codigos-marca', 'sel-categoria'].forEach(id => document.getElementById(id).addEventListener('change', renderAviso));
+    document.getElementById('btn-sel-visibles').addEventListener('click', () => marcarVisibles(true));
+    document.getElementById('btn-desel-visibles').addEventListener('click', () => marcarVisibles(false));
+    document.getElementById('btn-cargar').addEventListener('click', cargarSeleccionados);
+    const tb = document.getElementById('tbody-items');
+    tb.addEventListener('change', onCambioTabla);
+  }
+}
+function categoriaPreferida() {
+  const cnt = {};
+  docsOrigen.forEach(r => { const k = (r.categoria_id || '') + '||' + (r.categoria || ''); cnt[k] = (cnt[k] || 0) + 1; });
+  const best = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
+  if (!best) return { id: '', nombre: '' };
+  const [id, nombre] = best[0].split('||');
+  return { id, nombre };
+}
+function categoriaPara() {
+  const selCat = document.getElementById('sel-categoria');
+  const libre = document.getElementById('txt-categoria-libre').value.trim();
+  if (selCat.value === '__libre__' || !selCat.value) return { id: '', nombre: libre || 'Poleas' };
+  return categoriasCache.find(c => c.id === selCat.value) || { id: '', nombre: libre || 'Poleas' };
+}
+
+// ── estado frente a Firebase (usa mapas: rápido con ~1100 repuestos x 539 filas) ──
+function estadoItem(it) {
+  const cod = normCodigo(st[it.idx].cod);
+  const ya = mapOrigen.get(normCodigo(it.c));
+  if (ya) return { tipo: 'done', ref: ya };
+  const dupCod = cod && mapPol.get(cod);
+  if (dupCod) return { tipo: 'dup', ref: dupCod };
+  const dupTit = mapTit.get(normTitulo(tituloDe(it, st[it.idx].cod)));
+  if (dupTit) return { tipo: 'dup', ref: dupTit };
+  return { tipo: 'nuevo', ref: null, otro: cod ? (mapOtro.get(cod) || null) : null };
+}
+
+// ── precios ──
+function calcPrecios(costo, pct) {
+  const p = parseFloat(pct) || 40;
+  const sinIva = costo * (1 + p / 100), conIva = sinIva * 1.21, conDesc = conIva * 0.9;
+  return { pct: p, sinIva: r2(sinIva), conIva: r2(conIva), conDescuento: r2(conDesc), gananciaNeta: r2(sinIva - costo), gananciaNetaDescuento: r2(conDesc - costo) };
+}
+function calcVentaActiva() { return document.getElementById('chk-calc-venta').checked; }
+function margenActual() { return parseFloat(document.getElementById('txt-margen').value) || 40; }
+
+// ── aviso marcas / proveedores del form ──
+function renderAviso() {
+  const marcas = new Set();
+  ITEMS.forEach(it => { if (st[it.idx].chk && estadoItem(it).tipo === 'nuevo' && it.m) marcas.add(it.m); });
+  const conCod = document.getElementById('chk-codigos-marca').checked;
+  const usaBob = marcas.size > 0;
+  const faltaMarca = [...marcas].filter(m => !igualLista(marcasForm, m));
+  const faltaProv = (conCod ? [...marcas] : []).filter(m => !igualLista(proveedoresForm, m));
+  if (usaBob && !igualLista(proveedoresForm, 'BOBINAR') && !faltaProv.includes('BOBINAR')) faltaProv.push('BOBINAR');
+  const el = document.getElementById('aviso-marcas');
+  if (!faltaMarca.length && !faltaProv.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'block';
+  el.innerHTML = `<b>Ojo con el form de nuevo repuesto:</b> sus listas desplegables de marcas y proveedores se arman desde Firebase. Estas no están (para las filas tildadas):<br>
+    ${faltaMarca.length ? `Marcas de repuesto que faltan: <b>${faltaMarca.map(esc).join(', ')}</b><br>` : ''}
+    ${faltaProv.length ? `Proveedores (para "códigos de proveedores") que faltan: <b>${faltaProv.map(esc).join(', ')}</b><br>` : ''}
+    <button class="btn small" id="btn-agregar-marcas" style="margin-top:8px">➕ Agregar las que faltan a las listas del form</button>
+    <span class="info"> — es opcional y solo agrega nombres nuevos; no cambia ni borra ninguno existente.</span>`;
+  document.getElementById('btn-agregar-marcas').addEventListener('click', () => agregarFaltantes(faltaMarca, faltaProv));
+}
+async function agregarFaltantes(faltaMarca, faltaProv) {
+  if (!confirm(`Se van a agregar ${faltaMarca.length} marcas de repuesto y ${faltaProv.length} proveedores nuevos a las listas del form. ¿Confirmás?`)) return;
+  try {
+    const batch = writeBatch(db);
+    faltaMarca.forEach(n => batch.set(doc(collection(db, 'marcas_repuesto')), { nombre: n }));
+    faltaProv.forEach(n => batch.set(doc(collection(db, 'proveedores')), { nombre: n }));
+    await batch.commit();
+    toast('✅ Listas del form actualizadas');
+    await iniciar();
+  } catch (e) { console.error(e); toast('Error: ' + e.message); }
+}
+
+// ── render ──
+function renderTodo() { renderResumen(); renderTabla(); renderAviso(); }
+
+function renderResumen() {
+  const est = ITEMS.map(it => estadoItem(it).tipo);
+  const done = est.filter(e => e === 'done').length;
+  const dup = est.filter(e => e === 'dup').length;
+  const nuevos = est.filter(e => e === 'nuevo').length;
+  const sinCosto = ITEMS.filter((it, i) => est[i] === 'nuevo' && !(parseFloat(st[it.idx].costo) > 0)).length;
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${ITEMS.length}</div><div class="l">poleas en lista Bobinar</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${done}</div><div class="l">ya cargadas (Firebase)</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${dup}</div><div class="l">código/título repetido</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${nuevos}</div><div class="l">nuevas para cargar</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${sinCosto}</div><div class="l">nuevas sin costo en Bobinar</div></div>
+    <div class="box"><div class="n" style="color:var(--blue)" id="n-tildadas">0</div><div class="l">tildadas ahora</div></div>`;
+}
+
+function visibles() {
+  const q = document.getElementById('filtro-items').value.trim().toUpperCase();
+  const g = document.getElementById('filtro-grupo').value;
+  const m = document.getElementById('filtro-marca').value;
+  const soloCant = document.getElementById('chk-solo-cant').checked;
+  const ocultar = document.getElementById('chk-ocultar-bloq').checked;
+  return ITEMS.filter(it => {
+    if (g && it.g !== g) return false;
+    if (m && it.m !== m) return false;
+    if (soloCant && !(st[it.idx].cant > 0)) return false;
+    if (q && !(it.c + ' ' + it.d + ' ' + it.m).toUpperCase().includes(q)) return false;
+    if (ocultar && estadoItem(it).tipo !== 'nuevo') return false;
+    return true;
+  });
+}
+
+function filaHTML(it) {
+  const s = st[it.idx];
+  const est = estadoItem(it);
+  const bloqueado = est.tipo !== 'nuevo';
+  let estado = '<span class="badge ok">nueva</span>';
+  if (est.tipo === 'done') estado = '<span class="badge done">ya cargada</span>';
+  else if (est.tipo === 'dup') estado = `<span class="badge no">código/título repetido</span><div class="info">${esc(est.ref.titulo_repuesto || est.ref.codigo)}</div>`;
+  else if (est.otro) estado += `<div class="comp">El código ${esc(s.cod)} figura en otro rubro: ${esc(est.otro.titulo_repuesto || est.otro.codigo)}. No bloquea.</div>`;
+  const eq = it.eq.length ? `<div class="comp">Mismo detalle en: ${it.eq.map(x => esc(x.c) + ' (' + esc(x.m) + ')').join(', ')}</div>` : '';
+  const ph = (calcVentaActiva() && parseFloat(s.costo) > 0) ? String(calcPrecios(parseFloat(s.costo), margenActual()).conIva) : '';
+  const precio = `<div class="precio-cell">
+    <label>Costo <input type="number" step="0.01" class="precio-row" data-idx="${it.idx}" data-k="costo" value="${esc(s.costo)}" ${bloqueado ? 'disabled' : ''}></label>
+    <label>Venta c/IVA <input type="number" step="0.01" class="precio-row" data-idx="${it.idx}" data-k="pub" value="${esc(s.pub)}" placeholder="${esc(ph)}" ${bloqueado ? 'disabled' : ''}></label></div>`;
+  return `<tr id="tr-${it.idx}" data-idx="${it.idx}" class="${est.tipo === 'done' ? 'done' : est.tipo === 'dup' ? 'dup' : ''}">
+    <td><input type="checkbox" class="chk-item" data-idx="${it.idx}" ${bloqueado ? 'disabled' : (s.chk ? 'checked' : '')}></td>
+    <td><input class="code-row" data-idx="${it.idx}" data-k="cod" value="${esc(s.cod)}" ${est.tipo === 'done' ? 'disabled' : ''}>${s.cod !== it.c ? `<div class="info">Bobinar: ${esc(it.c)}</div>` : ''}</td>
+    <td>${esc(it.d)}<div class="info">${esc(it.g)}${it.med ? ' · ' + esc(it.med) : ''}</div>${eq}</td>
+    <td>${esc(it.m)}</td>
+    <td><input type="number" class="cant-row" data-idx="${it.idx}" data-k="cant" value="${s.cant}" min="0" ${bloqueado ? 'disabled' : ''}></td>
+    <td>${precio}</td>
+    <td>${estado}</td>
+  </tr>`;
+}
+
+function renderTabla() {
+  const tbody = document.getElementById('tbody-items');
+  const lista = visibles();
+  let html = '', ult = '';
+  lista.forEach(it => {
+    if (it.g !== ult) {
+      const n = ITEMS.filter(x => x.g === it.g);
+      html += `<tr class="titulo-sec"><td colspan="7">${esc(it.g)} — ${n.length} en la lista</td></tr>`;
+      ult = it.g;
+    }
+    html += filaHTML(it);
+  });
+  tbody.innerHTML = html || `<tr><td colspan="7" class="loading">No hay filas con ese filtro.</td></tr>`;
+  document.getElementById('pie-tabla').textContent = `${lista.length} de ${ITEMS.length} filas visibles.`;
+  actualizarBoton();
+}
+function refrescarFila(idx) {
+  setTimeout(() => {
+    const tr = document.getElementById('tr-' + idx);
+    if (!tr || !tr.parentNode) return;
+    const tpl = document.createElement('template');
+    tpl.innerHTML = filaHTML(ITEMS[idx]).trim();
+    tr.replaceWith(tpl.content.firstChild);
+    actualizarBoton();
+  }, 0);
+}
+function marcarVisibles(v) {
+  visibles().forEach(it => { if (estadoItem(it).tipo === 'nuevo') st[it.idx].chk = v; });
+  renderTabla(); renderAviso();
+}
+function totalTildados() { return ITEMS.filter(it => st[it.idx].chk && estadoItem(it).tipo === 'nuevo'); }
+function actualizarBoton() {
+  const n = totalTildados().length;
+  document.getElementById('btn-cargar').textContent = `⚡ Cargar seleccionados (${n})`;
+  const el = document.getElementById('n-tildadas'); if (el) el.textContent = n;
+}
+
+function onCambioTabla(e) {
+  const t = e.target; const idx = parseInt(t.dataset.idx); if (isNaN(idx)) return;
+  const s = st[idx];
+  if (t.classList.contains('chk-item')) { s.chk = t.checked; actualizarBoton(); renderAviso(); return; }
+  const k = t.dataset.k;
+  if (k === 'cant') {
+    s.cant = Math.max(0, parseInt(t.value) || 0);
+    s.chk = s.cant > 0;
+    const cb = document.querySelector(`#tr-${idx} .chk-item`); if (cb && !cb.disabled) cb.checked = s.chk;
+    actualizarBoton(); renderAviso(); return;
+  }
+  if (k === 'cod') { s.cod = t.value.trim(); refrescarFila(idx); renderResumen(); return; }
+  if (k === 'costo') { s.costo = t.value; refrescarFila(idx); return; }
+  if (k === 'pub') { s.pub = t.value; return; }
+}
+
+// ── armado del documento ──
+function construirDoc(it, categoriaObj, condicion, publicar, idMysql, conCodMarca) {
+  const s = st[it.idx];
+  const cod = s.cod;
+  const costo = parseFloat(s.costo) || 0;
+  let pub = parseFloat(s.pub) || 0;
+  const extraPrecios = {};
+  if (!pub && calcVentaActiva() && costo > 0) {
+    const p = calcPrecios(costo, margenActual());
+    pub = p.conIva;
+    Object.assign(extraPrecios, { precio_venta_descuento: p.conDescuento, ganancia_neta: p.gananciaNeta, ganancia_neta_descuento: p.gananciaNetaDescuento });
+  }
+  const sinIva = pub ? r2(pub / 1.21) : 0;
+  const marcas = it.m ? [it.m] : [];
+  const provBob = igualLista(proveedoresForm, 'BOBINAR') || 'BOBINAR';
+  const cps = [{ proveedor: provBob, codigo: it.c }];
+  if (conCodMarca && it.m) cps.push({ proveedor: igualLista(proveedoresForm, it.m) || it.m, codigo: it.c });
+  return {
+    titulo_repuesto: tituloDe(it, cod),
+    categoria: categoriaObj.nombre,
+    categoria_id: categoriaObj.id || '',
+    id_estanteria: '', id_estante: '',
+    tipos_vehiculo: [],
+    tipo: 'ORIGINAL',
+    condicion,
+    contenedor: '',
+    marcas_repuesto: marcas,
+    fabricantes: marcas,
+    arranque: '', alternador: '',
+    modelo_repuesto: '',
+    material: '',
+    lado: '',
+    codigo: cod,
+    codigos_oem: [],
+    aplicacion: '',
+    marcas_modelos: [],
+    marcas_vehiculo: [],
+    codigos_proveedores: cps,
+    catalogos_papel: [],
+    descripcion: it.d + (it.med ? `\nMedidas: ${it.med}` : ''),
+    notas_internas: `Cargado desde lista Bobinar (poleas). Código Bobinar: ${it.c} · marca ${it.m || '—'}${it.cf ? ' · costo final $ ' + it.cf : ''}.`,
+    importante: '',
+    grupo_polea: it.g,
+    medidas_polea: it.med || '',
+    codigo_bobinar: it.c,
+    dd_alta_rotacion: '', dd_demanda: '', dd_disponibilidad: '', dd_descontinuado: '',
+    dd_buscado_por: '', dd_vigencia: '', dd_oferta: '', dd_justificacion: '',
+    cant_artic: s.cant || 0,
+    stock_minimo: 1,
+    forma_pago: 'Contado Efectivo',
+    forma_entrega: 'A convenir',
+    fecha_compra: '',
+    moneda: 'ARS',
+    precio_costo: costo,
+    precio_venta: sinIva,
+    precio_venta_iva: pub,
+    precio_ganancia_pct: pub && calcVentaActiva() ? margenActual() : 40,
+    ...extraPrecios,
+    imagenes: [], imagen_url: '',
+    alta: !!publicar,
+    id_mysql: String(idMysql),
+    vistas: 0,
+    creado_en: serverTimestamp(),
+    origen_import: ORIGEN,
+    origen_hoja: HOJA,
+    origen_item_cod: it.c,
+  };
+}
+
+async function cargarSeleccionados() {
+  const condicion = document.getElementById('sel-condicion').value;
+  const publicar = document.getElementById('chk-publicar').checked;
+  const conCodMarca = document.getElementById('chk-codigos-marca').checked;
+  const btn = document.getElementById('btn-cargar');
+  const prog = document.getElementById('progreso');
+  const categoriaObj = categoriaPara();
+
+  const sel = totalTildados();
+  if (!sel.length) { toast('No hay filas tildadas.'); return; }
+  const vacios = sel.filter(it => !st[it.idx].cod);
+  if (vacios.length) { toast('Hay filas tildadas sin código: ' + vacios.slice(0, 3).map(it => it.d).join(', ')); return; }
+  const vistos = {}; const rep = [];
+  sel.forEach(it => { const c = normCodigo(st[it.idx].cod); if (vistos[c]) rep.push(st[it.idx].cod); vistos[c] = true; });
+  if (rep.length) { toast('Código repetido entre las filas tildadas: ' + [...new Set(rep)].join(', ')); return; }
+  const sinCosto = sel.filter(it => !(parseFloat(st[it.idx].costo) > 0)).length;
+  const sinCant = sel.filter(it => !(st[it.idx].cant > 0)).length;
+  if (!confirm(`Vas a cargar ${sel.length} poleas a Firebase en la categoría "${categoriaObj.nombre}"${publicar ? ' (publicadas)' : ' (OCULTAS: no tildaste publicar)'}.\n${sinCant ? `${sinCant} quedan con cantidad 0.\n` : ''}${sinCosto ? `${sinCosto} quedan sin costo.\n` : ''}¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0, idMysql = maxIdMysql;
+  try {
+    for (const it of sel) {
+      idMysql++;
+      const ref = doc(collection(db, 'repuestos'));
+      batch.set(ref, construirDoc(it, categoriaObj, condicion, publicar, idMysql, conCodMarca));
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${sel.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    maxIdMysql = idMysql;
+    prog.textContent = `✅ ${total} cargadas`;
+    toast(`✅ ${total} poleas cargadas`);
+    sel.forEach(it => { st[it.idx].chk = false; });
+    await iniciar();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
