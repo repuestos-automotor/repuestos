@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargador de Tapas de arranque (cuadernos + Bobinar) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1500px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+h2{font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:1050px;line-height:1.5}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+.controles label.fila{flex-direction:row;align-items:center;gap:6px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+input.precio-row{min-width:0;width:100px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+input.code-row{min-width:0;width:110px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--blue);border-radius:6px;font-family:'JetBrains Mono',monospace}
+input.bob-otro{min-width:0;width:100%;margin-top:4px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;font-family:'JetBrains Mono',monospace}
+input.cant-row{width:55px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+select.bob-sel{min-width:0;width:100%;max-width:290px;padding:4px 6px;font-size:11.5px}
+.precio-cell{display:flex;flex-direction:column;gap:3px}
+.precio-cell label{font-size:9.5px;color:var(--text3);display:flex;gap:4px;align-items:center;justify-content:space-between}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-block}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.scroll-tabla{max-height:640px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2);z-index:2}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.dup td{opacity:.5}table.tabla-items tr.done td{opacity:.8}
+table.tabla-items tr.sinstock td{opacity:.7}
+tr.titulo-sec td{background:var(--bg3);color:var(--amber);font-weight:600;font-size:11.5px}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.swatch-cell{display:flex;align-items:center;gap:8px}
+.swatch{width:22px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.25);flex-shrink:0}
+.swatch.sin{background:repeating-linear-gradient(45deg,#2a3347,#2a3347 3px,#141720 3px,#141720 6px)}
+.comp{font-size:10.5px;color:var(--amber);margin-top:3px;line-height:1.35}
+.info{font-size:10.5px;color:var(--text3);margin-top:3px;line-height:1.35}
+.aviso{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.5}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:380px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+.prev-tabla{border-collapse:collapse;font-size:11px;margin-top:4px}
+.prev-tabla th{background:var(--bg3);color:var(--blue);text-align:left;padding:3px 6px;border:1px solid var(--border2)}
+.prev-tabla td{padding:3px 6px;border:1px solid var(--border2)}
+details.card summary{cursor:pointer;font-weight:600;font-size:13px}
+.cp-viejo{color:var(--red)}
+.sep{height:10px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Cargador de Tapas de arranque (cuaderno + Bobinar)</h1>
+<div class="sub">
+  Carga las filas de la hoja <b>TAPAS C/BURRO ARRANQUE</b> de los cuadernos (columna "Cant. PAPI" como cantidad; grupos: sin rótulo, DIPRA, INDIEL, otras e INTERMEDIA INDIEL) y las cruza con la lista de <b>Bobinar</b> (tapa_de_arranque_bobinar.xlsx, 32 líneas). Cada fila guarda el <b>código real</b> (el de tu planilla, editable) y el <b>código Bobinar</b> en <i>códigos de proveedores</i>, y precarga el <b>costo</b> con "Costo Final".
+  <b>El cruce solo se elige solo cuando el código de tu planilla aparece en el detalle de Bobinar</b> (ej. 35256703 → AJT24). Para los demás, si hay una línea que podría ser (por ejemplo T079 → AJT79) te la ofrezco en el desplegable pero <b>no la elijo por vos</b>: comparalo con la tapa física. Nada se pisa: si el código ya existe en Firebase como tapa, la fila queda bloqueada.
+</div>
+
+<div id="carga-inicial" class="loading">Cargando categorías y repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div class="aviso" id="aviso-marcas" style="display:none"></div>
+
+  <div class="card">
+    <h2>Configuración de carga</h2>
+    <div class="controles">
+      <label>Categoría
+        <select id="sel-categoria"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-libre" value="Tapas de arranque">
+      </label>
+      <label>Condición
+        <select id="sel-condicion">
+          <option selected>NUEVO</option>
+          <option>REACONDICIONADO</option><option>RECAMBIO</option><option>DESCONTINUADO</option><option>REEMPLAZO</option><option>OUTLET</option>
+        </select>
+      </label>
+      <label class="fila"><input type="checkbox" id="chk-publicar" checked> publicar automáticamente (si no, queda oculto)</label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <label class="fila"><input type="checkbox" id="chk-codigos-marca" checked> además del código BOBINAR, guardar el mismo código con la marca (DIPRA / ZEN / ZM…) como proveedor</label>
+      <label class="fila"><input type="checkbox" id="chk-calc-venta"> calcular precio de venta a partir del costo, con margen
+        <input type="number" id="txt-margen" class="precio-row" style="width:60px" value="40" min="0" step="1"> %
+      </label>
+    </div>
+    <div class="info" style="margin-top:6px">Cálculo: costo × (1 + margen) × 1,21 (igual que en fusibles). Cualquier precio que escribas a mano en una fila se respeta. Las filas sin costo en Bobinar quedan con costo vacío: lo podés escribir a mano.</div>
+    <div class="controles" style="margin-top:12px">
+      <label>Buscar por código o detalle
+        <input class="txt" id="filtro-items" placeholder="ej: T079, 35256, DIPRA, INTERMEDIA…" style="min-width:260px">
+      </label>
+      <label class="fila"><input type="checkbox" id="chk-ocultar-bloq"> ocultar ya cargadas / repetidas</label>
+      <label class="fila"><input type="checkbox" id="chk-solo-sin-bob"> solo sin código Bobinar</label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <button class="btn ghost small" id="btn-sel-visibles">Tildar visibles</button>
+      <button class="btn ghost small" id="btn-desel-visibles">Destildar visibles</button>
+      <button class="btn green" id="btn-cargar">⚡ Cargar seleccionados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+    <div class="controles" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border2)">
+      <div style="width:100%;font-weight:600;color:var(--amber);font-size:12.5px">🔁 Corregir la categoría de las que YA están cargadas</div>
+      <div class="info" style="width:100%;margin:0 0 4px">Tildá abajo las filas con estado "ya cargada" (o usá el botón de tildar todas), elegí la categoría correcta y tocá el botón verde. Solo cambia la categoría: no toca cantidad, costo, precios, códigos ni título.</div>
+      <label>Buscar categoría
+        <input class="txt" id="filtro-cat-fix" placeholder="ej: Tapa Intermedia" style="min-width:200px">
+      </label>
+      <label>Pasar a la categoría
+        <select id="sel-cat-fix" style="min-width:360px"></select>
+      </label>
+      <button class="btn ghost small" id="btn-tildar-cargadas">Tildar todas las ya cargadas</button>
+      <button class="btn ghost small" id="btn-destildar-cargadas">Destildar</button>
+      <button class="btn green" id="btn-fix-cat">🔁 Cambiar categoría de las tildadas (0)</button>
+      <span class="progreso" id="progreso-fix"></span>
+    </div>
+  </div>
+
+  <div class="scroll-tabla"><table class="tabla-items">
+    <thead><tr><th></th><th>Código real</th><th>Grupo</th><th>Cant. PAPI</th><th>Título</th><th style="min-width:280px">Código Bobinar</th><th>Costo / Venta c/IVA</th><th>Estado</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+  <div class="info" id="pie-tabla" style="margin-top:8px"></div>
+</div>
+
+<div class="card" id="card-cambiar-cat" style="display:none;margin-top:14px">
+  <h2>Cambiar la categoría de las ya cargadas</h2>
+  <div class="info" style="margin-bottom:10px;font-size:12px">Son las tapas que cargó este mismo cargador (origen <span class="mono">stock-cuadernos-tapas-arranque</span>). Esto <b>solo cambia la categoría</b>: no toca cantidad, costo, precio, códigos ni título. Solo se modifican las que elijas abajo.</div>
+  <div id="cat-actuales" class="info" style="margin-bottom:10px;font-size:12px;line-height:1.6"></div>
+  <div class="controles">
+    <label>Pasar a la categoría
+      <select id="sel-cat-destino" style="min-width:320px"></select>
+    </label>
+    <label>Solo las que hoy están en
+      <select id="sel-cat-origen" style="min-width:320px"></select>
+    </label>
+    <button class="btn green" id="btn-cambiar-cat">🔁 Cambiar categoría</button>
+    <span class="progreso" id="progreso-cat"></span>
+  </div>
+</div>
+
+<datalist id="dl-bob"></datalist>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-cuadernos-tapas-arranque';
+const HOJA = 'TAPAS C/BURRO ARRANQUE (cuadernos)';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+// ── helpers ──
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+const fmt = n => (n === null || n === undefined || n === '' || isNaN(n)) ? '—' : '$ ' + Number(n).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const r2 = n => Math.round(n * 100) / 100;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4200);
+}
+function normCodigo(s) { return (s || '').toString().trim().toUpperCase(); }
+function partesCodigo(s) { return normCodigo(s).split(/[|,\n\/]/).map(x => x.trim()).filter(Boolean); }
+function normTitulo(s) { return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9.]+/g, ' ').trim(); }
+function igualLista(lista, nombre) { return lista.find(x => x.toUpperCase() === (nombre || '').toUpperCase()) || null; }
+
+// ── DATOS: lista Bobinar de poleas (poleas_bobinar.xlsx, hoja Hoja2). c=código, d=detalle, cf="Costo Final", pu=precio público, m=marca ──
+const BOB = [{"c":"DIP802488","d":"TAPA DE ARRANQUE DELCO REMY 29MT","pu":15852.24,"cf":10568.16,"m":"DIPRA"},{"c":"ZEN2405","d":"TAPA DE ARRANQUE ZEN","pu":32323.32,"cf":21548.88,"m":"ZEN"},{"c":"AJT89","d":"TAPA INTERMEDIA DE ARRANQUE TIPO BOSCH","pu":19184.04,"cf":12789.36,"m":"AJ"},{"c":"AJT98","d":"TAPA INTERMEDIA DE ARRANQUE TIPO BOSCH P/M.S. TORQUE SCANIA","pu":24036.48,"cf":16024.32,"m":"AJ"},{"c":"AJT83","d":"TAPA INTERMEDIA DE ARRANQUE TIPO IME RASTROJERO","pu":21962.88,"cf":14641.92,"m":"AJ"},{"c":"AJT24","d":"TAPA INTERMEDIA DE ARRANQUE TIPO INDIEL AN115 (35256703)","pu":20203.56,"cf":13469.04,"m":"AJ"},{"c":"AJT68","d":"TAPA INTERMEDIA DE ARRANQUE TIPO INDIEL RENAULT 12 MOTOR 1400","pu":23566.68,"cf":15711.12,"m":"AJ"},{"c":"AJT87","d":"TAPA INTERMEDIA DE ARRANQUE TIPO NASHVILLE","pu":27662.04,"cf":18441.36,"m":"AJ"},{"c":"AJT73","d":"TAPA LADO COLECTOR TIPO BOSCH P/MERC. BRASIL","pu":17540.28,"cf":11693.52,"m":"AJ"},{"c":"AJT77","d":"TAPA LADO COLECTOR TIPO BOSCH SUPER TORQUE SCANIA (9001453607)","pu":26951.4,"cf":17967.6,"m":"AJ"},{"c":"AJT988","d":"TAPA LADO COLECTOR TIPO DELCO REMY 37MT","pu":79596,"cf":53064,"m":"AJ"},{"c":"AJT985","d":"TAPA LADO COLECTOR TIPO DELCO REMY 38MT","pu":43114.68,"cf":28743.12,"m":"AJ"},{"c":"AJT984","d":"TAPA LADO COLECTOR TIPO DELCO REMY 39MT","pu":69647.04,"cf":46431.36,"m":"AJ"},{"c":"AJT976","d":"TAPA LADO COLECTOR TIPO DELCO REMY CORSA","pu":27858.6,"cf":18572.4,"m":"AJ"},{"c":"AJT946","d":"TAPA LADO COLECTOR TIPO DENSO TOYOTA HILUX","pu":18858.96,"cf":12572.64,"m":"AJ"},{"c":"AJT101","d":"TAPA LADO COLECTOR TIPO INDIEL M115 MOTOR MWM (35258068)","pu":30123.36,"cf":20082.24,"m":"AJ"},{"c":"AJT79","d":"TAPA LADO COLECTOR TIPO INDIEL M74DD (35258564)","pu":16590.96,"cf":11060.64,"m":"AJ"},{"c":"AJT92","d":"TAPA LADO COLECTOR TIPO INDIEL M74R (35258304)","pu":16590.96,"cf":11060.64,"m":"AJ"},{"c":"AJT76","d":"TAPA LADO COLECTOR TIPO INDIEL M74R (35258472)","pu":16590.96,"cf":11060.64,"m":"AJ"},{"c":"AJT947","d":"TAPA LADO COLECTOR TIPO MARELLI FIAT DUNA-UNO","pu":15422.4,"cf":10281.6,"m":"AJ"},{"c":"AJT941","d":"TAPA LADO COLECTOR TIPO MITSUBISHI HONDA","pu":12000.96,"cf":8000.64,"m":"AJ"},{"c":"AJT977","d":"TAPA LADO COLECTOR TIPO MITSUBISHI RENAULT","pu":27858.6,"cf":18572.4,"m":"AJ"},{"c":"AJT981","d":"TAPA LADO COLECTOR TIPO VALEO MASTER DE7611","pu":27858.6,"cf":18572.4,"m":"AJ"},{"c":"AJT980","d":"TAPA LADO COLECTOR TIPO VALEO PARTNER DE707","pu":27858.6,"cf":18572.4,"m":"AJ"},{"c":"AJT891","d":"TAPA PORTACARBON ARR. BOSCH MERCEDES BENZ 1634","pu":33030.72,"cf":22020.48,"m":"AJ"},{"c":"AJT890","d":"TAPA PORTACARBON ARR. DELCO REMY ONIX","pu":22460.76,"cf":14973.84,"m":"AJ"},{"c":"ZEN3111","d":"TAPA PORTACARBON ARR. INDIEL","pu":74000.52,"cf":49333.68,"m":"ZEN"},{"c":"ZEN3979","d":"TAPA PORTACARBON ARR. INDIEL M100R","pu":38738.52,"cf":25825.68,"m":"ZEN"},{"c":"ZEN3947","d":"TAPA PORTACARBON MAXION","pu":48736.08,"cf":32490.72,"m":"ZEN"},{"c":"AJT123","d":"TAPA PORTACARBON TIPO INDIEL M100R 12V FORD CARGO-VW 1720","pu":22116.24,"cf":14744.16,"m":"AJ"},{"c":"DIP802485","d":"TAPA PORTAESCOBILLAS ARR. T. INDIEL M100R (35259767)","pu":21709.08,"cf":14472.72,"m":"DIPRA"},{"c":"DIP802489","d":"TAPA PORTAESCOBILLAS ARR.INDIEL M101R C/OREJA","pu":24856.2,"cf":16570.8,"m":"DIPRA"}];
+
+// ── DATOS: hoja TAPAS C/BURRO ARRANQUE de los cuadernos. cod = como figura en la planilla · cant = "Cant. PAPI" (si el código está repetido, suma) · grp = sección de la hoja · nota = aviso mío ──
+const ROWS = [{"cod":"T034","cant":2,"grp":"","nota":""},{"cod":"T035","cant":3,"grp":"","nota":""},{"cod":"T025","cant":2,"grp":"","nota":"Repetido en la planilla: 1 + 1."},{"cod":"T079","cant":5,"grp":"","nota":""},{"cod":"T014","cant":2,"grp":"","nota":""},{"cod":"T018","cant":5,"grp":"","nota":""},{"cod":"T101","cant":2,"grp":"","nota":""},{"cod":"T023","cant":1,"grp":"","nota":""},{"cod":"9","cant":3,"grp":"","nota":"⚠ Código \"9\" (cantidad 3): ¿será T009? Revisalo en la planilla."},{"cod":"T031","cant":1,"grp":"","nota":""},{"cod":"T058","cant":1,"grp":"","nota":""},{"cod":"T086","cant":1,"grp":"","nota":""},{"cod":"T091","cant":1,"grp":"","nota":""},{"cod":"T095","cant":1,"grp":"","nota":""},{"cod":"T50","cant":1,"grp":"","nota":""},{"cod":"T57","cant":1,"grp":"","nota":""},{"cod":"T15","cant":1,"grp":"","nota":""},{"cod":"T55","cant":1,"grp":"","nota":""},{"cod":"T38","cant":4,"grp":"","nota":""},{"cod":"T59","cant":2,"grp":"","nota":""},{"cod":"T016","cant":2,"grp":"","nota":""},{"cod":"T017","cant":1,"grp":"","nota":""},{"cod":"T010","cant":1,"grp":"","nota":""},{"cod":"T68","cant":5,"grp":"","nota":""},{"cod":"TAPAS REGATTA","cant":2,"grp":"","nota":"ℹ Es una descripción, no un código: ponele el código que uses."},{"cod":"TAPAS CITROEN","cant":3,"grp":"","nota":"ℹ Es una descripción, no un código: ponele el código que uses."},{"cod":"T83","cant":1,"grp":"","nota":""},{"cod":"100038-1","cant":1,"grp":"DIPRA","nota":""},{"cod":"101173","cant":1,"grp":"DIPRA","nota":""},{"cod":"100158","cant":1,"grp":"DIPRA","nota":""},{"cod":"101383","cant":2,"grp":"DIPRA","nota":"Repetido en la planilla: 1 + 1."},{"cod":"100038","cant":1,"grp":"DIPRA","nota":""},{"cod":"100160-4","cant":1,"grp":"DIPRA","nota":""},{"cod":"101305","cant":1,"grp":"DIPRA","nota":""},{"cod":"101240","cant":1,"grp":"DIPRA","nota":""},{"cod":"100154","cant":1,"grp":"DIPRA","nota":""},{"cod":"100010","cant":1,"grp":"DIPRA","nota":""},{"cod":"100102","cant":2,"grp":"DIPRA","nota":"Repetido en la planilla: 1 + 1."},{"cod":"100250-2","cant":1,"grp":"DIPRA","nota":""},{"cod":"801015","cant":2,"grp":"DIPRA","nota":""},{"cod":"801310","cant":2,"grp":"DIPRA","nota":""},{"cod":"100123","cant":2,"grp":"DIPRA","nota":""},{"cod":"100003","cant":1,"grp":"DIPRA","nota":""},{"cod":"902120","cant":1,"grp":"DIPRA","nota":""},{"cod":"501703","cant":3,"grp":"DIPRA","nota":""},{"cod":"35255458","cant":0,"grp":"INDIEL","nota":"⚠ En la planilla esta fila no tiene cantidad (la celda \"INDIEL\" está en la misma fila)."},{"cod":"35257947","cant":1,"grp":"INDIEL","nota":""},{"cod":"35256450","cant":3,"grp":"INDIEL","nota":""},{"cod":"35256957","cant":3,"grp":"INDIEL","nota":""},{"cod":"35256443","cant":2,"grp":"INDIEL","nota":""},{"cod":"3525644","cant":1,"grp":"INDIEL","nota":"⚠ Tiene 7 dígitos (los códigos Indiel tienen 8): ¿falta un número?"},{"cod":"35255809","cant":2,"grp":"INDIEL","nota":""},{"cod":"4a53907","cant":2,"grp":"INDIEL","nota":"⚠ Código raro (\"4a53907\"): revisalo en la planilla."},{"cod":"59176354","cant":1,"grp":"INDIEL","nota":""},{"cod":"35257630","cant":1,"grp":"INDIEL","nota":""},{"cod":"35258633","cant":2,"grp":"INDIEL","nota":""},{"cod":"35258558","cant":1,"grp":"INDIEL","nota":""},{"cod":"35257830","cant":5,"grp":"INDIEL","nota":""},{"cod":"C20","cant":2,"grp":"OTRAS","nota":""},{"cod":"C21","cant":3,"grp":"OTRAS","nota":""},{"cod":"C01","cant":1,"grp":"OTRAS","nota":""},{"cod":"W10","cant":3,"grp":"OTRAS","nota":""},{"cod":"W5","cant":1,"grp":"OTRAS","nota":""},{"cod":"TAPA DÍNAMO","cant":1,"grp":"OTRAS","nota":"ℹ Es una descripción, no un código: ponele el código que uses."},{"cod":"FIAT 1500","cant":1,"grp":"OTRAS","nota":"ℹ Es una descripción, no un código: ponele el código que uses."},{"cod":"TAPA C/IMP.CH BOSCH","cant":4,"grp":"OTRAS","nota":"ℹ Es una descripción, no un código: ponele el código que uses."},{"cod":"TAPA P/CARBONES ARR BOSCH","cant":2,"grp":"OTRAS","nota":"ℹ Es una descripción, no un código: ponele el código que uses."},{"cod":"TAPA P/CARBONES ARR MARELLI","cant":5,"grp":"OTRAS","nota":"ℹ Es una descripción, no un código: ponele el código que uses."},{"cod":"35256314","cant":7,"grp":"INTERMEDIA INDIEL","nota":"Repetido en la planilla: 2 + 5."},{"cod":"35256703","cant":2,"grp":"INTERMEDIA INDIEL","nota":""},{"cod":"35257914","cant":1,"grp":"INTERMEDIA INDIEL","nota":""},{"cod":"3525634","cant":1,"grp":"INTERMEDIA INDIEL","nota":"⚠ Tiene 7 dígitos (los códigos Indiel tienen 8): ¿falta un número?"},{"cod":"35258544","cant":1,"grp":"INTERMEDIA INDIEL","nota":""},{"cod":"35256251","cant":3,"grp":"INTERMEDIA INDIEL","nota":""}];
+const PRIORIDAD = ['DIPRA', 'AJ', 'ZEN', 'VARIOS'];
+const GRP_TXT = { '': 'sin rótulo (T…)', DIPRA: 'DIPRA', INDIEL: 'INDIEL', OTRAS: 'otras', 'INTERMEDIA INDIEL': 'INTERMEDIA INDIEL' };
+const GRP_PROV = { DIPRA: 'DIPRA', INDIEL: 'INDIEL', 'INTERMEDIA INDIEL': 'INDIEL' };
+
+function limpiarDetalle(d) { return d; }
+function medidasDe() { return ''; }
+const BOBX = BOB.map((b, i) => ({ i, c: String(b.c), d: limpiarDetalle(b.d), cf: b.cf || null, m: b.m, med: '' }));
+const bobPorCod = new Map(); BOBX.forEach(b => { const k = normCodigo(b.c); if (!bobPorCod.has(k)) bobPorCod.set(k, []); bobPorCod.get(k).push(b); });
+
+// fuerte = el código de la planilla figura dentro del detalle de Bobinar (ej: "(35256703)"); débil = solo coincide el número (T079 → AJT79)
+function candidatosDe(codPlanilla) {
+  const k = normCodigo(codPlanilla).replace(/\s+/g, '');
+  const r = [];
+  const add = (b, fuerte) => { const ya = r.find(x => x.b === b); if (ya) { ya.fuerte = ya.fuerte || fuerte; } else r.push({ b, fuerte }); };
+  if (/^\d{6,}$/.test(k)) BOBX.forEach(b => { if (b.d.replace(/\s+/g, '').includes(k)) add(b, true); });
+  (bobPorCod.get(k) || []).forEach(b => add(b, true));
+  const m = k.match(/^T0*(\d+)$/);
+  if (m) (bobPorCod.get('AJT' + m[1]) || []).forEach(b => add(b, false));
+  r.sort((a, b) => (b.fuerte - a.fuerte) || ((PRIORIDAD.indexOf(a.b.m) < 0 ? 9 : PRIORIDAD.indexOf(a.b.m)) - (PRIORIDAD.indexOf(b.b.m) < 0 ? 9 : PRIORIDAD.indexOf(b.b.m))));
+  return r;
+}
+const ITEMS = ROWS.map((r, idx) => ({ idx, codp: r.cod, cod: r.cod, cant: r.cant, grp: r.grp, nota: r.nota || '', cands: candidatosDe(r.cod).map(x => ({ ...x.b, fuerte: x.fuerte })) }));
+
+const st = {};
+function inicializarEstado() {
+  ITEMS.forEach(it => {
+    if (st[it.idx]) return;
+    const bob = it.cands.length && it.cands[0].fuerte ? it.cands[0].i : '';
+    st[it.idx] = { chk: bob !== '' && it.cant > 0 && !it.nota.startsWith('⚠'), cod: it.cod, cant: it.cant, bob, bobOtro: '', costo: bob === '' ? '' : (BOBX[bob].cf ?? ''), costoManual: false, pub: '', tit: '', };
+  });
+}
+function bobDe(idx) {
+  const s = st[idx];
+  if (s.bob === '' || s.bob === undefined) return null;
+  if (s.bob === 'otro') {
+    const c = (s.bobOtro || '').trim(); if (!c) return null;
+    const k = (bobPorCod.get(normCodigo(c)) || [])[0];
+    return k ? { ...k, conocido: true } : { c, d: '(código escrito a mano, no está en la lista cargada)', cf: null, m: '', med: '', conocido: false };
+  }
+  return { ...BOBX[s.bob], conocido: true };
+}
+function esDescriptivo(c) { return /[A-Za-zÁÉÍÓÚÑ]{3,}\s+[A-Za-zÁÉÍÓÚÑ/.]{2,}/.test(c); }
+function tituloAuto(it) {
+  const s = st[it.idx], b = bobDe(it.idx);
+  if (b && b.conocido) return `${b.d} — ${s.cod}`;
+  if (esDescriptivo(s.cod)) return s.cod;
+  const g = it.grp === 'INTERMEDIA INDIEL' ? 'Tapa intermedia de arranque INDIEL' : it.grp === '' ? 'Tapa c/burro de arranque' : it.grp === 'OTRAS' ? 'Tapa de arranque' : `Tapa de arranque ${it.grp}`;
+  return `${g} — ${s.cod}`;
+}
+function tituloDe(it) { const s = st[it.idx]; return (s.tit || '').trim() || tituloAuto(it); }
+function setBobCosto(it) {
+  const s = st[it.idx]; if (s.costoManual) return;
+  const b = bobDe(it.idx); s.costo = b && b.cf ? b.cf : '';
+}
+
+// ── Firebase ──
+let categoriasCache = [], repuestosCache = [], docsOrigen = [], marcasForm = [], proveedoresForm = [], maxIdMysql = 0;
+let mapPol = new Map(), mapOtro = new Map(), mapTit = new Map(), mapOrigen = new Map();
+const esPolea = r => /tapa/i.test(r.categoria || '') || /tapa/i.test(r.titulo_repuesto || '');
+
+async function iniciar() {
+  const [catSnap, repSnap, mrSnap, pvSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')),
+    getDocs(collection(db, 'repuestos')),
+    getDocs(collection(db, 'marcas_repuesto')),
+    getDocs(collection(db, 'proveedores')),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => String(a.nombre).localeCompare(String(b.nombre)));
+  repuestosCache = repSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  marcasForm = mrSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  proveedoresForm = pvSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  mapPol = new Map(); mapOtro = new Map(); mapTit = new Map(); mapOrigen = new Map();
+  maxIdMysql = 0;
+  repuestosCache.forEach(r => {
+    const cods = new Set([...partesCodigo(r.codigo), ...(r.codigos_proveedores || []).flatMap(cp => partesCodigo(cp.codigo))]);
+    const pol = esPolea(r);
+    cods.forEach(c => { const m = pol ? mapPol : mapOtro; if (!m.has(c)) m.set(c, r); });
+    const nt = normTitulo(r.titulo_repuesto); if (nt && !mapTit.has(nt)) mapTit.set(nt, r);
+    if (r.origen_import === ORIGEN) { mapOrigen.set(normCodigo(r.origen_item_cod || r.codigo), r); }
+    const v = parseInt(r.id_mysql); if (!isNaN(v) && v > maxIdMysql) maxIdMysql = v;
+  });
+  docsOrigen = repuestosCache.filter(r => r.origen_import === ORIGEN);
+
+  const primeraVez = !Object.keys(st).length;
+  inicializarEstado();
+  if (primeraVez) ITEMS.forEach(it => { if (estadoItem(it).tipo === 'done') st[it.idx].chk = false; });
+
+  // categoría: la que ya usan las tapas cargadas por este cargador; si no, una que se llame "polea"; si no, texto libre
+  const pref = categoriaPreferida();
+  const catSel = categoriasCache.find(c => pref.id && c.id === pref.id)
+    || categoriasCache.find(c => /tapa/i.test(c.nombre || '') && /arranque/i.test(c.nombre || ''))
+    || categoriasCache.find(c => /^tapas?\b/i.test(c.nombre || ''));
+  document.getElementById('sel-categoria').innerHTML = `<option value="">— elegir categoría —</option>` +
+    categoriasCache.map(c => `<option value="${esc(c.id)}" ${catSel && catSel.id === c.id ? 'selected' : ''}>${esc(c.nombre)}</option>`).join('') +
+    `<option value="__libre__" ${catSel ? '' : 'selected'}>— usar texto libre —</option>`;
+  document.getElementById('txt-categoria-libre').value = pref.nombre || 'Tapas de arranque';
+
+  document.getElementById('dl-bob').innerHTML = BOBX.map(b => `<option value="${esc(b.c)}">${esc(b.d)} · ${esc(b.m)} · ${fmt(b.cf)}</option>`).join('');
+
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderTodo();
+
+  const fi = document.getElementById('filtro-items');
+  if (!fi.dataset.bound) {
+    fi.dataset.bound = '1';
+    fi.addEventListener('input', renderTabla);
+    ['chk-solo-sin-bob', 'chk-ocultar-bloq'].forEach(id => document.getElementById(id).addEventListener('change', renderTabla));
+    ['chk-calc-venta', 'txt-margen'].forEach(id => document.getElementById(id).addEventListener('change', renderTabla));
+    ['chk-codigos-marca', 'sel-categoria'].forEach(id => document.getElementById(id).addEventListener('change', renderAviso));
+    document.getElementById('btn-sel-visibles').addEventListener('click', () => marcarVisibles(true));
+    document.getElementById('btn-desel-visibles').addEventListener('click', () => marcarVisibles(false));
+    document.getElementById('btn-cargar').addEventListener('click', cargarSeleccionados);
+    document.getElementById('filtro-cat-fix').addEventListener('input', renderFixCat);
+    document.getElementById('btn-tildar-cargadas').addEventListener('click', () => tildarCargadas(true));
+    document.getElementById('btn-destildar-cargadas').addEventListener('click', () => tildarCargadas(false));
+    document.getElementById('btn-fix-cat').addEventListener('click', cambiarCatTildadas);
+    const tb = document.getElementById('tbody-items');
+    tb.addEventListener('change', onCambioTabla);
+    tb.addEventListener('input', e => { const t = e.target; if (t.classList.contains('bob-otro')) st[parseInt(t.dataset.idx)].bobOtro = t.value.trim(); });
+  }
+}
+function categoriaPreferida() {
+  const cnt = {};
+  docsOrigen.forEach(r => { const k = (r.categoria_id || '') + '||' + (r.categoria || ''); cnt[k] = (cnt[k] || 0) + 1; });
+  const best = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
+  if (!best) return { id: '', nombre: '' };
+  const [id, nombre] = best[0].split('||');
+  return { id, nombre };
+}
+function categoriaPara() {
+  const selCat = document.getElementById('sel-categoria');
+  const libre = document.getElementById('txt-categoria-libre').value.trim();
+  if (selCat.value === '__libre__' || !selCat.value) return { id: '', nombre: libre || 'Tapas de arranque' };
+  return categoriasCache.find(c => c.id === selCat.value) || { id: '', nombre: libre || 'Tapas de arranque' };
+}
+
+// ── estado frente a Firebase (usa mapas: rápido con ~1100 repuestos x 539 filas) ──
+function codigosDe(it) {
+  const s = st[it.idx], b = bobDe(it.idx);
+  return [normCodigo(s.cod), ...(b ? [normCodigo(b.c)] : [])].filter(Boolean);
+}
+function estadoItem(it) {
+  const ya = mapOrigen.get(normCodigo(it.codp));
+  if (ya) return { tipo: 'done', ref: ya };
+  for (const c of codigosDe(it)) { const d = mapPol.get(c); if (d) return { tipo: 'dup', ref: d }; }
+  const dupTit = mapTit.get(normTitulo(tituloDe(it)));
+  if (dupTit) return { tipo: 'dup', ref: dupTit };
+  const cod = normCodigo(st[it.idx].cod);
+  return { tipo: 'nuevo', ref: null, otro: cod ? (mapOtro.get(cod) || null) : null };
+}
+
+// ── precios ──
+function calcPrecios(costo, pct) {
+  const p = parseFloat(pct) || 40;
+  const sinIva = costo * (1 + p / 100), conIva = sinIva * 1.21, conDesc = conIva * 0.9;
+  return { pct: p, sinIva: r2(sinIva), conIva: r2(conIva), conDescuento: r2(conDesc), gananciaNeta: r2(sinIva - costo), gananciaNetaDescuento: r2(conDesc - costo) };
+}
+function calcVentaActiva() { return document.getElementById('chk-calc-venta').checked; }
+function margenActual() { return parseFloat(document.getElementById('txt-margen').value) || 40; }
+
+// ── aviso marcas / proveedores del form ──
+function renderAviso() {
+  const marcas = new Set();
+  ITEMS.forEach(it => { const b = bobDe(it.idx); if (st[it.idx].chk && estadoItem(it).tipo === 'nuevo') { if (b && b.m) marcas.add(b.m); if (GRP_PROV[it.grp]) marcas.add(GRP_PROV[it.grp]); } });
+  const conCod = document.getElementById('chk-codigos-marca').checked;
+  const usaBob = ITEMS.some(it => st[it.idx].chk && estadoItem(it).tipo === 'nuevo' && bobDe(it.idx));
+  const faltaMarca = [...marcas].filter(m => !igualLista(marcasForm, m));
+  const faltaProv = (conCod ? [...marcas] : []).filter(m => !igualLista(proveedoresForm, m));
+  if (usaBob && !igualLista(proveedoresForm, 'BOBINAR') && !faltaProv.includes('BOBINAR')) faltaProv.push('BOBINAR');
+  const el = document.getElementById('aviso-marcas');
+  if (!faltaMarca.length && !faltaProv.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'block';
+  el.innerHTML = `<b>Ojo con el form de nuevo repuesto:</b> sus listas desplegables de marcas y proveedores se arman desde Firebase. Estas no están (para las filas tildadas):<br>
+    ${faltaMarca.length ? `Marcas de repuesto que faltan: <b>${faltaMarca.map(esc).join(', ')}</b><br>` : ''}
+    ${faltaProv.length ? `Proveedores (para "códigos de proveedores") que faltan: <b>${faltaProv.map(esc).join(', ')}</b><br>` : ''}
+    <button class="btn small" id="btn-agregar-marcas" style="margin-top:8px">➕ Agregar las que faltan a las listas del form</button>
+    <span class="info"> — es opcional y solo agrega nombres nuevos; no cambia ni borra ninguno existente.</span>`;
+  document.getElementById('btn-agregar-marcas').addEventListener('click', () => agregarFaltantes(faltaMarca, faltaProv));
+}
+async function agregarFaltantes(faltaMarca, faltaProv) {
+  if (!confirm(`Se van a agregar ${faltaMarca.length} marcas de repuesto y ${faltaProv.length} proveedores nuevos a las listas del form. ¿Confirmás?`)) return;
+  try {
+    const batch = writeBatch(db);
+    faltaMarca.forEach(n => batch.set(doc(collection(db, 'marcas_repuesto')), { nombre: n }));
+    faltaProv.forEach(n => batch.set(doc(collection(db, 'proveedores')), { nombre: n }));
+    await batch.commit();
+    toast('✅ Listas del form actualizadas');
+    await iniciar();
+  } catch (e) { console.error(e); toast('Error: ' + e.message); }
+}
+
+// ── cambiar categoría de las ya cargadas (solo categoria + categoria_id) ──
+function renderCambioCat() {
+  const card = document.getElementById('card-cambiar-cat');
+  if (!docsOrigen.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  const cnt = {};
+  docsOrigen.forEach(r => { const k = r.categoria || '(sin categoría)'; cnt[k] = (cnt[k] || 0) + 1; });
+  document.getElementById('cat-actuales').innerHTML = `<b>${docsOrigen.length}</b> tapas cargadas por este cargador, hoy en: ` + Object.entries(cnt).map(([k, n]) => `<b>${esc(k)}</b> (${n})`).join(' · ');
+  const dest = document.getElementById('sel-cat-destino'), orig = document.getElementById('sel-cat-origen');
+  const pd = dest.value, po = orig.value;
+  const def = categoriasCache.find(c => /tapa intermedia/i.test(c.nombre || ''));
+  dest.innerHTML = `<option value="">— elegir categoría —</option>` + categoriasCache.map(c => `<option value="${esc(c.id)}" ${(pd ? pd === c.id : (def && def.id === c.id)) ? 'selected' : ''}>${esc(c.nombre)}</option>`).join('');
+  orig.innerHTML = `<option value="">Todas las cargadas (${docsOrigen.length})</option>` + Object.entries(cnt).map(([k, n]) => `<option value="${esc(k)}" ${po === k ? 'selected' : ''}>${esc(k)} (${n})</option>`).join('');
+  const b = document.getElementById('btn-cambiar-cat');
+  if (!b.dataset.bound) { b.dataset.bound = '1'; b.addEventListener('click', cambiarCategoria); }
+}
+async function cambiarCategoria() {
+  const destId = document.getElementById('sel-cat-destino').value;
+  const cat = categoriasCache.find(c => c.id === destId);
+  if (!cat) { toast('Elegí la categoría destino.'); return; }
+  const orig = document.getElementById('sel-cat-origen').value;
+  const lista = docsOrigen.filter(r => (!orig || (r.categoria || '(sin categoría)') === orig) && !(r.categoria_id === cat.id && r.categoria === cat.nombre));
+  if (!lista.length) { toast('No hay tapas para cambiar (ya están en esa categoría).'); return; }
+  if (!confirm(`Vas a pasar ${lista.length} tapas a la categoría "${cat.nombre}".\nSolo se cambia la categoría; nada más.\n¿Confirmás?`)) return;
+  const btn = document.getElementById('btn-cambiar-cat'), prog = document.getElementById('progreso-cat');
+  btn.disabled = true;
+  try {
+    let batch = writeBatch(db), n = 0, total = 0;
+    for (const r of lista) {
+      batch.update(doc(db, 'repuestos', r.id), { categoria: cat.nombre, categoria_id: cat.id });
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${lista.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    prog.textContent = `✅ ${total} cambiadas`;
+    toast(`✅ ${total} tapas pasadas a "${cat.nombre}"`);
+    await iniciar();
+  } catch (e) { console.error(e); toast('Error: ' + e.message); }
+  finally { btn.disabled = false; }
+}
+
+// ── render ──
+function renderTodo() { renderResumen(); renderTabla(); renderAviso(); renderCambioCat(); renderFixCat(); }
+
+function renderResumen() {
+  const est = ITEMS.map(it => estadoItem(it).tipo);
+  const done = est.filter(e => e === 'done').length;
+  const dup = est.filter(e => e === 'dup').length;
+  const nuevos = ITEMS.filter((it, i) => est[i] === 'nuevo');
+  const sinBob = nuevos.filter(it => !bobDe(it.idx)).length;
+  const sinCosto = nuevos.filter(it => !(parseFloat(st[it.idx].costo) > 0)).length;
+  const uni = ITEMS.reduce((a, it) => a + (it.cant || 0), 0);
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${ITEMS.length}</div><div class="l">filas de la hoja (repetidas sumadas)</div></div>
+    <div class="box"><div class="n">${uni}</div><div class="l">unidades (Cant. PAPI)</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${done}</div><div class="l">ya cargadas (Firebase)</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${dup}</div><div class="l">código/título repetido</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${nuevos.length}</div><div class="l">nuevas para cargar</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${sinBob}</div><div class="l">nuevas sin código Bobinar</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${sinCosto}</div><div class="l">nuevas sin costo</div></div>
+    <div class="box"><div class="n" style="color:var(--blue)" id="n-tildadas">0</div><div class="l">tildadas ahora</div></div>`;
+}
+
+function visibles() {
+  const q = document.getElementById('filtro-items').value.trim().toUpperCase();
+  const soloSin = document.getElementById('chk-solo-sin-bob').checked;
+  const ocultar = document.getElementById('chk-ocultar-bloq').checked;
+  return ITEMS.filter(it => {
+    const b = bobDe(it.idx);
+    if (soloSin && b) return false;
+    if (q && !(it.codp + ' ' + it.grp + ' ' + st[it.idx].cod + ' ' + (b ? b.c + ' ' + b.d : '')).toUpperCase().includes(q)) return false;
+    if (ocultar && estadoItem(it).tipo !== 'nuevo') return false;
+    return true;
+  });
+}
+
+function filaHTML(it) {
+  const s = st[it.idx];
+  const est = estadoItem(it);
+  const bloqueado = est.tipo !== 'nuevo';
+  let estado = '<span class="badge ok">nueva</span>';
+  if (est.tipo === 'done') estado = '<span class="badge done">ya cargada</span>';
+  else if (est.tipo === 'dup') {
+    const r = est.ref;
+    estado = `<span class="badge no">ya existe</span><div class="info">${esc(r.titulo_repuesto || r.codigo)} · código ${esc(r.codigo || '')} · cant ${esc(r.cant_artic ?? '—')} · costo ${esc(fmt(r.precio_costo))}</div>`;
+  } else if (est.otro) estado += `<div class="comp">El código ${esc(s.cod)} figura en otro rubro: ${esc(est.otro.titulo_repuesto || est.otro.codigo)}. No bloquea.</div>`;
+  const b = bobDe(it.idx);
+  const opts = it.cands.map(c => `<option value="${c.i}" ${s.bob === c.i ? 'selected' : ''}>${c.fuerte ? '' : '? '}${esc(c.c)} · ${esc(c.m)} · ${fmt(c.cf)}</option>`).join('');
+  let bobCel = `<select class="bob-sel" data-idx="${it.idx}" ${bloqueado ? 'disabled' : ''}><option value="">— sin código Bobinar —</option>${opts}<option value="otro" ${s.bob === 'otro' ? 'selected' : ''}>✎ otro código…</option></select>`;
+  if (s.bob === 'otro') bobCel += `<input class="bob-otro" list="dl-bob" data-idx="${it.idx}" data-k="bobOtro" placeholder="escribí el código Bobinar" value="${esc(s.bobOtro)}" ${bloqueado ? 'disabled' : ''}>`;
+  if (b) bobCel += `<div class="info"><b>${esc(b.d)}</b>${b.m ? ' · ' + esc(b.m) : ''}${b.med ? ' · ' + esc(b.med) : ''}</div>`;
+  if (!it.cands.length && s.bob === '') bobCel += `<div class="comp">No encontré "${esc(it.codp)}" en Bobinar. Elegí "otro código…" y buscalo, o cargá el costo a mano.</div>`;
+  if (it.cands.length && s.bob === '') bobCel += `<div class="comp">Coincide solo el número con ${esc(it.cands.map(c => c.c).join(', '))} (ver el desplegable, marcado con ?). No lo elegí porque Bobinar lo rotula distinto a tu hoja: comparalo con la pieza.</div>`;
+  if (it.cands.length > 1) bobCel += `<div class="info">${it.cands.length} líneas posibles de Bobinar.</div>`;
+  if (it.nota) bobCel += `<div class="comp">${esc(it.nota)}</div>`;
+  if (b && !b.conocido) bobCel += `<div class="comp">Ese código no está en la lista cargada: el costo hay que ponerlo a mano.</div>`;
+  const ph = (calcVentaActiva() && parseFloat(s.costo) > 0) ? String(calcPrecios(parseFloat(s.costo), margenActual()).conIva) : '';
+  const precio = `<div class="precio-cell">
+    <label>Costo <input type="number" step="0.01" class="precio-row" data-idx="${it.idx}" data-k="costo" value="${esc(s.costo)}" ${bloqueado ? 'disabled' : ''}></label>
+    <label>Venta c/IVA <input type="number" step="0.01" class="precio-row" data-idx="${it.idx}" data-k="pub" value="${esc(s.pub)}" placeholder="${esc(ph)}" ${bloqueado ? 'disabled' : ''}></label></div>`;
+  return `<tr id="tr-${it.idx}" data-idx="${it.idx}" class="${est.tipo === 'done' ? 'done' : est.tipo === 'dup' ? 'dup' : ''}">
+    <td><input type="checkbox" class="chk-item" data-idx="${it.idx}" ${est.tipo === 'dup' ? 'disabled' : (s.chk ? 'checked' : '')}></td>
+    <td><input class="code-row" data-idx="${it.idx}" data-k="cod" value="${esc(s.cod)}" ${est.tipo === 'done' ? 'disabled' : ''}>${s.cod !== it.codp ? `<div class="info">planilla: ${esc(it.codp)}</div>` : ''}</td>
+    <td class="info">${esc(GRP_TXT[it.grp] ?? it.grp)}</td>
+    <td><input type="number" class="cant-row" data-idx="${it.idx}" data-k="cant" value="${s.cant}" min="0" ${bloqueado ? 'disabled' : ''}></td>
+    <td style="min-width:220px"><input class="bob-otro" style="font-family:'Inter',sans-serif" data-idx="${it.idx}" data-k="tit" value="${esc(tituloDe(it))}" ${bloqueado ? 'disabled' : ''}></td>
+    <td style="min-width:280px">${bobCel}</td>
+    <td>${precio}</td>
+    <td>${estado}</td>
+  </tr>`;
+}
+
+function renderTabla() {
+  const tbody = document.getElementById('tbody-items');
+  const lista = visibles();
+  tbody.innerHTML = lista.map(filaHTML).join('') || `<tr><td colspan="8" class="loading">No hay filas con ese filtro.</td></tr>`;
+  document.getElementById('pie-tabla').textContent = `${lista.length} de ${ITEMS.length} filas visibles.`;
+  actualizarBoton();
+}
+function refrescarFila(idx) {
+  setTimeout(() => {
+    const tr = document.getElementById('tr-' + idx);
+    if (!tr || !tr.parentNode) return;
+    const tpl = document.createElement('template');
+    tpl.innerHTML = filaHTML(ITEMS[idx]).trim();
+    tr.replaceWith(tpl.content.firstChild);
+    actualizarBoton();
+  }, 0);
+}
+function marcarVisibles(v) {
+  visibles().forEach(it => { if (estadoItem(it).tipo === 'nuevo') st[it.idx].chk = v; });
+  renderTabla(); renderAviso();
+}
+function tildadasCargadas() { return ITEMS.filter(it => st[it.idx].chk && estadoItem(it).tipo === 'done'); }
+function renderFixCat() {
+  const sel = document.getElementById('sel-cat-fix');
+  const q = document.getElementById('filtro-cat-fix').value.trim().toLowerCase();
+  const prev = sel.value;
+  const exacta = categoriasCache.find(c => (c.nombre || '').trim().toLowerCase() === 'arranque despiece | tapa intermedia')
+    || categoriasCache.find(c => /tapa intermedia/i.test(c.nombre || ''));
+  const lista = categoriasCache.filter(c => !q || (c.nombre || '').toLowerCase().includes(q));
+  const elegida = lista.find(c => c.id === prev) ? prev : (!q && exacta ? exacta.id : (lista.length === 1 ? lista[0].id : ''));
+  sel.innerHTML = `<option value="">— elegir categoría (${lista.length}) —</option>` + lista.map(c => `<option value="${esc(c.id)}" ${c.id === elegida ? 'selected' : ''}>${esc(c.nombre)}</option>`).join('');
+}
+function tildarCargadas(v) {
+  ITEMS.forEach(it => { if (estadoItem(it).tipo === 'done') st[it.idx].chk = v; });
+  renderTabla();
+  const n = tildadasCargadas().length;
+  document.getElementById('progreso-fix').textContent = v ? `${n} ya cargadas tildadas` : '';
+}
+async function cambiarCatTildadas() {
+  const prog = document.getElementById('progreso-fix');
+  const cat = categoriasCache.find(c => c.id === document.getElementById('sel-cat-fix').value);
+  if (!cat) { prog.textContent = '⚠ Elegí primero la categoría destino.'; toast('Elegí la categoría destino.'); return; }
+  const marcadas = tildadasCargadas();
+  if (!marcadas.length) { prog.textContent = '⚠ No hay filas "ya cargadas" tildadas.'; toast('Tildá primero las filas ya cargadas.'); return; }
+  const lista = marcadas.map(it => estadoItem(it).ref).filter(r => r && !(r.categoria_id === cat.id && r.categoria === cat.nombre));
+  if (!lista.length) { prog.textContent = 'Las tildadas ya están en esa categoría.'; toast('Ya están en esa categoría.'); return; }
+  if (!confirm(`Vas a pasar ${lista.length} tapas a la categoría "${cat.nombre}".\nSolo se cambia la categoría; nada más.\n¿Confirmás?`)) return;
+  const btn = document.getElementById('btn-fix-cat');
+  btn.disabled = true;
+  try {
+    let batch = writeBatch(db), n = 0, total = 0;
+    for (const r of lista) {
+      batch.update(doc(db, 'repuestos', r.id), { categoria: cat.nombre, categoria_id: cat.id });
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${lista.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    marcadas.forEach(it => { st[it.idx].chk = false; });
+    await iniciar();
+    document.getElementById('progreso-fix').textContent = `✅ ${total} tapas pasadas a "${cat.nombre}"`;
+    toast(`✅ ${total} tapas pasadas a "${cat.nombre}"`);
+  } catch (e) {
+    console.error(e);
+    prog.textContent = '❌ Error: ' + e.message;
+    toast('Error: ' + e.message);
+  } finally { btn.disabled = false; }
+}
+function totalTildados() { return ITEMS.filter(it => st[it.idx].chk && estadoItem(it).tipo === 'nuevo'); }
+function actualizarBoton() {
+  const n = totalTildados().length;
+  document.getElementById('btn-cargar').textContent = `⚡ Cargar seleccionados (${n})`;
+  const el = document.getElementById('n-tildadas'); if (el) el.textContent = n;
+  const bf = document.getElementById('btn-fix-cat'); if (bf) bf.textContent = `🔁 Cambiar categoría de las tildadas (${tildadasCargadas().length})`;
+}
+
+function onCambioTabla(e) {
+  const t = e.target; const idx = parseInt(t.dataset.idx); if (isNaN(idx)) return;
+  const it = ITEMS[idx], s = st[idx];
+  if (t.classList.contains('chk-item')) { s.chk = t.checked; actualizarBoton(); renderAviso(); return; }
+  if (t.classList.contains('bob-sel')) {
+    s.bob = t.value === '' ? '' : (t.value === 'otro' ? 'otro' : parseInt(t.value));
+    if (s.bob !== 'otro') s.bobOtro = '';
+    setBobCosto(it); refrescarFila(idx); renderResumen(); renderAviso(); return;
+  }
+  const k = t.dataset.k;
+  if (k === 'bobOtro') { s.bobOtro = t.value.trim(); setBobCosto(it); refrescarFila(idx); renderResumen(); renderAviso(); return; }
+  if (k === 'cant') { s.cant = Math.max(0, parseInt(t.value) || 0); actualizarBoton(); return; }
+  if (k === 'cod') { s.cod = t.value.trim(); refrescarFila(idx); renderResumen(); return; }
+  if (k === 'tit') { s.tit = t.value.trim() === tituloAuto(it) ? '' : t.value.trim(); return; }
+  if (k === 'costo') { s.costoManual = t.value !== ''; if (t.value === '') setBobCosto(it); else s.costo = t.value; refrescarFila(idx); renderResumen(); return; }
+  if (k === 'pub') { s.pub = t.value; return; }
+}
+
+// ── armado del documento ──
+function construirDoc(it, categoriaObj, condicion, publicar, idMysql, conCodMarca) {
+  const s = st[it.idx];
+  const cod = s.cod;
+  const costo = parseFloat(s.costo) || 0;
+  let pub = parseFloat(s.pub) || 0;
+  const extraPrecios = {};
+  if (!pub && calcVentaActiva() && costo > 0) {
+    const p = calcPrecios(costo, margenActual());
+    pub = p.conIva;
+    Object.assign(extraPrecios, { precio_venta_descuento: p.conDescuento, ganancia_neta: p.gananciaNeta, ganancia_neta_descuento: p.gananciaNetaDescuento });
+  }
+  const sinIva = pub ? r2(pub / 1.21) : 0;
+  const b = bobDe(it.idx);
+  const gp = GRP_PROV[it.grp] || '';
+  const marcas = [...new Set([...(b && b.m ? [b.m] : []), ...(gp ? [gp] : [])])];
+  const provBob = igualLista(proveedoresForm, 'BOBINAR') || 'BOBINAR';
+  const cps = [];
+  if (gp) cps.push({ proveedor: igualLista(proveedoresForm, gp) || gp, codigo: cod });
+  if (b) {
+    cps.push({ proveedor: provBob, codigo: b.c });
+    if (conCodMarca && b.m && normCodigo(b.m) !== normCodigo(gp)) cps.push({ proveedor: igualLista(proveedoresForm, b.m) || b.m, codigo: b.c });
+  }
+  return {
+    titulo_repuesto: tituloDe(it),
+    categoria: categoriaObj.nombre,
+    categoria_id: categoriaObj.id || '',
+    id_estanteria: '', id_estante: '',
+    tipos_vehiculo: [],
+    tipo: 'ORIGINAL',
+    condicion,
+    contenedor: '',
+    marcas_repuesto: marcas,
+    fabricantes: marcas,
+    arranque: '', alternador: '',
+    modelo_repuesto: '',
+    material: '',
+    lado: '',
+    codigo: cod,
+    codigos_oem: [],
+    aplicacion: '',
+    marcas_modelos: [],
+    marcas_vehiculo: [],
+    codigos_proveedores: cps,
+    catalogos_papel: [],
+    descripcion: b && b.conocido ? b.d + (b.med ? `\nMedidas: ${b.med}` : '') : '',
+    notas_internas: `Cargado de la hoja TAPAS C/BURRO ARRANQUE de los cuadernos (código en planilla: ${it.codp}, Cant. PAPI: ${it.cant}).${b ? ` Código Bobinar: ${b.c}${b.m ? ' · ' + b.m : ''}${b.cf ? ' · costo final $ ' + b.cf : ''}.` : ' Sin código Bobinar.'}`,
+    importante: '',
+    grupo_planilla: it.grp || '',
+    codigo_bobinar: b ? b.c : '',
+    codigo_planilla: it.codp,
+    dd_alta_rotacion: '', dd_demanda: '', dd_disponibilidad: '', dd_descontinuado: '',
+    dd_buscado_por: '', dd_vigencia: '', dd_oferta: '', dd_justificacion: '',
+    cant_artic: s.cant || 0,
+    stock_minimo: 1,
+    forma_pago: 'Contado Efectivo',
+    forma_entrega: 'A convenir',
+    fecha_compra: '',
+    moneda: 'ARS',
+    precio_costo: costo,
+    precio_venta: sinIva,
+    precio_venta_iva: pub,
+    precio_ganancia_pct: pub && calcVentaActiva() ? margenActual() : 40,
+    ...extraPrecios,
+    imagenes: [], imagen_url: '',
+    alta: !!publicar,
+    id_mysql: String(idMysql),
+    vistas: 0,
+    creado_en: serverTimestamp(),
+    origen_import: ORIGEN,
+    origen_hoja: HOJA,
+    origen_item_cod: it.codp,
+  };
+}
+
+async function cargarSeleccionados() {
+  const condicion = document.getElementById('sel-condicion').value;
+  const publicar = document.getElementById('chk-publicar').checked;
+  const conCodMarca = document.getElementById('chk-codigos-marca').checked;
+  const btn = document.getElementById('btn-cargar');
+  const prog = document.getElementById('progreso');
+  const categoriaObj = categoriaPara();
+
+  const sel = totalTildados();
+  if (!sel.length) { toast('No hay filas tildadas.'); return; }
+  const vacios = sel.filter(it => !st[it.idx].cod);
+  if (vacios.length) { toast('Hay filas tildadas sin código: ' + vacios.slice(0, 3).map(it => it.codp).join(', ')); return; }
+  const vistos = {}; const rep = [];
+  sel.forEach(it => { const c = normCodigo(st[it.idx].cod); if (vistos[c]) rep.push(st[it.idx].cod); vistos[c] = true; });
+  if (rep.length) { toast('Código repetido entre las filas tildadas: ' + [...new Set(rep)].join(', ')); return; }
+  const sinCosto = sel.filter(it => !(parseFloat(st[it.idx].costo) > 0)).length;
+  const sinCant = sel.filter(it => !(st[it.idx].cant > 0)).length;
+  const sinBob = sel.filter(it => !bobDe(it.idx)).length;
+  if (!confirm(`Vas a cargar ${sel.length} tapas a Firebase en la categoría "${categoriaObj.nombre}"${publicar ? ' (publicadas)' : ' (OCULTAS: no tildaste publicar)'}.\n${sinCant ? `${sinCant} quedan con cantidad 0.\n` : ''}${sinBob ? `${sinBob} quedan sin código Bobinar.\n` : ''}${sinCosto ? `${sinCosto} quedan sin costo.\n` : ''}¿Confirmás?`)) return;
+
+  btn.disabled = true;
+  let batch = writeBatch(db); let n = 0, total = 0, idMysql = maxIdMysql;
+  try {
+    for (const it of sel) {
+      idMysql++;
+      const ref = doc(collection(db, 'repuestos'));
+      batch.set(ref, construirDoc(it, categoriaObj, condicion, publicar, idMysql, conCodMarca));
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${sel.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    maxIdMysql = idMysql;
+    prog.textContent = `✅ ${total} cargadas`;
+    toast(`✅ ${total} tapas cargadas`);
+    sel.forEach(it => { st[it.idx].chk = false; });
+    await iniciar();
+  } catch (e) {
+    console.error(e);
+    toast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
