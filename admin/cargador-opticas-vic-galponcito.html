@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargador de Ópticas VIC (Galponcito) — Panel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b12;--bg2:#0f1117;--bg3:#141720;--bg4:#1a1f2e;
+  --border:#1e2433;--border2:#2a3347;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#4b5563;
+  --blue:#3b82f6;--blue2:#2563eb;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--indigo:#6366f1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;padding:24px;max-width:1350px;margin:0 auto}
+h1{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:4px}
+.sub{color:var(--text2);font-size:13px;margin-bottom:16px;max-width:980px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px;display:inline-block;margin-bottom:14px}
+.summary{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.summary .box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;min-width:110px}
+.summary .box .n{font-size:20px;font-weight:700;font-family:'Rajdhani',sans-serif}
+.summary .box .l{font-size:10.5px;color:var(--text2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.controles{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;font-size:12px;color:var(--text2)}
+.controles label{display:flex;flex-direction:column;gap:4px}
+select,.txt{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:7px 9px;font-size:12.5px;min-width:190px}
+input.precio-row{min-width:0;width:90px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+.precio-cell{display:flex;flex-direction:column;gap:3px}
+.precio-cell label{font-size:9.5px;color:var(--text3);display:flex;gap:4px;align-items:center}
+.precio-match{font-size:10px;color:var(--text3);margin-top:2px}
+.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--blue2)}
+.btn.green{background:var(--green)} .btn.green:hover{background:#16a34a}
+.btn.ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.btn.small{padding:5px 10px;font-size:11.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.badge.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.badge.no{background:rgba(239,68,68,.15);color:var(--red)}
+.badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge.done{background:rgba(99,102,241,.18);color:var(--indigo)}
+.scroll-tabla{max-height:600px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+table.tabla-items{width:100%;border-collapse:collapse;font-size:12px}
+table.tabla-items th{text-align:left;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border2);padding:6px 8px;position:sticky;top:0;background:var(--bg2)}
+table.tabla-items td{border-bottom:1px solid var(--border);padding:6px 8px;vertical-align:top}
+table.tabla-items tr.dup td{opacity:.55}
+table.tabla-items tr.done td{opacity:.4}
+table.tabla-items tr.sinstock td{opacity:.5}
+.mono{font-family:'JetBrains Mono',monospace;color:var(--blue)}
+.swatch-cell{display:flex;align-items:center;gap:8px}
+.swatch{width:22px;height:16px;border-radius:3px;border:1px solid rgba(255,255,255,.25);flex-shrink:0}
+.swatch.sin{background:repeating-linear-gradient(45deg,#2a3347,#2a3347 3px,#141720 3px,#141720 6px)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;display:none;z-index:99;max-width:360px}
+.toast.show{display:block}
+.loading{color:var(--text2);padding:40px;text-align:center}
+.progreso{font-size:12px;color:var(--text2)}
+input.code-row{min-width:0;width:130px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px;font-family:'JetBrains Mono',monospace}
+input.cant-row{width:60px;padding:4px 6px;font-size:11.5px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:6px}
+select.lado-row{min-width:0;width:150px;padding:4px 6px;font-size:11.5px}
+.comp{font-size:10.5px;color:var(--amber);margin-top:3px;line-height:1.35}
+.info{font-size:10.5px;color:var(--text3);margin-top:3px;line-height:1.35}
+details.card summary{cursor:pointer;font-weight:600;font-size:13px}
+.aviso{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text2);margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Volver al panel</a>
+<h1>Cargador de Ópticas VIC (Galponcito)</h1>
+<div class="sub">Carga las <b>47 filas de ÓPTICAS VIC</b> (marca <b>VIC</b>, Cant. PAPI + código) como repuestos con nombre propio ("Óptica VIC 775"), en vez del "SIN NOMBRE" que genera el agregador de cuadernos. Cuando el código figura en tu <b>catálogo VIC</b> de la hoja ÓPTICAS (modelo, mando, lámpara), lo suma a la descripción. <b>Nada se pisa</b>: si ya hay un repuesto con ese código en Firebase (por ejemplo cargado desde los cuadernos), la fila queda bloqueada y te muestro la comparación. Los códigos que aparecen dos veces en la lista (655 y 647) probablemente son lado derecho e izquierdo: elegí el lado en cada fila.</div>
+
+<div id="carga-inicial" class="loading">Cargando categorías y repuestos existentes desde Firebase…</div>
+
+<div id="app" style="display:none">
+  <div class="summary" id="resumen"></div>
+  <div class="aviso" id="aviso-marcas" style="display:none"></div>
+
+  <div class="card">
+    <h2 style="font-family:'Rajdhani',sans-serif;font-size:16px;margin-bottom:10px">Configuración de carga</h2>
+    <div class="controles">
+      <label>Categoría
+        <select id="sel-categoria"></select>
+      </label>
+      <label>Si es texto libre, nombre:
+        <input class="txt" id="txt-categoria-libre" value="Opticas | Livianos | Pesados | Deportivos | Público" style="min-width:320px">
+      </label>
+      <label>Condición
+        <select id="sel-condicion">
+          <option selected>NUEVO</option>
+          <option>REACONDICIONADO</option><option>RECAMBIO</option><option>DESCONTINUADO</option><option>REEMPLAZO</option><option>OUTLET</option>
+        </select>
+      </label>
+      <label class="controles" style="flex-direction:row;align-items:center;gap:6px">
+        <input type="checkbox" id="chk-publicar"> publicar automáticamente (si no, queda como borrador)
+      </label>
+    </div>
+    <div class="controles" style="margin-top:12px">
+      <label>Buscar por código o vehículo
+        <input class="txt" id="filtro-items" placeholder="ej: 761, PEUGEOT…" style="min-width:260px">
+      </label>
+      <button class="btn ghost small" id="btn-sel-visibles">Tildar visibles</button>
+      <button class="btn ghost small" id="btn-desel-visibles">Destildar visibles</button>
+      <button class="btn green" id="btn-cargar">⚡ Cargar seleccionados</button>
+      <span class="progreso" id="progreso"></span>
+    </div>
+  </div>
+
+  <div class="scroll-tabla"><table class="tabla-items">
+    <thead><tr><th></th><th>Código</th><th>Lado</th><th>Cant. PAPI</th><th>Catálogo VIC (planilla)</th><th>Precio (opcional)</th><th>Estado</th></tr></thead>
+    <tbody id="tbody-items"></tbody>
+  </table></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, doc, getDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyC9LT9Yhz0Y8smqXJ0sAErLl4Lnf6s0rZ4",
+  authDomain:        "repuestos-automotor.firebaseapp.com",
+  projectId:         "repuestos-automotor",
+  storageBucket:     "repuestos-automotor.firebasestorage.app",
+  messagingSenderId: "952203469999",
+  appId:             "1:952203469999:web:9d5ec956f834482172a05a"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const ORIGEN = 'stock-galponcito-opticas-vic';
+const HOJA = 'OPTICAS VIC';
+const MARCA = 'VIC';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '../index.html'; return; }
+  const snap = await getDoc(doc(db, 'usuarios', user.uid));
+  if (!snap.exists() || snap.data().rol !== 'admin' || snap.data().estado !== 'activo') {
+    window.location.href = '../index.html'; return;
+  }
+  await iniciar();
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4200);
+}
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function normCodigo(s) { return (s || '').toString().trim().toUpperCase().replace(/\s+/g, ' '); }
+function normCompacto(s) { return normCodigo(s).replace(/[\s\-\/]/g, ''); }
+function partesCodigo(s) { return normCodigo(s).split(/[|,\n]/).map(x => x.trim()).filter(Boolean); }
+function igualLista(lista, nombre) { return lista.find(x => x.toUpperCase() === (nombre || '').toUpperCase()) || null; }
+function fmtPrecio(n) { return '$' + Number(n || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+// ── LISTA ÓPTICAS VIC (Cant. PAPI + código). "ocurrencia" = nº de aparición del mismo código en la lista. ──
+const FILAS = [{"key": "o0", "codigo": "659", "cant": 5, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o1", "codigo": "751", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o2", "codigo": "766", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o3", "codigo": "767", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o4", "codigo": "655", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": true}, {"key": "o5", "codigo": "762", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o6", "codigo": "649", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o7", "codigo": "639", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o8", "codigo": "773", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o9", "codigo": "771", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o10", "codigo": "761", "cant": 7, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o11", "codigo": "725", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o12", "codigo": "647", "cant": 5, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": true}, {"key": "o13", "codigo": "632", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o14", "codigo": "519", "cant": 3, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o15", "codigo": "530", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o16", "codigo": "510", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o17", "codigo": "528", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o18", "codigo": "507", "cant": 18, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o19", "codigo": "501", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o20", "codigo": "672", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o21", "codigo": "652", "cant": 6, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o22", "codigo": "676", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o23", "codigo": "736", "cant": 4, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o24", "codigo": "655", "cant": 3, "nota": "", "dudoso": false, "ocurrencia": 2, "sinNumero": false, "repetido": true}, {"key": "o25", "codigo": "650", "cant": 5, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o26", "codigo": "527", "cant": 7, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o27", "codigo": "523", "cant": 4, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o28", "codigo": "651", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o29", "codigo": "518", "cant": 10, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o30", "codigo": "647", "cant": 9, "nota": "", "dudoso": false, "ocurrencia": 2, "sinNumero": false, "repetido": true}, {"key": "o31", "codigo": "702", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o32", "codigo": "513", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o33", "codigo": "512", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o34", "codigo": "775", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o35", "codigo": "745", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o36", "codigo": "752", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o37", "codigo": "747", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o38", "codigo": "705", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o39", "codigo": "631", "cant": 3, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o40", "codigo": "744", "cant": 1, "nota": "En la lista figuraba como '744 NO ESTA CREO'", "dudoso": true, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o41", "codigo": "770", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": false, "repetido": false}, {"key": "o42", "codigo": "FORD F1110", "cant": 5, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": true, "repetido": false}, {"key": "o43", "codigo": "POLARA", "cant": 2, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": true, "repetido": false}, {"key": "o44", "codigo": "AMI 8", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": true, "repetido": false}, {"key": "o45", "codigo": "PEUGEOT 306", "cant": 3, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": true, "repetido": false}, {"key": "o46", "codigo": "BOXER", "cant": 1, "nota": "", "dudoso": false, "ocurrencia": 1, "sinNumero": true, "repetido": false}];
+// ── Catálogo VIC de la hoja ÓPTICAS de la planilla, por número base de código (sirve de ayuda, no se aplica a ciegas) ──
+const CATALOGO = {"775": [{"codigo": "775 D", "lado": "D", "marca": "PEUGEOT", "modelo": "405 MOD 87/99", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": "Con Luz de Posición"}], "761": [{"codigo": "761 D", "lado": "D", "marca": "VOLKSWAGEN", "modelo": "Gol AB9 (95/ 99)/ Saveiro (98/99)", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": "Tipo Ci."}, {"codigo": "761 I", "lado": "I", "marca": "VOLKSWAGEN", "modelo": "Gol AB9 (95/ 99)/ Saveiro (98/99)", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": "Tipo Ci."}, {"codigo": "761 D", "lado": "D", "marca": "VOLKSWAGEN", "modelo": "Gol / Saveiro (98/99)", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": null}, {"codigo": "761 I", "lado": "I", "marca": "VOLKSWAGEN", "modelo": "Gol / Saveiro (98/99)", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": null}], "705": [{"codigo": "705 I", "lado": "I", "marca": "PEUGEOT", "modelo": "504 BERLINA 90/99", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": "504 SRX"}], "752": [{"codigo": "752 D", "lado": "D", "marca": "RENAULT", "modelo": "R19 Fase II 92/00", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": "Con Luz de Posición"}], "766": [{"codigo": "766 I", "lado": "I", "marca": "PEUGEOT", "modelo": "306 3p/4p/5p/break 93/97", "mando": "MANUAL", "lampara": null, "trae": null}, {"codigo": "766 D", "lado": "D", "marca": "PEUGEOT", "modelo": "306 3p/4p/5p/break 93/97", "mando": "MANUAL", "lampara": null, "trae": "Original Cibie Licencia Francia"}], "631": [{"codigo": "631", "lado": "", "marca": "RENAULT", "modelo": "12 Mod.", "mando": "MANUAL", "lampara": "Lámpara PT 45", "trae": null}], "659": [{"codigo": "659 D", "lado": "D", "marca": "RENAULT", "modelo": "18 82/94", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": null}], "762": [{"codigo": "762 I", "lado": "I", "marca": "FORD", "modelo": "FIESTA MOD. 90", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": "Con Luz de Posición"}], "773": [{"codigo": "773 I", "lado": "I", "marca": "FIAT", "modelo": "PALIO / SIENA 2 Giros 96/2000", "mando": "MANUAL", "lampara": "Lámpara H4", "trae": null}], "650": [{"codigo": "650 I", "lado": "I", "marca": "FORD", "modelo": "TAUNUS GHIA 81", "mando": "MANUAL", "lampara": null, "trae": null}], "639": [{"codigo": "639", "lado": "", "marca": "FORD", "modelo": "TAUNUS (74/80)", "mando": "MANUAL", "lampara": "Lámpara PT 45", "trae": null}], "647": [{"codigo": "647", "lado": "", "marca": "UNIVERSAL", "modelo": "Óptica Universal 5” 3/4 100 x 165 mm ALTA Y BAJA", "mando": "MANUAL", "lampara": "Lámpara P45T", "trae": null}], "519": [{"codigo": "519", "lado": "", "marca": "FIAT", "modelo": "128 TIPO CIBIE 78/79", "mando": null, "lampara": "Lámpara PT 45", "trae": "Tipo Ci"}, {"codigo": "519", "lado": "", "marca": "FIAT", "modelo": "128 TIPO CIBIE 78/79", "mando": null, "lampara": "Lámpara PT 45", "trae": "Tipo Ci"}]};
+
+let categoriasCache = [], repuestosCache = [], maxIdMysql = 0;
+let marcasForm = [], proveedoresForm = [];
+let importadosClaves = new Set();
+const cantE = {}, codE = {}, ladoE = {}, usaCatE = {}, precioE = {};
+
+function claveFila(f) { return 'OPT|' + normCompacto(codE[f.key]) + '|' + f.ocurrencia; }
+function baseNumerica(c) { const m = (c || '').trim().match(/^(\d+)/); return m ? m[1] : ''; }
+function hintsCatalogo(f) { return CATALOGO[baseNumerica(codE[f.key])] || []; }
+function vehiculosUnicos(f) {
+  const vistos = new Set(), out = [];
+  hintsCatalogo(f).forEach(h => { const k = (h.marca || '') + '|' + (h.modelo || ''); if (!vistos.has(k)) { vistos.add(k); out.push(h); } });
+  return out;
+}
+
+function inicializar() {
+  FILAS.forEach(f => {
+    if (cantE[f.key] === undefined) cantE[f.key] = f.cant;
+    if (codE[f.key] === undefined) codE[f.key] = f.codigo;
+    if (ladoE[f.key] === undefined) ladoE[f.key] = '';
+    if (usaCatE[f.key] === undefined) usaCatE[f.key] = hintsCatalogo(f).length > 0 && !f.sinNumero;
+    if (!precioE[f.key]) precioE[f.key] = { pub: '', costo: '' };
+  });
+}
+
+function hojaDeNotas(n) { const m = (n || '').match(/Hoja de origen<\/th>\s*<td[^>]*>([^<]*)</i); return m ? m[1].trim().toUpperCase() : ''; }
+
+async function iniciar() {
+  const [catSnap, repSnap, mrSnap, pvSnap] = await Promise.all([
+    getDocs(collection(db, 'categorias')), getDocs(collection(db, 'repuestos')),
+    getDocs(collection(db, 'marcas_repuesto')), getDocs(collection(db, 'proveedores')),
+  ]);
+  categoriasCache = catSnap.docs.map(d => ({ id: d.id, nombre: d.data().nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  repuestosCache = repSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  marcasForm = mrSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  proveedoresForm = pvSnap.docs.map(d => d.data().nombre || d.id).filter(Boolean);
+  maxIdMysql = 0;
+  repuestosCache.forEach(r => { const v = parseInt(r.id_mysql); if (!isNaN(v) && v > maxIdMysql) maxIdMysql = v; });
+  importadosClaves = new Set();
+  repuestosCache.forEach(r => { if (r.origen_import === ORIGEN && r.origen_clave) importadosClaves.add(r.origen_clave); });
+  inicializar();
+
+  const cat = categoriasCache.find(c => /^optica/i.test(c.nombre)) || categoriasCache.find(c => /optica/i.test(c.nombre));
+  document.getElementById('sel-categoria').innerHTML = `<option value="">— elegir categoría —</option>` +
+    categoriasCache.map(c => `<option value="${c.id}" ${cat && cat.id === c.id ? 'selected' : ''}>${esc(c.nombre)}</option>`).join('') +
+    `<option value="__libre__" ${cat ? '' : 'selected'}>— usar texto libre —</option>`;
+  document.getElementById('carga-inicial').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderTodo();
+
+  const fi = document.getElementById('filtro-items');
+  if (!fi.dataset.bound) {
+    fi.dataset.bound = '1';
+    fi.addEventListener('input', aplicarFiltro);
+    document.getElementById('btn-sel-visibles').addEventListener('click', () => marcarVisibles(true));
+    document.getElementById('btn-desel-visibles').addEventListener('click', () => marcarVisibles(false));
+    document.getElementById('btn-cargar').addEventListener('click', cargarSeleccionados);
+  }
+}
+
+// Busca un repuesto ya cargado con el mismo código. Se considera repetido si es de VIC, si viene de la hoja
+// OPTICAS VIC de los cuadernos, o si no tiene marca. Si es de otra marca se avisa pero se permite.
+function buscarExistente(f) {
+  const c = normCompacto(codE[f.key]);
+  let dup = null, otraMarca = null;
+  if (!c) return { dup, otraMarca };
+  for (const r of repuestosCache) {
+    if (r.origen_import === ORIGEN) continue;
+    const cods = [...partesCodigo(r.codigo), ...(r.codigos_proveedores || []).flatMap(cp => partesCodigo(cp.codigo))].map(normCompacto);
+    if (!cods.includes(c)) continue;
+    const marcasR = [...(r.marcas_repuesto || []), ...(r.fabricantes || [])].map(x => normCodigo(x)).filter(Boolean);
+    const esVic = marcasR.includes(MARCA) || hojaDeNotas(r.notas_internas) === HOJA || !marcasR.length;
+    if (esVic) { dup = r; break; }
+    if (!otraMarca) otraMarca = r;
+  }
+  return { dup, otraMarca };
+}
+function estadoFila(f) { return importadosClaves.has(claveFila(f)) ? 'done' : (buscarExistente(f).dup ? 'dup' : 'nuevo'); }
+function tieneInterrogante(f) { return !normCodigo(codE[f.key]) || /\?/.test(codE[f.key] || ''); }
+
+function faltantes() {
+  const hay = FILAS.some(f => estadoFila(f) === 'nuevo');
+  return { faltaMarca: hay && !igualLista(marcasForm, MARCA), faltaProv: hay && !igualLista(proveedoresForm, MARCA) };
+}
+function renderAviso() {
+  const { faltaMarca, faltaProv } = faltantes();
+  const el = document.getElementById('aviso-marcas');
+  if (!faltaMarca && !faltaProv) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = `<b>Ojo con el form de nuevo repuesto:</b> sus listas desplegables se arman desde Firebase y todavía no tienen <b>VIC</b>${faltaMarca && faltaProv ? ' (ni como marca de repuesto ni como proveedor)' : faltaMarca ? ' como marca de repuesto' : ' como proveedor'}. Si abrís estos repuestos en el form y guardás sin que exista, se pierde la marca / el código de proveedor.<br>
+    <button class="btn small" id="btn-agregar-marcas" style="margin-top:8px">➕ Agregar VIC a las listas del form</button>
+    <span class="info"> — opcional; solo agrega el nombre nuevo, no cambia ni borra nada.</span>`;
+  document.getElementById('btn-agregar-marcas').addEventListener('click', async () => {
+    if (!confirm('Se agrega "VIC" a las listas de marcas / proveedores del form. ¿Confirmás?')) return;
+    try {
+      const b = writeBatch(db);
+      if (faltaMarca) b.set(doc(collection(db, 'marcas_repuesto')), { nombre: MARCA });
+      if (faltaProv) b.set(doc(collection(db, 'proveedores')), { nombre: MARCA });
+      await b.commit(); toast('✅ Listas del form actualizadas'); await iniciar();
+    } catch (e) { console.error(e); toast('Error: ' + e.message); }
+  });
+}
+
+function renderResumen() {
+  const est = FILAS.map(estadoFila);
+  const unidades = FILAS.reduce((a, f) => a + (cantE[f.key] || 0), 0);
+  document.getElementById('resumen').innerHTML = `
+    <div class="box"><div class="n">${FILAS.length}</div><div class="l">filas en la lista VIC</div></div>
+    <div class="box"><div class="n" style="color:var(--green)">${est.filter(e => e === 'nuevo').length}</div><div class="l">nuevas, listas para cargar</div></div>
+    <div class="box"><div class="n" style="color:var(--indigo)">${est.filter(e => e === 'done').length}</div><div class="l">ya cargadas con este cargador</div></div>
+    <div class="box"><div class="n" style="color:var(--red)">${est.filter(e => e === 'dup').length}</div><div class="l">código ya en Firebase (bloqueadas)</div></div>
+    <div class="box"><div class="n" style="color:var(--amber)">${FILAS.filter(f => f.repetido).length}</div><div class="l">códigos repetidos en la lista</div></div>
+    <div class="box"><div class="n" style="color:var(--blue)">${unidades}</div><div class="l">unidades (Cant. PAPI)</div></div>`;
+}
+
+function filaHtml(f) {
+  const est = estadoFila(f);
+  const { dup, otraMarca } = est === 'dup' ? buscarExistente(f) : (est === 'nuevo' ? buscarExistente(f) : { dup: null, otraMarca: null });
+  const bloqueado = est !== 'nuevo';
+  const interr = tieneInterrogante(f);
+  let badge = '<span class="badge ok">nueva</span>', extra = '';
+  if (est === 'done') badge = '<span class="badge done">ya cargada</span>';
+  else if (est === 'dup') {
+    badge = '<span class="badge no">código repetido</span>';
+    extra = `<div class="comp">Ya existe: <b>${esc(dup.titulo_repuesto || dup.codigo)}</b> · cant. ${dup.cant_artic ?? 0} · $${dup.precio_venta_iva || dup.precio_costo || 0}<br>Lista: Cant. PAPI ${cantE[f.key]}. No se toca nada, cargalo a mano en form-repuesto si hace falta.</div>`;
+  } else {
+    if (interr) badge = '<span class="badge no">corregí el código</span>';
+    if (f.dudoso) badge += ' <span class="badge warn">dudoso</span>';
+    if (f.repetido) badge += ' <span class="badge warn">repetido en la lista</span>';
+    if (otraMarca) badge += ' <span class="badge warn">mismo código, otra marca</span>';
+    if (f.dudoso) extra += `<div class="comp">${esc(f.nota)}. Viene destildada: confirmá que la tenés.</div>`;
+    if (f.repetido) extra += `<div class="comp">Este código aparece ${FILAS.filter(x => x.codigo === f.codigo).length} veces en la lista (¿derecha e izquierda?). Elegí el lado; si es la misma, destildá una y sumá la cantidad.</div>`;
+    if (f.sinNumero) extra += `<div class="info">Sin código numérico en la lista (parece un nombre de vehículo): se carga con ese texto como código.</div>`;
+    if (otraMarca) extra += `<div class="comp">Ya hay "${esc(otraMarca.titulo_repuesto || otraMarca.codigo)}" con ese código pero de otra marca (se permite cargar).</div>`;
+  }
+  const hs = hintsCatalogo(f);
+  const hintCell = hs.length
+    ? `<div style="font-size:11px">${vehiculosUnicos(f).map(h => `<b>${esc(h.marca || '')}</b> ${esc(h.modelo || '')}`).join('<br>')}<br><span class="info">${hs.map(h => esc(h.codigo)).filter((v, i, a) => a.indexOf(v) === i).join(', ')}</span></div>
+       <label style="font-size:11px;color:var(--text2)"><input type="checkbox" class="chk-cat" data-key="${f.key}" ${usaCatE[f.key] ? 'checked' : ''} ${bloqueado ? 'disabled' : ''}> usar en la ficha</label>`
+    : '<span class="info">no figura en el catálogo</span>';
+  const p = precioE[f.key];
+  const buscar = [codE[f.key], ...vehiculosUnicos(f).map(h => (h.marca || '') + ' ' + (h.modelo || ''))].join(' ').toUpperCase();
+  const checked = (!bloqueado && !f.dudoso && !interr && cantE[f.key] > 0) ? 'checked' : '';
+  return `<tr data-key="${f.key}" data-buscar="${esc(buscar)}" class="${est === 'done' ? 'done' : est === 'dup' ? 'dup' : ''}">
+    <td><input type="checkbox" class="chk-item" ${bloqueado ? 'disabled' : checked}></td>
+    <td><input class="code-row" data-key="${f.key}" value="${esc(codE[f.key])}" ${bloqueado ? 'disabled' : ''}>${extra}</td>
+    <td><select class="lado-row" data-key="${f.key}" ${bloqueado ? 'disabled' : ''}>${['', 'Derecho', 'Izquierdo', 'Derecho e Izquierdo', 'Ambos lados'].map(l => `<option value="${l}" ${ladoE[f.key] === l ? 'selected' : ''}>${l || 'No aplica'}</option>`).join('')}</select></td>
+    <td><input type="number" class="cant-row" data-key="${f.key}" value="${cantE[f.key]}" min="0" ${bloqueado ? 'disabled' : ''}></td>
+    <td>${hintCell}</td>
+    <td><div class="precio-cell"><label>Público c/IVA <input type="number" step="0.01" class="precio-row precio-pub" data-key="${f.key}" value="${p.pub}" ${bloqueado ? 'disabled' : ''}></label>
+      <label>Costo <input type="number" step="0.01" class="precio-row precio-costo" data-key="${f.key}" value="${p.costo}" ${bloqueado ? 'disabled' : ''}></label></div></td>
+    <td>${badge}</td>
+  </tr>`;
+}
+
+function renderTodo() {
+  const tildadas = new Set([...document.querySelectorAll('#tbody-items tr')].filter(tr => tr.querySelector('.chk-item')?.checked).map(tr => tr.dataset.key));
+  const primera = !document.querySelector('#tbody-items tr');
+  renderResumen(); renderAviso();
+  const tb = document.getElementById('tbody-items');
+  tb.innerHTML = FILAS.map(filaHtml).join('');
+  if (!primera) tb.querySelectorAll('tr').forEach(tr => { const c = tr.querySelector('.chk-item'); if (c && !c.disabled) c.checked = tildadas.has(tr.dataset.key); });
+  tb.querySelectorAll('.chk-item').forEach(c => c.addEventListener('change', actualizarBoton));
+  tb.querySelectorAll('.cant-row').forEach(i => i.addEventListener('change', e => { cantE[e.target.dataset.key] = parseInt(e.target.value) || 0; renderTodo(); }));
+  tb.querySelectorAll('.code-row').forEach(i => i.addEventListener('change', e => { codE[e.target.dataset.key] = e.target.value.trim(); renderTodo(); }));
+  tb.querySelectorAll('.lado-row').forEach(s => s.addEventListener('change', e => { ladoE[e.target.dataset.key] = e.target.value; }));
+  tb.querySelectorAll('.chk-cat').forEach(c => c.addEventListener('change', e => { usaCatE[e.target.dataset.key] = e.target.checked; }));
+  tb.querySelectorAll('.precio-pub').forEach(i => i.addEventListener('change', e => { precioE[e.target.dataset.key].pub = e.target.value; }));
+  tb.querySelectorAll('.precio-costo').forEach(i => i.addEventListener('change', e => { precioE[e.target.dataset.key].costo = e.target.value; }));
+  const q = document.getElementById('filtro-items').value;
+  if (q) aplicarFiltro({ target: document.getElementById('filtro-items') });
+  actualizarBoton();
+}
+function aplicarFiltro(e) {
+  const q = e.target.value.trim().toUpperCase();
+  document.querySelectorAll('#tbody-items tr').forEach(tr => { tr.style.display = !q || tr.dataset.buscar.includes(q) ? '' : 'none'; });
+  actualizarBoton();
+}
+function marcarVisibles(m) {
+  document.querySelectorAll('#tbody-items tr').forEach(tr => { if (tr.style.display === 'none') return; const c = tr.querySelector('.chk-item'); if (c && !c.disabled) c.checked = m; });
+  actualizarBoton();
+}
+function actualizarBoton() {
+  const n = [...document.querySelectorAll('#tbody-items tr')].filter(tr => tr.style.display !== 'none').filter(tr => { const c = tr.querySelector('.chk-item'); return c && c.checked && !c.disabled; }).length;
+  document.getElementById('btn-cargar').textContent = `⚡ Cargar seleccionados (${n})`;
+}
+
+const TH = 'border:1px solid #2a3347;padding:5px 8px;background:#1a1f2e;color:#3b82f6;text-align:left;font-weight:600;width:34%';
+const TD = 'border:1px solid #2a3347;padding:5px 8px';
+function construirTitulo(f) {
+  const u = usaCatE[f.key] ? vehiculosUnicos(f) : [];
+  let t = `Óptica ${MARCA} ${codE[f.key]}`;
+  if (u.length === 1) t += ` — ${[u[0].marca, u[0].modelo].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()}`;
+  if (ladoE[f.key]) t += ` — ${ladoE[f.key]}`;
+  return t;
+}
+function construirDescripcion(f) {
+  let html = `<p><b>Óptica ${MARCA} ${esc(codE[f.key])}</b></p>`;
+  if (usaCatE[f.key] && hintsCatalogo(f).length) {
+    const vistos = new Set();
+    const filas = hintsCatalogo(f).filter(h => { const k = [h.codigo, h.marca, h.modelo].join('|'); if (vistos.has(k)) return false; vistos.add(k); return true; });
+    html += `<p style="margin-top:8px">Según el catálogo VIC:</p><table style="border-collapse:collapse;width:100%;font-size:12px">` +
+      `<tr><th style="${TH}">Código</th><th style="${TH}">Vehículo</th><th style="${TH}">Mando</th><th style="${TH}">Lámpara</th><th style="${TH}">Trae</th></tr>` +
+      filas.map(h => `<tr><td style="${TD}">${esc(h.codigo)}</td><td style="${TD}">${esc([h.marca, h.modelo].filter(Boolean).join(' '))}</td><td style="${TD}">${esc(h.mando || '')}</td><td style="${TD}">${esc(h.lampara || '')}</td><td style="${TD}">${esc(h.trae || '')}</td></tr>`).join('') + `</table>`;
+  }
+  return html;
+}
+function construirNotas(f) {
+  const fila = (k, v) => `<tr><th style="${TH}">${k}</th><td style="${TD}">${esc(v)}</td></tr>`;
+  let html = `<!--stock-galponcito-opticas-vic--><p style="color:#4b5563;font-size:11px;border-top:1px dashed #2a3347;padding-top:8px;margin:8px 0 6px">— Importado desde la lista ÓPTICAS VIC (Galponcito) —</p><table style="border-collapse:collapse;width:100%;font-size:12px">`;
+  html += fila('Hoja de origen', HOJA) + fila('Marca', MARCA) + fila('Cant. PAPI', f.cant) + fila('Cant. REAL', '');
+  if (f.nota) html += fila('Nota de la lista', f.nota);
+  if (f.repetido) html += fila('Código repetido en la lista', 'aparición ' + f.ocurrencia);
+  return html + `</table>`;
+}
+function construirDoc(f, categoriaObj, condicion, publicar, idMysql) {
+  const pub = parseFloat(precioE[f.key].pub) || 0, costo = parseFloat(precioE[f.key].costo) || 0;
+  const sinIva = pub ? Math.round((pub / 1.21) * 100) / 100 : 0;
+  const marca = igualLista(marcasForm, MARCA) || MARCA;
+  const aplic = usaCatE[f.key] ? vehiculosUnicos(f).map(h => [h.marca, h.modelo].filter(Boolean).join(' ').replace(/\s+/g, ' ')).join(' | ') : '';
+  return {
+    titulo_repuesto: construirTitulo(f),
+    categoria: categoriaObj.nombre, categoria_id: categoriaObj.id || '',
+    id_estanteria: '', id_estante: '', tipos_vehiculo: [],
+    tipo: 'ORIGINAL', condicion, contenedor: '',
+    marcas_repuesto: [marca], fabricantes: [marca],
+    arranque: '', alternador: '', modelo_repuesto: '', material: '',
+    lado: ladoE[f.key] || '',
+    codigo: codE[f.key], codigos_oem: [],
+    aplicacion: aplic,
+    marcas_modelos: [], marcas_vehiculo: [],
+    codigos_proveedores: [{ proveedor: igualLista(proveedoresForm, MARCA) || MARCA, codigo: codE[f.key] }],
+    catalogos_papel: [],
+    descripcion: construirDescripcion(f), notas_internas: construirNotas(f), importante: '',
+    dd_alta_rotacion: '', dd_demanda: '', dd_disponibilidad: '', dd_descontinuado: '',
+    dd_buscado_por: '', dd_vigencia: '', dd_oferta: '', dd_justificacion: '',
+    cant_artic: cantE[f.key] || 0, stock_minimo: 1,
+    forma_pago: 'Contado Efectivo', forma_entrega: 'A convenir', fecha_compra: '', moneda: 'ARS',
+    precio_costo: costo, precio_venta: sinIva, precio_venta_iva: pub, precio_ganancia_pct: 40,
+    imagenes: [], imagen_url: '',
+    alta: !!publicar, id_mysql: String(idMysql), vistas: 0, creado_en: serverTimestamp(),
+    origen_import: ORIGEN, origen_hoja: HOJA, origen_item_idx: FILAS.indexOf(f) + 1, origen_clave: claveFila(f),
+  };
+}
+function categoriaPara() {
+  const s = document.getElementById('sel-categoria'), libre = document.getElementById('txt-categoria-libre').value.trim();
+  if (s.value === '__libre__' || !s.value) return { id: '', nombre: libre || 'Opticas | Livianos | Pesados | Deportivos | Público' };
+  return categoriasCache.find(c => c.id === s.value) || { id: '', nombre: libre };
+}
+
+async function cargarSeleccionados() {
+  const condicion = document.getElementById('sel-condicion').value, publicar = document.getElementById('chk-publicar').checked;
+  const btn = document.getElementById('btn-cargar'), prog = document.getElementById('progreso');
+  const categoriaObj = categoriaPara();
+  const sel = [...document.querySelectorAll('#tbody-items tr')].filter(tr => { const c = tr.querySelector('.chk-item'); return c && c.checked && !c.disabled; }).map(tr => FILAS.find(f => f.key === tr.dataset.key));
+  if (!sel.length) { toast('No hay filas tildadas.'); return; }
+  if (sel.some(tieneInterrogante)) { toast('Hay códigos vacíos o con "?" tildados: corregilos o destildalos.'); return; }
+  const vistos = new Set();
+  for (const f of sel) {
+    const k = normCompacto(codE[f.key]) + '|' + (ladoE[f.key] || '');
+    if (vistos.has(k)) { toast(`El código ${codE[f.key]} está dos veces con el mismo lado. Elegí lados distintos (derecho / izquierdo) o destildá una y sumá la cantidad.`); return; }
+    vistos.add(k);
+  }
+  if (!confirm(`Vas a cargar ${sel.length} ópticas VIC (${sel.reduce((a, f) => a + (cantE[f.key] || 0), 0)} unidades) en la categoría "${categoriaObj.nombre}". ¿Confirmás?`)) return;
+  btn.disabled = true;
+  let batch = writeBatch(db), n = 0, total = 0, idMysql = maxIdMysql;
+  try {
+    for (const f of sel) {
+      idMysql++;
+      batch.set(doc(collection(db, 'repuestos')), construirDoc(f, categoriaObj, condicion, publicar, idMysql));
+      n++; total++;
+      if (n >= 400) { await batch.commit(); batch = writeBatch(db); n = 0; prog.textContent = `${total}/${sel.length}…`; }
+    }
+    if (n > 0) await batch.commit();
+    maxIdMysql = idMysql;
+    prog.textContent = `✅ ${total} cargadas`; toast(`✅ ${total} ópticas VIC cargadas`);
+    await iniciar();
+  } catch (e) { console.error(e); toast('Error: ' + e.message); }
+  finally { btn.disabled = false; }
+}
+</script>
+</body>
+</html>
